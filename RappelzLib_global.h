@@ -1,0 +1,12 @@
+#ifndef RAPPELZLIB_GLOBAL_H
+#define RAPPELZLIB_GLOBAL_H
+
+#include <QtCore/qglobal.h>
+
+#if defined(RAPPELZLIB_LIBRARY)
+#  define RAPPELZLIBSHARED_EXPORT Q_DECL_EXPORT
+#else
+#  define RAPPELZLIBSHARED_EXPORT Q_DECL_IMPORT
+#endif
+
+#endif // RAPPELZLIB_GLOBAL_H
