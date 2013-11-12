@@ -12,6 +12,7 @@ TARGET = RappelzLib
 TEMPLATE = lib
 
 DEFINES += RAPPELZLIB_LIBRARY
+INCLUDEPATH += Common Interfaces
 
 OBJECTS_DIR = objs
 DESTDIR = bin
@@ -33,10 +34,12 @@ SOURCES += \
     Network/EncryptedSocket.cpp \
     Network/Authentication.cpp \
     Network/RSACipher.cpp \
-    Network/DESPasswordCipher.cpp
+    Network/DESPasswordCipher.cpp \
+    Network/Socket.cpp \
+    Interfaces/ISocket.cpp \
+    Interfaces/ISocketListener.cpp
 
 HEADERS +=\
-        RappelzLib_global.h \
     Network/Server.h \
     Network/RC4Cipher.h \
     Network/EncryptedSocket.h \
@@ -63,4 +66,10 @@ HEADERS +=\
     Network/RSACipher.h \
     Network/DESPasswordCipher.h \
     Packets/TS_CA_RSA_PUBLIC_KEY.h \
-    Packets/TS_AC_AES_KEY_IV.h
+    Packets/TS_AC_AES_KEY_IV.h \
+    Network/Socket.h \
+    Common/RappelzLib_global.h \
+    Common/Guid.h \
+    Interfaces/IObject.h \
+    Interfaces/ISocket.h \
+    Interfaces/ISocketListener.h
