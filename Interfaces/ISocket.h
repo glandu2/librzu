@@ -3,7 +3,7 @@
 
 #include "IObject.h"
 #include <string>
-#include <stdint-gcc.h>
+#include <stdint.h>
 
 class ISocketListener;
 

@@ -4,7 +4,7 @@
 #include <QObject>
 #include <QHash>
 #include <QVector>
-#include "../RappelzLib_global.h"
+#include "../Common/RappelzLib_global.h"
 
 //Pour le syntax higlighting de intxx_t
 #ifdef __GNUC__

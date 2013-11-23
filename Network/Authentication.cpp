@@ -243,8 +243,10 @@ void Authentication::onPacketAuthPasswordKey(const TS_AC_AES_KEY_IV* packet) {
 
 	aes_key_iv = new unsigned char[32];
 	qMemCopy(aes_key_iv, decrypted_data, 32);
+	qMemSet(accountMsg.password, 0, sizeof(accountMsg.password));
 
 	EVP_CIPHER_CTX_init(&e_ctx);
+
 	if(!EVP_EncryptInit_ex(&e_ctx, EVP_aes_128_cbc(), NULL, key_data, iv_data))
 		goto end;
 	if(!EVP_EncryptInit_ex(&e_ctx, NULL, NULL, NULL, NULL))
@@ -268,7 +270,8 @@ end:
 	password.fill(0);
 	password.clear();
 
-	TS_MESSAGE::initMessage<TS_CA_ACCOUNT>(&accountMsg);
+	TS_MESSAGE::initMessage<TS_CA_ACCOUNT_V2>(&accountMsg);
+	qMemSet(accountMsg.account, 0, sizeof(accountMsg.account));
 	qstrcpy(accountMsg.account, username.constData());
 	accountMsg.aes_block_size = p_len + f_len;
 	accountMsg.dummy[0] = accountMsg.dummy[1] = accountMsg.dummy[2] = 0;

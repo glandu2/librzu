@@ -2,7 +2,7 @@
 #define AUTHENTICATION_H
 
 #include <QObject>
-#include "../RappelzLib_global.h"
+#include "../Common/RappelzLib_global.h"
 
 class Server;
 

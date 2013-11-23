@@ -73,6 +73,7 @@ void Server::setServerFarm(const QByteArray& authHost, quint16 authPort) {
 void Server::connectToAuth() {
 	if(currentState == SS_NotConnected) {
 		currentState = SS_ConnectingToAuth;
+		qDebug("Connecting to auth: %s:%d", authHost.constData(), authPort);
 		authSocket->connectToHost(QString::fromUtf8(authHost), authPort);
 	} else qWarning("Attempt to connect to auth while not in SS_NotConnected mode, currentState: %d", currentState);
 }

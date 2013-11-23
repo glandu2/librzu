@@ -4,6 +4,7 @@
 #include "ISocket.h"
 #include <list>
 #include <pthread.h>
+#include "../Common/Delegate.h"
 
 class Socket : public CImplement<ISocket>
 {
@@ -12,8 +13,8 @@ public:
 	virtual ~Socket();
 
 	bool IFACECALLCONV connect(const std::string & hostName, uint16_t port);
-	size_t IFACECALLCONV read(void *buffer, size_t size);
-	size_t IFACECALLCONV write(const void *buffer, size_t size);
+	int IFACECALLCONV read(void *buffer, size_t size);
+	int write(const void *buffer, size_t size);
 	void IFACECALLCONV close();
 	void IFACECALLCONV abort();
 	State IFACECALLCONV state();
@@ -28,7 +29,7 @@ protected:
 	static pthread_mutex_t mutex;
 
 private:
-	std::list<ISocketListener *> listeners;
+	std::list< delegate<void(ISocket*,void*)> > listeners;
 	int sock;
 	State currentState;
 };

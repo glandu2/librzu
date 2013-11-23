@@ -13,6 +13,7 @@ TEMPLATE = lib
 
 DEFINES += RAPPELZLIB_LIBRARY
 INCLUDEPATH += Common Interfaces
+QMAKE_CXXFLAGS += -std=c++11
 
 OBJECTS_DIR = objs
 DESTDIR = bin
@@ -23,8 +24,8 @@ unix {
      LIBS += -lcrypto
 }
 win32 {
-     LIBS += -lD:/Users/Public/Programmes/Programmation/libraries/OpenSSL/lib/libeay32
-     INCLUDEPATH += D:/Users/Public/Programmes/Programmation/libraries/OpenSSL/include
+	LIBS += -lD:/Programmes/Programmation/libraries/OpenSSL/lib/libeay32
+	INCLUDEPATH += D:/Programmes/Programmation/libraries/OpenSSL/include
 }
 
 
@@ -35,9 +36,7 @@ SOURCES += \
     Network/Authentication.cpp \
     Network/RSACipher.cpp \
     Network/DESPasswordCipher.cpp \
-    Network/Socket.cpp \
-    Interfaces/ISocket.cpp \
-    Interfaces/ISocketListener.cpp
+    Network/Socket.cpp
 
 HEADERS +=\
     Network/Server.h \
@@ -67,9 +66,12 @@ HEADERS +=\
     Network/DESPasswordCipher.h \
     Packets/TS_CA_RSA_PUBLIC_KEY.h \
     Packets/TS_AC_AES_KEY_IV.h \
-    Network/Socket.h \
     Common/RappelzLib_global.h \
     Common/Guid.h \
     Interfaces/IObject.h \
     Interfaces/ISocket.h \
-    Interfaces/ISocketListener.h
+    Interfaces/ISocketListener.h \
+    Common/Delegate.h \
+    Interfaces/ISocketListener.h \
+    Interfaces/ISocket.h \
+    Network/Socket.h
