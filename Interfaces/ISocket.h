@@ -18,16 +18,25 @@ public:
 		ClosingState
 	};
 
-public:
-	virtual bool IFACECALLCONV connect(const std::string & hostName, uint16_t port);
-	virtual size_t IFACECALLCONV read(void *buffer, size_t size);
-	virtual size_t IFACECALLCONV write(const void *buffer, size_t size);
-	virtual void IFACECALLCONV close();
-	virtual void IFACECALLCONV abort();
-	virtual State IFACECALLCONV state();
+	typedef void (*CallbackOnDataReceived)(void* instance, ISocket* socket);
+	typedef void (*CallbackOnStateChanged)(void* instance, ISocket* socket, State oldState, State newState);
+	typedef void (*CallbackOnError)(void* instance, ISocket* socket, int errno);
 
-	virtual void IFACECALLCONV addEventListener(ISocketListener *listener);
-	virtual void IFACECALLCONV removeEventListener(ISocketListener *listener);
+public:
+	virtual bool IFACECALLCONV connect(const std::string & hostName, uint16_t port) = 0;
+	virtual size_t IFACECALLCONV read(void *buffer, size_t size) = 0;
+	virtual size_t IFACECALLCONV write(const void *buffer, size_t size) = 0;
+	virtual void IFACECALLCONV close() = 0;
+	virtual void IFACECALLCONV abort() = 0;
+	virtual void IFACECALLCONV getState(State state) = 0;
+	virtual size_t IFACECALLCONV getAvailableBytes() = 0;
+
+	virtual int64_t IFACECALLCONV getFd() = 0;
+
+	virtual void IFACECALLCONV addDataListener(void* instance, CallbackOnDataReceived listener) = 0;
+	virtual void IFACECALLCONV addEventListener(void* instance, CallbackOnStateChanged listener) = 0;
+	virtual void IFACECALLCONV addErrorListener(void* instance, CallbackOnError listener) = 0;
+	virtual void IFACECALLCONV removeListener(void* instance) = 0;
 };
 
 #endif // ISOCKET_H

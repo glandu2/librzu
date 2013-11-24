@@ -36,7 +36,10 @@ SOURCES += \
     Network/Authentication.cpp \
     Network/RSACipher.cpp \
     Network/DESPasswordCipher.cpp \
-    Network/Socket.cpp
+    Network/Socket.cpp \
+    Network/ScopedPacketListener.cpp \
+    Interfaces/ISocketPool.cpp \
+    Network/SocketPool.cpp
 
 HEADERS +=\
     Network/Server.h \
@@ -70,8 +73,9 @@ HEADERS +=\
     Common/Guid.h \
     Interfaces/IObject.h \
     Interfaces/ISocket.h \
-    Interfaces/ISocketListener.h \
     Common/Delegate.h \
-    Interfaces/ISocketListener.h \
     Interfaces/ISocket.h \
-    Network/Socket.h
+    Network/Socket.h \
+    Network/ScopedPacketListener.h \
+    Interfaces/ISocketPool.h \
+    Network/SocketPool.h

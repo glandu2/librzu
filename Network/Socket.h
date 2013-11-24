@@ -2,9 +2,8 @@
 #define SOCKET_H
 
 #include "ISocket.h"
-#include <list>
-#include <pthread.h>
-#include "../Common/Delegate.h"
+
+struct SocketInternal;
 
 class Socket : public CImplement<ISocket>
 {
@@ -13,25 +12,28 @@ public:
 	virtual ~Socket();
 
 	bool IFACECALLCONV connect(const std::string & hostName, uint16_t port);
-	int IFACECALLCONV read(void *buffer, size_t size);
-	int write(const void *buffer, size_t size);
+	size_t IFACECALLCONV read(void *buffer, size_t size);
+	size_t IFACECALLCONV write(const void *buffer, size_t size);
 	void IFACECALLCONV close();
 	void IFACECALLCONV abort();
-	State IFACECALLCONV state();
+	State IFACECALLCONV getState();
+	size_t IFACECALLCONV getAvailableBytes();
 
-	void IFACECALLCONV addEventListener(ISocketListener *listener);
-	void IFACECALLCONV removeEventListener(ISocketListener *listener);
+	void IFACECALLCONV addDataListener(void* instance, CallbackOnDataReceived listener);
+	void IFACECALLCONV addEventListener(void* instance, CallbackOnStateChanged listener);
+	void IFACECALLCONV addErrorListener(void* instance, CallbackOnError listener);
+	void IFACECALLCONV removeListener(void* instance);
+
+	int64_t getFd();
+
+	void notifyReadyRead();
+	void notifyReadyWrite();
 
 protected:
-	static void *pollThread(void*);
-	static pthread_t pollthreadId;
-	static std::list<Socket *> sockets;
-	static pthread_mutex_t mutex;
+	void IFACECALLCONV setState(State state);
 
 private:
-	std::list< delegate<void(ISocket*,void*)> > listeners;
-	int sock;
-	State currentState;
+	SocketInternal *_p;
 };
 
 #endif // SOCKET_H

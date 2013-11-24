@@ -15,23 +15,29 @@ Authentication::Authentication(Server *server) : canBeDeleted(true) {
 	this->currentState = AS_Idle;
 
 	server->setAuth(this);
-	server->addPacketListener(Server::ST_Auth, TS_CC_EVENT::packetID, &onAuthServerConnectionEvent);
-	server->addPacketListener(Server::ST_Auth, TS_AC_AES_KEY_IV::packetID, &onAuthPacketReceived);
-	server->addPacketListener(Server::ST_Auth, TS_AC_RESULT::packetID, &onAuthPacketReceived);
-	server->addPacketListener(Server::ST_Auth, TS_AC_RESULT_WITH_STRING::packetID, &onAuthPacketReceived);
-	server->addPacketListener(Server::ST_Auth, TS_AC_SERVER_LIST::packetID, &onAuthPacketReceived);
-	server->addPacketListener(Server::ST_Auth, TS_AC_SELECT_SERVER::packetID, &onAuthPacketReceived);
 
-	server->addPacketListener(Server::ST_Game, TS_CC_EVENT::packetID, &onGameServerConnectionEvent);
-	server->addPacketListener(Server::ST_Game, TS_CS_ACCOUNT_WITH_AUTH::packetID, &onGamePacketReceived);
+	packetListeners.addPacketListeners
+			({
+				 {server, Server::ST_Auth, TS_CC_EVENT::packetID, this, &onAuthServerConnectionEvent},
+				 {server, Server::ST_Auth, TS_AC_AES_KEY_IV::packetID, this, &onAuthPacketReceived},
+				 {server, Server::ST_Auth, TS_AC_RESULT::packetID, this, &onAuthPacketReceived},
+				 {server, Server::ST_Auth, TS_AC_RESULT_WITH_STRING::packetID, this, &onAuthPacketReceived},
+				 {server, Server::ST_Auth, TS_AC_SERVER_LIST::packetID, this, &onAuthPacketReceived},
+				 {server, Server::ST_Auth, TS_AC_SELECT_SERVER::packetID, this, &onAuthPacketReceived},
+
+
+				 {server, Server::ST_Game, TS_CC_EVENT::packetID, this, &onGameServerConnectionEvent},
+				 {server, Server::ST_Game, TS_CS_ACCOUNT_WITH_AUTH::packetID, this, &onGamePacketReceived},
+			 });
 }
 
 Authentication::~Authentication() {
 	if(!canBeDeleted)
 		qWarning(LOG_PREFIX"Authentication object delete but authentication not terminated !");
-	server->setAuth(0);
 	if(aes_key_iv)
 		delete[] aes_key_iv;
+
+	server->setAuth(0);
 }
 
 void Authentication::setServer(QByteArray host, quint16 port) {
@@ -89,8 +95,8 @@ void Authentication::selectServer(quint16 serverId) {
 	server->sendPacket(&selectServerMsg, Server::ST_Auth);
 }
 
-void Authentication::onAuthServerConnectionEvent(Server* server, const TS_MESSAGE* packetData) {
-	Authentication* thisAccount = server->getAuth();
+void Authentication::onAuthServerConnectionEvent(void* instance, Server* server, const TS_MESSAGE* packetData) {
+	Authentication* thisAccount = static_cast<Authentication*>(instance);
 
 	if(packetData->id == TS_CC_EVENT::packetID) {
 		const TS_CC_EVENT* eventMsg = reinterpret_cast<const TS_CC_EVENT*>(packetData);
@@ -102,8 +108,8 @@ void Authentication::onAuthServerConnectionEvent(Server* server, const TS_MESSAG
 	}
 }
 
-void Authentication::onGameServerConnectionEvent(Server* server, const TS_MESSAGE* packetData) {
-	Authentication* thisAccount = server->getAuth();
+void Authentication::onGameServerConnectionEvent(void* instance, Server* server, const TS_MESSAGE* packetData) {
+	Authentication* thisAccount = static_cast<Authentication*>(instance);
 
 	if(packetData->id == TS_CC_EVENT::packetID) {
 		const TS_CC_EVENT* eventMsg = reinterpret_cast<const TS_CC_EVENT*>(packetData);
@@ -115,8 +121,8 @@ void Authentication::onGameServerConnectionEvent(Server* server, const TS_MESSAG
 	}
 }
 
-void Authentication::onAuthPacketReceived(Server* server, const TS_MESSAGE* packetData) {
-	Authentication* thisAccount = server->getAuth();
+void Authentication::onAuthPacketReceived(void* instance, Server* server, const TS_MESSAGE* packetData) {
+	Authentication* thisAccount = static_cast<Authentication*>(instance);
 
 	switch(packetData->id) {
 		case TS_AC_AES_KEY_IV::packetID:
@@ -151,8 +157,8 @@ void Authentication::onAuthPacketReceived(Server* server, const TS_MESSAGE* pack
 	}
 }
 
-void Authentication::onGamePacketReceived(Server* server, const TS_MESSAGE* packetData) {
-	Authentication* thisAccount = server->getAuth();
+void Authentication::onGamePacketReceived(void* instance, Server* server, const TS_MESSAGE* packetData) {
+	Authentication* thisAccount = static_cast<Authentication*>(instance);
 
 	switch(packetData->id) {
 		case TS_SC_RESULT::packetID:
@@ -325,7 +331,7 @@ void Authentication::onPacketServerList(const TS_AC_SERVER_LIST* packet) {
 }
 
 void Authentication::onPacketSelectServerResult(const TS_AC_SELECT_SERVER* packet) {
-	int pendingTimeBeforeServerMove;
+	//int pendingTimeBeforeServerMove;
 
 	//Si ce paquet ne provient pas de notre initiative, on l'ignore
 	if(currentState == AS_Idle) {
@@ -336,7 +342,7 @@ void Authentication::onPacketSelectServerResult(const TS_AC_SELECT_SERVER* packe
 
 	if(this->cipherMethod == ACM_DES) {
 		oneTimePassword = packet->v1.one_time_key;
-		pendingTimeBeforeServerMove = packet->v1.pending_time;
+		//pendingTimeBeforeServerMove = packet->v1.pending_time;
 	} else if(this->cipherMethod == ACM_RSA_AES) {
 		EVP_CIPHER_CTX e_ctx;
 		const unsigned char *key_data = aes_key_iv;
@@ -368,7 +374,7 @@ end:
 		}
 
 		oneTimePassword = decryptedData[0];
-		pendingTimeBeforeServerMove = packet->v2.pending_time;
+		//pendingTimeBeforeServerMove = packet->v2.pending_time;
 	}
 
 	ServerConnectionInfo selectedServerInfo = serverList.at(selectedServer);

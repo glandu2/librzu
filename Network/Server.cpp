@@ -4,7 +4,6 @@
 #include <openssl/evp.h>
 
 #include <unordered_map>
-#include "../Common/Delegate.h"
 
 #define NO_DEBUG
 
@@ -16,12 +15,16 @@
 #endif
 
 struct CallbacksTable {
-	std::unordered_multimap<uint16_t, cpp11x::function<void(Server*, const TS_MESSAGE*)> > authPacketListeners;
-	std::unordered_multimap<uint16_t, cpp11x::function<void(Server*, const TS_MESSAGE*)> > gamePacketListeners;
+	struct CallbackInfo {
+		Server::CallbackFunction callback;
+		void* instance;
+	};
+
+	std::unordered_multimap<uint16_t, CallbackInfo > authPacketListeners;
+	std::unordered_multimap<uint16_t, CallbackInfo > gamePacketListeners;
 };
 
-Server::Server() {
-	callbacks = new CallbacksTable;
+Server::Server() : callbacks(new CallbacksTable) {
 	callbacks->authPacketListeners.reserve(15);
 	callbacks->gamePacketListeners.reserve(250);
 
@@ -201,7 +204,7 @@ void Server::proceedServerMove(const QByteArray &gameHost, quint16 gamePort) {
 void Server::dispatchPacket(ServerType originatingServer, const TS_MESSAGE* packetData) {
 	qDebug(LOG_PREFIX"Packet from %d, id: %5d, size: %d", originatingServer, packetData->id, packetData->size);
 
-	typedef std::unordered_multimap<uint16_t, cpp11x::function<void(Server*, const TS_MESSAGE*)> >::const_iterator CallbackIterator;
+	typedef std::unordered_multimap<uint16_t, CallbacksTable::CallbackInfo >::const_iterator CallbackIterator;
 
 	std::pair<CallbackIterator, CallbackIterator> callbackFunctionsToCall;
 	CallbackIterator it;
@@ -217,7 +220,8 @@ void Server::dispatchPacket(ServerType originatingServer, const TS_MESSAGE* pack
 	else return;
 
 	for(it = callbackFunctionsToCall.first; it != callbackFunctionsToCall.second; ++it) {
-		(*it).second(this, packetData);
+		const CallbacksTable::CallbackInfo& callbackInfo = it->second;
+		(*callbackInfo.callback)(callbackInfo.instance, this, packetData);
 	}
 }
 
@@ -260,8 +264,8 @@ void Server::networkDataProcess(ServerType serverType, EncryptedSocket* socket, 
 	} while((buffer->currentMessageSize == 0 && socket->bytesAvailable() >= 4) || (buffer->currentMessageSize != 0 && socket->bytesAvailable() >= (buffer->currentMessageSize - 4)));
 }
 
-void Server::addPacketListener(ServerType server, uint16_t packetId, CallbackFunction onPacketReceivedCallback) {
-	cpp11x::function<void(Server*, const TS_MESSAGE*)> callback = [=](Server* server, const TS_MESSAGE* packetData) { (*onPacketReceivedCallback)(server, packetData); };
+void Server::addPacketListener(ServerType server, uint16_t packetId, CallbackFunction onPacketReceivedCallback, void* arg) {
+	CallbacksTable::CallbackInfo callback = {onPacketReceivedCallback, arg};
 
 	if(server == ST_Auth)
 		callbacks->authPacketListeners.emplace(packetId, callback);
@@ -270,21 +274,21 @@ void Server::addPacketListener(ServerType server, uint16_t packetId, CallbackFun
 	else qFatal(LOG_PREFIX"addPacketListener: Invalid server type: %d", server);
 }
 
-void Server::addPacketListener(ServerType server, uint16_t packetId, CallbackFunctionWithArg onPacketReceivedCallback, void* arg) {
-	cpp11x::function<void(Server*, const TS_MESSAGE*)> callback = [=](Server* server, const TS_MESSAGE* packetData) { (*onPacketReceivedCallback)(server, packetData, arg); };
+void Server::removePacketListener(ServerType serverType, uint16_t packetId, void *instance) {
 
-	if(server == ST_Auth)
-		callbacks->authPacketListeners.emplace(packetId, callback);
-	else if(server == ST_Game)
-		callbacks->gamePacketListeners.emplace(packetId, callback);
-	else qFatal(LOG_PREFIX"addPacketListener: Invalid server type: %d", server);
-}
+	typedef std::unordered_multimap<uint16_t, CallbacksTable::CallbackInfo >::const_iterator CallbackIterator;
 
-void Server::addPacketListener(ServerType server, uint16_t packetId, cpp11x::function<void(Server*, const TS_MESSAGE*)> callback) {
+	std::unordered_multimap<uint16_t, CallbacksTable::CallbackInfo >& packetListeners = (serverType == ST_Auth)? callbacks->authPacketListeners : callbacks->gamePacketListeners;
+	std::pair<CallbackIterator, CallbackIterator> callbackFunctions;
+	CallbackIterator it;
 
-	if(server == ST_Auth)
-		callbacks->authPacketListeners.emplace(packetId, callback);
-	else if(server == ST_Game)
-		callbacks->gamePacketListeners.emplace(packetId, callback);
-	else qFatal(LOG_PREFIX"addPacketListener: Invalid server type: %d", server);
+	callbackFunctions = packetListeners.equal_range(packetId);
+
+	for(it = callbackFunctions.first; it != callbackFunctions.second;) {
+		const CallbacksTable::CallbackInfo& callbackInfo = it->second;
+		if(callbackInfo.instance == instance)
+			it = packetListeners.erase(it);
+		else
+			++it;
+	}
 }

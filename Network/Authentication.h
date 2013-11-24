@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include "../Common/RappelzLib_global.h"
+#include "ScopedPacketListener.h"
 
 class Server;
 
@@ -35,6 +36,12 @@ class RAPPELZLIBSHARED_EXPORT Authentication : public QObject
 
 		QByteArray getAccountName() { return username; }
 
+		void setServer(QByteArray host, quint16 port = 4500);
+		void connectAccount(QByteArray username, QByteArray password, QByteArray clientVersion, AuthCipherMethod cipherMethod);
+		void abortConnection();
+		void retreiveServerList();
+		void selectServer(quint16 serverId);
+
 
 	signals:
 		void onAuthConnectionFailed();
@@ -43,18 +50,11 @@ class RAPPELZLIBSHARED_EXPORT Authentication : public QObject
 		void onGameServerReady();
 		void onGameConnectionFailed();
 
-	public slots:
-		void setServer(QByteArray host, quint16 port = 4500);
-		void connectAccount(QByteArray username, QByteArray password, QByteArray clientVersion, AuthCipherMethod cipherMethod);
-		void abortConnection();
-		void retreiveServerList();
-		void selectServer(quint16 serverId);
-
 	protected:
-		static void onAuthServerConnectionEvent(Server* server, const TS_MESSAGE* packetData);
-		static void onGameServerConnectionEvent(Server* server, const TS_MESSAGE* packetData);
-		static void onAuthPacketReceived(Server* server, const TS_MESSAGE* packetData);
-		static void onGamePacketReceived(Server* server, const TS_MESSAGE* packetData);
+		static void onAuthServerConnectionEvent(void* instance, Server* server, const TS_MESSAGE* packetData);
+		static void onGameServerConnectionEvent(void* instance, Server* server, const TS_MESSAGE* packetData);
+		static void onAuthPacketReceived(void* instance, Server* server, const TS_MESSAGE* packetData);
+		static void onGamePacketReceived(void* instance, Server* server, const TS_MESSAGE* packetData);
 
 	protected:
 		void onPacketAuthConnected();
@@ -81,6 +81,7 @@ class RAPPELZLIBSHARED_EXPORT Authentication : public QObject
 
 	private:
 		Server* server;
+		ScopedPacketListener packetListeners;
 		unsigned char* aes_key_iv;
 		QByteArray username;
 		QByteArray password;

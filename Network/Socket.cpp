@@ -1,53 +1,55 @@
-/*#include "Socket.h"
+#include "Socket.h"
 #include <stdio.h>
 #include <string.h>
+#include <unistd.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <netdb.h>
 
-pthread_t Socket::pollthreadId = 0;
-pthread_mutex_t Socket::mutex = PTHREAD_MUTEX_INITIALIZER;
+#include <sys/ioctl.h>
+
+#include <unordered_map>
+#include "../Common/Delegate.h"
 
 #ifndef SHUT_RDWR
 #define SHUT_RDWR 2
 #endif
 
-enum State {
-	UnconnectedState,
-	HostLookupState,
-	ConnectingState,
-	ConnectedState,
-	ClosingState
+struct SocketInternal {
+	std::unordered_map<void*, Socket::CallbackOnDataReceived> dataListeners;
+	std::unordered_map<void*, Socket::CallbackOnStateChanged> eventListeners;
+	std::unordered_map<void*, Socket::CallbackOnError> errorListeners;
+	int sock;
+	Socket::State currentState;
 };
 
-Socket::Socket()
+Socket::Socket() : _p(new SocketInternal)
 {
-	pthread_mutex_lock(&mutex);
-	if(pollthreadId == 0) {
-		pthread_create(&pollthreadId, NULL, &pollThread, NULL);
-	}
-	pthread_mutex_unlock(&mutex);
-
-	sock = 0;
-	currentState = UnconnectedState;
+	_p->sock = -1;
+	_p->currentState = UnconnectedState;
 }
 
 Socket::~Socket() {
-	if(currentState != UnconnectedState)
+	if(getState() != UnconnectedState)
 		abort();
+	delete _p;
 }
 
 bool Socket::connect(const std::string & hostName, uint16_t port) {
-	if(currentState != UnconnectedState)
+	if(getState() != UnconnectedState)
 		return false;
 
-	currentState = ConnectingState;
+	setState(ConnectingState);
 
-	if(sock != 0)
+	if(_p->sock >= 0)
 		abort();
 
-	sock = ::socket(AF_INET, SOCK_STREAM, 0);
+	_p->sock = ::socket(AF_INET, SOCK_STREAM, 0);
+
+	int lingerValue = 1;
+	int lingerOptionSize = sizeof(int);
+	::setsockopt(_p->sock, SOL_SOCKET, SO_OOBINLINE, &lingerValue, lingerOptionSize);
 
 	struct sockaddr_in hostAddress;
 	struct addrinfo hints, *servinfo, *p;
@@ -57,7 +59,7 @@ bool Socket::connect(const std::string & hostName, uint16_t port) {
 	hints.ai_family = AF_UNSPEC; // use AF_INET6 to force IPv6
 	hints.ai_socktype = SOCK_STREAM;
 
-	if( (rv = getaddrinfo( hostname , NULL, &hints , &servinfo)) != 0)
+	if( (rv = getaddrinfo( hostName.c_str() , NULL, &hints , &servinfo)) != 0)
 	{
 		fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(rv));
 		return 1;
@@ -66,9 +68,9 @@ bool Socket::connect(const std::string & hostName, uint16_t port) {
 	// loop through all the results and connect to the first we can
 	for(p = servinfo; p != NULL; p = p->ai_next)
 	{
-		hostAddress = (struct sockaddr_in) *p->ai_addr;
+		hostAddress = *(struct sockaddr_in*)p->ai_addr;
 		hostAddress.sin_port = htons(port);
-		if( (lastError = ::connect(sock, &hostAddress, sizeof(hostAddress))) )
+		if( (lastError = ::connect(_p->sock, (sockaddr*)&hostAddress, sizeof(hostAddress))) )
 			break;
 	}
 
@@ -76,17 +78,17 @@ bool Socket::connect(const std::string & hostName, uint16_t port) {
 		close();
 		return false;
 	} else {
-		currentState = ConnectedState;
+		setState(ConnectedState);
 		return true;
 	}
 }
 
-int Socket::read(void *buffer, size_t size) {
+size_t Socket::read(void *buffer, size_t size) {
 	size_t totalByteRead;
 	int byteRead;
 
 	for(totalByteRead = 0; totalByteRead < size;) {
-		byteRead = ::recv(sock, buffer + totalByteRead, size - totalByteRead, 0);
+		byteRead = ::recv(_p->sock, static_cast<char*>(buffer) + totalByteRead, size - totalByteRead, 0);
 		if(byteRead < 0) {
 			break;
 		}
@@ -94,8 +96,8 @@ int Socket::read(void *buffer, size_t size) {
 	}
 
 	if(totalByteRead != size) {
-		int socketError, errorSize = sizeof(int);
-		::getsockopt(sock, SOL_SOCKET, SO_ERROR, &socketError, &errorSize);
+		unsigned int socketError, errorSize = sizeof(int);
+		::getsockopt(_p->sock, SOL_SOCKET, SO_ERROR, &socketError, &errorSize);
 		if(socketError) {
 			fprintf(stderr, "Failed to recv from socket: %s\n", strerror(socketError));
 			close();
@@ -106,12 +108,12 @@ int Socket::read(void *buffer, size_t size) {
 	return 0;
 }
 
-int Socket::write(const void *buffer, size_t size) {
+size_t Socket::write(const void *buffer, size_t size) {
 	size_t totalByteWritten;
 	int byteWritten;
 
-	for(byteWritten = 0; byteWritten < size;) {
-		byteWritten = ::send(sock, buffer + totalByteWritten, size - totalByteWritten, 0);
+	for(byteWritten = 0; byteWritten < (int)size;) {
+		byteWritten = ::send(_p->sock, static_cast<const char*>(buffer) + totalByteWritten, size - totalByteWritten, 0);
 		if(byteWritten < 0) {
 			break;
 		}
@@ -119,8 +121,8 @@ int Socket::write(const void *buffer, size_t size) {
 	}
 
 	if(totalByteWritten != size) {
-		int socketError, errorSize = sizeof(int);
-		::getsockopt(sock, SOL_SOCKET, SO_ERROR, &socketError, &errorSize);
+		unsigned int socketError, errorSize = sizeof(int);
+		::getsockopt(_p->sock, SOL_SOCKET, SO_ERROR, &socketError, &errorSize);
 		if(socketError) {
 			fprintf(stderr, "Failed to send through socket: %s\n", strerror(socketError));
 			close();
@@ -132,31 +134,75 @@ int Socket::write(const void *buffer, size_t size) {
 }
 
 void Socket::close() {
-	currentState = ClosingState;
-	::shutdown(sock, SHUT_RDWR);
-	::close(sock);
-	sock = 0;
-	currentState = UnconnectedState;
+	setState(ClosingState);
+	::shutdown(_p->sock, SHUT_RDWR);
+	::close(_p->sock);
+	_p->sock = 0;
+	setState(UnconnectedState);
 }
 
 void Socket::abort() {
 	int lingerValue = 0;
 	int lingerOptionSize = sizeof(int);
-	::setsockopt(sock, SOL_SOCKET, SO_LINGER, &lingerValue, lingerOptionSize);
+	::setsockopt(_p->sock, SOL_SOCKET, SO_LINGER, &lingerValue, lingerOptionSize);
 	close();
 }
 
-Socket::State Socket::state() {
-	return currentState;
+size_t Socket::getAvailableBytes() {
+	int nbytes = 0;
+
+	if(ioctl(_p->sock, FIONREAD, (char *) &nbytes) >= 0)
+		return nbytes;
+
+	return 0;
 }
 
-
-void Socket::addEventListener(ISocketListener *listener) {
-
+Socket::State Socket::getState() {
+	return _p->currentState;
 }
 
-void Socket::removeEventListener(ISocketListener *listener) {
+void Socket::setState(State state) {
+	std::unordered_map<void*, CallbackOnStateChanged>::const_iterator it, itEnd;
+	for(it = _p->eventListeners.cbegin(), itEnd = _p->eventListeners.cend(); it != itEnd; ++it) {
+		void* instance = it->first;
+		const CallbackOnStateChanged& callback = it->second;
 
+		callback(instance, this, _p->currentState, state);
+	}
+	_p->currentState = state;
 }
 
-*/
+void Socket::addDataListener(void* instance, CallbackOnDataReceived listener) {
+	_p->dataListeners.emplace(instance, listener);
+}
+
+void Socket::addEventListener(void* instance, CallbackOnStateChanged listener) {
+	_p->eventListeners.emplace(instance, listener);
+}
+
+void Socket::addErrorListener(void* instance, CallbackOnError listener) {
+	_p->errorListeners.emplace(instance, listener);
+}
+
+void Socket::removeListener(void* instance) {
+	_p->dataListeners.erase(instance);
+	_p->eventListeners.erase(instance);
+	_p->errorListeners.erase(instance);
+}
+
+void Socket::notifyReadyRead() {
+	std::unordered_map<void*, CallbackOnDataReceived>::const_iterator it, itEnd;
+	for(it = _p->dataListeners.cbegin(), itEnd = _p->dataListeners.cend(); it != itEnd; ++it) {
+		void* instance = it->first;
+		const CallbackOnDataReceived& callback = it->second;
+
+		callback(instance, this);
+	}
+}
+
+void Socket::notifyReadyWrite() {
+}
+
+int64_t Socket::getFd() {
+	return _p->sock;
+}

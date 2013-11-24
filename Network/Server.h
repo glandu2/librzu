@@ -46,9 +46,7 @@ class RAPPELZLIBSHARED_EXPORT Server : public QObject
 			ST_Game
 		};
 
-
-		typedef void (*CallbackFunction)(Server* server, const TS_MESSAGE* packetData);
-		typedef void (*CallbackFunctionWithArg)(Server* server, const TS_MESSAGE* packetData, void* arg);
+		typedef void (*CallbackFunction)(void* instance, Server* server, const TS_MESSAGE* packetData);
 
 	private:
 		static const quint32 initialInputBufferSize = 16384;
@@ -71,17 +69,11 @@ class RAPPELZLIBSHARED_EXPORT Server : public QObject
 		void close();
 		inline State getState() { return currentState; }
 
-		inline void setAuth(Authentication *newAuth) { auth = newAuth; }
-		inline Authentication* getAuth() { return auth; }
+		void setAuth(Authentication *a) { auth = a; }
+		Authentication* getAuth() { return auth; }
 
-		int getInstanceId() { return instanceId; }
-
-		void addPacketListener(ServerType server, uint16_t packetId, CallbackFunction onPacketReceivedCallback);
-		void addPacketListener(ServerType server, uint16_t packetId, CallbackFunctionWithArg onPacketReceivedCallback, void* arg);
-#if __cplusplus >= 201103L
-#define server_callback(instance, method) [instance](Server* server, const TS_MESSAGE* packetData) { instance->method(server, packetData); }
-		void addPacketListener(ServerType server, uint16_t packetId, cpp11x::function<void(Server*, const TS_MESSAGE*)> onPacketReceivedCallback);
-#endif
+		void addPacketListener(ServerType server, uint16_t packetId, CallbackFunction onPacketReceivedCallback, void* instance);
+		void removePacketListener(ServerType serverType, uint16_t packetId, void *instance);
 
 	public slots:
 		void proceedServerMove(const QByteArray &gameHost, quint16 gamePort);
@@ -102,7 +94,6 @@ class RAPPELZLIBSHARED_EXPORT Server : public QObject
 
 	private:
 		CallbacksTable *callbacks;
-		int instanceId;
 		EncryptedSocket* authSocket;
 		EncryptedSocket* gameSocket;
 		QByteArray authHost;
@@ -110,7 +101,7 @@ class RAPPELZLIBSHARED_EXPORT Server : public QObject
 		quint16 authPort;
 		quint16 gamePort;
 		State currentState;
-		Authentication* auth;
+		Authentication *auth;
 
 		InputBuffer authInputBuffer;
 		InputBuffer gameInputBuffer;
