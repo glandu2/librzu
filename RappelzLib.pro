@@ -13,7 +13,6 @@ TEMPLATE = lib
 
 DEFINES += RAPPELZLIB_LIBRARY
 INCLUDEPATH += Common Interfaces
-QMAKE_CXXFLAGS += -std=c++11
 
 OBJECTS_DIR = objs
 DESTDIR = bin
@@ -21,7 +20,8 @@ MOC_DIR = objs
 RCC_DIR = objs
 UI_DIR = ui
 unix {
-     LIBS += -lcrypto
+    LIBS += -lcrypto
+    QMAKE_CXXFLAGS += -std=c++11
 }
 win32 {
 	LIBS += -lD:/Programmes/Programmation/libraries/OpenSSL/lib/libeay32

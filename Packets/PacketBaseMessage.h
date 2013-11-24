@@ -7,8 +7,10 @@
 #include <stdint.h>
 #endif
 
+#ifndef __GNUC__
 #pragma warning(disable:4200)  //array [0] extension
 #pragma warning(disable:4624)  //no default constructor/destructor when private in base class
+#endif
 
 #pragma pack(push, 1)
 

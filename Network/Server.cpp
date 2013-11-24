@@ -3,6 +3,9 @@
 #include "../Packets/AuthPackets.h"
 #include <openssl/evp.h>
 
+#include <unordered_map>
+#include "../Common/Delegate.h"
+
 #define NO_DEBUG
 
 #define LOG_PREFIX "Server: "
@@ -12,18 +15,15 @@
 # define qDebug(...) (void)0
 #endif
 
-QHash<uint16_t, Server::CallbackFunction> Server::authPacketListeners;
-QHash<uint16_t, Server::CallbackFunction> Server::gamePacketListeners;
-QAtomicInt                                Server::packetDispatcherInitialized = false;
-QAtomicInt                                Server::serverNewId = 0;
+struct CallbacksTable {
+	std::unordered_multimap<uint16_t, cpp11x::function<void(Server*, const TS_MESSAGE*)> > authPacketListeners;
+	std::unordered_multimap<uint16_t, cpp11x::function<void(Server*, const TS_MESSAGE*)> > gamePacketListeners;
+};
 
 Server::Server() {
-	if(packetDispatcherInitialized.testAndSetAcquire(false, true)) {
-		authPacketListeners.reserve(15);
-		gamePacketListeners.reserve(250);
-	}
-
-	instanceId = serverNewId.fetchAndAddAcquire(1);
+	callbacks = new CallbacksTable;
+	callbacks->authPacketListeners.reserve(15);
+	callbacks->gamePacketListeners.reserve(250);
 
 	authSocket = new EncryptedSocket;
 	gameSocket = new EncryptedSocket;
@@ -51,6 +51,7 @@ Server::~Server() {
 	close();
 	delete authSocket;
 	delete gameSocket;
+	delete callbacks;
 }
 
 void Server::setServerFarm(const QByteArray& authHost, quint16 authPort) {
@@ -200,22 +201,23 @@ void Server::proceedServerMove(const QByteArray &gameHost, quint16 gamePort) {
 void Server::dispatchPacket(ServerType originatingServer, const TS_MESSAGE* packetData) {
 	qDebug(LOG_PREFIX"Packet from %d, id: %5d, size: %d", originatingServer, packetData->id, packetData->size);
 
-	QList<CallbackFunction> callbackFunctionToCall;
-	QList<CallbackFunction>::const_iterator listEnd, it;
+	typedef std::unordered_multimap<uint16_t, cpp11x::function<void(Server*, const TS_MESSAGE*)> >::const_iterator CallbackIterator;
+
+	std::pair<CallbackIterator, CallbackIterator> callbackFunctionsToCall;
+	CallbackIterator it;
 
 	if(originatingServer == ST_Auth) {
 		if(packetData->id == TS_SC_RESULT::packetID)
-			callbackFunctionToCall = authPacketListeners.values(reinterpret_cast<const TS_SC_RESULT*>(packetData)->request_msg_id);
-		else callbackFunctionToCall = authPacketListeners.values(packetData->id);
+			callbackFunctionsToCall = callbacks->authPacketListeners.equal_range(reinterpret_cast<const TS_SC_RESULT*>(packetData)->request_msg_id);
+		else callbackFunctionsToCall = callbacks->authPacketListeners.equal_range(packetData->id);
 	} else if(originatingServer == ST_Game)
 		if(packetData->id == TS_SC_RESULT::packetID)
-			callbackFunctionToCall = gamePacketListeners.values(reinterpret_cast<const TS_SC_RESULT*>(packetData)->request_msg_id);
-		else callbackFunctionToCall = gamePacketListeners.values(packetData->id);
+			callbackFunctionsToCall = callbacks->gamePacketListeners.equal_range(reinterpret_cast<const TS_SC_RESULT*>(packetData)->request_msg_id);
+		else callbackFunctionsToCall = callbacks->gamePacketListeners.equal_range(packetData->id);
 	else return;
 
-	listEnd = callbackFunctionToCall.constEnd();
-	for(it = callbackFunctionToCall.constBegin(); it != listEnd; ++it) {
-		(*it)(this, packetData);
+	for(it = callbackFunctionsToCall.first; it != callbackFunctionsToCall.second; ++it) {
+		(*it).second(this, packetData);
 	}
 }
 
@@ -258,11 +260,31 @@ void Server::networkDataProcess(ServerType serverType, EncryptedSocket* socket, 
 	} while((buffer->currentMessageSize == 0 && socket->bytesAvailable() >= 4) || (buffer->currentMessageSize != 0 && socket->bytesAvailable() >= (buffer->currentMessageSize - 4)));
 }
 
-
 void Server::addPacketListener(ServerType server, uint16_t packetId, CallbackFunction onPacketReceivedCallback) {
+	cpp11x::function<void(Server*, const TS_MESSAGE*)> callback = [=](Server* server, const TS_MESSAGE* packetData) { (*onPacketReceivedCallback)(server, packetData); };
+
 	if(server == ST_Auth)
-		authPacketListeners.insertMulti(packetId, onPacketReceivedCallback);
+		callbacks->authPacketListeners.emplace(packetId, callback);
 	else if(server == ST_Game)
-		gamePacketListeners.insertMulti(packetId, onPacketReceivedCallback);
+		callbacks->gamePacketListeners.emplace(packetId, callback);
+	else qFatal(LOG_PREFIX"addPacketListener: Invalid server type: %d", server);
+}
+
+void Server::addPacketListener(ServerType server, uint16_t packetId, CallbackFunctionWithArg onPacketReceivedCallback, void* arg) {
+	cpp11x::function<void(Server*, const TS_MESSAGE*)> callback = [=](Server* server, const TS_MESSAGE* packetData) { (*onPacketReceivedCallback)(server, packetData, arg); };
+
+	if(server == ST_Auth)
+		callbacks->authPacketListeners.emplace(packetId, callback);
+	else if(server == ST_Game)
+		callbacks->gamePacketListeners.emplace(packetId, callback);
+	else qFatal(LOG_PREFIX"addPacketListener: Invalid server type: %d", server);
+}
+
+void Server::addPacketListener(ServerType server, uint16_t packetId, cpp11x::function<void(Server*, const TS_MESSAGE*)> callback) {
+
+	if(server == ST_Auth)
+		callbacks->authPacketListeners.emplace(packetId, callback);
+	else if(server == ST_Game)
+		callbacks->gamePacketListeners.emplace(packetId, callback);
 	else qFatal(LOG_PREFIX"addPacketListener: Invalid server type: %d", server);
 }

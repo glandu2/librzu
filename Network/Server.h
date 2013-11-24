@@ -2,9 +2,11 @@
 #define SERVER_H
 
 #include <QObject>
-#include <QHash>
-#include <QVector>
 #include "../Common/RappelzLib_global.h"
+
+#if __cplusplus >= 201103L
+#include "../Common/Delegate.h"
+#endif
 
 //Pour le syntax higlighting de intxx_t
 #ifdef __GNUC__
@@ -17,6 +19,8 @@ class EncryptedSocket;
 struct TS_MESSAGE;
 struct TS_AC_SERVER_LIST;
 class Authentication;
+
+struct CallbacksTable;
 
 /**
  * @brief Represent a set of servers.
@@ -42,7 +46,9 @@ class RAPPELZLIBSHARED_EXPORT Server : public QObject
 			ST_Game
 		};
 
+
 		typedef void (*CallbackFunction)(Server* server, const TS_MESSAGE* packetData);
+		typedef void (*CallbackFunctionWithArg)(Server* server, const TS_MESSAGE* packetData, void* arg);
 
 	private:
 		static const quint32 initialInputBufferSize = 16384;
@@ -70,6 +76,13 @@ class RAPPELZLIBSHARED_EXPORT Server : public QObject
 
 		int getInstanceId() { return instanceId; }
 
+		void addPacketListener(ServerType server, uint16_t packetId, CallbackFunction onPacketReceivedCallback);
+		void addPacketListener(ServerType server, uint16_t packetId, CallbackFunctionWithArg onPacketReceivedCallback, void* arg);
+#if __cplusplus >= 201103L
+#define server_callback(instance, method) [instance](Server* server, const TS_MESSAGE* packetData) { instance->method(server, packetData); }
+		void addPacketListener(ServerType server, uint16_t packetId, cpp11x::function<void(Server*, const TS_MESSAGE*)> onPacketReceivedCallback);
+#endif
+
 	public slots:
 		void proceedServerMove(const QByteArray &gameHost, quint16 gamePort);
 
@@ -88,6 +101,7 @@ class RAPPELZLIBSHARED_EXPORT Server : public QObject
 		void dispatchPacket(ServerType originatingServer, const TS_MESSAGE* packetData);
 
 	private:
+		CallbacksTable *callbacks;
 		int instanceId;
 		EncryptedSocket* authSocket;
 		EncryptedSocket* gameSocket;
@@ -100,16 +114,6 @@ class RAPPELZLIBSHARED_EXPORT Server : public QObject
 
 		InputBuffer authInputBuffer;
 		InputBuffer gameInputBuffer;
-
-	// Static functions and variables
-	public:
-		static void addPacketListener(ServerType server, uint16_t packetId, CallbackFunction onPacketReceivedCallback);
-
-	private:
-		static QHash<uint16_t, CallbackFunction> authPacketListeners;
-		static QHash<uint16_t, CallbackFunction> gamePacketListeners;
-		static QAtomicInt packetDispatcherInitialized;
-		static QAtomicInt serverNewId;
 };
 
 #endif // SERVER_H
