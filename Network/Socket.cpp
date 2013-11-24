@@ -6,6 +6,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <netdb.h>
+#include "SocketPoll.h"
 
 #include <sys/ioctl.h>
 
@@ -17,12 +18,14 @@
 #endif
 
 struct SocketInternal {
-	std::unordered_map<void*, Socket::CallbackOnDataReceived> dataListeners;
+	std::unordered_map<void*, Socket::CallbackOnDataReady> dataListeners;
 	std::unordered_map<void*, Socket::CallbackOnStateChanged> eventListeners;
 	std::unordered_map<void*, Socket::CallbackOnError> errorListeners;
 	int sock;
 	Socket::State currentState;
 };
+
+SocketPoll* Socket::socketPoll = 0;
 
 Socket::Socket() : _p(new SocketInternal)
 {
@@ -40,16 +43,24 @@ bool Socket::connect(const std::string & hostName, uint16_t port) {
 	if(getState() != UnconnectedState)
 		return false;
 
-	setState(ConnectingState);
-
 	if(_p->sock >= 0)
 		abort();
 
 	_p->sock = ::socket(AF_INET, SOCK_STREAM, 0);
+	if(_p->sock < 0) {
+		notifyReadyError();
+		return false;
+	}
 
-	int lingerValue = 1;
-	int lingerOptionSize = sizeof(int);
-	::setsockopt(_p->sock, SOL_SOCKET, SO_OOBINLINE, &lingerValue, lingerOptionSize);
+	setState(ConnectingState);
+
+	int optValue = 1;
+	int optionSize = sizeof(int);
+	::setsockopt(_p->sock, SOL_SOCKET, SO_OOBINLINE, &optValue, optionSize);
+	::ioctl(_p->sock, FIONBIO, (char *)&optValue);
+
+	if(socketPoll)
+		socketPoll->addSocket(this);
 
 	struct sockaddr_in hostAddress;
 	struct addrinfo hints, *servinfo, *p;
@@ -70,17 +81,20 @@ bool Socket::connect(const std::string & hostName, uint16_t port) {
 	{
 		hostAddress = *(struct sockaddr_in*)p->ai_addr;
 		hostAddress.sin_port = htons(port);
-		if( (lastError = ::connect(_p->sock, (sockaddr*)&hostAddress, sizeof(hostAddress))) )
+		lastError = ::connect(_p->sock, (sockaddr*)&hostAddress, sizeof(hostAddress));
+		if(!lastError)
+			lastError = errno;
+		if(lastError == 0 || lastError == EINPROGRESS)
 			break;
 	}
 
-	if(lastError) {
-		close();
+	if(lastError != 0 && lastError != EINPROGRESS) {
+		notifyReadyError();
 		return false;
-	} else {
+	} else if(lastError == 0) {
 		setState(ConnectedState);
-		return true;
 	}
+	return true;
 }
 
 size_t Socket::read(void *buffer, size_t size) {
@@ -95,45 +109,45 @@ size_t Socket::read(void *buffer, size_t size) {
 		totalByteRead += byteRead;
 	}
 
-	if(totalByteRead != size) {
-		unsigned int socketError, errorSize = sizeof(int);
-		::getsockopt(_p->sock, SOL_SOCKET, SO_ERROR, &socketError, &errorSize);
-		if(socketError) {
-			fprintf(stderr, "Failed to recv from socket: %s\n", strerror(socketError));
-			close();
-			return socketError;
-		}
+	if(byteRead < 0) {
+		if(errno != EAGAIN)
+			notifyReadyError();
 	}
 
-	return 0;
+	return totalByteRead;
 }
 
 size_t Socket::write(const void *buffer, size_t size) {
 	size_t totalByteWritten;
 	int byteWritten;
 
-	for(byteWritten = 0; byteWritten < (int)size;) {
+	for(byteWritten = 0; totalByteWritten < size;) {
 		byteWritten = ::send(_p->sock, static_cast<const char*>(buffer) + totalByteWritten, size - totalByteWritten, 0);
 		if(byteWritten < 0) {
-			break;
+			if(errno == EAGAIN) {
+				fd_set readySet;
+				FD_ZERO(&readySet);
+				FD_SET(_p->sock, &readySet);
+				select(_p->sock+1, NULL, &readySet, NULL, NULL);
+				continue;
+			}
+			else
+				break;
 		}
 		totalByteWritten += byteWritten;
 	}
 
-	if(totalByteWritten != size) {
-		unsigned int socketError, errorSize = sizeof(int);
-		::getsockopt(_p->sock, SOL_SOCKET, SO_ERROR, &socketError, &errorSize);
-		if(socketError) {
-			fprintf(stderr, "Failed to send through socket: %s\n", strerror(socketError));
-			close();
-			return socketError;
-		}
+	if(byteWritten < 0) {
+			notifyReadyError();
 	}
 
-	return 0;
+	return totalByteWritten;
 }
 
 void Socket::close() {
+	if(socketPoll)
+		socketPoll->removeSocket(this);
+
 	setState(ClosingState);
 	::shutdown(_p->sock, SHUT_RDWR);
 	::close(_p->sock);
@@ -162,6 +176,9 @@ Socket::State Socket::getState() {
 }
 
 void Socket::setState(State state) {
+	if(state == _p->currentState)
+		return;
+
 	std::unordered_map<void*, CallbackOnStateChanged>::const_iterator it, itEnd;
 	for(it = _p->eventListeners.cbegin(), itEnd = _p->eventListeners.cend(); it != itEnd; ++it) {
 		void* instance = it->first;
@@ -172,7 +189,11 @@ void Socket::setState(State state) {
 	_p->currentState = state;
 }
 
-void Socket::addDataListener(void* instance, CallbackOnDataReceived listener) {
+unsigned int Socket::getLastError() {
+	return errno;
+}
+
+void Socket::addDataListener(void* instance, CallbackOnDataReady listener) {
 	_p->dataListeners.emplace(instance, listener);
 }
 
@@ -191,16 +212,75 @@ void Socket::removeListener(void* instance) {
 }
 
 void Socket::notifyReadyRead() {
-	std::unordered_map<void*, CallbackOnDataReceived>::const_iterator it, itEnd;
-	for(it = _p->dataListeners.cbegin(), itEnd = _p->dataListeners.cend(); it != itEnd; ++it) {
-		void* instance = it->first;
-		const CallbackOnDataReceived& callback = it->second;
+	std::unordered_map<void*, CallbackOnDataReady>::const_iterator it, itEnd;
 
-		callback(instance, this);
+	switch(getState()) {
+		case UnconnectedState:
+			fprintf(stderr, "Received READ event on closed socket\n");
+			break;
+
+		case HostLookupState:
+			fprintf(stderr, "Received READ event on host lookup socket\n");
+			break;
+
+		case ConnectingState:
+			setState(ConnectedState);
+			break;
+
+		case ConnectedState:
+			for(it = _p->dataListeners.cbegin(), itEnd = _p->dataListeners.cend(); it != itEnd; ++it) {
+				void* instance = it->first;
+				const CallbackOnDataReady& callback = it->second;
+
+				callback(instance, this);
+			}
+			break;
+
+		case ClosingState:
+			fprintf(stderr, "Received READ event on closing socket\n");
+			break;
 	}
 }
 
 void Socket::notifyReadyWrite() {
+	std::unordered_map<void*, CallbackOnDataReady>::const_iterator it, itEnd;
+
+	switch(getState()) {
+		case UnconnectedState:
+			fprintf(stderr, "Received WRITE event on closed socket\n");
+			break;
+
+		case HostLookupState:
+			fprintf(stderr, "Received WRITE event on host lookup socket\n");
+			break;
+
+		case ConnectingState:
+			setState(ConnectedState);
+			break;
+
+		case ConnectedState:
+			break;
+
+		case ClosingState:
+			fprintf(stderr, "Received WRITE event on closing socket\n");
+			break;
+	}
+
+}
+
+void Socket::notifyReadyError() {
+	int socketError;
+	unsigned int errorSize = sizeof(int);
+	::getsockopt(_p->sock, SOL_SOCKET, SO_ERROR, &socketError, &errorSize);
+
+	std::unordered_map<void*, CallbackOnError>::const_iterator it, itEnd;
+	for(it = _p->errorListeners.cbegin(), itEnd = _p->errorListeners.cend(); it != itEnd; ++it) {
+		void* instance = it->first;
+		const CallbackOnError& callback = it->second;
+
+		(*callback)(instance, this, socketError);
+	}
+	abort();
 }
 
 int64_t Socket::getFd() {

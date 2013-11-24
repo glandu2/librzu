@@ -18,9 +18,9 @@ public:
 		ClosingState
 	};
 
-	typedef void (*CallbackOnDataReceived)(void* instance, ISocket* socket);
+	typedef void (*CallbackOnDataReady)(void* instance, ISocket* socket);
 	typedef void (*CallbackOnStateChanged)(void* instance, ISocket* socket, State oldState, State newState);
-	typedef void (*CallbackOnError)(void* instance, ISocket* socket, int errno);
+	typedef void (*CallbackOnError)(void* instance, ISocket* socket, int errnoValue);
 
 public:
 	virtual bool IFACECALLCONV connect(const std::string & hostName, uint16_t port) = 0;
@@ -33,7 +33,7 @@ public:
 
 	virtual int64_t IFACECALLCONV getFd() = 0;
 
-	virtual void IFACECALLCONV addDataListener(void* instance, CallbackOnDataReceived listener) = 0;
+	virtual void IFACECALLCONV addDataListener(void* instance, CallbackOnDataReady listener) = 0;
 	virtual void IFACECALLCONV addEventListener(void* instance, CallbackOnStateChanged listener) = 0;
 	virtual void IFACECALLCONV addErrorListener(void* instance, CallbackOnError listener) = 0;
 	virtual void IFACECALLCONV removeListener(void* instance) = 0;

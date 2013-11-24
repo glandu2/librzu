@@ -6,11 +6,11 @@
 
 class ISocket;
 
-class SocketPool : public CImplement<ISocketPool>
+class SocketPoll : public CImplement<ISocketPool>
 {
 public:
-	SocketPool();
-	~SocketPool();
+	SocketPoll();
+	~SocketPoll();
 
 	virtual void IFACECALLCONV addSocket(ISocket* socket);
 	virtual void IFACECALLCONV removeSocket(ISocket* socket);
@@ -18,8 +18,8 @@ public:
 	virtual void IFACECALLCONV run();
 
 private:
-	std::list<ISocket*> sockets;
 	int pollAbortPipe[2];
+	int epollFd;
 	bool stopRequested;
 	bool updateAcknownleded;
 };

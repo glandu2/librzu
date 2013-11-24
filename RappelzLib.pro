@@ -39,7 +39,7 @@ SOURCES += \
     Network/Socket.cpp \
     Network/ScopedPacketListener.cpp \
     Interfaces/ISocketPool.cpp \
-    Network/SocketPool.cpp
+    Network/SocketPoll.cpp
 
 HEADERS +=\
     Network/Server.h \
@@ -78,4 +78,4 @@ HEADERS +=\
     Network/Socket.h \
     Network/ScopedPacketListener.h \
     Interfaces/ISocketPool.h \
-    Network/SocketPool.h
+    Network/SocketPoll.h
