@@ -14,6 +14,7 @@ public:
 	virtual void IFACECALLCONV removeSocket(ISocket* socket) = 0;
 
 	virtual void IFACECALLCONV run() = 0;
+	virtual void IFACECALLCONV stop() = 0;
 };
 
 #endif // ISOCKETPOOL_H

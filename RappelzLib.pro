@@ -9,7 +9,9 @@ QT       += network
 QT       -= gui
 
 TARGET = RappelzLib
-TEMPLATE = lib
+TEMPLATE = app #lib
+CONFIG   += console
+CONFIG   -= app_bundle
 
 DEFINES += RAPPELZLIB_LIBRARY
 INCLUDEPATH += Common Interfaces

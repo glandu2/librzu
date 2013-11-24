@@ -16,12 +16,14 @@ public:
 	virtual void IFACECALLCONV removeSocket(ISocket* socket);
 
 	virtual void IFACECALLCONV run();
+	virtual void IFACECALLCONV stop();
 
 private:
 	int pollAbortPipe[2];
 	int epollFd;
 	bool stopRequested;
-	bool updateAcknownleded;
+	bool running;
+	bool updateAcknownledged;
 };
 
 #endif // SOCKETPOOL_H

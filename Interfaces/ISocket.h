@@ -28,7 +28,7 @@ public:
 	virtual size_t IFACECALLCONV write(const void *buffer, size_t size) = 0;
 	virtual void IFACECALLCONV close() = 0;
 	virtual void IFACECALLCONV abort() = 0;
-	virtual void IFACECALLCONV getState(State state) = 0;
+	virtual State IFACECALLCONV getState() = 0;
 	virtual size_t IFACECALLCONV getAvailableBytes() = 0;
 
 	virtual int64_t IFACECALLCONV getFd() = 0;

@@ -82,13 +82,13 @@ bool Socket::connect(const std::string & hostName, uint16_t port) {
 		hostAddress = *(struct sockaddr_in*)p->ai_addr;
 		hostAddress.sin_port = htons(port);
 		lastError = ::connect(_p->sock, (sockaddr*)&hostAddress, sizeof(hostAddress));
-		if(!lastError)
-			lastError = errno;
-		if(lastError == 0 || lastError == EINPROGRESS)
+		if(lastError < 0)
+			lastError = -errno;
+		if(lastError == 0 || lastError == -EINPROGRESS)
 			break;
 	}
 
-	if(lastError != 0 && lastError != EINPROGRESS) {
+	if(lastError != 0 && lastError != -EINPROGRESS) {
 		notifyReadyError();
 		return false;
 	} else if(lastError == 0) {
@@ -285,4 +285,8 @@ void Socket::notifyReadyError() {
 
 int64_t Socket::getFd() {
 	return _p->sock;
+}
+
+void Socket::setPoll(SocketPoll* socketPoll) {
+	Socket::socketPoll = socketPoll;
 }
