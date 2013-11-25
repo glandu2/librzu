@@ -1,8 +1,8 @@
 #ifndef IOBJECT_H
 #define IOBJECT_H
 
-#include "RappelzLib_global.h"
-#include "Guid.h"
+#include "../Common/RappelzLib_global.h"
+#include "../Common/Guid.h"
 
 class IObject;
 

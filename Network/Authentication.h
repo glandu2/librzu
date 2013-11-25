@@ -4,6 +4,7 @@
 #include <QObject>
 #include "../Common/RappelzLib_global.h"
 #include "ScopedPacketListener.h"
+#include <QList>
 
 class Server;
 

@@ -40,14 +40,13 @@ Server::Server() : callbacks(new CallbacksTable) {
 
 	currentState = SS_NotConnected;
 
-	connect(authSocket, SIGNAL(readyRead()), this, SLOT(networkDataReceivedFromAuth()));
-	connect(authSocket, SIGNAL(connected()), this, SLOT(authConnected()));
-	connect(authSocket, SIGNAL(disconnected()), this, SLOT(authDisconnected()));
-	connect(authSocket, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(authSocketError()));
-	connect(gameSocket, SIGNAL(readyRead()), this, SLOT(networkDataReceivedFromGame()));
-	connect(gameSocket, SIGNAL(connected()), this, SLOT(gameConnected()));
-	connect(gameSocket, SIGNAL(disconnected()), this, SLOT(gameDisconnected()));
-	connect(gameSocket, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(gameSocketError()));
+
+	authSocket->addDataListener(this, &networkDataReceivedFromAuth);
+	authSocket->addErrorListener(this, &authSocketError);
+	authSocket->addEventListener(this, &authStateChanged);
+	gameSocket->addDataListener(this, &networkDataReceivedFromGame);
+	gameSocket->addErrorListener(this, &gameSocketError);
+	gameSocket->addEventListener(this, &gameStateChanged);
 }
 
 Server::~Server() {
@@ -60,8 +59,8 @@ Server::~Server() {
 void Server::setServerFarm(const QByteArray& authHost, quint16 authPort) {
 	currentState = SS_NotConnected;
 
-	authSocket->abort();
-	gameSocket->abort();
+//	authSocket->abort();
+//	gameSocket->abort();
 
 	this->authHost = authHost;
 	this->authPort = authPort;
@@ -82,88 +81,94 @@ void Server::connectToAuth() {
 	} else qWarning("Attempt to connect to auth while not in SS_NotConnected mode, currentState: %d", currentState);
 }
 
-void Server::authConnected() {
-	if(currentState == SS_ConnectingToAuth) {
-		qDebug(LOG_PREFIX"Auth server %s:%d connected", authHost.constData(), authPort);
+void Server::authStateChanged(void* instance, ISocket* socket, ISocket::State oldState, ISocket::State newState) {
+	Server* thisInstance = static_cast<Server*>(instance);
 
-		currentState = SS_ConnectedToAuth;
-		authInputBuffer.currentMessageSize = 0;
+	if(newState == ISocket::ConnectedState) {
+		if(thisInstance->currentState == SS_ConnectingToAuth) {
+			qDebug(LOG_PREFIX"Auth server %s:%d connected", thisInstance->authHost.constData(), thisInstance->authPort);
 
+			thisInstance->currentState = SS_ConnectedToAuth;
+			thisInstance->authInputBuffer.currentMessageSize = 0;
+
+			TS_CC_EVENT eventMsg;
+			TS_MESSAGE::initMessage<TS_CC_EVENT>(&eventMsg);
+			eventMsg.event = TS_CC_EVENT::CE_ServerConnected;
+			thisInstance->dispatchPacket(ST_Auth, &eventMsg);
+		} else {
+			qWarning(LOG_PREFIX"Auth server connected, but not in SS_ConnectingToAuth mode !, currentState: %d", thisInstance->currentState);
+		}
+	} else if(oldState == ISocket::ConnectedState) {
 		TS_CC_EVENT eventMsg;
 		TS_MESSAGE::initMessage<TS_CC_EVENT>(&eventMsg);
-		eventMsg.event = TS_CC_EVENT::CE_ServerConnected;
-		dispatchPacket(ST_Auth, &eventMsg);
-	} else {
-		qWarning(LOG_PREFIX"Auth server connected, but not in SS_ConnectingToAuth mode !, currentState: %d", currentState);
+		if(thisInstance->currentState == SS_ConnectedToAuth) {
+			eventMsg.event = TS_CC_EVENT::CE_ServerConnectionLost;
+			qWarning(LOG_PREFIX"Auth server %s:%d connection lost !", thisInstance->authHost.constData(), thisInstance->authPort);
+		} else {
+			eventMsg.event = TS_CC_EVENT::CE_ServerDisconnected;
+			qDebug(LOG_PREFIX"Auth server %s:%d disconnected", thisInstance->authHost.constData(), thisInstance->authPort);
+		}
+
+		thisInstance->dispatchPacket(ST_Auth, &eventMsg);
 	}
 }
 
-void Server::gameConnected() {
-	if(currentState == SS_ServerConnectionMove) {
-		qDebug(LOG_PREFIX"Game server %s:%d connected", gameHost.constData(), gamePort);
+void Server::gameStateChanged(void* instance, ISocket* socket, ISocket::State oldState, ISocket::State newState) {
+	Server* thisInstance = static_cast<Server*>(instance);
 
-		currentState = SS_ConnectedToGame;
-		gameInputBuffer.currentMessageSize = 0;
+	if(newState == ISocket::ConnectedState) {
+		if(thisInstance->currentState == SS_ServerConnectionMove) {
+			qDebug(LOG_PREFIX"Game server %s:%d connected", thisInstance->gameHost.constData(), thisInstance->gamePort);
 
+			thisInstance->currentState = SS_ConnectedToGame;
+			thisInstance->gameInputBuffer.currentMessageSize = 0;
+
+			TS_CC_EVENT eventMsg;
+			TS_MESSAGE::initMessage<TS_CC_EVENT>(&eventMsg);
+			eventMsg.event = TS_CC_EVENT::CE_ServerConnected;
+			thisInstance->dispatchPacket(ST_Game, &eventMsg);
+		} else {
+			qWarning(LOG_PREFIX"Game server connected, but not in SS_ServerConnectionMove mode !, currentState: %d", thisInstance->currentState);
+		}
+	} else if(oldState == ISocket::ConnectedState) {
 		TS_CC_EVENT eventMsg;
 		TS_MESSAGE::initMessage<TS_CC_EVENT>(&eventMsg);
-		eventMsg.event = TS_CC_EVENT::CE_ServerConnected;
-		dispatchPacket(ST_Game, &eventMsg);
-	} else {
-		qWarning(LOG_PREFIX"Game server connected, but not in SS_ServerConnectionMove mode !, currentState: %d", currentState);
+		if(thisInstance->currentState != SS_NotConnected) {
+			eventMsg.event = TS_CC_EVENT::CE_ServerConnectionLost;
+			qDebug(LOG_PREFIX"Game server %s:%d connection lost !", thisInstance->gameHost.constData(), thisInstance->gamePort);
+		} else {
+			eventMsg.event = TS_CC_EVENT::CE_ServerDisconnected;
+			qDebug(LOG_PREFIX"Game server %s:%d disconnected", thisInstance->gameHost.constData(), thisInstance->gamePort);
+		}
+
+		thisInstance->close();
+
+		thisInstance->dispatchPacket(ST_Game, &eventMsg);
 	}
 }
 
-void Server::authSocketError() {
-	close();
-	qWarning(LOG_PREFIX"Auth server %s:%d socket error %s !", authHost.constData(), authPort, authSocket->errorString().toLatin1().constData());
+void Server::authSocketError(void* instance, ISocket* socket, int errnoValue) {
+	Server* thisInstance = static_cast<Server*>(instance);
+
+	thisInstance->close();
+	qWarning(LOG_PREFIX"Auth server %s:%d socket error %s !", thisInstance->authHost.constData(), thisInstance->authPort, strerror(errnoValue));
 
 	TS_CC_EVENT eventMsg;
 	TS_MESSAGE::initMessage<TS_CC_EVENT>(&eventMsg);
 	eventMsg.event = TS_CC_EVENT::CE_ServerUnreachable;
-	dispatchPacket(ST_Auth, &eventMsg);
+	thisInstance->dispatchPacket(ST_Auth, &eventMsg);
 }
 
-void Server::gameSocketError() {
-	close();
-	qWarning(LOG_PREFIX"Game server %s:%d socket error %s !", gameHost.constData(), gamePort, gameSocket->errorString().toLatin1().constData());
+void Server::gameSocketError(void* instance, ISocket* socket, int errnoValue) {
+	Server* thisInstance = static_cast<Server*>(instance);
+
+	thisInstance->close();
+	qWarning(LOG_PREFIX"Game server %s:%d socket error %s !", thisInstance->gameHost.constData(), thisInstance->gamePort, strerror(errnoValue));
 
 	TS_CC_EVENT eventMsg;
 	TS_MESSAGE::initMessage<TS_CC_EVENT>(&eventMsg);
 	eventMsg.event = TS_CC_EVENT::CE_ServerUnreachable;
-	dispatchPacket(ST_Game, &eventMsg);
-}
-
-void Server::authDisconnected() {
-
-	TS_CC_EVENT eventMsg;
-	TS_MESSAGE::initMessage<TS_CC_EVENT>(&eventMsg);
-	if(currentState == SS_ConnectedToAuth) {
-		eventMsg.event = TS_CC_EVENT::CE_ServerConnectionLost;
-		qWarning(LOG_PREFIX"Auth server %s:%d connection lost !", authHost.constData(), authPort);
-	} else {
-		eventMsg.event = TS_CC_EVENT::CE_ServerDisconnected;
-		qDebug(LOG_PREFIX"Auth server %s:%d disconnected", authHost.constData(), authPort);
-	}
-
-	dispatchPacket(ST_Auth, &eventMsg);
-}
-
-void Server::gameDisconnected() {
-
-	TS_CC_EVENT eventMsg;
-	TS_MESSAGE::initMessage<TS_CC_EVENT>(&eventMsg);
-	if(currentState != SS_NotConnected) {
-		eventMsg.event = TS_CC_EVENT::CE_ServerConnectionLost;
-		qDebug(LOG_PREFIX"Game server %s:%d connection lost !", gameHost.constData(), gamePort);
-	} else {
-		eventMsg.event = TS_CC_EVENT::CE_ServerDisconnected;
-		qDebug(LOG_PREFIX"Game server %s:%d disconnected", gameHost.constData(), gamePort);
-	}
-
-	close();
-
-	dispatchPacket(ST_Game, &eventMsg);
+	thisInstance->dispatchPacket(ST_Game, &eventMsg);
 }
 
 void Server::close() {
@@ -225,16 +230,20 @@ void Server::dispatchPacket(ServerType originatingServer, const TS_MESSAGE* pack
 	}
 }
 
-void Server::networkDataReceivedFromAuth() {
-	if(currentState == SS_ConnectedToAuth)
-		networkDataProcess(ST_Auth, authSocket, &authInputBuffer);
-	else qWarning(LOG_PREFIX"Received data from auth but not in SS_ConnectedToAuth mode, currentState: %d", currentState);
+void Server::networkDataReceivedFromAuth(void* instance, ISocket* socket) {
+	Server* thisInstance = static_cast<Server*>(instance);
+
+	if(thisInstance->currentState == SS_ConnectedToAuth)
+		thisInstance->networkDataProcess(ST_Auth, thisInstance->authSocket, &thisInstance->authInputBuffer);
+	else qWarning(LOG_PREFIX"Received data from auth but not in SS_ConnectedToAuth mode, currentState: %d", thisInstance->currentState);
 }
 
-void Server::networkDataReceivedFromGame() {
-	if(currentState == SS_ServerConnectionMove || currentState == SS_ConnectedToGame)
-		networkDataProcess(ST_Game, gameSocket, &gameInputBuffer);
-	else qWarning(LOG_PREFIX"Received data from game but not in SS_ServerConnectionMove or SS_ConnectedToGame mode, currentState: %d", currentState);
+void Server::networkDataReceivedFromGame(void* instance, ISocket* socket) {
+	Server* thisInstance = static_cast<Server*>(instance);
+
+	if(thisInstance->currentState == SS_ServerConnectionMove || thisInstance->currentState == SS_ConnectedToGame)
+		thisInstance->networkDataProcess(ST_Game, thisInstance->gameSocket, &thisInstance->gameInputBuffer);
+	else qWarning(LOG_PREFIX"Received data from game but not in SS_ServerConnectionMove or SS_ConnectedToGame mode, currentState: %d", thisInstance->currentState);
 }
 
 

@@ -6,6 +6,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <netdb.h>
+#include <netinet/tcp.h>
 #include "SocketPoll.h"
 
 #include <sys/ioctl.h>
@@ -57,6 +58,7 @@ bool Socket::connect(const std::string & hostName, uint16_t port) {
 	int optValue = 1;
 	int optionSize = sizeof(int);
 	::setsockopt(_p->sock, SOL_SOCKET, SO_OOBINLINE, &optValue, optionSize);
+	optValue = 1;
 	::ioctl(_p->sock, FIONBIO, (char *)&optValue);
 
 	if(socketPoll)
@@ -87,6 +89,8 @@ bool Socket::connect(const std::string & hostName, uint16_t port) {
 		if(lastError == 0 || lastError == -EINPROGRESS)
 			break;
 	}
+
+	sleep(1);
 
 	if(lastError != 0 && lastError != -EINPROGRESS) {
 		notifyReadyError();
@@ -179,9 +183,12 @@ void Socket::setState(State state) {
 	if(state == _p->currentState)
 		return;
 
+
 	State oldState = _p->currentState;
 
 	_p->currentState = state;
+
+	fprintf(stderr, "Socket state change from %d to %d : %d\n", oldState, state, _p->sock);
 
 	std::unordered_map<void*, CallbackOnStateChanged>::const_iterator it, itEnd;
 	for(it = _p->eventListeners.cbegin(), itEnd = _p->eventListeners.cend(); it != itEnd; ++it) {

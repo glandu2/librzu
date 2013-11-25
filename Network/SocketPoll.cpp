@@ -68,25 +68,27 @@ void SocketPoll::run() {
 		if(nbev < 0) {
 			perror("epoll failed");
 		} else {
-			fprintf(stderr, "epoll wait end\n");
 			for(i = 0; i < nbev; i++) {
+				fprintf(stderr, "EPOLL %p %x\n", events[i].data.ptr, events[i].events);
 				if(events[i].data.ptr) {
+					if(events[i].events & EPOLLHUP)
+						continue;
+
 					Socket* socket = static_cast<Socket*>(events[i].data.ptr);
 					if(events[i].events & (EPOLLERR | EPOLLRDHUP)) {
-						fprintf(stderr, "EPOLLERR\n");
 						socket->notifyReadyError();
 					} else {
-						if(events[i].events & EPOLLOUT)
-							socket->notifyReadyWrite();
 						if(events[i].events & EPOLLIN) {
-							fprintf(stderr, "EPOLLIN\n");
 							socket->notifyReadyRead();
+						}
+						if(events[i].events & EPOLLOUT) {
+							socket->notifyReadyWrite();
 						}
 					}
 				} else {
 					int dummy;
-					read(pollAbortPipe[0], &dummy, 1);
-					fprintf(stderr, "epoll changed, type=%c\n", dummy & 0xFF);
+					if(read(pollAbortPipe[0], &dummy, 1) > 0)
+						fprintf(stderr, "epoll changed, type=%c\n", dummy & 0xFF);
 				}
 			}
 			updateAcknownledged = true;

@@ -5,6 +5,7 @@
 #include <openssl/bio.h>
 #include <openssl/pem.h>
 #include <openssl/rsa.h>
+#include <QMetaType>
 
 #define LOG_PREFIX "Auth "
 
@@ -29,6 +30,7 @@ Authentication::Authentication(Server *server) : canBeDeleted(true) {
 				 {server, Server::ST_Game, TS_CC_EVENT::packetID, this, &onGameServerConnectionEvent},
 				 {server, Server::ST_Game, TS_CS_ACCOUNT_WITH_AUTH::packetID, this, &onGamePacketReceived},
 			 });
+	qRegisterMetaType< QList<Authentication::ServerInfo> >( "QList<Authentication::ServerInfo>" );
 }
 
 Authentication::~Authentication() {

@@ -23,10 +23,10 @@ EncryptedSocket::~EncryptedSocket() {
 }
 
 bool EncryptedSocket::connectToHost(const QString & hostName, quint16 port) {
-	Socket::connect(hostName.toAscii().constData(), port);
-
     inputEnc.prepare("}h79q~B%al;k'y $E");
     outputEnc.prepare("}h79q~B%al;k'y $E");
+
+	Socket::connect(hostName.toAscii().constData(), port);
 
 	return true; //QTcpSocket::waitForConnected(10000);
 }

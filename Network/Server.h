@@ -21,6 +21,7 @@ struct TS_AC_SERVER_LIST;
 class Authentication;
 
 struct CallbacksTable;
+#include "../Interfaces/ISocket.h"
 
 /**
  * @brief Represent a set of servers.
@@ -74,21 +75,16 @@ class RAPPELZLIBSHARED_EXPORT Server : public QObject
 
 		void addPacketListener(ServerType server, uint16_t packetId, CallbackFunction onPacketReceivedCallback, void* instance);
 		void removePacketListener(ServerType serverType, uint16_t packetId, void *instance);
-
-	public slots:
 		void proceedServerMove(const QByteArray &gameHost, quint16 gamePort);
 
-	protected slots:
-		void networkDataReceivedFromAuth();
-		void networkDataReceivedFromGame();
-		void authConnected();
-		void gameConnected();
-		void authDisconnected();
-		void gameDisconnected();
-		void authSocketError();
-		void gameSocketError();
-
 	protected:
+		static void networkDataReceivedFromAuth(void* instance, ISocket* socket);
+		static void networkDataReceivedFromGame(void* instance, ISocket* socket);
+		static void authStateChanged(void* instance, ISocket* socket, ISocket::State oldState, ISocket::State newState);
+		static void gameStateChanged(void* instance, ISocket* socket, ISocket::State oldState, ISocket::State newState);
+		static void authSocketError(void* instance, ISocket* socket, int errnoValue);
+		static void gameSocketError(void* instance, ISocket* socket, int errnoValue);
+
 		void networkDataProcess(ServerType serverType, EncryptedSocket* socket, InputBuffer* buffer);
 		void dispatchPacket(ServerType originatingServer, const TS_MESSAGE* packetData);
 
