@@ -5,7 +5,7 @@
 
 #include <unordered_map>
 
-#define NO_DEBUG
+//#define NO_DEBUG
 
 #define LOG_PREFIX "Server: "
 

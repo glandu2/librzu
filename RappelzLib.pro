@@ -9,9 +9,7 @@ QT       += network
 QT       -= gui
 
 TARGET = RappelzLib
-TEMPLATE = app #lib
-CONFIG   += console
-CONFIG   -= app_bundle
+TEMPLATE = lib
 
 DEFINES += RAPPELZLIB_LIBRARY
 INCLUDEPATH += Common Interfaces
@@ -41,7 +39,8 @@ SOURCES += \
     Network/Socket.cpp \
     Network/ScopedPacketListener.cpp \
     Interfaces/ISocketPool.cpp \
-    Network/SocketPoll.cpp
+    Network/SocketPoll.cpp \
+    main.cpp
 
 HEADERS +=\
     Network/Server.h \

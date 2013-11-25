@@ -121,7 +121,7 @@ size_t Socket::write(const void *buffer, size_t size) {
 	size_t totalByteWritten;
 	int byteWritten;
 
-	for(byteWritten = 0; totalByteWritten < size;) {
+	for(totalByteWritten = 0; totalByteWritten < size;) {
 		byteWritten = ::send(_p->sock, static_cast<const char*>(buffer) + totalByteWritten, size - totalByteWritten, 0);
 		if(byteWritten < 0) {
 			if(errno == EAGAIN) {
@@ -151,7 +151,7 @@ void Socket::close() {
 	setState(ClosingState);
 	::shutdown(_p->sock, SHUT_RDWR);
 	::close(_p->sock);
-	_p->sock = 0;
+	_p->sock = -1;
 	setState(UnconnectedState);
 }
 
@@ -179,14 +179,17 @@ void Socket::setState(State state) {
 	if(state == _p->currentState)
 		return;
 
+	State oldState = _p->currentState;
+
+	_p->currentState = state;
+
 	std::unordered_map<void*, CallbackOnStateChanged>::const_iterator it, itEnd;
 	for(it = _p->eventListeners.cbegin(), itEnd = _p->eventListeners.cend(); it != itEnd; ++it) {
 		void* instance = it->first;
 		const CallbackOnStateChanged& callback = it->second;
 
-		callback(instance, this, _p->currentState, state);
+		callback(instance, this, oldState, state);
 	}
-	_p->currentState = state;
 }
 
 unsigned int Socket::getLastError() {
