@@ -33,11 +33,7 @@ SOURCES += \
     Network/Server.cpp \
     Network/RC4Cipher.cpp \
     Network/EncryptedSocket.cpp \
-    Network/Authentication.cpp \
-    Network/RSACipher.cpp \
-    Network/DESPasswordCipher.cpp \
     Network/Socket.cpp \
-    Network/ScopedPacketListener.cpp \
     Interfaces/ISocketPool.cpp \
     Network/SocketPoll.cpp \
     main.cpp
@@ -48,7 +44,6 @@ HEADERS +=\
     Network/EncryptedSocket.h \
     Packets/PacketEnums.h \
     Packets/PacketBaseMessage.h \
-    Network/Authentication.h \
     Packets/AuthPackets.h \
     Packets/PacketStructs.h \
     Packets/TS_SC_RESULT.h \
@@ -66,8 +61,6 @@ HEADERS +=\
     Packets/TS_AC_UPDATE_PENDING_TIME.h \
     Packets/TS_CS_VERSION.h \
     Packets/TS_CS_ACCOUNT_WITH_AUTH.h \
-    Network/RSACipher.h \
-    Network/DESPasswordCipher.h \
     Packets/TS_CA_RSA_PUBLIC_KEY.h \
     Packets/TS_AC_AES_KEY_IV.h \
     Common/RappelzLib_global.h \
@@ -77,7 +70,7 @@ HEADERS +=\
     Common/Delegate.h \
     Interfaces/ISocket.h \
     Network/Socket.h \
-    Network/ScopedPacketListener.h \
     Interfaces/ISocketPool.h \
     Network/SocketPoll.h \
-    Network/CallbackGuard.h
+    Network/CallbackGuard.h \
+    Interfaces/IDelegate.h

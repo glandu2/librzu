@@ -13,15 +13,16 @@
 
 #include <unordered_map>
 #include "../Common/Delegate.h"
+#include "../Interfaces/IDelegate.h"
 
 #ifndef SHUT_RDWR
 #define SHUT_RDWR 2
 #endif
 
 struct SocketInternal {
-	std::unordered_map<void*, Socket::CallbackOnDataReady> dataListeners;
-	std::unordered_map<void*, Socket::CallbackOnStateChanged> eventListeners;
-	std::unordered_map<void*, Socket::CallbackOnError> errorListeners;
+	IDelegate<ISocket*> dataListeners;
+	IDelegate<ISocket*, ISocket::State, ISocket::State> eventListeners;
+	IDelegate<ISocket*, int> errorListeners;
 	int sock;
 	Socket::State currentState;
 };
@@ -199,14 +200,7 @@ void Socket::setState(State state) {
 	_p->currentState = state;
 
 	fprintf(stderr, "Socket state change from %d to %d : %d\n", oldState, state, _p->sock);
-
-	std::unordered_map<void*, CallbackOnStateChanged>::const_iterator it, itEnd;
-	for(it = _p->eventListeners.cbegin(), itEnd = _p->eventListeners.cend(); it != itEnd; ++it) {
-		void* instance = it->first;
-		const CallbackOnStateChanged& callback = it->second;
-
-		callback(instance, this, oldState, state);
-	}
+	_p->eventListeners.dispatch(this, oldState, state);
 }
 
 unsigned int Socket::getLastError() {
@@ -214,33 +208,21 @@ unsigned int Socket::getLastError() {
 }
 
 ICallbackGuard::CallbackPtr Socket::addDataListener(void* instance, CallbackOnDataReady listener) {
-	std::unordered_map<void*, Socket::CallbackOnDataReady>::iterator it;
-
-	it = _p->dataListeners.emplace(instance, listener).first;
-
-	return (ICallbackGuard::CallbackPtr)(&(it->second));
+	return _p->dataListeners.add(instance, listener);
 }
 
 ICallbackGuard::CallbackPtr Socket::addEventListener(void* instance, CallbackOnStateChanged listener) {
-	std::unordered_map<void*, Socket::CallbackOnStateChanged>::iterator it;
-
-	it = _p->eventListeners.emplace(instance, listener).first;
-
-	return (ICallbackGuard::CallbackPtr)(&(it->second));
+	return _p->eventListeners.add(instance, listener);
 }
 
 ICallbackGuard::CallbackPtr Socket::addErrorListener(void* instance, CallbackOnError listener) {
-	std::unordered_map<void*, Socket::CallbackOnError>::iterator it;
-
-	it = _p->errorListeners.emplace(instance, listener).first;
-
-	return (ICallbackGuard::CallbackPtr)(&(it->second));
+	return _p->errorListeners.add(instance, listener);
 }
 
 void Socket::removeListener(void* instance) {
-	_p->dataListeners.erase(instance);
-	_p->eventListeners.erase(instance);
-	_p->errorListeners.erase(instance);
+	_p->dataListeners.del(instance);
+	_p->eventListeners.del(instance);
+	_p->errorListeners.del(instance);
 }
 
 void Socket::notifyReadyRead() {
@@ -260,17 +242,7 @@ void Socket::notifyReadyRead() {
 			break;
 
 		case ConnectedState:
-			for(it = _p->dataListeners.cbegin(), itEnd = _p->dataListeners.cend(); it != itEnd;) {
-				void* instance = it->first;
-				const CallbackOnDataReady& callback = it->second;
-
-				if(callback != nullptr) {
-					callback(instance, this);
-					++it;
-				} else {
-					it = _p->dataListeners.erase(it);
-				}
-			}
+			_p->dataListeners.dispatch(this);
 			break;
 
 		case ClosingState:
@@ -304,18 +276,7 @@ void Socket::notifyReadyWrite() {
 }
 
 void Socket::notifyReadyError(int errorValue) {
-	std::unordered_map<void*, CallbackOnError>::const_iterator it, itEnd;
-	for(it = _p->errorListeners.cbegin(), itEnd = _p->errorListeners.cend(); it != itEnd;) {
-		void* instance = it->first;
-		const CallbackOnError& callback = it->second;
-
-		if(callback != nullptr) {
-			(*callback)(instance, this, errorValue);
-			++it;
-		} else {
-			it = _p->errorListeners.erase(it);
-		}
-	}
+	_p->errorListeners.dispatch(this, errorValue);
 	abort();
 }
 

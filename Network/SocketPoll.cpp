@@ -77,7 +77,7 @@ void SocketPoll::processEvents(int waitTime) {
 		perror("epoll failed");
 	} else {
 		for(i = 0; i < nbev; i++) {
-			fprintf(stderr, "EPOLL %p %x\n", events[i].data.ptr, events[i].events);
+			//fprintf(stderr, "EPOLL %p %x\n", events[i].data.ptr, events[i].events);
 			if(events[i].data.ptr) {
 				if(events[i].events & EPOLLHUP)
 					continue;
@@ -99,7 +99,7 @@ void SocketPoll::processEvents(int waitTime) {
 			} else {
 				int dummy;
 				if(read(pollAbortPipe[0], &dummy, 1) > 0)
-					fprintf(stderr, "epoll changed, type=%c\n", dummy & 0xFF);
+					{}//fprintf(stderr, "epoll changed, type=%c\n", dummy & 0xFF);
 			}
 		}
 	}

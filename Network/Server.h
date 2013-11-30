@@ -2,10 +2,7 @@
 #define SERVER_H
 
 #include "../Common/RappelzLib_global.h"
-
-#if __cplusplus >= 201103L
-#include "../Common/Delegate.h"
-#endif
+#include "../Interfaces/IDelegate.h"
 
 //Pour le syntax higlighting de intxx_t
 #ifdef __GNUC__
@@ -71,8 +68,7 @@ class RAPPELZLIBSHARED_EXPORT Server : private ICallbackGuard
 		void setAuth(Authentication *a) { auth = a; }
 		Authentication* getAuth() { return auth; }
 
-		ICallbackGuard::CallbackPtr addPacketListener(ServerType server, uint16_t packetId, CallbackFunction onPacketReceivedCallback, void* instance);
-		void removePacketListener(ServerType serverType, uint16_t packetId, void *instance);
+		DelegateInvalidatePtr addPacketListener(ServerType server, uint16_t packetId, void* instance, CallbackFunction onPacketReceivedCallback);
 		void proceedServerMove(const std::string &gameHost, quint16 gamePort);
 
 	protected:
