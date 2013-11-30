@@ -16,6 +16,7 @@ public:
 	virtual void IFACECALLCONV removeSocket(ISocket* socket);
 
 	virtual void IFACECALLCONV run();
+	virtual void IFACECALLCONV processEvents(int waitTime);
 	virtual void IFACECALLCONV stop();
 
 private:

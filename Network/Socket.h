@@ -20,9 +20,9 @@ public:
 	State IFACECALLCONV getState();
 	size_t IFACECALLCONV getAvailableBytes();
 
-	void IFACECALLCONV addDataListener(void* instance, CallbackOnDataReady listener);
-	void IFACECALLCONV addEventListener(void* instance, CallbackOnStateChanged listener);
-	void IFACECALLCONV addErrorListener(void* instance, CallbackOnError listener);
+	ICallbackGuard::CallbackPtr IFACECALLCONV addDataListener(void* instance, CallbackOnDataReady listener);
+	ICallbackGuard::CallbackPtr IFACECALLCONV addEventListener(void* instance, CallbackOnStateChanged listener);
+	ICallbackGuard::CallbackPtr IFACECALLCONV addErrorListener(void* instance, CallbackOnError listener);
 	void IFACECALLCONV removeListener(void* instance);
 
 	int64_t getFd();
@@ -30,7 +30,7 @@ public:
 
 	void notifyReadyRead();
 	void notifyReadyWrite();
-	void notifyReadyError();
+	void notifyReadyError(int errorValue);
 
 	static void setPoll(SocketPoll* socketPoll);
 
@@ -39,6 +39,7 @@ protected:
 
 private:
 	SocketInternal *_p;
+	int lastError;
 	static SocketPoll* socketPoll;
 };
 

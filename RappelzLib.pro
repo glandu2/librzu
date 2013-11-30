@@ -79,4 +79,5 @@ HEADERS +=\
     Network/Socket.h \
     Network/ScopedPacketListener.h \
     Interfaces/ISocketPool.h \
-    Network/SocketPoll.h
+    Network/SocketPoll.h \
+    Network/CallbackGuard.h

@@ -4,6 +4,7 @@
 #include "IObject.h"
 #include <string>
 #include <stdint.h>
+#include "ICallbackGuard.h"
 
 class ISocketListener;
 
@@ -33,9 +34,9 @@ public:
 
 	virtual int64_t IFACECALLCONV getFd() = 0;
 
-	virtual void IFACECALLCONV addDataListener(void* instance, CallbackOnDataReady listener) = 0;
-	virtual void IFACECALLCONV addEventListener(void* instance, CallbackOnStateChanged listener) = 0;
-	virtual void IFACECALLCONV addErrorListener(void* instance, CallbackOnError listener) = 0;
+	virtual ICallbackGuard::CallbackPtr IFACECALLCONV addDataListener(void* instance, CallbackOnDataReady listener) = 0;
+	virtual ICallbackGuard::CallbackPtr IFACECALLCONV addEventListener(void* instance, CallbackOnStateChanged listener) = 0;
+	virtual ICallbackGuard::CallbackPtr IFACECALLCONV addErrorListener(void* instance, CallbackOnError listener) = 0;
 	virtual void IFACECALLCONV removeListener(void* instance) = 0;
 };
 

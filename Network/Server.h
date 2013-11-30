@@ -1,7 +1,6 @@
 #ifndef SERVER_H
 #define SERVER_H
 
-#include <QObject>
 #include "../Common/RappelzLib_global.h"
 
 #if __cplusplus >= 201103L
@@ -22,6 +21,7 @@ class Authentication;
 
 struct CallbacksTable;
 #include "../Interfaces/ISocket.h"
+#include "../Interfaces/ICallbackGuard.h"
 
 /**
  * @brief Represent a set of servers.
@@ -29,10 +29,8 @@ struct CallbacksTable;
  * All network flows go through this class which redirect data to the correct server.
  * This class allow to connect to a rappelz server farm without many method calls.
  */
-class RAPPELZLIBSHARED_EXPORT Server : public QObject
+class RAPPELZLIBSHARED_EXPORT Server : private ICallbackGuard
 {
-	Q_OBJECT
-
 	//Types
 	public:
 		enum State {
@@ -63,7 +61,7 @@ class RAPPELZLIBSHARED_EXPORT Server : public QObject
 		virtual ~Server();
 
 		//Set auth server that allow to connect to a world.
-		void setServerFarm(const QByteArray &authHost, quint16 authPort);
+		void setServerFarm(const std::string &authHost, quint16 authPort);
 
 		void sendPacket(const TS_MESSAGE* data, ServerType destServer = ST_Game);
 		void connectToAuth();
@@ -73,9 +71,9 @@ class RAPPELZLIBSHARED_EXPORT Server : public QObject
 		void setAuth(Authentication *a) { auth = a; }
 		Authentication* getAuth() { return auth; }
 
-		void addPacketListener(ServerType server, uint16_t packetId, CallbackFunction onPacketReceivedCallback, void* instance);
+		ICallbackGuard::CallbackPtr addPacketListener(ServerType server, uint16_t packetId, CallbackFunction onPacketReceivedCallback, void* instance);
 		void removePacketListener(ServerType serverType, uint16_t packetId, void *instance);
-		void proceedServerMove(const QByteArray &gameHost, quint16 gamePort);
+		void proceedServerMove(const std::string &gameHost, quint16 gamePort);
 
 	protected:
 		static void networkDataReceivedFromAuth(void* instance, ISocket* socket);
@@ -92,8 +90,8 @@ class RAPPELZLIBSHARED_EXPORT Server : public QObject
 		CallbacksTable *callbacks;
 		EncryptedSocket* authSocket;
 		EncryptedSocket* gameSocket;
-		QByteArray authHost;
-		QByteArray gameHost;
+		std::string authHost;
+		std::string gameHost;
 		quint16 authPort;
 		quint16 gamePort;
 		State currentState;

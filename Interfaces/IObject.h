@@ -32,7 +32,7 @@ class CImplement : public IInterface
 			::operator delete(p);
 		}
 
-		virtual inline long IFACECALLCONV QueryInterface(const Guid& iid, void** ppv) { return 0x80004002L; }
+		virtual inline long IFACECALLCONV QueryInterface(const Guid&, void**) { return 0x80004002L; }
 
 		virtual inline unsigned long IFACECALLCONV AddRef() { return ++refCount; }
 

@@ -3,6 +3,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <sys/epoll.h>
+#include <sys/socket.h>
 
 #define MAX_EVENTS 10
 
@@ -59,42 +60,49 @@ void SocketPoll::removeSocket(ISocket* socket) {
 }
 
 void SocketPoll::run() {
+	running = true;
+	while(stopRequested == false) {
+		processEvents(-1);
+		updateAcknownledged = true;
+	}
+	running = false;
+}
+
+void SocketPoll::processEvents(int waitTime) {
 	int nbev, i;
 	struct epoll_event events[MAX_EVENTS];
 
-	running = true;
-	while(stopRequested == false) {
-		nbev = epoll_wait(epollFd, events, MAX_EVENTS, -1);
-		if(nbev < 0) {
-			perror("epoll failed");
-		} else {
-			for(i = 0; i < nbev; i++) {
-				fprintf(stderr, "EPOLL %p %x\n", events[i].data.ptr, events[i].events);
-				if(events[i].data.ptr) {
-					if(events[i].events & EPOLLHUP)
-						continue;
+	nbev = epoll_wait(epollFd, events, MAX_EVENTS, waitTime);
+	if(nbev < 0) {
+		perror("epoll failed");
+	} else {
+		for(i = 0; i < nbev; i++) {
+			fprintf(stderr, "EPOLL %p %x\n", events[i].data.ptr, events[i].events);
+			if(events[i].data.ptr) {
+				if(events[i].events & EPOLLHUP)
+					continue;
 
-					Socket* socket = static_cast<Socket*>(events[i].data.ptr);
-					if(events[i].events & (EPOLLERR | EPOLLRDHUP)) {
-						socket->notifyReadyError();
-					} else {
-						if(events[i].events & EPOLLIN) {
-							socket->notifyReadyRead();
-						}
-						if(events[i].events & EPOLLOUT) {
-							socket->notifyReadyWrite();
-						}
-					}
+				Socket* socket = static_cast<Socket*>(events[i].data.ptr);
+				if(events[i].events & (EPOLLERR | EPOLLRDHUP)) {
+					int socketError;
+					unsigned int errorSize = sizeof(int);
+					::getsockopt(socket->getFd(), SOL_SOCKET, SO_ERROR, &socketError, &errorSize);
+					socket->notifyReadyError(socketError);
 				} else {
-					int dummy;
-					if(read(pollAbortPipe[0], &dummy, 1) > 0)
-						fprintf(stderr, "epoll changed, type=%c\n", dummy & 0xFF);
+					if(events[i].events & EPOLLIN) {
+						socket->notifyReadyRead();
+					}
+					if(events[i].events & EPOLLOUT) {
+						socket->notifyReadyWrite();
+					}
 				}
+			} else {
+				int dummy;
+				if(read(pollAbortPipe[0], &dummy, 1) > 0)
+					fprintf(stderr, "epoll changed, type=%c\n", dummy & 0xFF);
 			}
-			updateAcknownledged = true;
 		}
 	}
-	running = false;
 }
 
 void SocketPoll::stop() {

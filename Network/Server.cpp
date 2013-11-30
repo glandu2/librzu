@@ -2,6 +2,7 @@
 #include "EncryptedSocket.h"
 #include "../Packets/AuthPackets.h"
 #include <openssl/evp.h>
+#include <string.h>
 
 #include <unordered_map>
 
@@ -41,22 +42,23 @@ Server::Server() : callbacks(new CallbacksTable) {
 	currentState = SS_NotConnected;
 
 
-	authSocket->addDataListener(this, &networkDataReceivedFromAuth);
-	authSocket->addErrorListener(this, &authSocketError);
-	authSocket->addEventListener(this, &authStateChanged);
-	gameSocket->addDataListener(this, &networkDataReceivedFromGame);
-	gameSocket->addErrorListener(this, &gameSocketError);
-	gameSocket->addEventListener(this, &gameStateChanged);
+	addInstance(authSocket->addDataListener(this, &networkDataReceivedFromAuth));
+	addInstance(authSocket->addErrorListener(this, &authSocketError));
+	addInstance(authSocket->addEventListener(this, &authStateChanged));
+	addInstance(gameSocket->addDataListener(this, &networkDataReceivedFromGame));
+	addInstance(gameSocket->addErrorListener(this, &gameSocketError));
+	addInstance(gameSocket->addEventListener(this, &gameStateChanged));
 }
 
 Server::~Server() {
+	invalidateCallbacks();
 	close();
 	delete authSocket;
 	delete gameSocket;
 	delete callbacks;
 }
 
-void Server::setServerFarm(const QByteArray& authHost, quint16 authPort) {
+void Server::setServerFarm(const std::string& authHost, quint16 authPort) {
 	currentState = SS_NotConnected;
 
 //	authSocket->abort();
@@ -67,26 +69,26 @@ void Server::setServerFarm(const QByteArray& authHost, quint16 authPort) {
 	this->gameHost = "undefined";
 	this->gamePort = 0;
 
-	if(authSocket->state() != QAbstractSocket::UnconnectedState && !authSocket->waitForDisconnected(1000))
+	if(authSocket->getState() != ISocket::UnconnectedState && !authSocket->waitForDisconnected(1000))
 		return;
-	if(gameSocket->state() != QAbstractSocket::UnconnectedState && !gameSocket->waitForDisconnected(1000))
+	if(gameSocket->getState() != ISocket::UnconnectedState && !gameSocket->waitForDisconnected(1000))
 		return;
 }
 
 void Server::connectToAuth() {
 	if(currentState == SS_NotConnected) {
 		currentState = SS_ConnectingToAuth;
-		qDebug("Connecting to auth: %s:%d", authHost.constData(), authPort);
-		authSocket->connectToHost(QString::fromUtf8(authHost), authPort);
+		qDebug("Connecting to auth: %s:%d", authHost.c_str(), authPort);
+		authSocket->connectToHost(authHost, authPort);
 	} else qWarning("Attempt to connect to auth while not in SS_NotConnected mode, currentState: %d", currentState);
 }
 
-void Server::authStateChanged(void* instance, ISocket* socket, ISocket::State oldState, ISocket::State newState) {
+void Server::authStateChanged(void* instance, ISocket*, ISocket::State oldState, ISocket::State newState) {
 	Server* thisInstance = static_cast<Server*>(instance);
 
 	if(newState == ISocket::ConnectedState) {
 		if(thisInstance->currentState == SS_ConnectingToAuth) {
-			qDebug(LOG_PREFIX"Auth server %s:%d connected", thisInstance->authHost.constData(), thisInstance->authPort);
+			qDebug(LOG_PREFIX"Auth server %s:%d connected", thisInstance->authHost.c_str(), thisInstance->authPort);
 
 			thisInstance->currentState = SS_ConnectedToAuth;
 			thisInstance->authInputBuffer.currentMessageSize = 0;
@@ -103,22 +105,22 @@ void Server::authStateChanged(void* instance, ISocket* socket, ISocket::State ol
 		TS_MESSAGE::initMessage<TS_CC_EVENT>(&eventMsg);
 		if(thisInstance->currentState == SS_ConnectedToAuth) {
 			eventMsg.event = TS_CC_EVENT::CE_ServerConnectionLost;
-			qWarning(LOG_PREFIX"Auth server %s:%d connection lost !", thisInstance->authHost.constData(), thisInstance->authPort);
+			qWarning(LOG_PREFIX"Auth server %s:%d connection lost !", thisInstance->authHost.c_str(), thisInstance->authPort);
 		} else {
 			eventMsg.event = TS_CC_EVENT::CE_ServerDisconnected;
-			qDebug(LOG_PREFIX"Auth server %s:%d disconnected", thisInstance->authHost.constData(), thisInstance->authPort);
+			qDebug(LOG_PREFIX"Auth server %s:%d disconnected", thisInstance->authHost.c_str(), thisInstance->authPort);
 		}
 
 		thisInstance->dispatchPacket(ST_Auth, &eventMsg);
 	}
 }
 
-void Server::gameStateChanged(void* instance, ISocket* socket, ISocket::State oldState, ISocket::State newState) {
+void Server::gameStateChanged(void* instance, ISocket*, ISocket::State oldState, ISocket::State newState) {
 	Server* thisInstance = static_cast<Server*>(instance);
 
 	if(newState == ISocket::ConnectedState) {
 		if(thisInstance->currentState == SS_ServerConnectionMove) {
-			qDebug(LOG_PREFIX"Game server %s:%d connected", thisInstance->gameHost.constData(), thisInstance->gamePort);
+			qDebug(LOG_PREFIX"Game server %s:%d connected", thisInstance->gameHost.c_str(), thisInstance->gamePort);
 
 			thisInstance->currentState = SS_ConnectedToGame;
 			thisInstance->gameInputBuffer.currentMessageSize = 0;
@@ -135,10 +137,10 @@ void Server::gameStateChanged(void* instance, ISocket* socket, ISocket::State ol
 		TS_MESSAGE::initMessage<TS_CC_EVENT>(&eventMsg);
 		if(thisInstance->currentState != SS_NotConnected) {
 			eventMsg.event = TS_CC_EVENT::CE_ServerConnectionLost;
-			qDebug(LOG_PREFIX"Game server %s:%d connection lost !", thisInstance->gameHost.constData(), thisInstance->gamePort);
+			qDebug(LOG_PREFIX"Game server %s:%d connection lost !", thisInstance->gameHost.c_str(), thisInstance->gamePort);
 		} else {
 			eventMsg.event = TS_CC_EVENT::CE_ServerDisconnected;
-			qDebug(LOG_PREFIX"Game server %s:%d disconnected", thisInstance->gameHost.constData(), thisInstance->gamePort);
+			qDebug(LOG_PREFIX"Game server %s:%d disconnected", thisInstance->gameHost.c_str(), thisInstance->gamePort);
 		}
 
 		thisInstance->close();
@@ -147,11 +149,11 @@ void Server::gameStateChanged(void* instance, ISocket* socket, ISocket::State ol
 	}
 }
 
-void Server::authSocketError(void* instance, ISocket* socket, int errnoValue) {
+void Server::authSocketError(void* instance, ISocket*, int errnoValue) {
 	Server* thisInstance = static_cast<Server*>(instance);
 
 	thisInstance->close();
-	qWarning(LOG_PREFIX"Auth server %s:%d socket error %s !", thisInstance->authHost.constData(), thisInstance->authPort, strerror(errnoValue));
+	qWarning(LOG_PREFIX"Auth server %s:%d socket error %s !", thisInstance->authHost.c_str(), thisInstance->authPort, strerror(errnoValue));
 
 	TS_CC_EVENT eventMsg;
 	TS_MESSAGE::initMessage<TS_CC_EVENT>(&eventMsg);
@@ -159,11 +161,11 @@ void Server::authSocketError(void* instance, ISocket* socket, int errnoValue) {
 	thisInstance->dispatchPacket(ST_Auth, &eventMsg);
 }
 
-void Server::gameSocketError(void* instance, ISocket* socket, int errnoValue) {
+void Server::gameSocketError(void* instance, ISocket*, int errnoValue) {
 	Server* thisInstance = static_cast<Server*>(instance);
 
 	thisInstance->close();
-	qWarning(LOG_PREFIX"Game server %s:%d socket error %s !", thisInstance->gameHost.constData(), thisInstance->gamePort, strerror(errnoValue));
+	qWarning(LOG_PREFIX"Game server %s:%d socket error %s !", thisInstance->gameHost.c_str(), thisInstance->gamePort, strerror(errnoValue));
 
 	TS_CC_EVENT eventMsg;
 	TS_MESSAGE::initMessage<TS_CC_EVENT>(&eventMsg);
@@ -174,14 +176,14 @@ void Server::gameSocketError(void* instance, ISocket* socket, int errnoValue) {
 void Server::close() {
 	currentState = SS_NotConnected;
 
-	if(authSocket->state() != QAbstractSocket::UnconnectedState) {
+	if(authSocket->getState() != ISocket::UnconnectedState) {
 		authSocket->close();
-		if(authSocket->state() != QAbstractSocket::UnconnectedState)
+		if(authSocket->getState() != ISocket::UnconnectedState)
 			authSocket->waitForDisconnected(1000);
 	}
-	if(gameSocket->state() != QAbstractSocket::UnconnectedState) {
+	if(gameSocket->getState() != ISocket::UnconnectedState) {
 		gameSocket->close();
-		if(gameSocket->state() != QAbstractSocket::UnconnectedState)
+		if(gameSocket->getState() != ISocket::UnconnectedState)
 			gameSocket->waitForDisconnected(1000);
 	}
 }
@@ -196,7 +198,7 @@ void Server::sendPacket(const TS_MESSAGE* data, ServerType destServer) {
 	else qFatal(LOG_PREFIX"sendPacket: invalid state: %d", currentState);
 }
 
-void Server::proceedServerMove(const QByteArray &gameHost, quint16 gamePort) {
+void Server::proceedServerMove(const std::string &gameHost, quint16 gamePort) {
 	currentState = SS_ServerConnectionMove;
 
 	authSocket->close();
@@ -212,25 +214,33 @@ void Server::dispatchPacket(ServerType originatingServer, const TS_MESSAGE* pack
 	typedef std::unordered_multimap<uint16_t, CallbacksTable::CallbackInfo >::const_iterator CallbackIterator;
 
 	std::pair<CallbackIterator, CallbackIterator> callbackFunctionsToCall;
+	std::unordered_multimap<uint16_t, CallbacksTable::CallbackInfo > packetListeners;
 	CallbackIterator it;
 
 	if(originatingServer == ST_Auth) {
-		if(packetData->id == TS_SC_RESULT::packetID)
-			callbackFunctionsToCall = callbacks->authPacketListeners.equal_range(reinterpret_cast<const TS_SC_RESULT*>(packetData)->request_msg_id);
-		else callbackFunctionsToCall = callbacks->authPacketListeners.equal_range(packetData->id);
-	} else if(originatingServer == ST_Game)
-		if(packetData->id == TS_SC_RESULT::packetID)
-			callbackFunctionsToCall = callbacks->gamePacketListeners.equal_range(reinterpret_cast<const TS_SC_RESULT*>(packetData)->request_msg_id);
-		else callbackFunctionsToCall = callbacks->gamePacketListeners.equal_range(packetData->id);
-	else return;
+		packetListeners = callbacks->authPacketListeners;
+	} else if(originatingServer == ST_Game) {
+		packetListeners = callbacks->gamePacketListeners;
+	} else {
+		return;
+	}
 
-	for(it = callbackFunctionsToCall.first; it != callbackFunctionsToCall.second; ++it) {
+	if(packetData->id == TS_SC_RESULT::packetID)
+		callbackFunctionsToCall = packetListeners.equal_range(reinterpret_cast<const TS_SC_RESULT*>(packetData)->request_msg_id);
+	else callbackFunctionsToCall = packetListeners.equal_range(packetData->id);
+
+	for(it = callbackFunctionsToCall.first; it != callbackFunctionsToCall.second;) {
 		const CallbacksTable::CallbackInfo& callbackInfo = it->second;
-		(*callbackInfo.callback)(callbackInfo.instance, this, packetData);
+		if(callbackInfo.callback != nullptr) {
+			(*callbackInfo.callback)(callbackInfo.instance, this, packetData);
+			++it;
+		} else {
+			it = packetListeners.erase(it);
+		}
 	}
 }
 
-void Server::networkDataReceivedFromAuth(void* instance, ISocket* socket) {
+void Server::networkDataReceivedFromAuth(void* instance, ISocket*) {
 	Server* thisInstance = static_cast<Server*>(instance);
 
 	if(thisInstance->currentState == SS_ConnectedToAuth)
@@ -238,7 +248,7 @@ void Server::networkDataReceivedFromAuth(void* instance, ISocket* socket) {
 	else qWarning(LOG_PREFIX"Received data from auth but not in SS_ConnectedToAuth mode, currentState: %d", thisInstance->currentState);
 }
 
-void Server::networkDataReceivedFromGame(void* instance, ISocket* socket) {
+void Server::networkDataReceivedFromGame(void* instance, ISocket*) {
 	Server* thisInstance = static_cast<Server*>(instance);
 
 	if(thisInstance->currentState == SS_ServerConnectionMove || thisInstance->currentState == SS_ConnectedToGame)
@@ -273,14 +283,20 @@ void Server::networkDataProcess(ServerType serverType, EncryptedSocket* socket, 
 	} while((buffer->currentMessageSize == 0 && socket->bytesAvailable() >= 4) || (buffer->currentMessageSize != 0 && socket->bytesAvailable() >= (buffer->currentMessageSize - 4)));
 }
 
-void Server::addPacketListener(ServerType server, uint16_t packetId, CallbackFunction onPacketReceivedCallback, void* arg) {
+ICallbackGuard::CallbackPtr Server::addPacketListener(ServerType server, uint16_t packetId, CallbackFunction onPacketReceivedCallback, void* arg) {
 	CallbacksTable::CallbackInfo callback = {onPacketReceivedCallback, arg};
+	std::unordered_multimap<uint16_t, CallbacksTable::CallbackInfo >::iterator it;
 
 	if(server == ST_Auth)
-		callbacks->authPacketListeners.emplace(packetId, callback);
+		it = callbacks->authPacketListeners.emplace(packetId, callback);
 	else if(server == ST_Game)
-		callbacks->gamePacketListeners.emplace(packetId, callback);
-	else qFatal(LOG_PREFIX"addPacketListener: Invalid server type: %d", server);
+		it = callbacks->gamePacketListeners.emplace(packetId, callback);
+	else {
+		qFatal(LOG_PREFIX"addPacketListener: Invalid server type: %d", server);
+		return nullptr;
+	}
+
+	return (ICallbackGuard::CallbackPtr)&(it->second.callback);
 }
 
 void Server::removePacketListener(ServerType serverType, uint16_t packetId, void *instance) {

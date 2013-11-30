@@ -32,6 +32,7 @@ Socket::Socket() : _p(new SocketInternal)
 {
 	_p->sock = -1;
 	_p->currentState = UnconnectedState;
+	lastError = 0;
 }
 
 Socket::~Socket() {
@@ -49,7 +50,8 @@ bool Socket::connect(const std::string & hostName, uint16_t port) {
 
 	_p->sock = ::socket(AF_INET, SOCK_STREAM, 0);
 	if(_p->sock < 0) {
-		notifyReadyError();
+		this->lastError = errno;
+		notifyReadyError(lastError);
 		return false;
 	}
 
@@ -90,10 +92,9 @@ bool Socket::connect(const std::string & hostName, uint16_t port) {
 			break;
 	}
 
-	sleep(1);
-
 	if(lastError != 0 && lastError != -EINPROGRESS) {
-		notifyReadyError();
+		this->lastError = errno;
+		notifyReadyError(lastError);
 		return false;
 	} else if(lastError == 0) {
 		setState(ConnectedState);
@@ -114,8 +115,10 @@ size_t Socket::read(void *buffer, size_t size) {
 	}
 
 	if(byteRead < 0) {
-		if(errno != EAGAIN)
-			notifyReadyError();
+		if(errno != EAGAIN) {
+			lastError = errno;
+			notifyReadyError(lastError);
+		}
 	}
 
 	return totalByteRead;
@@ -142,13 +145,17 @@ size_t Socket::write(const void *buffer, size_t size) {
 	}
 
 	if(byteWritten < 0) {
-			notifyReadyError();
+		lastError = errno;
+		notifyReadyError(lastError);
 	}
 
 	return totalByteWritten;
 }
 
 void Socket::close() {
+	if(_p->sock < 0)
+		return;
+
 	if(socketPoll)
 		socketPoll->removeSocket(this);
 
@@ -160,6 +167,9 @@ void Socket::close() {
 }
 
 void Socket::abort() {
+	if(_p->sock < 0)
+		return;
+
 	int lingerValue = 0;
 	int lingerOptionSize = sizeof(int);
 	::setsockopt(_p->sock, SOL_SOCKET, SO_LINGER, &lingerValue, lingerOptionSize);
@@ -200,19 +210,31 @@ void Socket::setState(State state) {
 }
 
 unsigned int Socket::getLastError() {
-	return errno;
+	return lastError;
 }
 
-void Socket::addDataListener(void* instance, CallbackOnDataReady listener) {
-	_p->dataListeners.emplace(instance, listener);
+ICallbackGuard::CallbackPtr Socket::addDataListener(void* instance, CallbackOnDataReady listener) {
+	std::unordered_map<void*, Socket::CallbackOnDataReady>::iterator it;
+
+	it = _p->dataListeners.emplace(instance, listener).first;
+
+	return (ICallbackGuard::CallbackPtr)(&(it->second));
 }
 
-void Socket::addEventListener(void* instance, CallbackOnStateChanged listener) {
-	_p->eventListeners.emplace(instance, listener);
+ICallbackGuard::CallbackPtr Socket::addEventListener(void* instance, CallbackOnStateChanged listener) {
+	std::unordered_map<void*, Socket::CallbackOnStateChanged>::iterator it;
+
+	it = _p->eventListeners.emplace(instance, listener).first;
+
+	return (ICallbackGuard::CallbackPtr)(&(it->second));
 }
 
-void Socket::addErrorListener(void* instance, CallbackOnError listener) {
-	_p->errorListeners.emplace(instance, listener);
+ICallbackGuard::CallbackPtr Socket::addErrorListener(void* instance, CallbackOnError listener) {
+	std::unordered_map<void*, Socket::CallbackOnError>::iterator it;
+
+	it = _p->errorListeners.emplace(instance, listener).first;
+
+	return (ICallbackGuard::CallbackPtr)(&(it->second));
 }
 
 void Socket::removeListener(void* instance) {
@@ -238,11 +260,16 @@ void Socket::notifyReadyRead() {
 			break;
 
 		case ConnectedState:
-			for(it = _p->dataListeners.cbegin(), itEnd = _p->dataListeners.cend(); it != itEnd; ++it) {
+			for(it = _p->dataListeners.cbegin(), itEnd = _p->dataListeners.cend(); it != itEnd;) {
 				void* instance = it->first;
 				const CallbackOnDataReady& callback = it->second;
 
-				callback(instance, this);
+				if(callback != nullptr) {
+					callback(instance, this);
+					++it;
+				} else {
+					it = _p->dataListeners.erase(it);
+				}
 			}
 			break;
 
@@ -253,8 +280,6 @@ void Socket::notifyReadyRead() {
 }
 
 void Socket::notifyReadyWrite() {
-	std::unordered_map<void*, CallbackOnDataReady>::const_iterator it, itEnd;
-
 	switch(getState()) {
 		case UnconnectedState:
 			fprintf(stderr, "Received WRITE event on closed socket\n");
@@ -278,17 +303,18 @@ void Socket::notifyReadyWrite() {
 
 }
 
-void Socket::notifyReadyError() {
-	int socketError;
-	unsigned int errorSize = sizeof(int);
-	::getsockopt(_p->sock, SOL_SOCKET, SO_ERROR, &socketError, &errorSize);
-
+void Socket::notifyReadyError(int errorValue) {
 	std::unordered_map<void*, CallbackOnError>::const_iterator it, itEnd;
-	for(it = _p->errorListeners.cbegin(), itEnd = _p->errorListeners.cend(); it != itEnd; ++it) {
+	for(it = _p->errorListeners.cbegin(), itEnd = _p->errorListeners.cend(); it != itEnd;) {
 		void* instance = it->first;
 		const CallbackOnError& callback = it->second;
 
-		(*callback)(instance, this, socketError);
+		if(callback != nullptr) {
+			(*callback)(instance, this, errorValue);
+			++it;
+		} else {
+			it = _p->errorListeners.erase(it);
+		}
 	}
 	abort();
 }

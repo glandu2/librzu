@@ -42,7 +42,7 @@ Authentication::~Authentication() {
 	server->setAuth(0);
 }
 
-void Authentication::setServer(QByteArray host, quint16 port) {
+void Authentication::setServer(std::string host, quint16 port) {
 	server->setServerFarm(host, port);
 	if(server->getState() != Server::SS_NotConnected)
 		server->close();
@@ -97,7 +97,7 @@ void Authentication::selectServer(quint16 serverId) {
 	server->sendPacket(&selectServerMsg, Server::ST_Auth);
 }
 
-void Authentication::onAuthServerConnectionEvent(void* instance, Server* server, const TS_MESSAGE* packetData) {
+void Authentication::onAuthServerConnectionEvent(void* instance, Server*, const TS_MESSAGE* packetData) {
 	Authentication* thisAccount = static_cast<Authentication*>(instance);
 
 	if(packetData->id == TS_CC_EVENT::packetID) {
@@ -110,7 +110,7 @@ void Authentication::onAuthServerConnectionEvent(void* instance, Server* server,
 	}
 }
 
-void Authentication::onGameServerConnectionEvent(void* instance, Server* server, const TS_MESSAGE* packetData) {
+void Authentication::onGameServerConnectionEvent(void* instance, Server*, const TS_MESSAGE* packetData) {
 	Authentication* thisAccount = static_cast<Authentication*>(instance);
 
 	if(packetData->id == TS_CC_EVENT::packetID) {
@@ -123,7 +123,7 @@ void Authentication::onGameServerConnectionEvent(void* instance, Server* server,
 	}
 }
 
-void Authentication::onAuthPacketReceived(void* instance, Server* server, const TS_MESSAGE* packetData) {
+void Authentication::onAuthPacketReceived(void* instance, Server*, const TS_MESSAGE* packetData) {
 	Authentication* thisAccount = static_cast<Authentication*>(instance);
 
 	switch(packetData->id) {
@@ -159,7 +159,7 @@ void Authentication::onAuthPacketReceived(void* instance, Server* server, const 
 	}
 }
 
-void Authentication::onGamePacketReceived(void* instance, Server* server, const TS_MESSAGE* packetData) {
+void Authentication::onGamePacketReceived(void* instance, Server*, const TS_MESSAGE* packetData) {
 	Authentication* thisAccount = static_cast<Authentication*>(instance);
 
 	switch(packetData->id) {
@@ -311,10 +311,10 @@ void Authentication::onPacketServerList(const TS_AC_SERVER_LIST* packet) {
 
 	for(int i=0; i < packet->count; ++i) {
 		currentServerInfo.serverId = packetServerList[i].server_idx;
-		currentServerInfo.serverIp = QByteArray(packetServerList[i].server_ip);
+		currentServerInfo.serverIp = std::string(packetServerList[i].server_ip);
 		currentServerInfo.serverPort = packetServerList[i].server_port;
-		currentServerInfo.serverName = QByteArray(packetServerList[i].server_name);
-		currentServerInfo.serverScreenshotUrl = QByteArray(packetServerList[i].server_screenshot_url);
+		currentServerInfo.serverName = std::string(packetServerList[i].server_name);
+		currentServerInfo.serverScreenshotUrl = std::string(packetServerList[i].server_screenshot_url);
 		currentServerInfo.userRatio = packetServerList[i].user_ratio;
 		serverList.append(currentServerInfo);
 

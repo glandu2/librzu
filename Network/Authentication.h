@@ -20,9 +20,9 @@ class RAPPELZLIBSHARED_EXPORT Authentication : public QObject
 	public:
 		struct ServerInfo {
 			quint16 serverId;
-			QByteArray serverName;
-			QByteArray serverScreenshotUrl;
-			QByteArray serverIp;
+			std::string serverName;
+			std::string serverScreenshotUrl;
+			std::string serverIp;
 			qint32 serverPort;
 			quint16 userRatio;
 		};
@@ -37,7 +37,7 @@ class RAPPELZLIBSHARED_EXPORT Authentication : public QObject
 
 		QByteArray getAccountName() { return username; }
 
-		void setServer(QByteArray host, quint16 port = 4500);
+		void setServer(std::string host, quint16 port = 4500);
 		void connectAccount(QByteArray username, QByteArray password, QByteArray clientVersion, AuthCipherMethod cipherMethod);
 		void abortConnection();
 		void retreiveServerList();
@@ -70,7 +70,7 @@ class RAPPELZLIBSHARED_EXPORT Authentication : public QObject
 	private:
 		struct ServerConnectionInfo {
 			quint16 id;
-			QByteArray ip;
+			std::string ip;
 			quint16 port;
 		};
 		enum State {
