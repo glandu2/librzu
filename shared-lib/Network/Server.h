@@ -45,7 +45,7 @@ class RAPPELZLIBSHARED_EXPORT Server : private ICallbackGuard
 		typedef void (*CallbackFunction)(void* instance, Server* server, const TS_MESSAGE* packetData);
 
 	private:
-		static const quint32 initialInputBufferSize = 16384;
+		static const uint32_t initialInputBufferSize = 16384;
 		struct InputBuffer {
 			uint8_t* buffer;
 			uint32_t bufferSize;
@@ -58,7 +58,7 @@ class RAPPELZLIBSHARED_EXPORT Server : private ICallbackGuard
 		virtual ~Server();
 
 		//Set auth server that allow to connect to a world.
-		void setServerFarm(const std::string &authHost, quint16 authPort);
+		void setServerFarm(const std::string &authHost, uint16_t authPort);
 
 		void sendPacket(const TS_MESSAGE* data, ServerType destServer = ST_Game);
 		void connectToAuth();
@@ -68,8 +68,8 @@ class RAPPELZLIBSHARED_EXPORT Server : private ICallbackGuard
 		void setAuth(Authentication *a) { auth = a; }
 		Authentication* getAuth() { return auth; }
 
-		DelegateInvalidatePtr addPacketListener(ServerType server, uint16_t packetId, void* instance, CallbackFunction onPacketReceivedCallback);
-		void proceedServerMove(const std::string &gameHost, quint16 gamePort);
+		DelegateRef addPacketListener(ServerType server, uint16_t packetId, void* instance, CallbackFunction onPacketReceivedCallback);
+		void proceedServerMove(const std::string &gameHost, uint16_t gamePort);
 
 	protected:
 		static void networkDataReceivedFromAuth(void* instance, ISocket* socket);
@@ -88,8 +88,8 @@ class RAPPELZLIBSHARED_EXPORT Server : private ICallbackGuard
 		EncryptedSocket* gameSocket;
 		std::string authHost;
 		std::string gameHost;
-		quint16 authPort;
-		quint16 gamePort;
+		uint16_t authPort;
+		uint16_t gamePort;
 		State currentState;
 		Authentication *auth;
 

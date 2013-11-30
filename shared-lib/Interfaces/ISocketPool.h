@@ -8,8 +8,6 @@ class ISocket;
 class ISocketPool : public IObject
 {
 public:
-	ISocketPool();
-
 	virtual void IFACECALLCONV addSocket(ISocket* socket) = 0;
 	virtual void IFACECALLCONV removeSocket(ISocket* socket) = 0;
 

@@ -1,12 +1,10 @@
 #ifndef RAPPELZLIB_GLOBAL_H
 #define RAPPELZLIB_GLOBAL_H
 
-#include <QtCore/qglobal.h>
-
 #if defined(RAPPELZLIB_LIBRARY)
-#  define RAPPELZLIBSHARED_EXPORT Q_DECL_EXPORT
+#  define RAPPELZLIBSHARED_EXPORT
 #else
-#  define RAPPELZLIBSHARED_EXPORT Q_DECL_IMPORT
+#  define RAPPELZLIBSHARED_EXPORT
 #endif
 
 #if defined(WIN32) && !defined(WIN64)

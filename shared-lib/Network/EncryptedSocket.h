@@ -11,14 +11,11 @@ class EncryptedSocket : public Socket
 		EncryptedSocket();
 		~EncryptedSocket();
 
-		bool connectToHost(const std::string &hostName, quint16 port);
-		qint64 read(char *buffer, qint64 size);
-		qint64 write(const char *buffer, qint64 size);
-		inline qint64 read(void *buffer, qint64 size) { return read((char*)buffer, size); }
-		inline qint64 write(const void *buffer, qint64 size) { return write((const char*)buffer, size); }
+		virtual bool connect(const std::string &hostName, uint64_t port);
+		size_t IFACECALLCONV read(void *buffer, size_t size);
+		size_t IFACECALLCONV write(const void *buffer, size_t size);
 
 		bool waitForDisconnected(int i) { i=i; return true; }
-		quint64 bytesAvailable() { return getAvailableBytes(); }
 
 	private:
 		RC4Cipher inputEnc, outputEnc;

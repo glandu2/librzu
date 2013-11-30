@@ -1,7 +1,7 @@
 #ifndef SOCKET_H
 #define SOCKET_H
 
-#include "ISocket.h"
+#include "Interfaces/ISocket.h"
 
 struct SocketInternal;
 class SocketPoll;
@@ -20,9 +20,9 @@ public:
 	State IFACECALLCONV getState();
 	size_t IFACECALLCONV getAvailableBytes();
 
-	ICallbackGuard::CallbackPtr IFACECALLCONV addDataListener(void* instance, CallbackOnDataReady listener);
-	ICallbackGuard::CallbackPtr IFACECALLCONV addEventListener(void* instance, CallbackOnStateChanged listener);
-	ICallbackGuard::CallbackPtr IFACECALLCONV addErrorListener(void* instance, CallbackOnError listener);
+	DelegateRef IFACECALLCONV addDataListener(void* instance, CallbackOnDataReady listener);
+	DelegateRef IFACECALLCONV addEventListener(void* instance, CallbackOnStateChanged listener);
+	DelegateRef IFACECALLCONV addErrorListener(void* instance, CallbackOnError listener);
 	void IFACECALLCONV removeListener(void* instance);
 
 	int64_t getFd();

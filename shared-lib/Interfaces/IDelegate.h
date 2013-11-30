@@ -3,8 +3,7 @@
 
 #include <unordered_map>
 #include <tuple>
-
-typedef void** DelegateInvalidatePtr;
+#include "ICallbackGuard.h"
 
 template<class Key, typename ...Values>
 class IDelegateHash {
@@ -15,13 +14,13 @@ public:
 		CallbackType callback;
 	};
 
-	DelegateInvalidatePtr add(Key key, void* instance, CallbackType callback) {
+	DelegateRef add(Key key, void* instance, CallbackType callback) {
 		typename std::unordered_map<Key, CallbackInfo>::iterator it;
 		it = callbacks.emplace(key, CallbackInfo({instance, callback}));
-		return (DelegateInvalidatePtr)&(it->second.callback);
+		return (DelegateRef)&(it->second.callback);
 	}
 
-	void del(DelegateInvalidatePtr ptr) {
+	void del(DelegateRef ptr) {
 		if(ptr)
 			*ptr = nullptr;
 	}
@@ -55,20 +54,18 @@ private:
 	std::unordered_multimap<Key, CallbackInfo> callbacks;
 };
 
-
-
 template<typename ...Values>
 class IDelegate {
 public:
 	typedef void (*CallbackType)(void* instance, Values...);
 
-	DelegateInvalidatePtr add(void* instance, CallbackType callback) {
+	DelegateRef add(void* instance, CallbackType callback) {
 		typename std::unordered_map<void*, CallbackType>::iterator it;
 		it = callbacks.emplace(instance, callback).first;
-		return (DelegateInvalidatePtr)&it->second;
+		return (DelegateRef)&it->second;
 	}
 
-	void del(DelegateInvalidatePtr ptr) {
+	void del(DelegateRef ptr) {
 		if(ptr)
 			*ptr = nullptr;
 	}

@@ -12,7 +12,6 @@
 #include <sys/ioctl.h>
 
 #include <unordered_map>
-#include "../Common/Delegate.h"
 #include "../Interfaces/IDelegate.h"
 
 #ifndef SHUT_RDWR
@@ -207,15 +206,15 @@ unsigned int Socket::getLastError() {
 	return lastError;
 }
 
-ICallbackGuard::CallbackPtr Socket::addDataListener(void* instance, CallbackOnDataReady listener) {
+DelegateRef Socket::addDataListener(void* instance, CallbackOnDataReady listener) {
 	return _p->dataListeners.add(instance, listener);
 }
 
-ICallbackGuard::CallbackPtr Socket::addEventListener(void* instance, CallbackOnStateChanged listener) {
+DelegateRef Socket::addEventListener(void* instance, CallbackOnStateChanged listener) {
 	return _p->eventListeners.add(instance, listener);
 }
 
-ICallbackGuard::CallbackPtr Socket::addErrorListener(void* instance, CallbackOnError listener) {
+DelegateRef Socket::addErrorListener(void* instance, CallbackOnError listener) {
 	return _p->errorListeners.add(instance, listener);
 }
 

@@ -3,19 +3,22 @@
 debug/
 release/
 x64/
-build/
-bin/
-obj/
-objs/
+build*/
+bin*/
+obj*/
+internal*/
 
 *.ilk
 *.exe
 *.lib
 *.o
 *.pdb
+*.so*
 *.user*
 CMakeLists.txt.*
 Makefile*
+
+project*/
 
 #############
 ## Windows detritus

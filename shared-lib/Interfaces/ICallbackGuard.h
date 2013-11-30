@@ -4,20 +4,21 @@
 #include <vector>
 #include <utility>
 
+typedef void** DelegateRef;
+
 class ICallbackGuard {
 public:
-	typedef void** CallbackPtr;
 
-	void addInstance(CallbackPtr callbackValidityPtr) {
+	void addInstance(DelegateRef callbackValidityPtr) {
 		if(callbackValidityPtr)
 			callbackValidityPtrs.push_back(callbackValidityPtr);
 	}
 
 	void invalidateCallbacks() {
-		std::vector<CallbackPtr>::iterator it, itEnd;
+		std::vector<DelegateRef>::iterator it, itEnd;
 
 		for(it = callbackValidityPtrs.begin(), itEnd = callbackValidityPtrs.end(); it != itEnd; ++it) {
-			CallbackPtr callbackValidityPtr = *it;
+			DelegateRef callbackValidityPtr = *it;
 			*callbackValidityPtr = nullptr;
 		}
 
@@ -30,7 +31,7 @@ public:
 
 
 private:
-	std::vector<CallbackPtr> callbackValidityPtrs;
+	std::vector<DelegateRef> callbackValidityPtrs;
 };
 
 #endif // CALLBACKGUARD_H

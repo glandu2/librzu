@@ -34,9 +34,9 @@ public:
 
 	virtual int64_t IFACECALLCONV getFd() = 0;
 
-	virtual ICallbackGuard::CallbackPtr IFACECALLCONV addDataListener(void* instance, CallbackOnDataReady listener) = 0;
-	virtual ICallbackGuard::CallbackPtr IFACECALLCONV addEventListener(void* instance, CallbackOnStateChanged listener) = 0;
-	virtual ICallbackGuard::CallbackPtr IFACECALLCONV addErrorListener(void* instance, CallbackOnError listener) = 0;
+	virtual DelegateRef IFACECALLCONV addDataListener(void* instance, CallbackOnDataReady listener) = 0;
+	virtual DelegateRef IFACECALLCONV addEventListener(void* instance, CallbackOnStateChanged listener) = 0;
+	virtual DelegateRef IFACECALLCONV addErrorListener(void* instance, CallbackOnError listener) = 0;
 	virtual void IFACECALLCONV removeListener(void* instance) = 0;
 };
 

@@ -1,7 +1,7 @@
 #ifndef SOCKETPOOL_H
 #define SOCKETPOOL_H
 
-#include "ISocketPool.h"
+#include "Interfaces/ISocketPool.h"
 #include <list>
 
 class ISocket;
