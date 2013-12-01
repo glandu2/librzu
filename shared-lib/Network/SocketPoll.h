@@ -2,7 +2,7 @@
 #define SOCKETPOOL_H
 
 #include "Interfaces/ISocketPool.h"
-#include <list>
+#include <unordered_set>
 
 class ISocket;
 
@@ -19,12 +19,15 @@ public:
 	virtual void IFACECALLCONV processEvents(int waitTime);
 	virtual void IFACECALLCONV stop();
 
+	virtual void IFACECALLCONV deleteLater(ISocket* socket);
+
 private:
 	int pollAbortPipe[2];
 	int epollFd;
 	bool stopRequested;
 	bool running;
 	bool updateAcknownledged;
+	std::unordered_set<ISocket*> socketsToDelete;
 };
 
 #endif // SOCKETPOOL_H

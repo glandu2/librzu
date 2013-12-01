@@ -20,6 +20,7 @@
 
 struct SocketInternal {
 	IDelegate<ISocket*> dataListeners;
+	IDelegate<ISocket*> incomingConnectionListeners;
 	IDelegate<ISocket*, ISocket::State, ISocket::State> eventListeners;
 	IDelegate<ISocket*, int> errorListeners;
 	int sock;
@@ -39,6 +40,11 @@ Socket::~Socket() {
 	if(getState() != UnconnectedState)
 		abort();
 	delete _p;
+}
+
+void Socket::deleteLater() {
+	if(socketPoll)
+		socketPoll->deleteLater(this);
 }
 
 bool Socket::connect(const std::string & hostName, uint16_t port) {
@@ -71,8 +77,9 @@ bool Socket::connect(const std::string & hostName, uint16_t port) {
     int rv, lastError;
 
 	memset(&hints, 0, sizeof(hints));
-	hints.ai_family = AF_UNSPEC; // use AF_INET6 to force IPv6
+	hints.ai_family = AF_INET; // use AF_INET6 to force IPv6
 	hints.ai_socktype = SOCK_STREAM;
+	hints.ai_protocol = 0;
 
 	if( (rv = getaddrinfo( hostName.c_str() , NULL, &hints , &servinfo)) != 0)
 	{
@@ -92,13 +99,85 @@ bool Socket::connect(const std::string & hostName, uint16_t port) {
 			break;
 	}
 
+	::freeaddrinfo(servinfo);
+
 	if(lastError != 0 && lastError != -EINPROGRESS) {
 		this->lastError = errno;
-		notifyReadyError(lastError);
+		notifyReadyError(errno);
 		return false;
 	} else if(lastError == 0) {
 		setState(ConnectedState);
 	}
+	return true;
+}
+
+bool IFACECALLCONV Socket::listen(const std::string& interfaceIp, u_int16_t port) {
+	if(getState() != UnconnectedState)
+		return false;
+
+	if(_p->sock >= 0)
+		abort();
+
+	_p->sock = ::socket(AF_INET, SOCK_STREAM, 0);
+	if(_p->sock < 0) {
+		this->lastError = errno;
+		notifyReadyError(lastError);
+		return false;
+	}
+
+	setState(Binding);
+
+	int optValue = 1;
+	int optionSize = sizeof(int);
+	::setsockopt(_p->sock, SOL_SOCKET, SO_REUSEADDR, &optValue, optionSize);
+	optValue = 1;
+	::ioctl(_p->sock, FIONBIO, (char *)&optValue);
+
+	if(socketPoll)
+		socketPoll->addSocket(this);
+
+	struct sockaddr_in interfaceAddress;
+	struct addrinfo hints, *servinfo, *p;
+	int rv, lastError;
+
+	memset(&hints, 0, sizeof(hints));
+	hints.ai_family = AF_INET; // use AF_INET6 to force IPv6
+	hints.ai_socktype = SOCK_STREAM;
+	hints.ai_protocol = 0;
+
+	if( (rv = getaddrinfo( interfaceIp.c_str() , NULL, &hints , &servinfo)) != 0)
+	{
+		fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(rv));
+		return 1;
+	}
+
+	// loop through all the results and bind to the first we can
+	for(p = servinfo; p != NULL; p = p->ai_next)
+	{
+		interfaceAddress = *(struct sockaddr_in*)p->ai_addr;
+		interfaceAddress.sin_port = htons(port);
+		lastError = ::bind(_p->sock, (sockaddr*)&interfaceAddress, sizeof(interfaceAddress));
+		if(lastError == 0)
+			break;
+	}
+
+	::freeaddrinfo(servinfo);
+
+	if(lastError != 0) {
+		this->lastError = errno;
+		notifyReadyError(errno);
+		abort();
+		return false;
+	}
+
+	if(::listen(_p->sock, 30) < 0) {
+		this->lastError = errno;
+		notifyReadyError(errno);
+		abort();
+		return false;
+	}
+
+	setState(Listening);
 	return true;
 }
 
@@ -147,9 +226,48 @@ size_t Socket::write(const void *buffer, size_t size) {
 	if(byteWritten < 0) {
 		lastError = errno;
 		notifyReadyError(lastError);
+	} else {
+		fd_set readySet;
+		FD_ZERO(&readySet);
+		FD_SET(_p->sock, &readySet);
+		select(_p->sock+1, NULL, &readySet, NULL, NULL);
 	}
 
 	return totalByteWritten;
+}
+
+bool IFACECALLCONV Socket::accept(ISocket* socket) {
+	int optValue = 1;
+	int optionSize = sizeof(int);
+	int newSocket;
+
+	newSocket = ::accept(_p->sock, NULL, 0);
+	if(newSocket < 0) {
+		if(errno != EAGAIN)
+			notifyReadyError(errno);
+		return false;
+	}
+
+	if(::setsockopt(newSocket, SOL_SOCKET, SO_OOBINLINE, &optValue, optionSize) < 0) {
+		::close(newSocket);
+		notifyReadyError(errno);
+		return false;
+	}
+
+	optValue = 1;
+	if(::ioctl(newSocket, FIONBIO, (char *)&optValue) < 0) {
+		::close(newSocket);
+		notifyReadyError(errno);
+		return false;
+	}
+
+	static_cast<Socket*>(socket)->_p->sock = newSocket;
+	static_cast<Socket*>(socket)->_p->currentState = ConnectedState;
+
+	if(socketPoll)
+		socketPoll->addSocket(socket);
+
+	return true;
 }
 
 void Socket::close() {
@@ -160,7 +278,7 @@ void Socket::close() {
 		socketPoll->removeSocket(this);
 
 	setState(ClosingState);
-	::shutdown(_p->sock, SHUT_RDWR);
+	shutdown(_p->sock, SHUT_WR);
 	::close(_p->sock);
 	_p->sock = -1;
 	setState(UnconnectedState);
@@ -170,10 +288,21 @@ void Socket::abort() {
 	if(_p->sock < 0)
 		return;
 
-	int lingerValue = 0;
-	int lingerOptionSize = sizeof(int);
+	if(socketPoll)
+		socketPoll->removeSocket(this);
+
+	setState(ClosingState);
+
+	struct {
+		int onoff;
+		int timeout;
+	} lingerValue = {1, 0};
+	int lingerOptionSize = sizeof(lingerValue);
 	::setsockopt(_p->sock, SOL_SOCKET, SO_LINGER, &lingerValue, lingerOptionSize);
-	close();
+
+	::close(_p->sock);
+	_p->sock = -1;
+	setState(UnconnectedState);
 }
 
 size_t Socket::getAvailableBytes() {
@@ -210,6 +339,10 @@ DelegateRef Socket::addDataListener(void* instance, CallbackOnDataReady listener
 	return _p->dataListeners.add(instance, listener);
 }
 
+DelegateRef Socket::addConnectionListener(void* instance, CallbackOnDataReady listener) {
+	return _p->incomingConnectionListeners.add(instance, listener);
+}
+
 DelegateRef Socket::addEventListener(void* instance, CallbackOnStateChanged listener) {
 	return _p->eventListeners.add(instance, listener);
 }
@@ -232,16 +365,19 @@ void Socket::notifyReadyRead() {
 			fprintf(stderr, "Received READ event on closed socket\n");
 			break;
 
-		case HostLookupState:
-			fprintf(stderr, "Received READ event on host lookup socket\n");
-			break;
-
 		case ConnectingState:
 			setState(ConnectedState);
 			break;
 
+		case Binding:
+			break;
+
 		case ConnectedState:
 			_p->dataListeners.dispatch(this);
+			break;
+
+		case Listening:
+			_p->incomingConnectionListeners.dispatch(this);
 			break;
 
 		case ClosingState:
@@ -253,11 +389,10 @@ void Socket::notifyReadyRead() {
 void Socket::notifyReadyWrite() {
 	switch(getState()) {
 		case UnconnectedState:
-			fprintf(stderr, "Received WRITE event on closed socket\n");
+			//fprintf(stderr, "Received WRITE event on closed socket\n");
 			break;
 
-		case HostLookupState:
-			fprintf(stderr, "Received WRITE event on host lookup socket\n");
+		case Binding:
 			break;
 
 		case ConnectingState:
@@ -267,8 +402,11 @@ void Socket::notifyReadyWrite() {
 		case ConnectedState:
 			break;
 
+		case Listening:
+			break;
+
 		case ClosingState:
-			fprintf(stderr, "Received WRITE event on closing socket\n");
+			//fprintf(stderr, "Received WRITE event on closing socket\n");
 			break;
 	}
 
@@ -276,7 +414,8 @@ void Socket::notifyReadyWrite() {
 
 void Socket::notifyReadyError(int errorValue) {
 	_p->errorListeners.dispatch(this, errorValue);
-	abort();
+	if(getState() != Listening)
+		abort();
 }
 
 int64_t Socket::getFd() {

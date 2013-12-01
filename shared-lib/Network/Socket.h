@@ -12,15 +12,23 @@ public:
 	Socket();
 	virtual ~Socket();
 
-	bool IFACECALLCONV connect(const std::string & hostName, uint16_t port);
+	void IFACECALLCONV deleteLater();
+
+	bool IFACECALLCONV connect(const std::string& hostName, uint16_t port);
+	bool IFACECALLCONV listen(const std::string& interfaceIp, u_int16_t port);
+
 	size_t IFACECALLCONV read(void *buffer, size_t size);
 	size_t IFACECALLCONV write(const void *buffer, size_t size);
+	bool IFACECALLCONV accept(ISocket *socket);
+
 	void IFACECALLCONV close();
 	void IFACECALLCONV abort();
+
 	State IFACECALLCONV getState();
 	size_t IFACECALLCONV getAvailableBytes();
 
 	DelegateRef IFACECALLCONV addDataListener(void* instance, CallbackOnDataReady listener);
+	DelegateRef IFACECALLCONV addConnectionListener(void* instance, CallbackOnDataReady listener);
 	DelegateRef IFACECALLCONV addEventListener(void* instance, CallbackOnStateChanged listener);
 	DelegateRef IFACECALLCONV addErrorListener(void* instance, CallbackOnError listener);
 	void IFACECALLCONV removeListener(void* instance);

@@ -2,6 +2,7 @@
 #include <openssl/evp.h>
 #include <string.h>
 #include "Packets/TS_SC_RESULT.h"
+#include <iostream>
 
 //#define NO_DEBUG
 
@@ -23,7 +24,7 @@ RappelzSocket::RappelzSocket() {
 }
 
 RappelzSocket::~RappelzSocket() {
-	close();
+	abort();
 	invalidateCallbacks();
 	if(inputBuffer.buffer)
 		delete inputBuffer.buffer;
@@ -79,6 +80,8 @@ void RappelzSocket::sendPacket(const TS_MESSAGE* data) {
 void RappelzSocket::dispatchPacket(const TS_MESSAGE* packetData) {
 	printf(LOG_PREFIX"Packet in id: %5d, size: %d\n", packetData->id, packetData->size);
 
+	//packetListeners.dispatch(ALL_PACKETS, this, packetData);
+
 	if(packetData->id != TS_SC_RESULT::packetID)
 		packetListeners.dispatch(packetData->id, this, packetData);
 	else
@@ -89,13 +92,13 @@ void RappelzSocket::dataReceived(void* instance, ISocket*) {
 	RappelzSocket* thisInstance = static_cast<RappelzSocket*>(instance);
 	InputBuffer* buffer = &thisInstance->inputBuffer;
 
-	//std::cout() << LOG_PREFIX << "Server: " << " Received data, size = " << thisInstance->getAvailableBytes() << "CurrentSize = " << buffer->currentMessageSize;
+	//std::cout << LOG_PREFIX << "Server: " << " Received data, size = " << thisInstance->getAvailableBytes() << "CurrentSize = " << buffer->currentMessageSize << std::endl;
 	do {
 		if(buffer->currentMessageSize == 0 && thisInstance->getAvailableBytes() < 4) {
 			return;
 		} else if(buffer->currentMessageSize == 0) {
 			thisInstance->read(&buffer->currentMessageSize, 4);
-			//qDebug() << LOG_PREFIX << "New message received, size = " << buffer->currentMessageSize;
+			printf(LOG_PREFIX"New message received, size = %d, available: %lu\n", buffer->currentMessageSize, thisInstance->getAvailableBytes());
 		}
 
 		if(buffer->currentMessageSize != 0 && thisInstance->getAvailableBytes() >= (buffer->currentMessageSize - 4)) {

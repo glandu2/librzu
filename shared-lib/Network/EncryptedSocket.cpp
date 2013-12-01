@@ -1,17 +1,18 @@
 #include "EncryptedSocket.h"
 #include <stdio.h>
 #include <malloc.h>
-#include <thread>
 
 SocketPoll EncryptedSocket::socketPoll;
 
 EncryptedSocket::EncryptedSocket() {
-	static int r = 0;
-	if(!r) {
-		Socket::setPoll(&socketPoll);
-		new std::thread(&updatePoll);
-		r = 1;
-	}
+//	static int r = 0;
+//	if(!r) {
+//		Socket::setPoll(&socketPoll);
+//		new std::thread(&updatePoll);
+//		r = 1;
+//	}
+	inputEnc.prepare("}h79q~B%al;k'y $E");
+	outputEnc.prepare("}h79q~B%al;k'y $E");
 }
 
 EncryptedSocket::~EncryptedSocket() {

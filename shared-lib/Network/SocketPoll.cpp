@@ -77,18 +77,21 @@ void SocketPoll::processEvents(int waitTime) {
 		perror("epoll failed");
 	} else {
 		for(i = 0; i < nbev; i++) {
-			//fprintf(stderr, "EPOLL %p %x\n", events[i].data.ptr, events[i].events);
+			fprintf(stderr, "EPOLL %p %x\n", events[i].data.ptr, events[i].events);
 			if(events[i].data.ptr) {
-				if(events[i].events & EPOLLHUP)
-					continue;
-
 				Socket* socket = static_cast<Socket*>(events[i].data.ptr);
-				if(events[i].events & (EPOLLERR | EPOLLRDHUP)) {
+				if(events[i].events & EPOLLERR) {
 					int socketError;
 					unsigned int errorSize = sizeof(int);
 					::getsockopt(socket->getFd(), SOL_SOCKET, SO_ERROR, &socketError, &errorSize);
+
+					if(socket->getAvailableBytes() > 0)
+						socket->notifyReadyRead();
+
 					socket->notifyReadyError(socketError);
-				} else {
+				} else if(events[i].events & EPOLLRDHUP) {
+					socket->close();
+				} else if((events[i].events & EPOLLHUP) == 0) {
 					if(events[i].events & EPOLLIN) {
 						socket->notifyReadyRead();
 					}
@@ -99,13 +102,21 @@ void SocketPoll::processEvents(int waitTime) {
 			} else {
 				int dummy;
 				if(read(pollAbortPipe[0], &dummy, 1) > 0)
-					{}//fprintf(stderr, "epoll changed, type=%c\n", dummy & 0xFF);
+					fprintf(stderr, "epoll changed, type=%c\n", dummy & 0xFF);
 			}
 		}
+		for(auto it = socketsToDelete.begin(); it != socketsToDelete.end(); ++it) {
+			delete *it;
+		}
+		socketsToDelete.clear();
 	}
 }
 
 void SocketPoll::stop() {
 	stopRequested = true;
 	write(pollAbortPipe[1], "s", 1);
+}
+
+void SocketPoll::deleteLater(ISocket* socket) {
+	socketsToDelete.insert(socket);
 }

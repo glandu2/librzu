@@ -16,6 +16,7 @@ class RappelzSocket : public EncryptedSocket, private ICallbackGuard
 {
 public:
 	typedef void (*CallbackFunction)(void* instance, RappelzSocket* server, const TS_MESSAGE* packetData);
+	static const uint16_t ALL_PACKETS = 0xFFFE;
 
 private:
 	static const uint32_t initialInputBufferSize = 16384;
