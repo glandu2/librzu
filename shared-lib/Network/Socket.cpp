@@ -19,10 +19,10 @@
 #endif
 
 struct SocketInternal {
-	IDelegate<ISocket*> dataListeners;
-	IDelegate<ISocket*> incomingConnectionListeners;
-	IDelegate<ISocket*, ISocket::State, ISocket::State> eventListeners;
-	IDelegate<ISocket*, int> errorListeners;
+	IDelegate<Socket*> dataListeners;
+	IDelegate<Socket*> incomingConnectionListeners;
+	IDelegate<Socket*, Socket::State, Socket::State> eventListeners;
+	IDelegate<Socket*, int> errorListeners;
 	int sock;
 	Socket::State currentState;
 };
@@ -113,7 +113,7 @@ bool Socket::connect(const std::string & hostName, uint16_t port) {
 	return true;
 }
 
-bool IFACECALLCONV Socket::listen(const std::string& interfaceIp, uint16_t port) {
+bool Socket::listen(const std::string& interfaceIp, uint16_t port) {
 	if(getState() != UnconnectedState)
 		return false;
 
@@ -238,7 +238,7 @@ size_t Socket::write(const void *buffer, size_t size) {
 	return totalByteWritten;
 }
 
-bool IFACECALLCONV Socket::accept(ISocket* socket) {
+bool Socket::accept(Socket* socket) {
 	int optValue = 1;
 	int optionSize = sizeof(int);
 	int newSocket;

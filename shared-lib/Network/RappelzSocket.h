@@ -30,15 +30,14 @@ public:
 	RappelzSocket();
 	virtual ~RappelzSocket();
 
-	virtual bool IFACECALLCONV connect(const std::string & hostName, uint16_t port);
 	void sendPacket(const TS_MESSAGE* data);
 
 	DelegateRef addPacketListener(uint16_t packetId, void* instance, CallbackFunction onPacketReceivedCallback);
 
 protected:
-	static void dataReceived(void* instance, ISocket* socket);
-	static void stateChanged(void* instance, ISocket* socket, ISocket::State oldState, ISocket::State newState);
-	static void socketError(void* instance, ISocket* socket, int errnoValue);
+	static void dataReceived(void* instance, Socket* socket);
+	static void stateChanged(void* instance, Socket* socket, Socket::State oldState, Socket::State newState);
+	static void socketError(void* instance, Socket* socket, int errnoValue);
 
 	void dispatchPacket(const TS_MESSAGE* packetData);
 

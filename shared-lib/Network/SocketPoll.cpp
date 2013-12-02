@@ -41,7 +41,7 @@ SocketPoll::~SocketPoll() {
 }
 
 
-void SocketPoll::addSocket(ISocket* socket) {
+void SocketPoll::addSocket(Socket* socket) {
 	struct epoll_event ev;
 	ev.events = EPOLLIN | EPOLLERR| EPOLLOUT | EPOLLRDHUP | EPOLLET;
 	ev.data.ptr = socket;
@@ -50,7 +50,7 @@ void SocketPoll::addSocket(ISocket* socket) {
 	write(pollAbortPipe[1], "a", 1);
 }
 
-void SocketPoll::removeSocket(ISocket* socket) {
+void SocketPoll::removeSocket(Socket* socket) {
 	struct epoll_event ev;
 	ev.events = EPOLLIN | EPOLLERR | EPOLLOUT | EPOLLRDHUP | EPOLLET;
 	ev.data.ptr = socket;
@@ -117,6 +117,6 @@ void SocketPoll::stop() {
 	write(pollAbortPipe[1], "s", 1);
 }
 
-void SocketPoll::deleteLater(ISocket* socket) {
+void SocketPoll::deleteLater(Socket* socket) {
 	socketsToDelete.insert(socket);
 }

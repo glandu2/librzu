@@ -30,14 +30,10 @@ RappelzSocket::~RappelzSocket() {
 		delete inputBuffer.buffer;
 }
 
-bool RappelzSocket::connect(const std::string & hostName, uint16_t port) {
-	return EncryptedSocket::connect(hostName, port);
-}
-
-void RappelzSocket::stateChanged(void* instance, ISocket*, ISocket::State oldState, ISocket::State newState) {
+void RappelzSocket::stateChanged(void* instance, Socket*, Socket::State oldState, Socket::State newState) {
 	RappelzSocket* thisInstance = static_cast<RappelzSocket*>(instance);
 
-	if(newState == ISocket::ConnectedState) {
+	if(newState == Socket::ConnectedState) {
 		printf(LOG_PREFIX"Socket %s:%d connected\n", thisInstance->getHost().c_str(), thisInstance->getPort());
 
 		thisInstance->inputBuffer.currentMessageSize = 0;
@@ -46,7 +42,7 @@ void RappelzSocket::stateChanged(void* instance, ISocket*, ISocket::State oldSta
 		TS_MESSAGE::initMessage<TS_CC_EVENT>(&eventMsg);
 		eventMsg.event = TS_CC_EVENT::CE_ServerConnected;
 		thisInstance->dispatchPacket(&eventMsg);
-	} else if(oldState == ISocket::ConnectedState) {
+	} else if(oldState == Socket::ConnectedState) {
 		TS_CC_EVENT eventMsg;
 		TS_MESSAGE::initMessage<TS_CC_EVENT>(&eventMsg);
 		eventMsg.event = TS_CC_EVENT::CE_ServerDisconnected;
@@ -56,7 +52,7 @@ void RappelzSocket::stateChanged(void* instance, ISocket*, ISocket::State oldSta
 	}
 }
 
-void RappelzSocket::socketError(void* instance, ISocket*, int errnoValue) {
+void RappelzSocket::socketError(void* instance, Socket*, int errnoValue) {
 	RappelzSocket* thisInstance = static_cast<RappelzSocket*>(instance);
 
 	printf(LOG_PREFIX"Socket %s:%d socket error %s !\n", thisInstance->getHost().c_str(), thisInstance->getPort(), strerror(errnoValue));
@@ -86,7 +82,7 @@ void RappelzSocket::dispatchPacket(const TS_MESSAGE* packetData) {
 		packetListeners.dispatch(reinterpret_cast<const TS_SC_RESULT*>(packetData)->request_msg_id, this, packetData);
 }
 
-void RappelzSocket::dataReceived(void* instance, ISocket*) {
+void RappelzSocket::dataReceived(void* instance, Socket*) {
 	RappelzSocket* thisInstance = static_cast<RappelzSocket*>(instance);
 	InputBuffer* buffer = &thisInstance->inputBuffer;
 

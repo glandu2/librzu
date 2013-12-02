@@ -62,9 +62,9 @@ void Server::setServerFarm(const std::string& authHost, uint16_t authPort) {
 	this->gameHost = "undefined";
 	this->gamePort = 0;
 
-	if(authSocket->getState() != ISocket::UnconnectedState && !authSocket->waitForDisconnected(1000))
+	if(authSocket->getState() != Socket::UnconnectedState)
 		return;
-	if(gameSocket->getState() != ISocket::UnconnectedState && !gameSocket->waitForDisconnected(1000))
+	if(gameSocket->getState() != Socket::UnconnectedState)
 		return;
 }
 
@@ -76,10 +76,10 @@ void Server::connectToAuth() {
 	} else printf("Attempt to connect to auth while not in SS_NotConnected mode, currentState: %d\n", currentState);
 }
 
-void Server::authStateChanged(void* instance, ISocket*, ISocket::State oldState, ISocket::State newState) {
+void Server::authStateChanged(void* instance, Socket*, Socket::State oldState, Socket::State newState) {
 	Server* thisInstance = static_cast<Server*>(instance);
 
-	if(newState == ISocket::ConnectedState) {
+	if(newState == Socket::ConnectedState) {
 		if(thisInstance->currentState == SS_ConnectingToAuth) {
 			printf(LOG_PREFIX"Auth server %s:%d connected\n", thisInstance->authHost.c_str(), thisInstance->authPort);
 
@@ -93,7 +93,7 @@ void Server::authStateChanged(void* instance, ISocket*, ISocket::State oldState,
 		} else {
 			printf(LOG_PREFIX"Auth server connected, but not in SS_ConnectingToAuth mode !, currentState: %d\n", thisInstance->currentState);
 		}
-	} else if(oldState == ISocket::ConnectedState) {
+	} else if(oldState == Socket::ConnectedState) {
 		TS_CC_EVENT eventMsg;
 		TS_MESSAGE::initMessage<TS_CC_EVENT>(&eventMsg);
 		if(thisInstance->currentState == SS_ConnectedToAuth) {
@@ -108,10 +108,10 @@ void Server::authStateChanged(void* instance, ISocket*, ISocket::State oldState,
 	}
 }
 
-void Server::gameStateChanged(void* instance, ISocket*, ISocket::State oldState, ISocket::State newState) {
+void Server::gameStateChanged(void* instance, Socket*, Socket::State oldState, Socket::State newState) {
 	Server* thisInstance = static_cast<Server*>(instance);
 
-	if(newState == ISocket::ConnectedState) {
+	if(newState == Socket::ConnectedState) {
 		if(thisInstance->currentState == SS_ServerConnectionMove) {
 			printf(LOG_PREFIX"Game server %s:%d connected\n", thisInstance->gameHost.c_str(), thisInstance->gamePort);
 
@@ -125,7 +125,7 @@ void Server::gameStateChanged(void* instance, ISocket*, ISocket::State oldState,
 		} else {
 			printf(LOG_PREFIX"Game server connected, but not in SS_ServerConnectionMove mode !, currentState: %d\n", thisInstance->currentState);
 		}
-	} else if(oldState == ISocket::ConnectedState) {
+	} else if(oldState == Socket::ConnectedState) {
 		TS_CC_EVENT eventMsg;
 		TS_MESSAGE::initMessage<TS_CC_EVENT>(&eventMsg);
 		if(thisInstance->currentState != SS_NotConnected) {
@@ -142,7 +142,7 @@ void Server::gameStateChanged(void* instance, ISocket*, ISocket::State oldState,
 	}
 }
 
-void Server::authSocketError(void* instance, ISocket*, int errnoValue) {
+void Server::authSocketError(void* instance, Socket*, int errnoValue) {
 	Server* thisInstance = static_cast<Server*>(instance);
 
 	thisInstance->close();
@@ -154,7 +154,7 @@ void Server::authSocketError(void* instance, ISocket*, int errnoValue) {
 	thisInstance->dispatchPacket(ST_Auth, &eventMsg);
 }
 
-void Server::gameSocketError(void* instance, ISocket*, int errnoValue) {
+void Server::gameSocketError(void* instance, Socket*, int errnoValue) {
 	Server* thisInstance = static_cast<Server*>(instance);
 
 	thisInstance->close();
@@ -169,15 +169,11 @@ void Server::gameSocketError(void* instance, ISocket*, int errnoValue) {
 void Server::close() {
 	currentState = SS_NotConnected;
 
-	if(authSocket->getState() != ISocket::UnconnectedState) {
+	if(authSocket->getState() != Socket::UnconnectedState) {
 		authSocket->close();
-		if(authSocket->getState() != ISocket::UnconnectedState)
-			authSocket->waitForDisconnected(1000);
 	}
-	if(gameSocket->getState() != ISocket::UnconnectedState) {
+	if(gameSocket->getState() != Socket::UnconnectedState) {
 		gameSocket->close();
-		if(gameSocket->getState() != ISocket::UnconnectedState)
-			gameSocket->waitForDisconnected(1000);
 	}
 }
 
@@ -220,7 +216,7 @@ void Server::dispatchPacket(ServerType originatingServer, const TS_MESSAGE* pack
 		packetListeners.dispatch(reinterpret_cast<const TS_SC_RESULT*>(packetData)->request_msg_id, this, packetData);
 }
 
-void Server::networkDataReceivedFromAuth(void* instance, ISocket*) {
+void Server::networkDataReceivedFromAuth(void* instance, Socket*) {
 	Server* thisInstance = static_cast<Server*>(instance);
 
 	if(thisInstance->currentState == SS_ConnectedToAuth)
@@ -228,7 +224,7 @@ void Server::networkDataReceivedFromAuth(void* instance, ISocket*) {
 	else printf(LOG_PREFIX"Received data from auth but not in SS_ConnectedToAuth mode, currentState: %d\n", thisInstance->currentState);
 }
 
-void Server::networkDataReceivedFromGame(void* instance, ISocket*) {
+void Server::networkDataReceivedFromGame(void* instance, Socket*) {
 	Server* thisInstance = static_cast<Server*>(instance);
 
 	if(thisInstance->currentState == SS_ServerConnectionMove || thisInstance->currentState == SS_ConnectedToGame)

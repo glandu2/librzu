@@ -17,8 +17,8 @@ struct TS_AC_SERVER_LIST;
 class Authentication;
 
 struct CallbacksTable;
-#include "../Interfaces/ISocket.h"
 #include "../Interfaces/ICallbackGuard.h"
+#include "Socket.h"
 
 /**
  * @brief Represent a set of servers.
@@ -72,12 +72,12 @@ class RAPPELZLIBSHARED_EXPORT Server : private ICallbackGuard
 		void proceedServerMove(const std::string &gameHost, uint16_t gamePort);
 
 	protected:
-		static void networkDataReceivedFromAuth(void* instance, ISocket* socket);
-		static void networkDataReceivedFromGame(void* instance, ISocket* socket);
-		static void authStateChanged(void* instance, ISocket* socket, ISocket::State oldState, ISocket::State newState);
-		static void gameStateChanged(void* instance, ISocket* socket, ISocket::State oldState, ISocket::State newState);
-		static void authSocketError(void* instance, ISocket* socket, int errnoValue);
-		static void gameSocketError(void* instance, ISocket* socket, int errnoValue);
+		static void networkDataReceivedFromAuth(void* instance, Socket* socket);
+		static void networkDataReceivedFromGame(void* instance, Socket* socket);
+		static void authStateChanged(void* instance, Socket* socket, Socket::State oldState, Socket::State newState);
+		static void gameStateChanged(void* instance, Socket* socket, Socket::State oldState, Socket::State newState);
+		static void authSocketError(void* instance, Socket* socket, int errnoValue);
+		static void gameSocketError(void* instance, Socket* socket, int errnoValue);
 
 		void networkDataProcess(ServerType serverType, EncryptedSocket* socket, InputBuffer* buffer);
 		void dispatchPacket(ServerType originatingServer, const TS_MESSAGE* packetData);

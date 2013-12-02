@@ -12,10 +12,8 @@ class EncryptedSocket : public Socket
 		~EncryptedSocket();
 
 		virtual bool connect(const std::string &hostName, uint64_t port);
-		size_t IFACECALLCONV read(void *buffer, size_t size);
-		size_t IFACECALLCONV write(const void *buffer, size_t size);
-
-		bool waitForDisconnected(int i) { i=i; return true; }
+		virtual size_t read(void *buffer, size_t size);
+		virtual size_t write(const void *buffer, size_t size);
 
 	private:
 		RC4Cipher inputEnc, outputEnc;

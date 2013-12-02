@@ -1,39 +1,59 @@
 #ifndef SOCKET_H
 #define SOCKET_H
 
-#include "Interfaces/ISocket.h"
+#include "../Interfaces/ICallbackGuard.h"
+#include "stdint.h"
+
+#include <string>
 
 struct SocketInternal;
 class SocketPoll;
 
-class Socket : public CImplement<ISocket>
+class Socket
 {
+public:
+	enum State {
+		UnconnectedState,	//Client & server
+
+		ConnectingState,	//Client
+		Binding,			//Server
+
+		Listening,			//Server
+		ConnectedState,		//Client
+
+		ClosingState		//Client & Server
+	};
+
+	typedef void (*CallbackOnDataReady)(void* instance, Socket* socket);
+	typedef void (*CallbackOnStateChanged)(void* instance, Socket* socket, State oldState, State newState);
+	typedef void (*CallbackOnError)(void* instance, Socket* socket, int errnoValue);
+
 public:
 	Socket();
 	virtual ~Socket();
 
-	void IFACECALLCONV deleteLater();
+	void deleteLater();
 
-	bool IFACECALLCONV connect(const std::string& hostName, uint16_t port);
-	bool IFACECALLCONV listen(const std::string& interfaceIp, uint16_t port);
+	virtual bool connect(const std::string& hostName, uint16_t port);
+	virtual bool listen(const std::string& interfaceIp, uint16_t port);
 
-	size_t IFACECALLCONV read(void *buffer, size_t size);
-	size_t IFACECALLCONV write(const void *buffer, size_t size);
-	bool IFACECALLCONV accept(ISocket *socket);
+	virtual size_t getAvailableBytes();
+	virtual size_t read(void *buffer, size_t size);
+	virtual size_t write(const void *buffer, size_t size);
+	virtual bool accept(Socket *socket);
 
-	void IFACECALLCONV close();
-	void IFACECALLCONV abort();
+	virtual void close();
+	virtual void abort();
 
-	State IFACECALLCONV getState();
-	size_t IFACECALLCONV getAvailableBytes();
+	State getState();
 	const std::string& getHost() { return host; }
 	uint16_t getPort() { return port; }
 
-	DelegateRef IFACECALLCONV addDataListener(void* instance, CallbackOnDataReady listener);
-	DelegateRef IFACECALLCONV addConnectionListener(void* instance, CallbackOnDataReady listener);
-	DelegateRef IFACECALLCONV addEventListener(void* instance, CallbackOnStateChanged listener);
-	DelegateRef IFACECALLCONV addErrorListener(void* instance, CallbackOnError listener);
-	void IFACECALLCONV removeListener(void* instance);
+	DelegateRef addDataListener(void* instance, CallbackOnDataReady listener);
+	DelegateRef addConnectionListener(void* instance, CallbackOnDataReady listener);
+	DelegateRef addEventListener(void* instance, CallbackOnStateChanged listener);
+	DelegateRef addErrorListener(void* instance, CallbackOnError listener);
+	void removeListener(void* instance);
 
 	int64_t getFd();
 	unsigned int getLastError();
@@ -45,7 +65,7 @@ public:
 	static void setPoll(SocketPoll* socketPoll);
 
 protected:
-	void IFACECALLCONV setState(State state);
+	void setState(State state);
 
 private:
 	SocketInternal *_p;
