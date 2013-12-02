@@ -31,7 +31,7 @@ public:
 	virtual void IFACECALLCONV deleteLater() = 0;
 
 	virtual bool IFACECALLCONV connect(const std::string & hostName, uint16_t port) = 0;
-	virtual bool IFACECALLCONV listen(const std::string& interfaceIp, u_int16_t port) = 0;
+	virtual bool IFACECALLCONV listen(const std::string& interfaceIp, uint16_t port) = 0;
 
 	virtual size_t IFACECALLCONV read(void *buffer, size_t size) = 0;
 	virtual size_t IFACECALLCONV write(const void *buffer, size_t size) = 0;

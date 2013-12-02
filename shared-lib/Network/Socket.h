@@ -15,7 +15,7 @@ public:
 	void IFACECALLCONV deleteLater();
 
 	bool IFACECALLCONV connect(const std::string& hostName, uint16_t port);
-	bool IFACECALLCONV listen(const std::string& interfaceIp, u_int16_t port);
+	bool IFACECALLCONV listen(const std::string& interfaceIp, uint16_t port);
 
 	size_t IFACECALLCONV read(void *buffer, size_t size);
 	size_t IFACECALLCONV write(const void *buffer, size_t size);
@@ -26,6 +26,8 @@ public:
 
 	State IFACECALLCONV getState();
 	size_t IFACECALLCONV getAvailableBytes();
+	const std::string& getHost() { return host; }
+	uint16_t getPort() { return port; }
 
 	DelegateRef IFACECALLCONV addDataListener(void* instance, CallbackOnDataReady listener);
 	DelegateRef IFACECALLCONV addConnectionListener(void* instance, CallbackOnDataReady listener);
@@ -49,6 +51,8 @@ private:
 	SocketInternal *_p;
 	int lastError;
 	static SocketPoll* socketPoll;
+	std::string host;
+	uint16_t port;
 };
 
 #endif // SOCKET_H

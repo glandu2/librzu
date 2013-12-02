@@ -61,6 +61,8 @@ bool Socket::connect(const std::string & hostName, uint16_t port) {
 		return false;
 	}
 
+	this->host = hostName;
+	this->port = port;
 	setState(ConnectingState);
 
 	int optValue = 1;
@@ -111,7 +113,7 @@ bool Socket::connect(const std::string & hostName, uint16_t port) {
 	return true;
 }
 
-bool IFACECALLCONV Socket::listen(const std::string& interfaceIp, u_int16_t port) {
+bool IFACECALLCONV Socket::listen(const std::string& interfaceIp, uint16_t port) {
 	if(getState() != UnconnectedState)
 		return false;
 
@@ -240,8 +242,10 @@ bool IFACECALLCONV Socket::accept(ISocket* socket) {
 	int optValue = 1;
 	int optionSize = sizeof(int);
 	int newSocket;
+	sockaddr_in peerInfo;
+	socklen_t peerInfoLen = sizeof(peerInfo);
 
-	newSocket = ::accept(_p->sock, NULL, 0);
+	newSocket = ::accept(_p->sock, (sockaddr*)&peerInfo, &peerInfoLen);
 	if(newSocket < 0) {
 		if(errno != EAGAIN)
 			notifyReadyError(errno);
@@ -261,6 +265,10 @@ bool IFACECALLCONV Socket::accept(ISocket* socket) {
 		return false;
 	}
 
+	char ipBuffer[INET_ADDRSTRLEN];
+	::inet_ntop(AF_INET, &peerInfo, ipBuffer, INET_ADDRSTRLEN);
+	static_cast<Socket*>(socket)->host = std::string(ipBuffer);
+	static_cast<Socket*>(socket)->port = ntohs(peerInfo.sin_port);
 	static_cast<Socket*>(socket)->_p->sock = newSocket;
 	static_cast<Socket*>(socket)->_p->currentState = ConnectedState;
 
@@ -281,6 +289,8 @@ void Socket::close() {
 	shutdown(_p->sock, SHUT_WR);
 	::close(_p->sock);
 	_p->sock = -1;
+	this->host.clear();
+	this->port = 0;
 	setState(UnconnectedState);
 }
 
@@ -302,6 +312,8 @@ void Socket::abort() {
 
 	::close(_p->sock);
 	_p->sock = -1;
+	this->host.clear();
+	this->port = 0;
 	setState(UnconnectedState);
 }
 

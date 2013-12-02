@@ -31,8 +31,6 @@ RappelzSocket::~RappelzSocket() {
 }
 
 bool RappelzSocket::connect(const std::string & hostName, uint16_t port) {
-	this->host = hostName;
-	this->port = port;
 	return EncryptedSocket::connect(hostName, port);
 }
 
@@ -40,7 +38,7 @@ void RappelzSocket::stateChanged(void* instance, ISocket*, ISocket::State oldSta
 	RappelzSocket* thisInstance = static_cast<RappelzSocket*>(instance);
 
 	if(newState == ISocket::ConnectedState) {
-		printf(LOG_PREFIX"Socket %s:%d connected\n", thisInstance->host.c_str(), thisInstance->port);
+		printf(LOG_PREFIX"Socket %s:%d connected\n", thisInstance->getHost().c_str(), thisInstance->getPort());
 
 		thisInstance->inputBuffer.currentMessageSize = 0;
 
@@ -52,7 +50,7 @@ void RappelzSocket::stateChanged(void* instance, ISocket*, ISocket::State oldSta
 		TS_CC_EVENT eventMsg;
 		TS_MESSAGE::initMessage<TS_CC_EVENT>(&eventMsg);
 		eventMsg.event = TS_CC_EVENT::CE_ServerDisconnected;
-		printf(LOG_PREFIX"Socket %s:%d disconnected\n", thisInstance->host.c_str(), thisInstance->port);
+		printf(LOG_PREFIX"Socket %s:%d disconnected\n", thisInstance->getHost().c_str(), thisInstance->getPort());
 
 		thisInstance->dispatchPacket(&eventMsg);
 	}
@@ -61,7 +59,7 @@ void RappelzSocket::stateChanged(void* instance, ISocket*, ISocket::State oldSta
 void RappelzSocket::socketError(void* instance, ISocket*, int errnoValue) {
 	RappelzSocket* thisInstance = static_cast<RappelzSocket*>(instance);
 
-	printf(LOG_PREFIX"Socket %s:%d socket error %s !\n", thisInstance->host.c_str(), thisInstance->port, strerror(errnoValue));
+	printf(LOG_PREFIX"Socket %s:%d socket error %s !\n", thisInstance->getHost().c_str(), thisInstance->getPort(), strerror(errnoValue));
 
 	if(thisInstance->getState() == ConnectingState) {
 		TS_CC_EVENT eventMsg;

@@ -35,9 +35,6 @@ public:
 
 	DelegateRef addPacketListener(uint16_t packetId, void* instance, CallbackFunction onPacketReceivedCallback);
 
-	const std::string& getHost() { return host; }
-	uint16_t getPort() { return port; }
-
 protected:
 	static void dataReceived(void* instance, ISocket* socket);
 	static void stateChanged(void* instance, ISocket* socket, ISocket::State oldState, ISocket::State newState);
@@ -47,8 +44,6 @@ protected:
 
 private:
 	IDelegateHash<uint16_t, RappelzSocket*, const TS_MESSAGE*> packetListeners;
-	std::string host;
-	uint16_t port;
 
 	InputBuffer inputBuffer;
 };
