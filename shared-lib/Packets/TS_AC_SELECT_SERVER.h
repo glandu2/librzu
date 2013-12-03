@@ -19,6 +19,7 @@ struct TS_AC_SELECT_SERVER_V2 : public TS_MESSAGE
 	unsigned char encrypted_data[16];
 	uint32_t pending_time;
 	uint32_t unknown;
+	unsigned int unknown2;
 	static const uint16_t packetID = 10024;
 };
 #pragma pack(pop)

@@ -266,7 +266,7 @@ bool Socket::accept(Socket* socket) {
 	}
 
 	char ipBuffer[INET_ADDRSTRLEN];
-	::inet_ntop(AF_INET, &peerInfo, ipBuffer, INET_ADDRSTRLEN);
+	::inet_ntop(AF_INET, &peerInfo.sin_addr, ipBuffer, INET_ADDRSTRLEN);
 	static_cast<Socket*>(socket)->host = std::string(ipBuffer);
 	static_cast<Socket*>(socket)->port = ntohs(peerInfo.sin_port);
 	static_cast<Socket*>(socket)->_p->sock = newSocket;

@@ -27,7 +27,7 @@ private:
 	};
 
 public:
-	RappelzSocket();
+	RappelzSocket(bool useEncryption);
 	virtual ~RappelzSocket();
 
 	void sendPacket(const TS_MESSAGE* data);

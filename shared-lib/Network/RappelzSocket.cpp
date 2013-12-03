@@ -12,7 +12,7 @@
 #define printf(...) (void)0
 #endif
 
-RappelzSocket::RappelzSocket() {
+RappelzSocket::RappelzSocket(bool useEncryption) : EncryptedSocket(useEncryption) {
 
 	inputBuffer.bufferSize = initialInputBufferSize;
 	inputBuffer.buffer = new uint8_t[inputBuffer.bufferSize];

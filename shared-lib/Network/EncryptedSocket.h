@@ -8,7 +8,7 @@
 class EncryptedSocket : public Socket
 {
 	public:
-		EncryptedSocket();
+		EncryptedSocket(bool useEncryption = true);
 		~EncryptedSocket();
 
 		virtual bool connect(const std::string &hostName, uint64_t port);
@@ -17,6 +17,7 @@ class EncryptedSocket : public Socket
 
 	private:
 		RC4Cipher inputEnc, outputEnc;
+		bool useEncryption;
 
 		static SocketPoll socketPoll;
 
