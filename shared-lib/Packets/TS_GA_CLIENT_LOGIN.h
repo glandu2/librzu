@@ -7,7 +7,7 @@
 struct TS_GA_CLIENT_LOGIN : public TS_MESSAGE
 {
 	char account[61];
-	int64_t one_time_key;
+	uint64_t one_time_key;
 
 	static const uint16_t packetID = 20010;
 };
