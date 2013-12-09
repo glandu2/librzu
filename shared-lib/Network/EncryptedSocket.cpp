@@ -2,9 +2,7 @@
 #include <stdio.h>
 #include <malloc.h>
 
-SocketPoll EncryptedSocket::socketPoll;
-
-EncryptedSocket::EncryptedSocket(bool useEncryption) : useEncryption(useEncryption) {
+EncryptedSocket::EncryptedSocket(uv_loop_t* uvLoop, bool useEncryption) : Socket(uvLoop), useEncryption(useEncryption) {
 //	static int r = 0;
 //	if(!r) {
 //		Socket::setPoll(&socketPoll);
@@ -51,8 +49,4 @@ size_t EncryptedSocket::write(const void *buffer, size_t size) {
 	}
 
     return ret;
-}
-
-void EncryptedSocket::updatePoll() {
-	socketPoll.run();
 }

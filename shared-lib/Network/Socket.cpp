@@ -1,16 +1,8 @@
 #include "Socket.h"
+#include "uv.h"
 #include <stdio.h>
 #include <string.h>
-#include <unistd.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <netdb.h>
-#include <netinet/tcp.h>
-#include "SocketPoll.h"
-
-#include <sys/ioctl.h>
-
+#include "CircularBuffer.h"
 #include <unordered_map>
 #include "../Interfaces/IDelegate.h"
 
@@ -18,22 +10,32 @@
 #define SHUT_RDWR 2
 #endif
 
+struct WriteRequest {
+	uv_write_t writeReq;
+	uv_buf_t buffer;
+};
+
 struct SocketInternal {
 	IDelegate<Socket*> dataListeners;
 	IDelegate<Socket*> incomingConnectionListeners;
 	IDelegate<Socket*, Socket::State, Socket::State> eventListeners;
 	IDelegate<Socket*, int> errorListeners;
-	int sock;
+	uv_tcp_t socket;
+	uv_connect_t connectRequest;
 	Socket::State currentState;
+	CircularBuffer recvBuffer;
+	bool sending;
 };
 
-SocketPoll* Socket::socketPoll = 0;
-
-Socket::Socket() : _p(new SocketInternal)
+Socket::Socket(uv_loop_t *uvLoop) : _p(new SocketInternal)
 {
-	_p->sock = -1;
+	this->uvLoop = uvLoop;
 	_p->currentState = UnconnectedState;
+	_p->connectRequest.data = this;
+	_p->sending = false;
+	_p->socket.data = this;
 	lastError = 0;
+	_p->recvBuffer.setBufferSize(16384);
 }
 
 Socket::~Socket() {
@@ -43,73 +45,25 @@ Socket::~Socket() {
 }
 
 void Socket::deleteLater() {
-	if(socketPoll)
-		socketPoll->deleteLater(this);
+//	if(socketPoll)
+//		socketPoll->deleteLater(this);
 }
 
 bool Socket::connect(const std::string & hostName, uint16_t port) {
 	if(getState() != UnconnectedState)
 		return false;
 
-	if(_p->sock >= 0)
-		abort();
-
-	_p->sock = ::socket(AF_INET, SOCK_STREAM, 0);
-	if(_p->sock < 0) {
-		this->lastError = errno;
-		notifyReadyError(lastError);
-		return false;
-	}
-
 	this->host = hostName;
 	this->port = port;
 	setState(ConnectingState);
 
-	int optValue = 1;
-	int optionSize = sizeof(int);
-	::setsockopt(_p->sock, SOL_SOCKET, SO_OOBINLINE, &optValue, optionSize);
-	optValue = 1;
-	::ioctl(_p->sock, FIONBIO, (char *)&optValue);
+	uv_tcp_init(uvLoop, &_p->socket);
 
-	if(socketPoll)
-		socketPoll->addSocket(this);
+	struct sockaddr_in dest;
 
-	struct sockaddr_in hostAddress;
-	struct addrinfo hints, *servinfo, *p;
-    int rv, lastError;
+	uv_ip4_addr(hostName.c_str(), port, &dest);
+	uv_tcp_connect(&_p->connectRequest, &_p->socket, (struct sockaddr*)&dest, &onConnected);
 
-	memset(&hints, 0, sizeof(hints));
-	hints.ai_family = AF_INET; // use AF_INET6 to force IPv6
-	hints.ai_socktype = SOCK_STREAM;
-	hints.ai_protocol = 0;
-
-	if( (rv = getaddrinfo( hostName.c_str() , NULL, &hints , &servinfo)) != 0)
-	{
-		fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(rv));
-		return 1;
-	}
-
-	// loop through all the results and connect to the first we can
-	for(p = servinfo; p != NULL; p = p->ai_next)
-	{
-		hostAddress = *(struct sockaddr_in*)p->ai_addr;
-		hostAddress.sin_port = htons(port);
-		lastError = ::connect(_p->sock, (sockaddr*)&hostAddress, sizeof(hostAddress));
-		if(lastError < 0)
-			lastError = -errno;
-		if(lastError == 0 || lastError == -EINPROGRESS)
-			break;
-	}
-
-	::freeaddrinfo(servinfo);
-
-	if(lastError != 0 && lastError != -EINPROGRESS) {
-		this->lastError = errno;
-		notifyReadyError(errno);
-		return false;
-	} else if(lastError == 0) {
-		setState(ConnectedState);
-	}
 	return true;
 }
 
@@ -117,65 +71,17 @@ bool Socket::listen(const std::string& interfaceIp, uint16_t port) {
 	if(getState() != UnconnectedState)
 		return false;
 
-	if(_p->sock >= 0)
-		abort();
-
-	_p->sock = ::socket(AF_INET, SOCK_STREAM, 0);
-	if(_p->sock < 0) {
-		this->lastError = errno;
-		notifyReadyError(lastError);
-		return false;
-	}
-
 	setState(Binding);
 
-	int optValue = 1;
-	int optionSize = sizeof(int);
-	::setsockopt(_p->sock, SOL_SOCKET, SO_REUSEADDR, &optValue, optionSize);
-	optValue = 1;
-	::ioctl(_p->sock, FIONBIO, (char *)&optValue);
+	uv_tcp_init(uvLoop, &_p->socket);
 
-	if(socketPoll)
-		socketPoll->addSocket(this);
+	struct sockaddr_in bindAddr;
 
-	struct sockaddr_in interfaceAddress;
-	struct addrinfo hints, *servinfo, *p;
-	int rv, lastError;
-
-	memset(&hints, 0, sizeof(hints));
-	hints.ai_family = AF_INET; // use AF_INET6 to force IPv6
-	hints.ai_socktype = SOCK_STREAM;
-	hints.ai_protocol = 0;
-
-	if( (rv = getaddrinfo( interfaceIp.c_str() , NULL, &hints , &servinfo)) != 0)
-	{
-		fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(rv));
-		return 1;
-	}
-
-	// loop through all the results and bind to the first we can
-	for(p = servinfo; p != NULL; p = p->ai_next)
-	{
-		interfaceAddress = *(struct sockaddr_in*)p->ai_addr;
-		interfaceAddress.sin_port = htons(port);
-		lastError = ::bind(_p->sock, (sockaddr*)&interfaceAddress, sizeof(interfaceAddress));
-		if(lastError == 0)
-			break;
-	}
-
-	::freeaddrinfo(servinfo);
-
-	if(lastError != 0) {
-		this->lastError = errno;
-		notifyReadyError(errno);
-		abort();
-		return false;
-	}
-
-	if(::listen(_p->sock, 30) < 0) {
-		this->lastError = errno;
-		notifyReadyError(errno);
-		abort();
+	uv_ip4_addr(interfaceIp.c_str(), port, &bindAddr);
+	uv_tcp_bind(&_p->socket, (struct sockaddr*)&bindAddr);
+	int r = uv_listen((uv_stream_t*)&_p->socket, 30, &onNewConnection);
+	if(r < 0) {
+		notifyReadyError(-r);
 		return false;
 	}
 
@@ -184,146 +90,63 @@ bool Socket::listen(const std::string& interfaceIp, uint16_t port) {
 }
 
 size_t Socket::read(void *buffer, size_t size) {
-	size_t totalByteRead;
-	int byteRead;
-
-	for(totalByteRead = 0; totalByteRead < size;) {
-		byteRead = ::recv(_p->sock, static_cast<char*>(buffer) + totalByteRead, size - totalByteRead, 0);
-		if(byteRead < 0) {
-			break;
-		}
-		totalByteRead += byteRead;
-	}
-
-	if(byteRead < 0) {
-		if(errno != EAGAIN) {
-			lastError = errno;
-			notifyReadyError(lastError);
-		}
-	}
-
-	return totalByteRead;
+	return _p->recvBuffer.getData((char*)buffer, size);
 }
 
 size_t Socket::write(const void *buffer, size_t size) {
-	size_t totalByteWritten;
-	int byteWritten;
+	WriteRequest* writeRequest = new WriteRequest;
+	writeRequest->buffer.len = size;
+	writeRequest->buffer.base = new char[writeRequest->buffer.len];
+	memcpy(writeRequest->buffer.base, buffer, size);
+	uv_write(&writeRequest->writeReq, (uv_stream_t*)&_p->socket, &writeRequest->buffer, 1, &onWriteCompleted);
 
-	for(totalByteWritten = 0; totalByteWritten < size;) {
-		byteWritten = ::send(_p->sock, static_cast<const char*>(buffer) + totalByteWritten, size - totalByteWritten, 0);
-		if(byteWritten < 0) {
-			if(errno == EAGAIN) {
-				fd_set readySet;
-				FD_ZERO(&readySet);
-				FD_SET(_p->sock, &readySet);
-				select(_p->sock+1, NULL, &readySet, NULL, NULL);
-				continue;
-			}
-			else
-				break;
-		}
-		totalByteWritten += byteWritten;
-	}
-
-	if(byteWritten < 0) {
-		lastError = errno;
-		notifyReadyError(lastError);
-	} else {
-		fd_set readySet;
-		FD_ZERO(&readySet);
-		FD_SET(_p->sock, &readySet);
-		select(_p->sock+1, NULL, &readySet, NULL, NULL);
-	}
-
-	return totalByteWritten;
+	return size;
 }
 
 bool Socket::accept(Socket* socket) {
-	int optValue = 1;
-	int optionSize = sizeof(int);
-	int newSocket;
-	sockaddr_in peerInfo;
-	socklen_t peerInfoLen = sizeof(peerInfo);
+	uv_tcp_t *client = &socket->_p->socket;
+	uv_tcp_init(uvLoop, client);
+	if (uv_accept((uv_stream_t*)&_p->socket, (uv_stream_t*) client) == 0) {
+		struct sockaddr_in peerInfo;
+		int sockAddrLen = sizeof(sockaddr_in);
+		uv_tcp_getpeername(client, (struct sockaddr*)&peerInfo, &sockAddrLen);
 
-	newSocket = ::accept(_p->sock, (sockaddr*)&peerInfo, &peerInfoLen);
-	if(newSocket < 0) {
-		if(errno != EAGAIN)
-			notifyReadyError(errno);
+		char ipBuffer[INET_ADDRSTRLEN];
+		uv_ip4_name(&peerInfo, ipBuffer, INET_ADDRSTRLEN);
+		socket->host = std::string(ipBuffer);
+		socket->port = ntohs(peerInfo.sin_port);
+		socket->_p->currentState = ConnectedState;
+		uv_read_start((uv_stream_t*) client, &onAllocReceiveBuffer, &onReadCompleted);
+	} else {
 		return false;
 	}
-
-	if(::setsockopt(newSocket, SOL_SOCKET, SO_OOBINLINE, &optValue, optionSize) < 0) {
-		::close(newSocket);
-		notifyReadyError(errno);
-		return false;
-	}
-
-	optValue = 1;
-	if(::ioctl(newSocket, FIONBIO, (char *)&optValue) < 0) {
-		::close(newSocket);
-		notifyReadyError(errno);
-		return false;
-	}
-
-	char ipBuffer[INET_ADDRSTRLEN];
-	::inet_ntop(AF_INET, &peerInfo.sin_addr, ipBuffer, INET_ADDRSTRLEN);
-	static_cast<Socket*>(socket)->host = std::string(ipBuffer);
-	static_cast<Socket*>(socket)->port = ntohs(peerInfo.sin_port);
-	static_cast<Socket*>(socket)->_p->sock = newSocket;
-	static_cast<Socket*>(socket)->_p->currentState = ConnectedState;
-
-	if(socketPoll)
-		socketPoll->addSocket(socket);
 
 	return true;
 }
 
 void Socket::close() {
-	if(_p->sock < 0)
+	if(getState() == ClosingState || getState() == UnconnectedState)
 		return;
 
-	if(socketPoll)
-		socketPoll->removeSocket(this);
-
 	setState(ClosingState);
-	shutdown(_p->sock, SHUT_WR);
-	::close(_p->sock);
-	_p->sock = -1;
-	this->host.clear();
-	this->port = 0;
-	setState(UnconnectedState);
+	uv_shutdown_t shutdownReq;
+	uv_shutdown(&shutdownReq, (uv_stream_t*)&_p->socket, &onShutdownDone);
+	while(getState() != UnconnectedState)
+		uv_run(uvLoop, UV_RUN_ONCE);
 }
 
 void Socket::abort() {
-	if(_p->sock < 0)
+	if(getState() == ClosingState || getState() == UnconnectedState)
 		return;
 
-	if(socketPoll)
-		socketPoll->removeSocket(this);
-
 	setState(ClosingState);
-
-	struct {
-		int onoff;
-		int timeout;
-	} lingerValue = {1, 0};
-	int lingerOptionSize = sizeof(lingerValue);
-	::setsockopt(_p->sock, SOL_SOCKET, SO_LINGER, &lingerValue, lingerOptionSize);
-
-	::close(_p->sock);
-	_p->sock = -1;
-	this->host.clear();
-	this->port = 0;
-	setState(UnconnectedState);
+	uv_close((uv_handle_t*)&_p->socket, &onConnectionClosed);
+	while(getState() != UnconnectedState)
+		uv_run(uvLoop, UV_RUN_ONCE);
 }
 
 size_t Socket::getAvailableBytes() {
-	int nbytes = 0;
-
-	if(ioctl(_p->sock, FIONREAD, (char *) &nbytes) >= 0)
-		return nbytes;
-
-	return 0;
+	return _p->recvBuffer.getAvailableBytes();
 }
 
 Socket::State Socket::getState() {
@@ -339,12 +162,13 @@ void Socket::setState(State state) {
 
 	_p->currentState = state;
 
-	fprintf(stderr, "Socket state change from %d to %d : %d\n", oldState, state, _p->sock);
+	fprintf(stderr, "Socket state change from %d to %d\n", oldState, state);
 	_p->eventListeners.dispatch(this, oldState, state);
-}
 
-unsigned int Socket::getLastError() {
-	return lastError;
+	if(state == UnconnectedState) {
+		this->host.clear();
+		this->port = 0;
+	}
 }
 
 DelegateRef Socket::addDataListener(void* instance, CallbackOnDataReady listener) {
@@ -367,61 +191,7 @@ void Socket::removeListener(void* instance) {
 	_p->dataListeners.del(instance);
 	_p->eventListeners.del(instance);
 	_p->errorListeners.del(instance);
-}
-
-void Socket::notifyReadyRead() {
-	std::unordered_map<void*, CallbackOnDataReady>::const_iterator it, itEnd;
-
-	switch(getState()) {
-		case UnconnectedState:
-			fprintf(stderr, "Received READ event on closed socket\n");
-			break;
-
-		case ConnectingState:
-			setState(ConnectedState);
-			break;
-
-		case Binding:
-			break;
-
-		case ConnectedState:
-			_p->dataListeners.dispatch(this);
-			break;
-
-		case Listening:
-			_p->incomingConnectionListeners.dispatch(this);
-			break;
-
-		case ClosingState:
-			fprintf(stderr, "Received READ event on closing socket\n");
-			break;
-	}
-}
-
-void Socket::notifyReadyWrite() {
-	switch(getState()) {
-		case UnconnectedState:
-			//fprintf(stderr, "Received WRITE event on closed socket\n");
-			break;
-
-		case Binding:
-			break;
-
-		case ConnectingState:
-			setState(ConnectedState);
-			break;
-
-		case ConnectedState:
-			break;
-
-		case Listening:
-			break;
-
-		case ClosingState:
-			//fprintf(stderr, "Received WRITE event on closing socket\n");
-			break;
-	}
-
+	_p->incomingConnectionListeners.del(instance);
 }
 
 void Socket::notifyReadyError(int errorValue) {
@@ -430,10 +200,76 @@ void Socket::notifyReadyError(int errorValue) {
 		abort();
 }
 
-int64_t Socket::getFd() {
-	return _p->sock;
+void Socket::onConnected(uv_connect_t* req, int status) {
+	Socket* thisInstance = (Socket*)req->data;
+
+	if(status < 0) {
+		const char* errorString = uv_strerror(-status);
+		fprintf(stderr, "Socket: %s\n", errorString);
+		thisInstance->notifyReadyError(-status);
+		return;
+	}
+
+	thisInstance->setState(ConnectedState);
+	uv_read_start((uv_stream_t*)&thisInstance->_p->socket, &onAllocReceiveBuffer, &onReadCompleted);
 }
 
-void Socket::setPoll(SocketPoll* socketPoll) {
-	Socket::socketPoll = socketPoll;
+void Socket::onNewConnection(uv_stream_t* req, int status) {
+	Socket* thisInstance = (Socket*)req->data;
+
+	if(status < 0) {
+		const char* errorString = uv_strerror(-status);
+		fprintf(stderr, "Socket: %s\n", errorString);
+		thisInstance->notifyReadyError(-status);
+		return;
+	}
+
+	thisInstance->_p->incomingConnectionListeners.dispatch(thisInstance);
+}
+
+void Socket::onAllocReceiveBuffer(uv_handle_t*, size_t, uv_buf_t* buf) {
+	buf->base = new char[1024];
+	buf->len = 1024;
+}
+
+void Socket::onReadCompleted(uv_stream_t* stream, ssize_t nread, const uv_buf_t* buf) {
+	Socket* thisInstance = (Socket*)stream->data;
+
+	if(nread < 0) {
+		if(buf->base)
+			delete buf->base;
+
+		const char* errorString = uv_strerror(-nread);
+		fprintf(stderr, "Socket: %s\n", errorString);
+		thisInstance->notifyReadyError(-nread);
+	} else {
+		fprintf(stderr, "Read %zd bytes\n", nread);
+		thisInstance->_p->recvBuffer.insertData(buf->base, nread);
+		delete buf->base;
+		thisInstance->_p->dataListeners.dispatch(thisInstance);
+	}
+}
+
+void Socket::onWriteCompleted(uv_write_t* req, int status) {
+	WriteRequest* writeRequest = (WriteRequest*)req;
+
+	fprintf(stderr, "Written %zd bytes\n", writeRequest->buffer.len);
+	delete writeRequest->buffer.base;
+	delete writeRequest;
+}
+
+void Socket::onShutdownDone(uv_shutdown_t* req, int status) {
+	if(status < 0) {
+		const char* errorString = uv_strerror(-status);
+		fprintf(stderr, "Socket: %s\n", errorString);
+		return;
+	}
+
+	uv_close((uv_handle_t*)req->handle, &onConnectionClosed);
+}
+
+void Socket::onConnectionClosed(uv_handle_t* handle) {
+	Socket* thisInstance = (Socket*)handle->data;
+
+	thisInstance->setState(UnconnectedState);
 }

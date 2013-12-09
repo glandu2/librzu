@@ -4,7 +4,7 @@
 #include "Packets/TS_SC_RESULT.h"
 #include <iostream>
 
-//#define NO_DEBUG
+#define NO_DEBUG
 
 #define LOG_PREFIX "RappelzSocket: "
 
@@ -12,7 +12,7 @@
 #define printf(...) (void)0
 #endif
 
-RappelzSocket::RappelzSocket(bool useEncryption) : EncryptedSocket(useEncryption) {
+RappelzSocket::RappelzSocket(uv_loop_t* uvLoop, bool useEncryption) : EncryptedSocket(uvLoop, useEncryption) {
 
 	inputBuffer.bufferSize = initialInputBufferSize;
 	inputBuffer.buffer = new uint8_t[inputBuffer.bufferSize];
@@ -92,7 +92,7 @@ void RappelzSocket::dataReceived(void* instance, Socket*) {
 			return;
 		} else if(buffer->currentMessageSize == 0) {
 			thisInstance->read(&buffer->currentMessageSize, 4);
-			printf(LOG_PREFIX"New message received, size = %d, available: %lu\n", buffer->currentMessageSize, thisInstance->getAvailableBytes());
+			//printf(LOG_PREFIX"New message received, size = %d, available: %lu\n", buffer->currentMessageSize, thisInstance->getAvailableBytes());
 		}
 
 		if(buffer->currentMessageSize != 0 && thisInstance->getAvailableBytes() >= (buffer->currentMessageSize - 4)) {

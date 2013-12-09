@@ -54,7 +54,7 @@ class RAPPELZLIBSHARED_EXPORT Server : private ICallbackGuard
 
 	//Methods
 	public:
-		Server();
+		Server(uv_loop_t* uvLoop);
 		virtual ~Server();
 
 		//Set auth server that allow to connect to a world.

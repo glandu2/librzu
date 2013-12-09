@@ -12,5 +12,6 @@ if(WIN32)
 else()
 target_link_libraries(${TARGET_NAME} crypto)
 endif()
+target_link_libraries(${TARGET_NAME} uv)
 
 install(TARGETS ${TARGET_NAME} DESTINATION ./)

@@ -1,6 +1,7 @@
 #ifndef SOCKET_H
 #define SOCKET_H
 
+#include "uv.h"
 #include "../Interfaces/ICallbackGuard.h"
 #include "stdint.h"
 
@@ -29,7 +30,7 @@ public:
 	typedef void (*CallbackOnError)(void* instance, Socket* socket, int errnoValue);
 
 public:
-	Socket();
+	Socket(uv_loop_t* uvLoop);
 	virtual ~Socket();
 
 	void deleteLater();
@@ -55,22 +56,25 @@ public:
 	DelegateRef addErrorListener(void* instance, CallbackOnError listener);
 	void removeListener(void* instance);
 
-	int64_t getFd();
-	unsigned int getLastError();
-
-	void notifyReadyRead();
-	void notifyReadyWrite();
 	void notifyReadyError(int errorValue);
 
-	static void setPoll(SocketPoll* socketPoll);
 
 protected:
 	void setState(State state);
+	static void onConnected(uv_connect_t* req, int status);
+	static void onNewConnection(uv_stream_t* req, int status);
+
+	static void onAllocReceiveBuffer(uv_handle_t* handle, size_t suggested_size, uv_buf_t* buf);
+	static void onReadCompleted(uv_stream_t* stream, ssize_t nread, const uv_buf_t* buf);
+	static void onWriteCompleted(uv_write_t* req, int status);
+
+	static void onShutdownDone(uv_shutdown_t* req, int status);
+	static void onConnectionClosed(uv_handle_t* handle);
 
 private:
 	SocketInternal *_p;
 	int lastError;
-	static SocketPoll* socketPoll;
+	uv_loop_t* uvLoop;
 	std::string host;
 	uint16_t port;
 };

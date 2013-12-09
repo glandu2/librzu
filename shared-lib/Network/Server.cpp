@@ -18,12 +18,12 @@ struct CallbacksTable {
 	IDelegateHash<uint16_t, Server*, const TS_MESSAGE*> gamePacketListeners;
 };
 
-Server::Server() : callbacks(new CallbacksTable) {
+Server::Server(uv_loop_t* uvLoop) : callbacks(new CallbacksTable) {
 	callbacks->authPacketListeners.reserve(15);
 	callbacks->gamePacketListeners.reserve(250);
 
-	authSocket = new EncryptedSocket;
-	gameSocket = new EncryptedSocket;
+	authSocket = new EncryptedSocket(uvLoop);
+	gameSocket = new EncryptedSocket(uvLoop);
 
 	authInputBuffer.bufferSize = initialInputBufferSize;
 	authInputBuffer.buffer = new uint8_t[authInputBuffer.bufferSize];
