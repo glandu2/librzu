@@ -1,10 +1,15 @@
 #ifndef CIRCULARBUFFER_H_
 #define CIRCULARBUFFER_H_
+
+#include "Object.h"
 #include "uv.h"
 
 //#define CIRCULARBUFFER_VIEWSTATUS
 
-class CircularBuffer {
+class CircularBuffer : public Object
+{
+	DECLARE_CLASS(CircularBuffer)
+
 	protected:
 		char *buffer;
 		char *dataIn, *dataOut;

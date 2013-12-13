@@ -1,6 +1,7 @@
 #ifndef SOCKET_H
 #define SOCKET_H
 
+#include "Object.h"
 #include "uv.h"
 #include "../Interfaces/ICallbackGuard.h"
 #include "stdint.h"
@@ -10,8 +11,10 @@
 struct SocketInternal;
 class SocketPoll;
 
-class Socket
+class Socket : public Object
 {
+	DECLARE_CLASS(Socket)
+
 public:
 	enum State {
 		UnconnectedState,	//Client & server
@@ -32,8 +35,6 @@ public:
 public:
 	Socket(uv_loop_t* uvLoop);
 	virtual ~Socket();
-
-	void deleteLater();
 
 	virtual bool connect(const std::string& hostName, uint16_t port);
 	virtual bool listen(const std::string& interfaceIp, uint16_t port);

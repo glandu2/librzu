@@ -44,11 +44,6 @@ Socket::~Socket() {
 	delete _p;
 }
 
-void Socket::deleteLater() {
-//	if(socketPoll)
-//		socketPoll->deleteLater(this);
-}
-
 bool Socket::connect(const std::string & hostName, uint16_t port) {
 	if(getState() != UnconnectedState)
 		return false;
@@ -97,6 +92,7 @@ size_t Socket::write(const void *buffer, size_t size) {
 	WriteRequest* writeRequest = new WriteRequest;
 	writeRequest->buffer.len = size;
 	writeRequest->buffer.base = new char[writeRequest->buffer.len];
+	writeRequest->writeReq.data = this;
 	memcpy(writeRequest->buffer.base, buffer, size);
 	uv_write(&writeRequest->writeReq, (uv_stream_t*)&_p->socket, &writeRequest->buffer, 1, &onWriteCompleted);
 
@@ -130,6 +126,7 @@ void Socket::close() {
 
 	setState(ClosingState);
 	uv_shutdown_t shutdownReq;
+	shutdownReq.data = this;
 	uv_shutdown(&shutdownReq, (uv_stream_t*)&_p->socket, &onShutdownDone);
 	while(getState() != UnconnectedState)
 		uv_run(uvLoop, UV_RUN_ONCE);
@@ -162,7 +159,7 @@ void Socket::setState(State state) {
 
 	_p->currentState = state;
 
-	fprintf(stderr, "Socket state change from %d to %d\n", oldState, state);
+	log("Socket state change from %d to %d\n", oldState, state);
 	_p->eventListeners.dispatch(this, oldState, state);
 
 	if(state == UnconnectedState) {
@@ -205,7 +202,7 @@ void Socket::onConnected(uv_connect_t* req, int status) {
 
 	if(status < 0) {
 		const char* errorString = uv_strerror(-status);
-		fprintf(stderr, "Socket: %s\n", errorString);
+		thisInstance->error("Socket: %s\n", errorString);
 		thisInstance->notifyReadyError(-status);
 		return;
 	}
@@ -219,7 +216,7 @@ void Socket::onNewConnection(uv_stream_t* req, int status) {
 
 	if(status < 0) {
 		const char* errorString = uv_strerror(-status);
-		fprintf(stderr, "Socket: %s\n", errorString);
+		thisInstance->error("Socket: %s\n", errorString);
 		thisInstance->notifyReadyError(-status);
 		return;
 	}
@@ -237,31 +234,42 @@ void Socket::onReadCompleted(uv_stream_t* stream, ssize_t nread, const uv_buf_t*
 
 	if(nread < 0) {
 		if(buf->base)
-			delete buf->base;
+			delete[] buf->base;
 
 		const char* errorString = uv_strerror(-nread);
-		fprintf(stderr, "Socket: %s\n", errorString);
+		thisInstance->error("Socket: %s\n", errorString);
 		thisInstance->notifyReadyError(-nread);
 	} else {
-		fprintf(stderr, "Read %zd bytes\n", nread);
+		thisInstance->log("Read %zd bytes\n", nread);
 		thisInstance->_p->recvBuffer.insertData(buf->base, nread);
-		delete buf->base;
+		delete[] buf->base;
 		thisInstance->_p->dataListeners.dispatch(thisInstance);
 	}
 }
 
 void Socket::onWriteCompleted(uv_write_t* req, int status) {
 	WriteRequest* writeRequest = (WriteRequest*)req;
+	Socket* thisInstance = (Socket*)req->data;
 
-	fprintf(stderr, "Written %zd bytes\n", writeRequest->buffer.len);
-	delete writeRequest->buffer.base;
+
+	if(status < 0) {
+		const char* errorString = uv_strerror(-status);
+		thisInstance->error("Socket: %s\n", errorString);
+		thisInstance->notifyReadyError(-status);
+	} else {
+		thisInstance->log("Written %zd bytes\n", writeRequest->buffer.len);
+	}
+
+	delete[] writeRequest->buffer.base;
 	delete writeRequest;
 }
 
 void Socket::onShutdownDone(uv_shutdown_t* req, int status) {
+	Socket* thisInstance = (Socket*)req->data;
+
 	if(status < 0) {
 		const char* errorString = uv_strerror(-status);
-		fprintf(stderr, "Socket: %s\n", errorString);
+		thisInstance->error("Socket: %s\n", errorString);
 		return;
 	}
 

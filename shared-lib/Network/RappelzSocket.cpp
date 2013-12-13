@@ -27,7 +27,7 @@ RappelzSocket::~RappelzSocket() {
 	abort();
 	invalidateCallbacks();
 	if(inputBuffer.buffer)
-		delete inputBuffer.buffer;
+		delete[] inputBuffer.buffer;
 }
 
 void RappelzSocket::stateChanged(void* instance, Socket*, Socket::State oldState, Socket::State newState) {

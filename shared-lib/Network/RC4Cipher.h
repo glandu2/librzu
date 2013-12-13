@@ -1,9 +1,12 @@
 #ifndef RC4CIPHER_H
 #define RC4CIPHER_H
 
+#include "Object.h"
 
-class RC4Cipher
+class RC4Cipher : public Object
 {
+	DECLARE_CLASS(RC4Cipher)
+
 	public:
 		RC4Cipher();
 		void prepare(const char *key);

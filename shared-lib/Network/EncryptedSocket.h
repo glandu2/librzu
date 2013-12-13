@@ -6,6 +6,8 @@
 
 class EncryptedSocket : public Socket
 {
+	DECLARE_CLASS(EncryptedSocket)
+
 	public:
 		EncryptedSocket(uv_loop_t *uvLoop, bool useEncryption = true);
 		~EncryptedSocket();
