@@ -2,8 +2,8 @@
 #define SERVER_H
 
 #include "Object.h"
-#include "../Common/RappelzLib_global.h"
-#include "../Interfaces/IDelegate.h"
+#include "RappelzLib_global.h"
+#include "IDelegate.h"
 
 //Pour le syntax higlighting de intxx_t
 #ifdef __GNUC__
@@ -18,7 +18,7 @@ struct TS_AC_SERVER_LIST;
 class Authentication;
 
 struct CallbacksTable;
-#include "../Interfaces/ICallbackGuard.h"
+#include "ICallbackGuard.h"
 #include "Socket.h"
 
 /**

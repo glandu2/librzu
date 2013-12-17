@@ -4,7 +4,7 @@
 #include <string.h>
 #include "CircularBuffer.h"
 #include <unordered_map>
-#include "../Interfaces/IDelegate.h"
+#include "IDelegate.h"
 
 #ifndef SHUT_RDWR
 #define SHUT_RDWR 2

@@ -2,7 +2,7 @@
 #define RAPPELZSOCKET_H
 
 #include "EncryptedSocket.h"
-#include "Interfaces/IDelegate.h"
+#include "IDelegate.h"
 #include "Packets/PacketBaseMessage.h"
 
 //Pour le syntax higlighting de intxx_t

@@ -3,7 +3,7 @@
 
 #include "Object.h"
 #include "uv.h"
-#include "../Interfaces/ICallbackGuard.h"
+#include "ICallbackGuard.h"
 #include "stdint.h"
 
 #include <string>
