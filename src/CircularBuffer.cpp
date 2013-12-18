@@ -119,7 +119,7 @@ void CircularBuffer::printBuffersPos() {
 
 	out[(dataIn-buffer)*(PRTDBG_WDT-2)/dataSize] = ']';
 	out[(dataOut-buffer)*(PRTDBG_WDT-2)/dataSize] = '[';
-	printf("%6ld,%6ld}", dataIn-buffer, dataOut-buffer);
+	printf("%6ld,%6ld}", (long)(dataIn-buffer), (long)(dataOut-buffer));
 
 	uv_mutex_unlock(&lock);
 
