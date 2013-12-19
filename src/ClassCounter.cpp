@@ -8,6 +8,7 @@ unsigned int ClassCounter__internal_object_engine_class_counter = 0;
 /* Class list:
 Object
 CircularBuffer
+ConfigInfo
 EncryptedSocket
 EventLoop
 RappelzSocket
@@ -23,6 +24,10 @@ template<> const unsigned int ClassCounter<Object>::classTypeHash = ClassCounter
 #include "CircularBuffer.h"
 template<> unsigned long ClassCounter<CircularBuffer>::objectCount = 0;
 template<> const unsigned int ClassCounter<CircularBuffer>::classTypeHash = ClassCounter__internal_object_engine_class_counter++;
+
+#include "ConfigInfo.h"
+template<> unsigned long ClassCounter<ConfigInfo>::objectCount = 0;
+template<> const unsigned int ClassCounter<ConfigInfo>::classTypeHash = ClassCounter__internal_object_engine_class_counter++;
 
 #include "EncryptedSocket.h"
 template<> unsigned long ClassCounter<EncryptedSocket>::objectCount = 0;

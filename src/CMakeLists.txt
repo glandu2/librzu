@@ -4,7 +4,7 @@ file(GLOB_RECURSE FILE_SOURCES *.cpp *.h)
 
 add_definitions(-DRAPPELZLIB_LIBRARY)
 
-add_library(${TARGET_NAME} STATIC ${FILE_SOURCES})
+add_library(${TARGET_NAME} ${FILE_SOURCES})
 if(WIN32)
 	if( "${CMAKE_SIZEOF_VOID_P}" EQUAL "8" )
 		target_link_libraries(${TARGET_NAME} D:/Programmes/Programmation/libraries/OpenSSL-x64/lib/libeay32.lib)
