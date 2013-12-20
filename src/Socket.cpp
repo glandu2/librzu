@@ -41,6 +41,8 @@ Socket::Socket(uv_loop_t *uvLoop) : _p(new SocketInternal)
 Socket::~Socket() {
 	if(getState() != UnconnectedState)
 		abort();
+	while(getState() != UnconnectedState)
+		uv_run(uvLoop, UV_RUN_ONCE);
 	delete _p;
 }
 
@@ -128,8 +130,6 @@ void Socket::close() {
 	uv_shutdown_t shutdownReq;
 	shutdownReq.data = this;
 	uv_shutdown(&shutdownReq, (uv_stream_t*)&_p->socket, &onShutdownDone);
-	while(getState() != UnconnectedState)
-		uv_run(uvLoop, UV_RUN_ONCE);
 }
 
 void Socket::abort() {
@@ -138,8 +138,6 @@ void Socket::abort() {
 
 	setState(ClosingState);
 	uv_close((uv_handle_t*)&_p->socket, &onConnectionClosed);
-	while(getState() != UnconnectedState)
-		uv_run(uvLoop, UV_RUN_ONCE);
 }
 
 size_t Socket::getAvailableBytes() {

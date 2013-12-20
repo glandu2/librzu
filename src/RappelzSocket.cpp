@@ -1,5 +1,4 @@
 #include "RappelzSocket.h"
-#include <openssl/evp.h>
 #include <string.h>
 #include "Packets/TS_SC_RESULT.h"
 #include <iostream>

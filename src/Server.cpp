@@ -1,7 +1,6 @@
 #include "Server.h"
 #include "EncryptedSocket.h"
 #include "Packets/AuthPackets.h"
-#include <openssl/evp.h>
 #include <string.h>
 
 //#define NO_DEBUG
