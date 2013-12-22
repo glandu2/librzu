@@ -20,31 +20,32 @@ public:
 	ConfigValue(Type type);
 
 	Type getType() { return type; }
+	void setKeyName(const std::string* keyName) { this->keyName = keyName; }
+	bool check(Type expectedType, bool soft);
 
-	bool get(bool* val, bool def = false);
-	bool get(int* val, int def = 0);
-	bool get(float* val, float def = 0);
-	bool get(std::string* val, const std::string& def = std::string());
+	bool get(bool def) { check(Bool, true); if(type == Bool) return data.b; else return def; }
+	int get(int def) { check(Integer, true); if(type == Integer) return data.n; else return def; }
+	float get(float def) { check(Float, true); if(type == Float) return data.f; else return def; }
+	const std::string& get(const std::string& def) { check(String, true); if(type == String) return data.s; else return def; }
+	std::string get(const char* def) { check(String, true); if(type == String) return data.s; else return std::string(def); }
 
-	bool get(bool def = false) { bool val; get(&val, def); return val; }
-	int get(int def = 0) { int val; get(&val, def); return val; }
-	float get(float def = 0) { float val; get(&val, def); return val; }
-	std::string get(const std::string& def = std::string()) { std::string val; get(&val, def); return val; }
-	std::string get(const char* def = "") { std::string val; get(&val, std::string(def)); return val; }
-
-	void set(bool val);
-	void set(int val);
-	void set(float val);
-	void set(const std::string& val);
+	void set(bool val) { if(type == None) type = Bool; if(check(Bool, true)) data.b = val; }
+	void set(int val) { if(type == None) type = Integer; if(check(Integer, true)) data.n = val; }
+	void set(float val) { if(type == None) type = Float; if(check(Float, true)) data.f = val; }
+	void set(const std::string& val) { if(type == None) type = String; if(check(String, true)) data.s = val; }
 	void set(const ConfigValue* v) { type = v->type; data = v->data; }
+	void set(double val) { set((float)val); }
+	void set(const char* val) { set(std::string(val)); }
 
-	bool* getBoolPtr(bool def = false);
-	int* getIntPtr(int def = 0);
-	float* getFloatPtr(float def = 0);
-	std::string* getStringPtr(const std::string& def = std::string());
+	bool* getPtr(bool def) { if(type == None) { type = Bool; data.b = def; } check(Bool, false); return &data.b; }
+	int* getPtr(int def) { if(type == None) { type = Integer; data.n = def; } check(Integer, false); return &data.n; }
+	float* getPtr(float def) { if(type == None) { type = Float; data.f = def; } check(Float, false); return &data.f; }
+	std::string* getPtr(const std::string& def) { if(type == None) { type = String; data.s = def; } check(String, false); return &data.s; }
+	std::string* getPtr(const char* def) { if(type == None) { type = String; data.s = def; } check(String, false); return &data.s; }
 
 private:
 	Type type;
+	const std::string* keyName;
 	struct {
 		bool b;
 		int n;
@@ -65,7 +66,19 @@ public:
 	bool writeFile(const char* filename);
 	void dump(FILE* out);
 
-	ConfigValue* get(const std::string& key, bool createIfNonExistant = true);
+	ConfigValue* get(const std::string& key);
+
+	static bool get(const char* key, bool def) { return ConfigInfo::get()->get(key)->get(def); }
+	static int get(const char* key, int def) { return ConfigInfo::get()->get(key)->get(def); }
+	static float get(const char* key, float def) { return ConfigInfo::get()->get(key)->get(def); }
+	static std::string get(const char* key, const std::string& def) { return ConfigInfo::get()->get(key)->get(def); }
+	static std::string get(const char* key, const char* def) { return ConfigInfo::get()->get(key)->get(def); }
+
+	static bool* getPtr(const char* key, bool def) { return ConfigInfo::get()->get(key)->getPtr(def); }
+	static int* getPtr(const char* key, int def) { return ConfigInfo::get()->get(key)->getPtr(def); }
+	static float* getPtr(const char* key, float def) { return ConfigInfo::get()->get(key)->getPtr(def); }
+	static std::string* getPtr(const char* key, const std::string& def) { return ConfigInfo::get()->get(key)->getPtr(def); }
+	static std::string* getPtr(const char* key, const char* def) { return ConfigInfo::get()->get(key)->getPtr(def); }
 
 	static ConfigInfo* get() {
 		static ConfigInfo instance;
@@ -73,6 +86,7 @@ public:
 	}
 
 private:
+	std::pair<std::unordered_map<std::string, ConfigValue*>::iterator, bool> addValue(const std::string& key, ConfigValue* v);
 	std::unordered_map<std::string, ConfigValue*> config;
 
 };
