@@ -16,14 +16,13 @@ public:
 
 	void run(uv_run_mode mode) { uv_run(loop, mode); }
 
-	static EventLoop* getInstance() { return instance; }
+	static EventLoop* getInstance();
 	static uv_loop_t* getLoop() { return getInstance()->loop; }
 
 protected:
 	static void deleteObjects(uv_prepare_t* handle, int status);
 
 private:
-	static EventLoop* instance;
 	uv_loop_t* loop;
 	uv_prepare_t deleteObjectsHandle;
 	std::list<Object*> objectsToDelete;

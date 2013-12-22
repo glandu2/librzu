@@ -35,7 +35,6 @@ Socket::Socket(uv_loop_t *uvLoop) : _p(new SocketInternal)
 	_p->sending = false;
 	_p->socket.data = this;
 	lastError = 0;
-	_p->recvBuffer.setBufferSize(16384);
 }
 
 Socket::~Socket() {
@@ -113,8 +112,8 @@ bool Socket::accept(Socket* socket) {
 		uv_ip4_name(&peerInfo, ipBuffer, INET_ADDRSTRLEN);
 		socket->host = std::string(ipBuffer);
 		socket->port = ntohs(peerInfo.sin_port);
-		socket->_p->currentState = ConnectedState;
-		uv_read_start((uv_stream_t*) client, &onAllocReceiveBuffer, &onReadCompleted);
+		socket->_p->currentState = UnconnectedState;
+		socket->setState(ConnectedState);
 	} else {
 		return false;
 	}
@@ -163,6 +162,9 @@ void Socket::setState(State state) {
 	if(state == UnconnectedState) {
 		this->host.clear();
 		this->port = 0;
+	} else if(state == ConnectedState) {
+		_p->recvBuffer.setBufferSize(16384);
+		uv_read_start((uv_stream_t*) &_p->socket, &onAllocReceiveBuffer, &onReadCompleted);
 	}
 }
 
@@ -206,7 +208,6 @@ void Socket::onConnected(uv_connect_t* req, int status) {
 	}
 
 	thisInstance->setState(ConnectedState);
-	uv_read_start((uv_stream_t*)&thisInstance->_p->socket, &onAllocReceiveBuffer, &onReadCompleted);
 }
 
 void Socket::onNewConnection(uv_stream_t* req, int status) {

@@ -274,7 +274,7 @@ std::string* ConfigValue::getStringPtr(const std::string& def) {
 	return nullptr;
 }
 
-ConfigInfo::ConfigInfo() : nullValue(ConfigValue::None) {
+ConfigInfo::ConfigInfo() {
 
 }
 
@@ -349,8 +349,8 @@ bool ConfigInfo::readFile(const char* filename) {
 		}
 		std::pair<Iterator, bool> it = config.emplace(std::string(line+2), v);
 		if(it.second == false) {
-			delete it.first->second;
-			it.first->second = v;
+			ConfigValue* orig = it.first->second;
+			orig->set(v);
 		}
 
 		v = nullptr;

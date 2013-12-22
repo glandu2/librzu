@@ -22,7 +22,7 @@ struct TS_MESSAGE {
 	int8_t msg_check_sum;
 
 	template<typename MessageType>
-	static void initMessage(TS_MESSAGE* msg) {
+	static void initMessage(MessageType* msg) {
 		msg->size = sizeof(MessageType);
 		msg->id = MessageType::packetID;
 		msg->msg_check_sum = checkMessage(msg);
@@ -41,16 +41,16 @@ struct TS_MESSAGE {
 	}
 
 	template<typename PacketType>
-	static PacketType* create() {
-		PacketType* msg = (PacketType*) new char[sizeof(PacketType)];
-		msg->size = sizeof(PacketType);
+	static PacketType* create(uint32_t size = sizeof(PacketType)) {
+		PacketType* msg = (PacketType*) new char[size];
+		msg->size = size;
 		msg->id = PacketType::packetID;
 		msg->msg_check_sum = checkMessage(msg);
 		return msg;
 	}
 
 	static void destroy(TS_MESSAGE* msg) {
-		delete[] msg;
+		delete[] (char*)msg;
 	}
 };
 

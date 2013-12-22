@@ -36,6 +36,7 @@ public:
 	void set(int val);
 	void set(float val);
 	void set(const std::string& val);
+	void set(const ConfigValue* v) { type = v->type; data = v->data; }
 
 	bool* getBoolPtr(bool def = false);
 	int* getIntPtr(int def = 0);
@@ -73,9 +74,7 @@ public:
 
 private:
 	std::unordered_map<std::string, ConfigValue*> config;
-	ConfigValue nullValue;
 
 };
-
 
 #endif // CONFIGINFO_H

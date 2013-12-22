@@ -83,6 +83,11 @@ size_t CircularBuffer::getData(char *data, size_t size) {
 void CircularBuffer::setBufferSize(size_t size) {
 	uv_mutex_lock(&lock);
 
+	if(dataSize == size) {
+		uv_mutex_unlock(&lock);
+		return;
+	}
+
 	if(buffer != NULL) free(buffer);
 
 	if(size > 0) {
