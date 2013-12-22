@@ -4,7 +4,7 @@
 #include "RC4Cipher.h"
 #include "Socket.h"
 
-class EncryptedSocket : public Socket
+class RAPPELZLIB_EXTERN EncryptedSocket : public Socket
 {
 	DECLARE_CLASS(EncryptedSocket)
 

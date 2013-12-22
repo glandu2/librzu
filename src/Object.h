@@ -8,6 +8,7 @@
 #include <stdio.h>
 
 #include "ClassCounter.h"
+#include "RappelzLib_global.h"
 
 //used to count objects, "c" stand for class type, WARNING: declare public block
 //getTrueClassHash: for variable used like this: Object *obj = new Actor();, obj.getTrueClassHash() return hash of class Actor.
@@ -20,7 +21,7 @@
 
 //generic class constructor (use of variadic templates): template<class Object, class... CtorParams> new Object(CtorParams... args);
 
-class Object
+class RAPPELZLIB_EXTERN Object
 {
 	DECLARE_CLASS(Object)
 

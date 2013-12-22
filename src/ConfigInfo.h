@@ -6,7 +6,7 @@
 #include <string>
 #include <stdio.h>
 
-class ConfigValue
+class RAPPELZLIB_EXTERN ConfigValue
 {
 public:
 	enum Type {
@@ -55,7 +55,7 @@ private:
 
 };
 
-class ConfigInfo : public Object
+class RAPPELZLIB_EXTERN ConfigInfo : public Object
 {
 	DECLARE_CLASS(ConfigInfo)
 

@@ -27,7 +27,7 @@ struct CallbacksTable;
  * All network flows go through this class which redirect data to the correct server.
  * This class allow to connect to a rappelz server farm without many method calls.
  */
-class RAPPELZLIBSHARED_EXPORT Server : public Object, private ICallbackGuard
+class RAPPELZLIB_EXTERN Server : public Object, private ICallbackGuard
 {
 	DECLARE_CLASS(Server)
 

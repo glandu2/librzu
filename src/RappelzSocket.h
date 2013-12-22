@@ -12,7 +12,7 @@
 # include <stdint.h>
 #endif
 
-class RappelzSocket : public EncryptedSocket, private ICallbackGuard
+class RAPPELZLIB_EXTERN RappelzSocket : public EncryptedSocket, private ICallbackGuard
 {
 	DECLARE_CLASS(RappelzSocket)
 

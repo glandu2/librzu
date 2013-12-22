@@ -3,7 +3,7 @@ project(RappelzLib)
 
 set(TARGET_NAME "RappelzLib")
 
-include_directories("${CMAKE_CURRENT_LIST_DIR}/src")
+add_definitions(-DUSING_UV_SHARED)
 include_directories("${CMAKE_CURRENT_LIST_DIR}/../libuv/include")
 
 add_subdirectory("${CMAKE_CURRENT_LIST_DIR}/src" src)
