@@ -19,7 +19,7 @@ EncryptedSocket::~EncryptedSocket() {
 	abort();
 }
 
-bool EncryptedSocket::connect(const std::string & hostName, uint64_t port) {
+bool EncryptedSocket::connect(const std::string & hostName, uint16_t port) {
 	if(useEncryption) {
 		inputEnc.prepare("}h79q~B%al;k'y $E");
 		outputEnc.prepare("}h79q~B%al;k'y $E");
@@ -29,7 +29,7 @@ bool EncryptedSocket::connect(const std::string & hostName, uint64_t port) {
 }
 
 size_t EncryptedSocket::read(void *buffer, size_t size) {
-	int64_t ret = Socket::read((char*)buffer, size);
+	size_t ret = Socket::read((char*)buffer, size);
 
 	if(useEncryption)
 		inputEnc.encode((const char*)buffer, (char*)buffer, ret);
@@ -39,7 +39,7 @@ size_t EncryptedSocket::read(void *buffer, size_t size) {
 
 size_t EncryptedSocket::write(const void *buffer, size_t size) {
     char *encbuffer = (char*)alloca(size);
-	int64_t ret;
+	size_t ret;
 
 	if(useEncryption) {
 		outputEnc.encode((const char*)buffer, encbuffer, size);

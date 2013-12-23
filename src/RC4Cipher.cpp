@@ -44,8 +44,8 @@ void RC4Cipher::getXOR(char *out, int size) {
 	}
 }
 
-void RC4Cipher::encode(const char *in, char *out, int size) {
-	int i;
+void RC4Cipher::encode(const char *in, char *out, size_t size) {
+	size_t i;
 
 	for(i=0; i<size; i++) {
 		x = (x + 1) & 0xFF;

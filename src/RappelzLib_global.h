@@ -19,4 +19,8 @@
 # define RAPPELZLIB_EXTERN /* nothing */
 #endif
 
+#ifdef _MSC_VER
+#    pragma warning(disable: 4251) /* class 'A' needs to have dll interface for to be used by clients of class 'B'. dll and users must use same crt dll and compiler flags. */
+#endif
+
 #endif // RAPPELZLIB_GLOBAL_H

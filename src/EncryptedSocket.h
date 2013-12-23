@@ -12,7 +12,7 @@ class RAPPELZLIB_EXTERN EncryptedSocket : public Socket
 		EncryptedSocket(uv_loop_t *uvLoop, bool useEncryption = true);
 		~EncryptedSocket();
 
-		virtual bool connect(const std::string &hostName, uint64_t port);
+		virtual bool connect(const std::string &hostName, uint16_t port);
 		virtual size_t read(void *buffer, size_t size);
 		virtual size_t write(const void *buffer, size_t size);
 

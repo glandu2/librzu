@@ -11,7 +11,7 @@ class RC4Cipher : public Object
 		RC4Cipher();
 		void prepare(const char *key);
 		void getXOR(char *out, int size);
-		void encode(const char *in, char *out, int size);
+		void encode(const char *in, char *out, size_t size);
 
 	private:
 		char s[256];
