@@ -7,16 +7,27 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#include "ClassCounter.h"
 #include "RappelzLib_global.h"
+
+//#include "ClassCounter.h"
 
 //used to count objects, "c" stand for class type, WARNING: declare public block
 //getTrueClassHash: for variable used like this: Object *obj = new Actor();, obj.getTrueClassHash() return hash of class Actor.
-#define DECLARE_CLASS(c) protected: ClassCounter<c> _cc; \
-		virtual inline unsigned long getObjectNum() { return _cc.getObjectNum(); } \
-		public: virtual const char *getClassName() { return #c; } \
-		virtual inline unsigned int getTrueClassHash() { return _cc.getClassHash(); } \
-		static inline unsigned int getClassHash() { return ClassCounter<c>::getClassHash(); }
+#define DECLARE_CLASS(c) \
+	protected: struct ClassCounter { \
+		static unsigned long objectsCreated; \
+		static unsigned long objectCount; \
+		static const unsigned int classTypeHash; \
+		unsigned long objectNo; \
+		ClassCounter() : objectNo(objectsCreated++) { objectCount++; } \
+		~ClassCounter() { objectCount--; } \
+	} _cc; \
+	public: virtual const char *getClassName() { return #c; } \
+	virtual unsigned int getTrueClassHash() { return _cc.classTypeHash; } \
+	static unsigned int getClassHash() { return ClassCounter::classTypeHash; } \
+	static unsigned long getObjectCount() { return ClassCounter::objectCount; } \
+	virtual unsigned long getObjectNum() { return _cc.objectNo; }
+
 
 
 //generic class constructor (use of variadic templates): template<class Object, class... CtorParams> new Object(CtorParams... args);

@@ -3,10 +3,11 @@
 
 #include <vector>
 #include <utility>
+#include "RappelzLib_global.h"
 
 typedef void** DelegateRef;
 
-class ICallbackGuard {
+class RAPPELZLIB_EXTERN ICallbackGuard {
 public:
 
 	void addInstance(DelegateRef callbackValidityPtr) {

@@ -4,7 +4,7 @@
 unsigned int ClassCounter__internal_object_engine_class_counter = 0;
 
 //generated with notepad++ with this pattern: (.*) ->
-//#include "\1.h"\ntemplate<> unsigned long ClassCounter<\1>::objectCount = 0;\ntemplate<> const unsigned int ClassCounter<\1>::classTypeHash = ClassCounter__internal_object_engine_class_counter++;\n
+//#include "\1.h"\nDECLARE_CLASSCOUNT_STATIC\(\1\)\n
 /* Class list:
 Object
 CircularBuffer
@@ -18,37 +18,28 @@ Socket
 */
 
 #include "Object.h"
-template<> unsigned long ClassCounter<Object>::objectCount = 0;
-template<> const unsigned int ClassCounter<Object>::classTypeHash = ClassCounter__internal_object_engine_class_counter++;
+DECLARE_CLASSCOUNT_STATIC(Object)
 
 #include "CircularBuffer.h"
-template<> unsigned long ClassCounter<CircularBuffer>::objectCount = 0;
-template<> const unsigned int ClassCounter<CircularBuffer>::classTypeHash = ClassCounter__internal_object_engine_class_counter++;
+DECLARE_CLASSCOUNT_STATIC(CircularBuffer)
 
 #include "ConfigInfo.h"
-template<> unsigned long ClassCounter<ConfigInfo>::objectCount = 0;
-template<> const unsigned int ClassCounter<ConfigInfo>::classTypeHash = ClassCounter__internal_object_engine_class_counter++;
+DECLARE_CLASSCOUNT_STATIC(ConfigInfo)
 
 #include "EncryptedSocket.h"
-template<> unsigned long ClassCounter<EncryptedSocket>::objectCount = 0;
-template<> const unsigned int ClassCounter<EncryptedSocket>::classTypeHash = ClassCounter__internal_object_engine_class_counter++;
+DECLARE_CLASSCOUNT_STATIC(EncryptedSocket)
 
 #include "EventLoop.h"
-template<> unsigned long ClassCounter<EventLoop>::objectCount = 0;
-template<> const unsigned int ClassCounter<EventLoop>::classTypeHash = ClassCounter__internal_object_engine_class_counter++;
+DECLARE_CLASSCOUNT_STATIC(EventLoop)
 
 #include "RappelzSocket.h"
-template<> unsigned long ClassCounter<RappelzSocket>::objectCount = 0;
-template<> const unsigned int ClassCounter<RappelzSocket>::classTypeHash = ClassCounter__internal_object_engine_class_counter++;
+DECLARE_CLASSCOUNT_STATIC(RappelzSocket)
 
 #include "RC4Cipher.h"
-template<> unsigned long ClassCounter<RC4Cipher>::objectCount = 0;
-template<> const unsigned int ClassCounter<RC4Cipher>::classTypeHash = ClassCounter__internal_object_engine_class_counter++;
+DECLARE_CLASSCOUNT_STATIC(RC4Cipher)
 
 #include "Server.h"
-template<> unsigned long ClassCounter<Server>::objectCount = 0;
-template<> const unsigned int ClassCounter<Server>::classTypeHash = ClassCounter__internal_object_engine_class_counter++;
+DECLARE_CLASSCOUNT_STATIC(Server)
 
 #include "Socket.h"
-template<> unsigned long ClassCounter<Socket>::objectCount = 0;
-template<> const unsigned int ClassCounter<Socket>::classTypeHash = ClassCounter__internal_object_engine_class_counter++;
+DECLARE_CLASSCOUNT_STATIC(Socket)
