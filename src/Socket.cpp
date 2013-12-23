@@ -22,6 +22,7 @@ struct SocketInternal {
 	IDelegate<Socket*, int> errorListeners;
 	uv_tcp_t socket;
 	uv_connect_t connectRequest;
+	uv_shutdown_t shutdownReq;
 	Socket::State currentState;
 	CircularBuffer recvBuffer;
 	bool sending;
@@ -126,9 +127,8 @@ void Socket::close() {
 		return;
 
 	setState(ClosingState);
-	uv_shutdown_t shutdownReq;
-	shutdownReq.data = this;
-	uv_shutdown(&shutdownReq, (uv_stream_t*)&_p->socket, &onShutdownDone);
+	_p->shutdownReq.data = this;
+	uv_shutdown(&_p->shutdownReq, (uv_stream_t*)&_p->socket, &onShutdownDone);
 }
 
 void Socket::abort() {

@@ -37,6 +37,12 @@ public:
 	void set(double val) { set((float)val); }
 	void set(const char* val) { set(std::string(val)); }
 
+	bool& getRef(bool def) { if(type == None) { type = Bool; data.b = def; } check(Bool, false); return data.b; }
+	int& getRef(int def) { if(type == None) { type = Integer; data.n = def; } check(Integer, false); return data.n; }
+	float& getRef(float def) { if(type == None) { type = Float; data.f = def; } check(Float, false); return data.f; }
+	std::string& getRef(const std::string& def) { if(type == None) { type = String; data.s = def; } check(String, false); return data.s; }
+	std::string& getRef(const char* def) { if(type == None) { type = String; data.s = def; } check(String, false); return data.s; }
+
 	bool* getPtr(bool def) { if(type == None) { type = Bool; data.b = def; } check(Bool, false); return &data.b; }
 	int* getPtr(int def) { if(type == None) { type = Integer; data.n = def; } check(Integer, false); return &data.n; }
 	float* getPtr(float def) { if(type == None) { type = Float; data.f = def; } check(Float, false); return &data.f; }
@@ -74,6 +80,12 @@ public:
 	static std::string get(const char* key, const std::string& def) { return ConfigInfo::get()->get(key)->get(def); }
 	static std::string get(const char* key, const char* def) { return ConfigInfo::get()->get(key)->get(def); }
 
+	static bool& getRef(const char* key, bool def) { return ConfigInfo::get()->get(key)->getRef(def); }
+	static int& getRef(const char* key, int def) { return ConfigInfo::get()->get(key)->getRef(def); }
+	static float& getRef(const char* key, float def) { return ConfigInfo::get()->get(key)->getRef(def); }
+	static std::string& getRef(const char* key, const std::string& def) { return ConfigInfo::get()->get(key)->getRef(def); }
+	static std::string& getRef(const char* key, const char* def) { return ConfigInfo::get()->get(key)->getRef(def); }
+
 	static bool* getPtr(const char* key, bool def) { return ConfigInfo::get()->get(key)->getPtr(def); }
 	static int* getPtr(const char* key, int def) { return ConfigInfo::get()->get(key)->getPtr(def); }
 	static float* getPtr(const char* key, float def) { return ConfigInfo::get()->get(key)->getPtr(def); }
@@ -90,5 +102,7 @@ private:
 	std::unordered_map<std::string, ConfigValue*> config;
 
 };
+
+#define CFG(key, defaultValue) ConfigInfo::getRef(key, defaultValue)
 
 #endif // CONFIGINFO_H
