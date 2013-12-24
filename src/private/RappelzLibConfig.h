@@ -25,11 +25,11 @@ struct RappelzLibConfig
 
 	struct TrafficDump {
 		bool& enable;
-		std::string& file;
+		std::string& path;
 
 		TrafficDump() :
 			enable(CFG("core.trafficdump.enable", false)),
-			file(CFG("core.trafficdump.file", "auth.traffic.log")) {}
+			path(CFG("core.trafficdump.path", "auth.traffic.log")) {}
 	} trafficDump;
 
 	static RappelzLibConfig* get();

@@ -2,6 +2,7 @@
 #define LOG_H
 
 #include "Object.h"
+#include <string>
 
 struct TS_MESSAGE;
 
@@ -17,13 +18,16 @@ public:
 		LL_Trace
 	};
 
-	Log();
+	Log(const std::string& file);
 
 
-	void packet(const TS_MESSAGE* message);
 	void log(Level level, const char* message, ...);
 
 	static Log* get();
+	static Log* getPacket();
+
+private:
+	std::string filename;
 };
 
 #endif // LOG_H
