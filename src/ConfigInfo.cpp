@@ -64,7 +64,7 @@ bool ConfigInfo::readFile(const char* filename) {
 		return false;
 
 	while(fgets(line, 1024, file)) {
-		int len = strlen(line);
+		size_t len = strlen(line);
 		if(len < 3)   //minimum: type + space + key char
 			continue;
 

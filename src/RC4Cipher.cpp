@@ -13,10 +13,10 @@ RC4Cipher::RC4Cipher() {
 }
 
 void RC4Cipher::prepare(const char *key) {
-	int i, j, keyLen = strlen(key);
+	size_t i, j, keyLen = strlen(key);
 
 	for(i=0; i<256; i++)
-		s[i] = i;
+		s[i] = (char)i;
 
 	for(i=0,j=0; i<256; i++) {
 		j = (j + s[j] + key[j%keyLen]) & 0xFF;
