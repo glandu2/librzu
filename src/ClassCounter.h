@@ -11,8 +11,8 @@
 extern unsigned int RAPPELZLIB_EXTERN ClassCounter__internal_object_engine_class_counter;
 
 #define DECLARE_CLASSCOUNT_STATIC(classname) \
-	unsigned long classname::ClassCounter::objectCount = 0; \
-	unsigned long classname::ClassCounter::objectsCreated = 0; \
-	const unsigned int classname::ClassCounter::classTypeHash = ClassCounter__internal_object_engine_class_counter++;
+	unsigned long classname::__objectCount = 0; \
+	unsigned long classname::__objectsCreated = 0; \
+	const unsigned int classname::__classTypeHash = ClassCounter__internal_object_engine_class_counter++;
 
 #endif // CLASSCOUNTER_H

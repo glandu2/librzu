@@ -33,8 +33,8 @@ void RC4Cipher::prepare(const char *key) {
 	}
 }
 
-void RC4Cipher::getXOR(char *out, int size) {
-	int i;
+void RC4Cipher::getXOR(char *out, size_t size) {
+	size_t i;
 
 	for(i=0; i<size; i++) {
 		x = (x + 1) & 0xFF;

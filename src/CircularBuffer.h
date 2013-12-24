@@ -6,7 +6,7 @@
 
 //#define CIRCULARBUFFER_VIEWSTATUS
 
-class CircularBuffer : public Object
+class RAPPELZLIB_EXTERN CircularBuffer : public Object
 {
 	DECLARE_CLASS(CircularBuffer)
 

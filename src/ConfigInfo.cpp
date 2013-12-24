@@ -46,7 +46,7 @@ ConfigValue* ConfigInfo::get(const std::string& key) {
 }
 
 std::pair<std::unordered_map<std::string, ConfigValue*>::iterator, bool> ConfigInfo::addValue(const std::string& key, ConfigValue* v) {
-	std::pair<std::unordered_map<std::string, ConfigValue*>::iterator, bool> it = config.emplace(key, v);
+	std::pair<std::unordered_map<std::string, ConfigValue*>::iterator, bool> it = config.insert(std::pair<std::string, ConfigValue*>(key, v));
 	if(it.second)
 		v->setKeyName(&it.first->first);
 	return it;
@@ -130,6 +130,14 @@ bool ConfigInfo::writeFile(const char *filename) {
 	return true;
 }
 
+
+#ifdef _MSC_VER
+#define INT2STR(i) std::to_string((long long)(i))
+#define FLOAT2STR(i) std::to_string((long double)(i))
+#else
+#define INT2STR(i) std::to_string(i)
+#define FLOAT2STR(i) std::to_string(i)
+#endif
 void ConfigInfo::dump(FILE *out) {
 	std::unordered_map<std::string, ConfigValue*>::const_iterator it, itEnd;
 	std::string val;
@@ -145,12 +153,12 @@ void ConfigInfo::dump(FILE *out) {
 
 			case ConfigValue::Integer:
 				type = 'N';
-				val = std::to_string(v->get(0));
+				val = INT2STR(v->get(0));
 				break;
 
 			case ConfigValue::Float:
 				type = 'F';
-				val = std::to_string(v->get(0.0f));
+				val = FLOAT2STR(v->get(0.0f));
 				break;
 
 			case ConfigValue::String:
