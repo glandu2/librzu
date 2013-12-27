@@ -5,6 +5,15 @@
 #include <tuple>
 #include "ICallbackGuard.h"
 
+template<typename T>
+struct Callback {
+	void* instance;
+	T callback;
+
+	Callback(void* instance = nullptr, T callback = nullptr) : instance(instance), callback(callback) {}
+};
+#define CALLBACK_CALL(c, ...) (c).callback((c).instance, __VA_ARGS__)
+
 #if !defined(_MSC_VER) || _MSC_FULL_VER >= 170051025
 template<class Key, typename ...Values>
 class IDelegateHash {

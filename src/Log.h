@@ -18,7 +18,7 @@ public:
 		LL_Trace
 	};
 
-	Log(const std::string& file);
+	Log(bool enabled, Level level, const std::string& file);
 
 
 	void log(Level level, const char* message, ...);

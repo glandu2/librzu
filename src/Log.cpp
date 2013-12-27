@@ -2,16 +2,16 @@
 #include "private/RappelzLibConfig.h"
 
 Log* Log::get() {
-	static Log log(CONFIG_GET()->log.dir + CONFIG_GET()->log.file);
+	static Log log(CONFIG_GET()->log.enable, (Level)CONFIG_GET()->log.level, CONFIG_GET()->log.dir + CONFIG_GET()->log.file);
 	return &log;
 }
 
 Log* Log::getPacket() {
-	static Log log(CONFIG_GET()->trafficDump.path);
+	static Log log(CONFIG_GET()->trafficDump.enable, LL_Trace, CONFIG_GET()->trafficDump.path);
 	return &log;
 }
 
-Log::Log(const std::string& file)
+Log::Log(bool enabled, Level level, const std::string& file)
 {
 }
 
