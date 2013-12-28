@@ -18,7 +18,7 @@ public:
 		LL_Trace
 	};
 
-	Log(bool enabled, Level level, const std::string& file);
+	Log(const bool& enabled, const Level& maxLevel, const std::string& file);
 
 
 	void log(Level level, const char* message, ...);
@@ -27,7 +27,9 @@ public:
 	static Log* getPacket();
 
 private:
-	std::string filename;
+	const bool& enabled;
+	const Level& maxLevel;
+	const std::string& filename;
 };
 
 #endif // LOG_H

@@ -11,7 +11,10 @@ Log* Log::getPacket() {
 	return &log;
 }
 
-Log::Log(bool enabled, Level level, const std::string& file)
+Log::Log(const bool& enabled, const Level& maxLevel, const std::string& file) :
+	enabled(enabled),
+	maxLevel(maxLevel),
+	filename(file)
 {
 }
 
