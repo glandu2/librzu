@@ -107,7 +107,7 @@ bool Log::open() {
 		return true;
 
 	newfile = fopen(newFileName.c_str(), "ab");
-	if(newfile) {
+	if(!newfile) {
 		if(file)
 			error("Couldnt open new log file %s, keeping old one\n", newFileName.c_str());
 		else
