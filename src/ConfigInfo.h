@@ -5,6 +5,44 @@
 #include <unordered_map>
 #include <string>
 #include <stdio.h>
+#include "uv.h"
+#include <list>
+#include "IDelegate.h"
+#include <functional>
+template<class T>
+class cval {
+public:
+	typedef void (*EventCallback)(void* instance, cval<T>* value);
+
+	cval() { uv_rwlock_init(&lock); uv_mutex_init(&listenersLock); }
+	cval(const T& value) : value(value) { uv_rwlock_init(&lock); uv_mutex_init(&listenersLock); }
+
+	T get() { T val; uv_rwlock_rdlock(&lock); val = value; uv_rwlock_rdunlock(&lock); return val; }
+	void set(const T& val) { uv_rwlock_wrlock(&lock); value = val; uv_rwlock_wrunlock(&lock); dispatchValueChanged(); }
+
+	operator T() { return get(); }
+	cval<T>& operator=(const T& val) { set(val); return *this; }
+
+	void addListener(void* instance, EventCallback callback) { listeners.push_back(Callback<EventCallback>(instance, callback)); }
+	void dispatchValueChanged() {
+		std::list< Callback<EventCallback> > listenersCopy;
+
+		uv_mutex_lock(&listenersLock);
+		listenersCopy = listeners;
+		uv_mutex_unlock(&listenersLock);
+
+		auto it = listenersCopy.cbegin();
+		auto itEnd = listenersCopy.cend();
+		for(; it != itEnd; ++it)
+			CALLBACK_CALL(*it, this);
+	}
+
+private:
+	std::list< Callback<EventCallback> > listeners;
+	T value;
+	uv_rwlock_t lock;
+	uv_mutex_t listenersLock;
+};
 
 class RAPPELZLIB_EXTERN ConfigValue
 {
@@ -23,12 +61,6 @@ public:
 	void setKeyName(const std::string* keyName) { this->keyName = keyName; }
 	bool check(Type expectedType, bool soft);
 
-	bool get(bool def) { check(Bool, true); if(type == Bool) return data.b; else return def; }
-	int get(int def) { check(Integer, true); if(type == Integer) return data.n; else return def; }
-	float get(float def) { check(Float, true); if(type == Float) return data.f; else return def; }
-	const std::string& get(const std::string& def) { check(String, true); if(type == String) return data.s; else return def; }
-	std::string get(const char* def) { check(String, true); if(type == String) return data.s; else return std::string(def); }
-
 	void set(bool val) { if(type == None) type = Bool; if(check(Bool, true)) data.b = val; }
 	void set(int val) { if(type == None) type = Integer; if(check(Integer, true)) data.n = val; }
 	void set(float val) { if(type == None) type = Float; if(check(Float, true)) data.f = val; }
@@ -37,26 +69,20 @@ public:
 	void set(double val) { set((float)val); }
 	void set(const char* val) { set(std::string(val)); }
 
-	bool& getRef(bool def) { if(type == None) { type = Bool; data.b = def; } check(Bool, false); return data.b; }
-	int& getRef(int def) { if(type == None) { type = Integer; data.n = def; } check(Integer, false); return data.n; }
-	float& getRef(float def) { if(type == None) { type = Float; data.f = def; } check(Float, false); return data.f; }
-	std::string& getRef(const std::string& def) { if(type == None) { type = String; data.s = def; } check(String, false); return data.s; }
-	std::string& getRef(const char* def) { if(type == None) { type = String; data.s = def; } check(String, false); return data.s; }
-
-	bool* getPtr(bool def) { if(type == None) { type = Bool; data.b = def; } check(Bool, false); return &data.b; }
-	int* getPtr(int def) { if(type == None) { type = Integer; data.n = def; } check(Integer, false); return &data.n; }
-	float* getPtr(float def) { if(type == None) { type = Float; data.f = def; } check(Float, false); return &data.f; }
-	std::string* getPtr(const std::string& def) { if(type == None) { type = String; data.s = def; } check(String, false); return &data.s; }
-	std::string* getPtr(const char* def) { if(type == None) { type = String; data.s = def; } check(String, false); return &data.s; }
+	cval<bool>& get(bool def) { if(type == None) { type = Bool; data.b = def; } check(Bool, false); return data.b; }
+	cval<int>& get(int def) { if(type == None) { type = Integer; data.n = def; } check(Integer, false); return data.n; }
+	cval<float>& get(float def) { if(type == None) { type = Float; data.f = def; } check(Float, false); return data.f; }
+	cval<std::string>& get(const std::string& def) { if(type == None) { type = String; data.s = def; } check(String, false); return data.s; }
+	cval<std::string>& get(const char* def) { if(type == None) { type = String; data.s = def; } check(String, false); return data.s; }
 
 private:
 	Type type;
 	const std::string* keyName;
 	struct {
-		bool b;
-		int n;
-		float f;
-		std::string s;
+		cval<bool> b;
+		cval<int> n;
+		cval<float> f;
+		cval<std::string> s;
 	} data;
 
 };
@@ -74,23 +100,11 @@ public:
 
 	ConfigValue* get(const std::string& key);
 
-	static bool get(const char* key, bool def) { return ConfigInfo::get()->get(key)->get(def); }
-	static int get(const char* key, int def) { return ConfigInfo::get()->get(key)->get(def); }
-	static float get(const char* key, float def) { return ConfigInfo::get()->get(key)->get(def); }
-	static std::string get(const char* key, const std::string& def) { return ConfigInfo::get()->get(key)->get(def); }
-	static std::string get(const char* key, const char* def) { return ConfigInfo::get()->get(key)->get(def); }
-
-	static bool& getRef(const char* key, bool def) { return ConfigInfo::get()->get(key)->getRef(def); }
-	static int& getRef(const char* key, int def) { return ConfigInfo::get()->get(key)->getRef(def); }
-	static float& getRef(const char* key, float def) { return ConfigInfo::get()->get(key)->getRef(def); }
-	static std::string& getRef(const char* key, const std::string& def) { return ConfigInfo::get()->get(key)->getRef(def); }
-	static std::string& getRef(const char* key, const char* def) { return ConfigInfo::get()->get(key)->getRef(def); }
-
-	static bool* getPtr(const char* key, bool def) { return ConfigInfo::get()->get(key)->getPtr(def); }
-	static int* getPtr(const char* key, int def) { return ConfigInfo::get()->get(key)->getPtr(def); }
-	static float* getPtr(const char* key, float def) { return ConfigInfo::get()->get(key)->getPtr(def); }
-	static std::string* getPtr(const char* key, const std::string& def) { return ConfigInfo::get()->get(key)->getPtr(def); }
-	static std::string* getPtr(const char* key, const char* def) { return ConfigInfo::get()->get(key)->getPtr(def); }
+	static cval<bool>& get(const char* key, bool def) { return ConfigInfo::get()->get(key)->get(def); }
+	static cval<int>& get(const char* key, int def) { return ConfigInfo::get()->get(key)->get(def); }
+	static cval<float>& get(const char* key, float def) { return ConfigInfo::get()->get(key)->get(def); }
+	static cval<std::string>& get(const char* key, const std::string& def) { return ConfigInfo::get()->get(key)->get(def); }
+	static cval<std::string>& get(const char* key, const char* def) { return ConfigInfo::get()->get(key)->get(def); }
 
 	static ConfigInfo* get() {
 		static ConfigInfo instance;
@@ -103,6 +117,6 @@ private:
 
 };
 
-#define CFG(key, defaultValue) ConfigInfo::getRef(key, defaultValue)
+#define CFG(key, defaultValue) ConfigInfo::get(key, defaultValue)
 
 #endif // CONFIGINFO_H

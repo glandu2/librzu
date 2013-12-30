@@ -28,6 +28,10 @@
 	static unsigned long getObjectCount() { return __objectCount; } \
 	virtual unsigned long getObjectNum() { return _cc.objectNo; }
 
+#define DECLARE_CLASSNAME(C, count) \
+	public: virtual const char *getClassName() { return #C; } \
+	virtual unsigned long getObjectNum() { return count; }
+
 
 class RAPPELZLIB_EXTERN Object
 {
@@ -38,11 +42,15 @@ class RAPPELZLIB_EXTERN Object
 		virtual ~Object();
 
 		void setObjectName(const char *name);
+		void setObjectName(int maxLen, const char *format, ...);
 		const char *getObjectName();
 
-		void log(const char *message, ...);
+		void trace(const char *message, ...);
+		void debug(const char *message, ...);
+		void info(const char *message, ...);
 		void warn(const char *message, ...);
 		void error(const char *message, ...);
+		void fatal(const char *message, ...);
 
 		virtual void deleteLater();
     private:

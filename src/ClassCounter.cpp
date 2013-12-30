@@ -32,6 +32,9 @@ DECLARE_CLASSCOUNT_STATIC(EncryptedSocket)
 #include "EventLoop.h"
 DECLARE_CLASSCOUNT_STATIC(EventLoop)
 
+#include "Log.h"
+DECLARE_CLASSCOUNT_STATIC(Log)
+
 #include "RappelzSocket.h"
 DECLARE_CLASSCOUNT_STATIC(RappelzSocket)
 

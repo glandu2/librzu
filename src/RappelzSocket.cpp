@@ -3,14 +3,6 @@
 #include "Packets/TS_SC_RESULT.h"
 #include <iostream>
 
-#define NO_DEBUG
-
-#define LOG_PREFIX "RappelzSocket: "
-
-#ifdef NO_DEBUG
-#define printf(...) (void)0
-#endif
-
 RappelzSocket::RappelzSocket(uv_loop_t* uvLoop, bool useEncryption) : EncryptedSocket(uvLoop, useEncryption) {
 
 	inputBuffer.bufferSize = initialInputBufferSize;
@@ -33,8 +25,6 @@ void RappelzSocket::stateChanged(void* instance, Socket*, Socket::State oldState
 	RappelzSocket* thisInstance = static_cast<RappelzSocket*>(instance);
 
 	if(newState == Socket::ConnectedState) {
-		printf(LOG_PREFIX"Socket %s:%d connected\n", thisInstance->getHost().c_str(), thisInstance->getPort());
-
 		thisInstance->inputBuffer.currentMessageSize = 0;
 
 		TS_CC_EVENT eventMsg;
@@ -45,7 +35,6 @@ void RappelzSocket::stateChanged(void* instance, Socket*, Socket::State oldState
 		TS_CC_EVENT eventMsg;
 		TS_MESSAGE::initMessage<TS_CC_EVENT>(&eventMsg);
 		eventMsg.event = TS_CC_EVENT::CE_ServerDisconnected;
-		printf(LOG_PREFIX"Socket %s:%d disconnected\n", thisInstance->getHost().c_str(), thisInstance->getPort());
 
 		thisInstance->dispatchPacket(&eventMsg);
 	}
@@ -53,8 +42,6 @@ void RappelzSocket::stateChanged(void* instance, Socket*, Socket::State oldState
 
 void RappelzSocket::socketError(void* instance, Socket*, int errnoValue) {
 	RappelzSocket* thisInstance = static_cast<RappelzSocket*>(instance);
-
-	printf(LOG_PREFIX"Socket %s:%d socket error %s !\n", thisInstance->getHost().c_str(), thisInstance->getPort(), strerror(errnoValue));
 
 	if(thisInstance->getState() == ConnectingState) {
 		TS_CC_EVENT eventMsg;
@@ -65,13 +52,13 @@ void RappelzSocket::socketError(void* instance, Socket*, int errnoValue) {
 }
 
 void RappelzSocket::sendPacket(const TS_MESSAGE* data) {
-	printf(LOG_PREFIX"Packet out id: %5d, size: %d\n", data->id, data->size);
+	trace("Packet out id: %5d, size: %d\n", data->id, data->size);
 
 	write(data, data->size);
 }
 
 void RappelzSocket::dispatchPacket(const TS_MESSAGE* packetData) {
-	printf(LOG_PREFIX"Packet in id: %5d, size: %d\n", packetData->id, packetData->size);
+	trace("Packet in id: %5d, size: %d\n", packetData->id, packetData->size);
 
 	//packetListeners.dispatch(ALL_PACKETS, this, packetData);
 

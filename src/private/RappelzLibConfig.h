@@ -6,30 +6,30 @@
 struct RappelzLibConfig
 {
 	struct App {
-		std::string& appName;
+		cval<std::string> &appName;
 
 		App() : appName(CFG("core.appname", "Rappelz Auth Server")) {}
 	} app;
 
 	struct Log {
-		bool& enable;
-		std::string& dir, &file;
-		int& level; //Level 0 = fatal, Level max (5) = trace
+		cval<bool> &enable;
+		cval<std::string> &dir, &file, &level;
 
 		Log() :
-			enable(CFG("core.log.enable", false)),
+			enable(CFG("core.log.enable", true)),
 			dir(CFG("core.log.dir", "log")),
-			file(CFG("core.log.file", CFG("core.appname", "auth"))),
-			level(CFG("core.log.level", 1)) {}
+			file(CFG("core.log.file", CFG("core.appname", "auth").get() + ".log")),
+			level(CFG("core.log.level", "trace")) {}
 	} log;
 
 	struct TrafficDump {
-		bool& enable;
-		std::string& path;
+		cval<bool> &enable;
+		cval<std::string> &dir, &file;
 
 		TrafficDump() :
 			enable(CFG("core.trafficdump.enable", false)),
-			path(CFG("core.trafficdump.path", "auth.traffic.log")) {}
+			dir(CFG("core.trafficdump.dir", "traffic_log")),
+			file(CFG("core.trafficdump.file", "auth_traffic.log")) {}
 	} trafficDump;
 
 	static RappelzLibConfig* get();

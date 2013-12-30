@@ -3,6 +3,7 @@
 #include <string.h>
 #include <stdarg.h>
 #include "EventLoop.h"
+#include "Log.h"
 
 Object::Object(const char* name) {
     objectName = NULL;
@@ -15,11 +16,32 @@ Object::~Object() {
 }
 
 void Object::setObjectName(const char *name) {
-    if(objectName) delete[] objectName;
+	if(objectName)
+		delete[] objectName;
+
     if(name) {
 		objectName = new char[strlen(name)+1];
 		strcpy(objectName, name);
-    } else objectName = NULL;
+	} else {
+		objectName = NULL;
+	}
+}
+
+//maxLen without null terminator
+void Object::setObjectName(int maxLen, const char *format, ...) {
+	va_list args;
+
+	if(objectName)
+		delete[] objectName;
+
+	if(format && maxLen > 0) {
+		objectName = new char[maxLen+1];
+		va_start(args, format);
+		vsnprintf(objectName, maxLen+1, format, args);
+		va_end(args);
+	} else {
+		objectName = NULL;
+	}
 }
 
 const char *Object::getObjectName() {
@@ -33,26 +55,46 @@ const char *Object::getObjectName() {
 	return (const char*)objectName;
 }
 
-void Object::log(const char *message, ...) {
-	printf("%s: ", getObjectName());
-	va_list vl;
-	va_start(vl,message);
-	vprintf(message, vl);
-	va_end(vl);
+static void defaultLog(const char* suffix, const char* objectName, const char* message, va_list args) {
+	fprintf(stderr, "%s %s: ", suffix, objectName);
+	vfprintf(stderr, message, args);
 }
+
+//level is Log::Level without leading Log::LL_
+#define LOG_USELOGGER(msg, level) \
+	Log* logger = Log::get(); \
+	va_list args; \
+	va_start(args, message); \
+	 \
+	if(logger) \
+		logger->log(Log::LL_##level, getObjectName(), message, args); \
+	else { \
+		defaultLog(#level, getObjectName(), message, args); \
+	} \
+	va_end(args);
+
+void Object::trace(const char *message, ...) {
+	LOG_USELOGGER(message, Trace)
+}
+
+void Object::debug(const char *message, ...) {
+	LOG_USELOGGER(message, Debug)
+}
+
+void Object::info(const char *message, ...) {
+	LOG_USELOGGER(message, Info)
+}
+
 void Object::warn(const char *message, ...) {
-	printf("Warning ! %s: ", getObjectName());
-	va_list vl;
-	va_start(vl,message);
-	vprintf(message, vl);
-	va_end(vl);
+	LOG_USELOGGER(message, Warning)
 }
+
 void Object::error(const char *message, ...) {
-	printf("Error ! %s: ", getObjectName());
-	va_list vl;
-	va_start(vl,message);
-	vprintf(message, vl);
-	va_end(vl);
+	LOG_USELOGGER(message, Error)
+}
+
+void Object::fatal(const char *message, ...) {
+	LOG_USELOGGER(message, Fatal)
 }
 
 void Object::deleteLater() {

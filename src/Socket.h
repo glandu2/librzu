@@ -28,6 +28,8 @@ public:
 		ClosingState		//Client & Server
 	};
 
+	static const char* STATES[];
+
 	typedef void (*CallbackOnDataReady)(void* instance, Socket* socket);
 	typedef void (*CallbackOnStateChanged)(void* instance, Socket* socket, State oldState, State newState);
 	typedef void (*CallbackOnError)(void* instance, Socket* socket, int errnoValue);
@@ -62,6 +64,7 @@ public:
 
 protected:
 	void setState(State state);
+	void setPeerInfo(const std::string& host, uint16_t port);
 	static void onConnected(uv_connect_t* req, int status);
 	static void onNewConnection(uv_stream_t* req, int status);
 
