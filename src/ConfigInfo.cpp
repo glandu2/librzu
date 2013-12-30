@@ -32,16 +32,20 @@ ConfigInfo::ConfigInfo() {
 
 }
 
-ConfigValue* ConfigInfo::get(const std::string& key) {
+ConfigValue* ConfigInfo::getValue(const std::string& key, bool createIfNonExistant) {
 	std::unordered_map<std::string, ConfigValue*>::const_iterator it;
 
 	it = config.find(key);
 	if(it != config.cend()) {
 		return it->second;
 	} else {
-		ConfigValue* v = new ConfigValue(ConfigValue::None);
-		addValue(key, v);
-		return v;
+		if(createIfNonExistant) {
+			ConfigValue* v = new ConfigValue(ConfigValue::None);
+			addValue(key, v);
+			return v;
+		} else {
+			return nullptr;
+		}
 	}
 }
 
@@ -52,6 +56,62 @@ std::pair<std::unordered_map<std::string, ConfigValue*>::iterator, bool> ConfigI
 	return it;
 }
 
+void ConfigInfo::parseCommandLine(int argc, char **argv) {
+	int i;
+	char* key;
+	char* value;
+
+	for(i = 1; i < argc; i++) {
+		if(argv[i][0] != '/' && argv[i][0] != '-')
+			continue;
+
+		key = argv[i];
+		while(!isalpha(*key) && *key != '\0')
+			key++;
+
+		if(*key == '\0')
+			continue;
+
+		value = strchr(key, ':');
+		if(!value)
+			continue;
+
+		std::string keyStr(key, value - key);
+		value++;
+		ConfigValue* v = getValue(keyStr, false);
+		if(v == nullptr) {
+			debug("Unknown key %s, ignoring\n", keyStr.c_str());
+			continue;
+		}
+		if(v->getType() == ConfigValue::None) {
+			debug("Key %s data type is None, ignoring\n", keyStr.c_str());
+			continue;
+		}
+
+		switch(v->getType()) {
+			case ConfigValue::Bool:
+				v->set(!strcmp(value, "true") || !strcmp(value, "1"));
+				break;
+
+			case ConfigValue::Integer:
+				v->set(atoi(value));
+				break;
+
+			case ConfigValue::Float:
+				v->set(atof(value));
+				break;
+
+			case ConfigValue::String:
+				v->set(std::string(value));
+				break;
+
+			case ConfigValue::None:
+				debug("Key %s data type is None, ignoring\n", keyStr.c_str());
+				break;
+		}
+	}
+}
+
 bool ConfigInfo::readFile(const char* filename) {
 	FILE* file;
 	char line[1024];
@@ -60,8 +120,10 @@ bool ConfigInfo::readFile(const char* filename) {
 	typedef std::unordered_map<std::string, ConfigValue*>::iterator Iterator;
 
 	file = fopen(filename, "rb");
-	if(!file)
+	if(!file) {
+		info("No config file (%s)\n", filename);
 		return false;
+	}
 
 	while(fgets(line, 1024, file)) {
 		size_t len = strlen(line);
@@ -82,7 +144,7 @@ bool ConfigInfo::readFile(const char* filename) {
 		switch(line[0]) {
 			case 'B':
 				v = new ConfigValue(ConfigValue::Bool);
-				v->set(!strcmp(p, "true"));
+				v->set(!strcmp(p, "true") || !strcmp(p, "1"));
 				break;
 
 			case 'N':

@@ -8,7 +8,7 @@
 
 struct TS_MESSAGE;
 
-class RAPPELZLIB_EXTERN Log : public Object
+class RAPPELZLIB_EXTERN Log : public Object, public ICallbackGuard
 {
 	DECLARE_CLASS(Log)
 public:
@@ -25,6 +25,8 @@ public:
 	Log(cval<bool>& enabled, Level maxLevel, cval<std::string>& dir, cval<std::string>& fileName);
 	~Log();
 
+	bool open();
+	void close();
 
 	void log(Level level, const char* objectName, const char* message, ...);
 	void log(Level level, const char* objectName, const char* message, va_list args);
@@ -34,17 +36,18 @@ public:
 	static Log* getPacket() { return packetLogger; }
 
 protected:
-	static void updateLevel(void* instance, cval<std::string>* level);
-	static void updateFile(void* instance, cval<std::string>* str);
+	static void updateEnabled(ICallbackGuard* instance, cval<bool>* level);
+	static void updateLevel(ICallbackGuard* instance, cval<std::string>* level);
+	static void updateFile(ICallbackGuard* instance, cval<std::string>* str);
 
 private:
 	static Log* messageLogger;
 	static Log* packetLogger;
 
-	cval<bool>& enabled;
 	Level maxLevel;
 	cval<std::string>& dir;
 	cval<std::string>& fileName;
+	std::string openedFile;
 	void* file;
 	uv_mutex_t lock;
 };

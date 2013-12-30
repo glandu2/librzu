@@ -30,9 +30,9 @@ public:
 
 	static const char* STATES[];
 
-	typedef void (*CallbackOnDataReady)(void* instance, Socket* socket);
-	typedef void (*CallbackOnStateChanged)(void* instance, Socket* socket, State oldState, State newState);
-	typedef void (*CallbackOnError)(void* instance, Socket* socket, int errnoValue);
+	typedef void (*CallbackOnDataReady)(ICallbackGuard* instance, Socket* socket);
+	typedef void (*CallbackOnStateChanged)(ICallbackGuard* instance, Socket* socket, State oldState, State newState);
+	typedef void (*CallbackOnError)(ICallbackGuard* instance, Socket* socket, int errnoValue);
 
 public:
 	Socket(uv_loop_t* uvLoop);
@@ -53,11 +53,11 @@ public:
 	const std::string& getHost() { return host; }
 	uint16_t getPort() { return port; }
 
-	DelegateRef addDataListener(void* instance, CallbackOnDataReady listener);
-	DelegateRef addConnectionListener(void* instance, CallbackOnDataReady listener);
-	DelegateRef addEventListener(void* instance, CallbackOnStateChanged listener);
-	DelegateRef addErrorListener(void* instance, CallbackOnError listener);
-	void removeListener(void* instance);
+	void addDataListener(ICallbackGuard* instance, CallbackOnDataReady listener);
+	void addConnectionListener(ICallbackGuard* instance, CallbackOnDataReady listener);
+	void addEventListener(ICallbackGuard* instance, CallbackOnStateChanged listener);
+	void addErrorListener(ICallbackGuard* instance, CallbackOnError listener);
+	void removeListener(ICallbackGuard* instance);
 
 	void notifyReadyError(int errorValue);
 

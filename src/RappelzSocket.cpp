@@ -9,9 +9,9 @@ RappelzSocket::RappelzSocket(uv_loop_t* uvLoop, bool useEncryption) : EncryptedS
 	inputBuffer.buffer = new uint8_t[inputBuffer.bufferSize];
 	inputBuffer.currentMessageSize = 0;
 
-	addInstance(addDataListener(this, &dataReceived));
-	addInstance(addErrorListener(this, &socketError));
-	addInstance(addEventListener(this, &stateChanged));
+	addDataListener(this, &dataReceived);
+	addErrorListener(this, &socketError);
+	addEventListener(this, &stateChanged);
 }
 
 RappelzSocket::~RappelzSocket() {
@@ -21,7 +21,7 @@ RappelzSocket::~RappelzSocket() {
 		delete[] inputBuffer.buffer;
 }
 
-void RappelzSocket::stateChanged(void* instance, Socket*, Socket::State oldState, Socket::State newState) {
+void RappelzSocket::stateChanged(ICallbackGuard* instance, Socket*, Socket::State oldState, Socket::State newState) {
 	RappelzSocket* thisInstance = static_cast<RappelzSocket*>(instance);
 
 	if(newState == Socket::ConnectedState) {
@@ -40,7 +40,7 @@ void RappelzSocket::stateChanged(void* instance, Socket*, Socket::State oldState
 	}
 }
 
-void RappelzSocket::socketError(void* instance, Socket*, int errnoValue) {
+void RappelzSocket::socketError(ICallbackGuard *instance, Socket*, int errnoValue) {
 	RappelzSocket* thisInstance = static_cast<RappelzSocket*>(instance);
 
 	if(thisInstance->getState() == ConnectingState) {
@@ -63,12 +63,12 @@ void RappelzSocket::dispatchPacket(const TS_MESSAGE* packetData) {
 	//packetListeners.dispatch(ALL_PACKETS, this, packetData);
 
 	if(packetData->id != TS_SC_RESULT::packetID)
-		packetListeners.dispatch(packetData->id, this, packetData);
+		DELEGATE_HASH_CALL(packetListeners, packetData->id, this, packetData);
 	else
-		packetListeners.dispatch(reinterpret_cast<const TS_SC_RESULT*>(packetData)->request_msg_id, this, packetData);
+		DELEGATE_HASH_CALL(packetListeners, reinterpret_cast<const TS_SC_RESULT*>(packetData)->request_msg_id, this, packetData);
 }
 
-void RappelzSocket::dataReceived(void* instance, Socket*) {
+void RappelzSocket::dataReceived(ICallbackGuard* instance, Socket*) {
 	RappelzSocket* thisInstance = static_cast<RappelzSocket*>(instance);
 	InputBuffer* buffer = &thisInstance->inputBuffer;
 
@@ -97,6 +97,6 @@ void RappelzSocket::dataReceived(void* instance, Socket*) {
 	} while((buffer->currentMessageSize == 0 && thisInstance->getAvailableBytes() >= 4) || (buffer->currentMessageSize != 0 && thisInstance->getAvailableBytes() >= (buffer->currentMessageSize - 4)));
 }
 
-DelegateRef RappelzSocket::addPacketListener(uint16_t packetId, void* instance, CallbackFunction onPacketReceivedCallback) {
-	return packetListeners.add(packetId, instance, onPacketReceivedCallback);
+void RappelzSocket::addPacketListener(uint16_t packetId, ICallbackGuard* instance, CallbackFunction onPacketReceivedCallback) {
+	packetListeners.add(packetId, instance, onPacketReceivedCallback);
 }

@@ -17,7 +17,7 @@ class RAPPELZLIB_EXTERN RappelzSocket : public EncryptedSocket, private ICallbac
 	DECLARE_CLASS(RappelzSocket)
 
 public:
-	typedef void (*CallbackFunction)(void* instance, RappelzSocket* server, const TS_MESSAGE* packetData);
+	typedef void (*CallbackFunction)(ICallbackGuard* instance, RappelzSocket* server, const TS_MESSAGE* packetData);
 	static const uint16_t ALL_PACKETS = 0xFFFE;
 
 private:
@@ -34,17 +34,17 @@ public:
 
 	void sendPacket(const TS_MESSAGE* data);
 
-	DelegateRef addPacketListener(uint16_t packetId, void* instance, CallbackFunction onPacketReceivedCallback);
+	void addPacketListener(uint16_t packetId, ICallbackGuard* instance, CallbackFunction onPacketReceivedCallback);
 
 protected:
-	static void dataReceived(void* instance, Socket* socket);
-	static void stateChanged(void* instance, Socket* socket, Socket::State oldState, Socket::State newState);
-	static void socketError(void* instance, Socket* socket, int errnoValue);
+	static void dataReceived(ICallbackGuard *instance, Socket* socket);
+	static void stateChanged(ICallbackGuard* instance, Socket* socket, Socket::State oldState, Socket::State newState);
+	static void socketError(ICallbackGuard* instance, Socket* socket, int errnoValue);
 
 	void dispatchPacket(const TS_MESSAGE* packetData);
 
 private:
-	IDelegateHash<uint16_t, RappelzSocket*, const TS_MESSAGE*> packetListeners;
+	IDelegateHash<uint16_t, CallbackFunction> packetListeners;
 
 	InputBuffer inputBuffer;
 };

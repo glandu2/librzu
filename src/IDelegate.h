@@ -7,27 +7,33 @@
 
 template<typename T>
 struct Callback {
-	void* instance;
+	ICallbackGuard* instance;
 	T callback;
 
-	Callback(void* instance = nullptr, T callback = nullptr) : instance(instance), callback(callback) {}
+	Callback(ICallbackGuard* instance = nullptr, T callback = nullptr) : instance(instance), callback(callback) {
+		if(instance)
+			instance->addInstance((DelegateRef)&this->callback);
+	}
 };
-#define CALLBACK_CALL(c, ...) (c).callback((c).instance, __VA_ARGS__)
+#define CALLBACK_CALL(c, ...) \
+	do { if((c).callback != nullptr) (c).callback((c).instance, __VA_ARGS__); } while(0)
 
-#if !defined(_MSC_VER) || _MSC_FULL_VER >= 170051025
-template<class Key, typename ...Values>
+template<class Key, typename CallbackType>
 class IDelegateHash {
 public:
-	typedef void (*CallbackType)(void* instance, Values...);
+	//typedef void (*CallbackType)(ICallbackGuard* instance, Values...);
 	struct CallbackInfo {
-		void *instance;
+		CallbackInfo(ICallbackGuard* instance, CallbackType callback) : instance(instance), callback(callback) {}
+		ICallbackGuard *instance;
 		CallbackType callback;
 	};
+	typedef typename std::unordered_map<Key, CallbackInfo>::const_iterator CallbackIterator;
 
-	DelegateRef add(Key key, void* instance, CallbackType callback) {
+	void add(Key key, ICallbackGuard* instance, CallbackType callback) {
 		typename std::unordered_map<Key, CallbackInfo>::iterator it;
-		it = callbacks.emplace(key, CallbackInfo({instance, callback}));
-		return (DelegateRef)&(it->second.callback);
+		it = callbacks.insert(std::pair<Key, CallbackInfo>(key, CallbackInfo(instance, callback)));
+		if(instance)
+			instance->addInstance((DelegateRef)&(it->second.callback));
 	}
 
 	void del(DelegateRef ptr) {
@@ -40,288 +46,75 @@ public:
 	}
 
 	void reserve(typename std::unordered_multimap<Key, CallbackInfo>::size_type n) {
+#ifndef _MSC_VER
 		callbacks.reserve(n);
-	}
-
-	void dispatch(Key key, Values... args) {
-		typedef typename std::unordered_map<Key, CallbackInfo>::const_iterator CallbackIterator;
-		std::pair<CallbackIterator, CallbackIterator> callbackIterators = callbacks.equal_range(key);
-		CallbackIterator it;
-
-		for(it = callbackIterators.first; it != callbackIterators.second;) {
-			const CallbackInfo& callbackInfo = it->second;
-
-			if(callbackInfo.callback != nullptr) {
-				callbackInfo.callback(callbackInfo.instance, args...);
-				++it;
-			} else {
-				it = callbacks.erase(it);
-			}
-		}
-	}
-
-private:
-	std::unordered_multimap<Key, CallbackInfo> callbacks;
-};
-
-template<typename ...Values>
-class IDelegate {
-public:
-	typedef void (*CallbackType)(void* instance, Values...);
-
-	DelegateRef add(void* instance, CallbackType callback) {
-		typename std::unordered_map<void*, CallbackType>::iterator it;
-		it = callbacks.emplace(instance, callback).first;
-		return (DelegateRef)&it->second;
-	}
-
-	void del(DelegateRef ptr) {
-		if(ptr)
-			*ptr = nullptr;
-	}
-
-	void del(void* key) {
-		callbacks.erase(key);
-	}
-
-	void dispatch(Values... args) {
-		typedef typename std::unordered_map<void*, CallbackType>::const_iterator CallbackIterator;
-		CallbackIterator it, itEnd;
-
-		for(it = callbacks.cbegin(), itEnd = callbacks.cend(); it != itEnd;) {
-			void* instance = it->first;
-			const CallbackType& callback = it->second;
-
-			if(callback != nullptr) {
-				callback(instance, args...);
-				++it;
-			} else {
-				it = callbacks.erase(it);
-			}
-		}
-	}
-
-private:
-	std::unordered_map<void*, CallbackType> callbacks;
-};
-
-#else
-
-template<class Key, typename V1, typename V2>
-class IDelegateHash {
-public:
-	typedef void (*CallbackType)(void*, V1, V2);
-	struct CallbackInfo {
-		void *instance;
-		CallbackType callback;
-
-		CallbackInfo(void* instance, CallbackType callback) : instance(instance), callback(callback) {}
-	};
-
-	DelegateRef add(Key key, void* instance, CallbackType callback) {
-		typename std::unordered_map<Key, CallbackInfo>::iterator it;
-		it = callbacks.insert(std::pair<Key, CallbackInfo>(key, CallbackInfo(instance, callback) ));
-		return (DelegateRef)&(it->second.callback);
-	}
-
-	void del(DelegateRef ptr) {
-		if(ptr)
-			*ptr = nullptr;
-	}
-
-	void del(Key key) {
-		callbacks.erase(key);
-	}
-
-	void reserve(typename std::unordered_multimap<Key, CallbackInfo>::size_type n) {
-		//callbacks.reserve(n); //not supported by msvc2010
-	}
-
-	void dispatch(Key key, V1 v1, V2 v2) {
-		typedef typename std::unordered_map<Key, CallbackInfo>::const_iterator CallbackIterator;
-		std::pair<CallbackIterator, CallbackIterator> callbackIterators = callbacks.equal_range(key);
-		CallbackIterator it;
-
-		for(it = callbackIterators.first; it != callbackIterators.second;) {
-			const CallbackInfo& callbackInfo = it->second;
-
-			if(callbackInfo.callback != nullptr) {
-				callbackInfo.callback(callbackInfo.instance, v1, v2);
-				++it;
-			} else {
-				it = callbacks.erase(it);
-			}
-		}
-	}
-
-private:
-	std::unordered_multimap<Key, CallbackInfo> callbacks;
-};
-
-template<typename V1, typename V2 = void, typename V3 = void, typename V4 = void>
-class IDelegate {
-public:
-	typedef void (*CallbackType)(void* instance, V1, V2, V3, V4);
-
-	DelegateRef add(void* instance, CallbackType callback) {
-		typename std::unordered_map<void*, CallbackType>::iterator it;
-		it = callbacks.insert(std::pair<void*, CallbackType>(instance, callback)).first;
-		return (DelegateRef)&it->second;
-	}
-
-	void del(DelegateRef ptr) {
-		if(ptr)
-			*ptr = nullptr;
-	}
-
-	void del(void* key) {
-		callbacks.erase(key);
-	}
-
-	void dispatch(V1 v1, V2 v2, V3 v3, V4 v4) {
-		typedef typename std::unordered_map<void*, CallbackType>::const_iterator CallbackIterator;
-		CallbackIterator it, itEnd;
-
-		for(it = callbacks.cbegin(), itEnd = callbacks.cend(); it != itEnd;) {
-			void* instance = it->first;
-			const CallbackType& callback = it->second;
-
-			if(callback != nullptr) {
-				callback(instance, v1, v2, v3, v4);
-				++it;
-			} else {
-				it = callbacks.erase(it);
-			}
-		}
-	}
-
-private:
-	std::unordered_map<void*, CallbackType> callbacks;
-};
-
-template<typename V1, typename V2, typename V3>
-class IDelegate<V1, V2, V3, void> {
-public:
-	typedef void (*CallbackType)(void* instance, V1, V2, V3);
-
-	DelegateRef add(void* instance, CallbackType callback) {
-		typename std::unordered_map<void*, CallbackType>::iterator it;
-		it = callbacks.insert(std::pair<void*, CallbackType>(instance, callback)).first;
-		return (DelegateRef)&it->second;
-	}
-
-	void del(DelegateRef ptr) {
-		if(ptr)
-			*ptr = nullptr;
-	}
-
-	void del(void* key) {
-		callbacks.erase(key);
-	}
-
-	void dispatch(V1 v1, V2 v2, V3 v3) {
-		typedef typename std::unordered_map<void*, CallbackType>::const_iterator CallbackIterator;
-		CallbackIterator it, itEnd;
-
-		for(it = callbacks.cbegin(), itEnd = callbacks.cend(); it != itEnd;) {
-			void* instance = it->first;
-			const CallbackType& callback = it->second;
-
-			if(callback != nullptr) {
-				callback(instance, v1, v2, v3);
-				++it;
-			} else {
-				it = callbacks.erase(it);
-			}
-		}
-	}
-
-private:
-	std::unordered_map<void*, CallbackType> callbacks;
-};
-
-template<typename V1, typename V2>
-class IDelegate<V1, V2, void, void> {
-public:
-	typedef void (*CallbackType)(void* instance, V1, V2);
-
-	DelegateRef add(void* instance, CallbackType callback) {
-		typename std::unordered_map<void*, CallbackType>::iterator it;
-		it = callbacks.insert(std::pair<void*, CallbackType>(instance, callback)).first;
-		return (DelegateRef)&it->second;
-	}
-
-	void del(DelegateRef ptr) {
-		if(ptr)
-			*ptr = nullptr;
-	}
-
-	void del(void* key) {
-		callbacks.erase(key);
-	}
-
-	void dispatch(V1 v1, V2 v2) {
-		typedef typename std::unordered_map<void*, CallbackType>::const_iterator CallbackIterator;
-		CallbackIterator it, itEnd;
-
-		for(it = callbacks.cbegin(), itEnd = callbacks.cend(); it != itEnd;) {
-			void* instance = it->first;
-			const CallbackType& callback = it->second;
-
-			if(callback != nullptr) {
-				callback(instance, v1, v2);
-				++it;
-			} else {
-				it = callbacks.erase(it);
-			}
-		}
-	}
-
-private:
-	std::unordered_map<void*, CallbackType> callbacks;
-};
-
-template<typename V1>
-class IDelegate<V1, void, void, void> {
-public:
-	typedef void (*CallbackType)(void* instance, V1);
-
-	DelegateRef add(void* instance, CallbackType callback) {
-		typename std::unordered_map<void*, CallbackType>::iterator it;
-		it = callbacks.insert(std::pair<void*, CallbackType>(instance, callback)).first;
-		return (DelegateRef)&it->second;
-	}
-
-	void del(DelegateRef ptr) {
-		if(ptr)
-			*ptr = nullptr;
-	}
-
-	void del(void* key) {
-		callbacks.erase(key);
-	}
-
-	void dispatch(V1 v1) {
-		typedef typename std::unordered_map<void*, CallbackType>::const_iterator CallbackIterator;
-		CallbackIterator it, itEnd;
-
-		for(it = callbacks.cbegin(), itEnd = callbacks.cend(); it != itEnd;) {
-			void* instance = it->first;
-			const CallbackType& callback = it->second;
-
-			if(callback != nullptr) {
-				callback(instance, v1);
-				++it;
-			} else {
-				it = callbacks.erase(it);
-			}
-		}
-	}
-
-private:
-	std::unordered_map<void*, CallbackType> callbacks;
-};
-
 #endif
+	}
+
+#define DELEGATE_HASH_CALL(c, key, ...) \
+	do { \
+		typedef decltype(c) DelegateType;\
+		std::pair<DelegateType::CallbackIterator, DelegateType::CallbackIterator> callbackIterators = (c).callbacks.equal_range(key); \
+		DelegateType::CallbackIterator it; \
+ \
+		for(it = callbackIterators.first; it != callbackIterators.second;) { \
+			const DelegateType::CallbackInfo& callbackInfo = it->second; \
+ \
+			if(callbackInfo.callback != nullptr) { \
+				callbackInfo.callback(callbackInfo.instance, __VA_ARGS__); \
+				++it; \
+			} else { \
+				it = (c).callbacks.erase(it); \
+			} \
+		} \
+	} while(0)
+
+
+	std::unordered_multimap<Key, CallbackInfo> callbacks;
+};
+
+template<typename CallbackType>
+class IDelegate {
+public:
+	//typedef void (*CallbackType)(ICallbackGuard* instance, Values...);
+	typedef typename std::unordered_map<ICallbackGuard*, CallbackType>::const_iterator CallbackIterator;
+
+	void add(ICallbackGuard* instance, CallbackType callback) {
+		typename std::unordered_map<ICallbackGuard*, CallbackType>::iterator it;
+		it = callbacks.insert(std::pair<ICallbackGuard*, CallbackType>(instance, callback)).first;
+		if(instance)
+			instance->addInstance((DelegateRef)&(it->second));
+	}
+
+	void del(DelegateRef ptr) {
+		if(ptr)
+			*ptr = nullptr;
+	}
+
+	void del(ICallbackGuard* key) {
+		callbacks.erase(key);
+	}
+
+#define DELEGATE_CALL(c, ...) \
+	do { \
+		typedef decltype(c) DelegateType;\
+		DelegateType::CallbackIterator it, itEnd; \
+ \
+		for(it = (c).callbacks.cbegin(), itEnd = (c).callbacks.cend(); it != itEnd;) { \
+			ICallbackGuard* instance = it->first; \
+			auto callback = it->second; \
+ \
+			if(callback != nullptr) { \
+				callback(instance, __VA_ARGS__); \
+				++it; \
+			} else { \
+				it = (c).callbacks.erase(it); \
+			} \
+		} \
+	} while(0)
+
+
+	std::unordered_map<ICallbackGuard*, CallbackType> callbacks;
+};
 
 #endif // IDELEGATE_H

@@ -13,8 +13,8 @@
 #endif
 
 struct CallbacksTable {
-	IDelegateHash<uint16_t, Server*, const TS_MESSAGE*> authPacketListeners;
-	IDelegateHash<uint16_t, Server*, const TS_MESSAGE*> gamePacketListeners;
+	IDelegateHash<uint16_t, Server::CallbackFunction> authPacketListeners;
+	IDelegateHash<uint16_t, Server::CallbackFunction> gamePacketListeners;
 };
 
 Server::Server(uv_loop_t* uvLoop) : callbacks(new CallbacksTable) {
@@ -34,12 +34,12 @@ Server::Server(uv_loop_t* uvLoop) : callbacks(new CallbacksTable) {
 	currentState = SS_NotConnected;
 
 
-	addInstance(authSocket->addDataListener(this, &networkDataReceivedFromAuth));
-	addInstance(authSocket->addErrorListener(this, &authSocketError));
-	addInstance(authSocket->addEventListener(this, &authStateChanged));
-	addInstance(gameSocket->addDataListener(this, &networkDataReceivedFromGame));
-	addInstance(gameSocket->addErrorListener(this, &gameSocketError));
-	addInstance(gameSocket->addEventListener(this, &gameStateChanged));
+	authSocket->addDataListener(this, &networkDataReceivedFromAuth);
+	authSocket->addErrorListener(this, &authSocketError);
+	authSocket->addEventListener(this, &authStateChanged);
+	gameSocket->addDataListener(this, &networkDataReceivedFromGame);
+	gameSocket->addErrorListener(this, &gameSocketError);
+	gameSocket->addEventListener(this, &gameStateChanged);
 }
 
 Server::~Server() {
@@ -75,7 +75,7 @@ void Server::connectToAuth() {
 	} else printf("Attempt to connect to auth while not in SS_NotConnected mode, currentState: %d\n", currentState);
 }
 
-void Server::authStateChanged(void* instance, Socket*, Socket::State oldState, Socket::State newState) {
+void Server::authStateChanged(ICallbackGuard* instance, Socket*, Socket::State oldState, Socket::State newState) {
 	Server* thisInstance = static_cast<Server*>(instance);
 
 	if(newState == Socket::ConnectedState) {
@@ -107,7 +107,7 @@ void Server::authStateChanged(void* instance, Socket*, Socket::State oldState, S
 	}
 }
 
-void Server::gameStateChanged(void* instance, Socket*, Socket::State oldState, Socket::State newState) {
+void Server::gameStateChanged(ICallbackGuard* instance, Socket*, Socket::State oldState, Socket::State newState) {
 	Server* thisInstance = static_cast<Server*>(instance);
 
 	if(newState == Socket::ConnectedState) {
@@ -141,7 +141,7 @@ void Server::gameStateChanged(void* instance, Socket*, Socket::State oldState, S
 	}
 }
 
-void Server::authSocketError(void* instance, Socket*, int errnoValue) {
+void Server::authSocketError(ICallbackGuard* instance, Socket*, int errnoValue) {
 	Server* thisInstance = static_cast<Server*>(instance);
 
 	thisInstance->close();
@@ -153,7 +153,7 @@ void Server::authSocketError(void* instance, Socket*, int errnoValue) {
 	thisInstance->dispatchPacket(ST_Auth, &eventMsg);
 }
 
-void Server::gameSocketError(void* instance, Socket*, int errnoValue) {
+void Server::gameSocketError(ICallbackGuard* instance, Socket*, int errnoValue) {
 	Server* thisInstance = static_cast<Server*>(instance);
 
 	thisInstance->close();
@@ -197,7 +197,7 @@ void Server::proceedServerMove(const std::string &gameHost, uint16_t gamePort) {
 }
 
 void Server::dispatchPacket(ServerType originatingServer, const TS_MESSAGE* packetData) {
-	IDelegateHash<uint16_t, Server*, const TS_MESSAGE*> packetListeners;
+	IDelegateHash<uint16_t, Server::CallbackFunction> packetListeners;
 
 	printf(LOG_PREFIX"Packet from %d, id: %5d, size: %d\n", originatingServer, packetData->id, packetData->size);
 
@@ -210,12 +210,12 @@ void Server::dispatchPacket(ServerType originatingServer, const TS_MESSAGE* pack
 	}
 
 	if(packetData->id != TS_SC_RESULT::packetID)
-		packetListeners.dispatch(packetData->id, this, packetData);
+		DELEGATE_HASH_CALL(packetListeners, packetData->id, this, packetData);
 	else
-		packetListeners.dispatch(reinterpret_cast<const TS_SC_RESULT*>(packetData)->request_msg_id, this, packetData);
+		DELEGATE_HASH_CALL(packetListeners, reinterpret_cast<const TS_SC_RESULT*>(packetData)->request_msg_id, this, packetData);
 }
 
-void Server::networkDataReceivedFromAuth(void* instance, Socket*) {
+void Server::networkDataReceivedFromAuth(ICallbackGuard* instance, Socket*) {
 	Server* thisInstance = static_cast<Server*>(instance);
 
 	if(thisInstance->currentState == SS_ConnectedToAuth)
@@ -223,7 +223,7 @@ void Server::networkDataReceivedFromAuth(void* instance, Socket*) {
 	else printf(LOG_PREFIX"Received data from auth but not in SS_ConnectedToAuth mode, currentState: %d\n", thisInstance->currentState);
 }
 
-void Server::networkDataReceivedFromGame(void* instance, Socket*) {
+void Server::networkDataReceivedFromGame(ICallbackGuard* instance, Socket*) {
 	Server* thisInstance = static_cast<Server*>(instance);
 
 	if(thisInstance->currentState == SS_ServerConnectionMove || thisInstance->currentState == SS_ConnectedToGame)
@@ -258,13 +258,12 @@ void Server::networkDataProcess(ServerType serverType, EncryptedSocket* socket, 
 	} while((buffer->currentMessageSize == 0 && socket->getAvailableBytes() >= 4) || (buffer->currentMessageSize != 0 && socket->getAvailableBytes() >= (buffer->currentMessageSize - 4)));
 }
 
-DelegateRef Server::addPacketListener(ServerType server, uint16_t packetId, void* instance, CallbackFunction onPacketReceivedCallback) {
+void Server::addPacketListener(ServerType server, uint16_t packetId, ICallbackGuard* instance, CallbackFunction onPacketReceivedCallback) {
 	if(server == ST_Auth)
-		return callbacks->authPacketListeners.add(packetId, instance, onPacketReceivedCallback);
+		callbacks->authPacketListeners.add(packetId, instance, onPacketReceivedCallback);
 	else if(server == ST_Game)
-		return callbacks->gamePacketListeners.add(packetId, instance, onPacketReceivedCallback);
+		callbacks->gamePacketListeners.add(packetId, instance, onPacketReceivedCallback);
 	else {
 		printf(LOG_PREFIX"addPacketListener: Invalid server type: %d\n", server);
-		return nullptr;
 	}
 }

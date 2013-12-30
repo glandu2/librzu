@@ -45,7 +45,7 @@ class RAPPELZLIB_EXTERN Server : public Object, private ICallbackGuard
 			ST_Game
 		};
 
-		typedef void (*CallbackFunction)(void* instance, Server* server, const TS_MESSAGE* packetData);
+		typedef void (*CallbackFunction)(ICallbackGuard* instance, Server* server, const TS_MESSAGE* packetData);
 
 	private:
 		static const uint32_t initialInputBufferSize = 16384;
@@ -71,16 +71,16 @@ class RAPPELZLIB_EXTERN Server : public Object, private ICallbackGuard
 		void setAuth(Authentication *a) { auth = a; }
 		Authentication* getAuth() { return auth; }
 
-		DelegateRef addPacketListener(ServerType server, uint16_t packetId, void* instance, CallbackFunction onPacketReceivedCallback);
+		void addPacketListener(ServerType server, uint16_t packetId, ICallbackGuard* instance, CallbackFunction onPacketReceivedCallback);
 		void proceedServerMove(const std::string &gameHost, uint16_t gamePort);
 
 	protected:
-		static void networkDataReceivedFromAuth(void* instance, Socket* socket);
-		static void networkDataReceivedFromGame(void* instance, Socket* socket);
-		static void authStateChanged(void* instance, Socket* socket, Socket::State oldState, Socket::State newState);
-		static void gameStateChanged(void* instance, Socket* socket, Socket::State oldState, Socket::State newState);
-		static void authSocketError(void* instance, Socket* socket, int errnoValue);
-		static void gameSocketError(void* instance, Socket* socket, int errnoValue);
+		static void networkDataReceivedFromAuth(ICallbackGuard* instance, Socket* socket);
+		static void networkDataReceivedFromGame(ICallbackGuard* instance, Socket* socket);
+		static void authStateChanged(ICallbackGuard* instance, Socket* socket, Socket::State oldState, Socket::State newState);
+		static void gameStateChanged(ICallbackGuard* instance, Socket* socket, Socket::State oldState, Socket::State newState);
+		static void authSocketError(ICallbackGuard* instance, Socket* socket, int errnoValue);
+		static void gameSocketError(ICallbackGuard* instance, Socket* socket, int errnoValue);
 
 		void networkDataProcess(ServerType serverType, EncryptedSocket* socket, InputBuffer* buffer);
 		void dispatchPacket(ServerType originatingServer, const TS_MESSAGE* packetData);

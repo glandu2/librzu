@@ -8,11 +8,11 @@
 #include "uv.h"
 #include <list>
 #include "IDelegate.h"
-#include <functional>
+
 template<class T>
 class cval {
 public:
-	typedef void (*EventCallback)(void* instance, cval<T>* value);
+	typedef void (*EventCallback)(ICallbackGuard* instance, cval<T>* value);
 
 	cval() { uv_rwlock_init(&lock); uv_mutex_init(&listenersLock); }
 	cval(const T& value) : value(value) { uv_rwlock_init(&lock); uv_mutex_init(&listenersLock); }
@@ -23,7 +23,7 @@ public:
 	operator T() { return get(); }
 	cval<T>& operator=(const T& val) { set(val); return *this; }
 
-	void addListener(void* instance, EventCallback callback) { listeners.push_back(Callback<EventCallback>(instance, callback)); }
+	void addListener(ICallbackGuard* instance, EventCallback callback) { listeners.push_back(Callback<EventCallback>(instance, callback)); }
 	void dispatchValueChanged() {
 		std::list< Callback<EventCallback> > listenersCopy;
 
@@ -94,21 +94,26 @@ class RAPPELZLIB_EXTERN ConfigInfo : public Object
 public:
 	ConfigInfo();
 
+	void parseCommandLine(int argc, char **argv);
 	bool readFile(const char *filename);
 	bool writeFile(const char* filename);
 	void dump(FILE* out);
 
-	ConfigValue* get(const std::string& key);
+	ConfigValue* getValue(const std::string& key, bool createIfNonExistant = true);
 
-	static cval<bool>& get(const char* key, bool def) { return ConfigInfo::get()->get(key)->get(def); }
-	static cval<int>& get(const char* key, int def) { return ConfigInfo::get()->get(key)->get(def); }
-	static cval<float>& get(const char* key, float def) { return ConfigInfo::get()->get(key)->get(def); }
-	static cval<std::string>& get(const char* key, const std::string& def) { return ConfigInfo::get()->get(key)->get(def); }
-	static cval<std::string>& get(const char* key, const char* def) { return ConfigInfo::get()->get(key)->get(def); }
+	static cval<bool>& get(const char* key, bool def) { return ConfigInfo::get()->getValue(key)->get(def); }
+	static cval<int>& get(const char* key, int def) { return ConfigInfo::get()->getValue(key)->get(def); }
+	static cval<float>& get(const char* key, float def) { return ConfigInfo::get()->getValue(key)->get(def); }
+	static cval<std::string>& get(const char* key, const std::string& def) { return ConfigInfo::get()->getValue(key)->get(def); }
+	static cval<std::string>& get(const char* key, const char* def) { return ConfigInfo::get()->getValue(key)->get(def); }
 
 	static ConfigInfo* get() {
 		static ConfigInfo instance;
 		return &instance;
+	}
+
+	static void init() {
+		ConfigInfo::get();
 	}
 
 private:

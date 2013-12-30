@@ -16,10 +16,10 @@ struct WriteRequest {
 };
 
 struct SocketInternal {
-	IDelegate<Socket*> dataListeners;
-	IDelegate<Socket*> incomingConnectionListeners;
-	IDelegate<Socket*, Socket::State, Socket::State> eventListeners;
-	IDelegate<Socket*, int> errorListeners;
+	IDelegate<Socket::CallbackOnDataReady> dataListeners;
+	IDelegate<Socket::CallbackOnDataReady> incomingConnectionListeners;
+	IDelegate<Socket::CallbackOnStateChanged> eventListeners;
+	IDelegate<Socket::CallbackOnError> errorListeners;
 	uv_tcp_t socket;
 	uv_connect_t connectRequest;
 	uv_shutdown_t shutdownReq;
@@ -76,6 +76,7 @@ bool Socket::listen(const std::string& interfaceIp, uint16_t port) {
 
 	setState(Binding);
 
+	setPeerInfo(interfaceIp, port);
 	uv_tcp_init(uvLoop, &_p->socket);
 
 	struct sockaddr_in bindAddr;
@@ -178,7 +179,7 @@ void Socket::setState(State state) {
 	const char* newStateStr = (oldState < (sizeof(STATES)/sizeof(const char*))) ? STATES[state] : "Unknown";
 	debug("Socket state change from %s to %s\n", oldStateStr, newStateStr);
 
-	_p->eventListeners.dispatch(this, oldState, state);
+	DELEGATE_CALL(_p->eventListeners, this, oldState, state);
 
 	if(state == UnconnectedState) {
 		this->host.clear();
@@ -196,23 +197,23 @@ void Socket::setPeerInfo(const std::string& host, uint16_t port) {
 	setObjectName(host.size() + 9 + 5, "Socket[%s:%u]", host.c_str(), port);
 }
 
-DelegateRef Socket::addDataListener(void* instance, CallbackOnDataReady listener) {
+void Socket::addDataListener(ICallbackGuard* instance, CallbackOnDataReady listener) {
 	return _p->dataListeners.add(instance, listener);
 }
 
-DelegateRef Socket::addConnectionListener(void* instance, CallbackOnDataReady listener) {
+void Socket::addConnectionListener(ICallbackGuard* instance, CallbackOnDataReady listener) {
 	return _p->incomingConnectionListeners.add(instance, listener);
 }
 
-DelegateRef Socket::addEventListener(void* instance, CallbackOnStateChanged listener) {
+void Socket::addEventListener(ICallbackGuard* instance, CallbackOnStateChanged listener) {
 	return _p->eventListeners.add(instance, listener);
 }
 
-DelegateRef Socket::addErrorListener(void* instance, CallbackOnError listener) {
+void Socket::addErrorListener(ICallbackGuard* instance, CallbackOnError listener) {
 	return _p->errorListeners.add(instance, listener);
 }
 
-void Socket::removeListener(void* instance) {
+void Socket::removeListener(ICallbackGuard* instance) {
 	_p->dataListeners.del(instance);
 	_p->eventListeners.del(instance);
 	_p->errorListeners.del(instance);
@@ -220,7 +221,7 @@ void Socket::removeListener(void* instance) {
 }
 
 void Socket::notifyReadyError(int errorValue) {
-	_p->errorListeners.dispatch(this, errorValue);
+	DELEGATE_CALL(_p->errorListeners, this, errorValue);
 	if(getState() != Listening)
 		abort();
 }
@@ -248,7 +249,7 @@ void Socket::onNewConnection(uv_stream_t* req, int status) {
 		return;
 	}
 
-	thisInstance->_p->incomingConnectionListeners.dispatch(thisInstance);
+	DELEGATE_CALL(thisInstance->_p->incomingConnectionListeners, thisInstance);
 }
 
 void Socket::onAllocReceiveBuffer(uv_handle_t*, size_t, uv_buf_t* buf) {
@@ -270,7 +271,7 @@ void Socket::onReadCompleted(uv_stream_t* stream, ssize_t nread, const uv_buf_t*
 		thisInstance->debug("Read %ld bytes\n", (long)nread);
 		thisInstance->_p->recvBuffer.insertData(buf->base, nread);
 		delete[] buf->base;
-		thisInstance->_p->dataListeners.dispatch(thisInstance);
+		DELEGATE_CALL(thisInstance->_p->dataListeners, thisInstance);
 	}
 }
 

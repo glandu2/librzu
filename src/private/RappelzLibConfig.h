@@ -6,9 +6,11 @@
 struct RappelzLibConfig
 {
 	struct App {
-		cval<std::string> &appName;
+		cval<std::string> &appName, &configfile;
 
-		App() : appName(CFG("core.appname", "Rappelz Auth Server")) {}
+		App() :
+			appName(CFG("core.appname", "RappelzEmu")),
+			configfile(CFG("core.configfile", "RappelzEmu.opt")) {}
 	} app;
 
 	struct Log {
@@ -18,7 +20,7 @@ struct RappelzLibConfig
 		Log() :
 			enable(CFG("core.log.enable", true)),
 			dir(CFG("core.log.dir", "log")),
-			file(CFG("core.log.file", CFG("core.appname", "auth").get() + ".log")),
+			file(CFG("core.log.file", CFG("core.appname", "RappelzEmu").get() + ".log")),
 			level(CFG("core.log.level", "trace")) {}
 	} log;
 
