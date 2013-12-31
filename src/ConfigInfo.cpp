@@ -3,10 +3,6 @@
 #include <stdio.h>
 #include <string.h>
 
-ConfigValue::ConfigValue(Type type) : type(type), keyName(nullptr) {
-
-}
-
 bool ConfigValue::check(Type expectedType, bool soft) {
 	if(expectedType != type && type != None) {
 		const char* typeStr[] = {
@@ -28,9 +24,8 @@ bool ConfigValue::check(Type expectedType, bool soft) {
 	return true;
 }
 
-ConfigInfo::ConfigInfo() {
 
-}
+// ConfigInfo ////////////////////////////////////////////////////////////////////////
 
 ConfigValue* ConfigInfo::getValue(const std::string& key, bool createIfNonExistant) {
 	std::unordered_map<std::string, ConfigValue*>::const_iterator it;
@@ -72,7 +67,7 @@ void ConfigInfo::parseCommandLine(int argc, char **argv) {
 		if(*key == '\0')
 			continue;
 
-		value = strchr(key, ':');
+		value = strpbrk(key, ":=");
 		if(!value)
 			continue;
 
@@ -186,7 +181,7 @@ bool ConfigInfo::writeFile(const char *filename) {
 	file = fopen(filename, "wb");
 	if(!file)
 		return false;
-	dump(file);
+	dump(file, false);
 	fclose(file);
 
 	return true;
@@ -200,9 +195,10 @@ bool ConfigInfo::writeFile(const char *filename) {
 #define INT2STR(i) std::to_string(i)
 #define FLOAT2STR(i) std::to_string(i)
 #endif
-void ConfigInfo::dump(FILE *out) {
+void ConfigInfo::dump(FILE *out, bool showDefault) {
 	std::unordered_map<std::string, ConfigValue*>::const_iterator it, itEnd;
 	std::string val;
+	bool isDefault;
 
 	for(it = config.cbegin(), itEnd = config.cend(); it != itEnd; ++it) {
 		ConfigValue* v = it->second;
@@ -211,29 +207,34 @@ void ConfigInfo::dump(FILE *out) {
 			case ConfigValue::Bool:
 				type = 'B';
 				val = v->get(false) ? "true" : "false";
+				isDefault = v->get(false).isDefault();
 				break;
 
 			case ConfigValue::Integer:
 				type = 'N';
 				val = INT2STR(v->get(0));
+				isDefault = v->get(0).isDefault();
 				break;
 
 			case ConfigValue::Float:
 				type = 'F';
 				val = FLOAT2STR(v->get(0.0f));
+				isDefault = v->get(0.0f).isDefault();
 				break;
 
 			case ConfigValue::String:
 				type = 'S';
 				val = v->get("<NULL>");
+				isDefault = v->get("<NULL>").isDefault();
 				break;
 
 			case ConfigValue::None:
 				type = '0';
 				val = "<NONE>";
+				isDefault = true;
 				break;
 		}
-
-		fprintf(out, "%c %s:%s\n", type, it->first.c_str(), val.c_str());
+		if(!isDefault || showDefault)
+			fprintf(out, "%c%c%s:%s\n", type, isDefault ? '*' : ' ', it->first.c_str(), val.c_str());
 	}
 }

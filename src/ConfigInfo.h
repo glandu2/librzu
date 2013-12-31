@@ -14,14 +14,17 @@ class cval {
 public:
 	typedef void (*EventCallback)(ICallbackGuard* instance, cval<T>* value);
 
-	cval() { uv_rwlock_init(&lock); uv_mutex_init(&listenersLock); }
-	cval(const T& value) : value(value) { uv_rwlock_init(&lock); uv_mutex_init(&listenersLock); }
+	cval() : _isDefault(true) { uv_rwlock_init(&lock); uv_mutex_init(&listenersLock); }
+	cval(const T& value) : value(value), _isDefault(true)  { uv_rwlock_init(&lock); uv_mutex_init(&listenersLock); }
 
 	T get() { T val; uv_rwlock_rdlock(&lock); val = value; uv_rwlock_rdunlock(&lock); return val; }
-	void set(const T& val) { uv_rwlock_wrlock(&lock); value = val; uv_rwlock_wrunlock(&lock); dispatchValueChanged(); }
+	T get(const T& def) { T val; uv_rwlock_rdlock(&lock); if(_isDefault) val = def; else val = value; uv_rwlock_rdunlock(&lock); return val; }
+	void set(const T& val) { uv_rwlock_wrlock(&lock); value = val; _isDefault = false; uv_rwlock_wrunlock(&lock); dispatchValueChanged(); }
 
 	operator T() { return get(); }
 	cval<T>& operator=(const T& val) { set(val); return *this; }
+
+	bool isDefault() { return _isDefault; }
 
 	void addListener(ICallbackGuard* instance, EventCallback callback) { listeners.push_back(Callback<EventCallback>(instance, callback)); }
 	void dispatchValueChanged() {
@@ -42,6 +45,7 @@ private:
 	T value;
 	uv_rwlock_t lock;
 	uv_mutex_t listenersLock;
+	bool _isDefault;
 };
 
 class RAPPELZLIB_EXTERN ConfigValue
@@ -55,7 +59,7 @@ public:
 		None
 	};
 
-	ConfigValue(Type type);
+	ConfigValue(Type type) : type(type), keyName(nullptr) {}
 
 	Type getType() { return type; }
 	void setKeyName(const std::string* keyName) { this->keyName = keyName; }
@@ -69,20 +73,22 @@ public:
 	void set(double val) { set((float)val); }
 	void set(const char* val) { set(std::string(val)); }
 
-	cval<bool>& get(bool def) { if(type == None) { type = Bool; data.b = def; } check(Bool, false); return data.b; }
-	cval<int>& get(int def) { if(type == None) { type = Integer; data.n = def; } check(Integer, false); return data.n; }
-	cval<float>& get(float def) { if(type == None) { type = Float; data.f = def; } check(Float, false); return data.f; }
-	cval<std::string>& get(const std::string& def) { if(type == None) { type = String; data.s = def; } check(String, false); return data.s; }
-	cval<std::string>& get(const char* def) { if(type == None) { type = String; data.s = def; } check(String, false); return data.s; }
+	cval<bool>& get(bool def) { if(type == None) { type = Bool; data.b = cval<bool>(def); } check(Bool, false); return data.b; }
+	cval<int>& get(int def) { if(type == None) { type = Integer; data.n = cval<int>(def); } check(Integer, false); return data.n; }
+	cval<float>& get(float def) { if(type == None) { type = Float; data.f = cval<float>(def); } check(Float, false); return data.f; }
+	cval<std::string>& get(const std::string& def) { if(type == None) { type = String; data.s = cval<std::string>(def); } check(String, false); return data.s; }
+	cval<std::string>& get(const char* def) { if(type == None) { type = String; data.s = cval<std::string>(def); } check(String, false); return data.s; }
 
 private:
 	Type type;
 	const std::string* keyName;
-	struct {
+	struct Data {
 		cval<bool> b;
 		cval<int> n;
 		cval<float> f;
 		cval<std::string> s;
+
+		Data() : b(false), n(0), f(0.0f) {}
 	} data;
 
 };
@@ -92,12 +98,12 @@ class RAPPELZLIB_EXTERN ConfigInfo : public Object
 	DECLARE_CLASS(ConfigInfo)
 
 public:
-	ConfigInfo();
+	ConfigInfo() {}
 
 	void parseCommandLine(int argc, char **argv);
 	bool readFile(const char *filename);
 	bool writeFile(const char* filename);
-	void dump(FILE* out);
+	void dump(FILE* out, bool showDefault);
 
 	ConfigValue* getValue(const std::string& key, bool createIfNonExistant = true);
 
@@ -110,10 +116,6 @@ public:
 	static ConfigInfo* get() {
 		static ConfigInfo instance;
 		return &instance;
-	}
-
-	static void init() {
-		ConfigInfo::get();
 	}
 
 private:
