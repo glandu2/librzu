@@ -16,7 +16,7 @@ struct Callback {
 	}
 };
 #define CALLBACK_CALL(c, ...) \
-	do { if((c).callback != nullptr) (c).callback((c).instance, __VA_ARGS__); } while(0)
+	do { if((c).callback != nullptr) (c).callback((c).instance, ## __VA_ARGS__); } while(0)
 
 template<class Key, typename CallbackType>
 class IDelegateHash {

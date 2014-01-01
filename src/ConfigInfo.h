@@ -12,7 +12,8 @@
 template<class T>
 class cval {
 public:
-	typedef void (*EventCallback)(ICallbackGuard* instance, cval<T>* value);
+	typedef void (*EventCallback)(ICallbackGuard* instance);
+	typedef void (*EventCallbackWithThis)(ICallbackGuard* instance, cval<T>* value);
 
 	cval() : _isDefault(true) { uv_rwlock_init(&lock); uv_mutex_init(&listenersLock); }
 	cval(const T& value) : value(value), _isDefault(true)  { uv_rwlock_init(&lock); uv_mutex_init(&listenersLock); }
@@ -28,21 +29,30 @@ public:
 	bool isDefault() { return _isDefault; }
 
 	void addListener(ICallbackGuard* instance, EventCallback callback) { uv_mutex_lock(&listenersLock); listeners.push_back(Callback<EventCallback>(instance, callback)); uv_mutex_unlock(&listenersLock); }
+	void addListener(ICallbackGuard* instance, EventCallbackWithThis callback) { uv_mutex_lock(&listenersLock); listenersWithThis.push_back(Callback<EventCallbackWithThis>(instance, callback)); uv_mutex_unlock(&listenersLock); }
 	void dispatchValueChanged() {
 		std::list< Callback<EventCallback> > listenersCopy;
+		std::list< Callback<EventCallbackWithThis> > listenersWithThisCopy;
 
 		uv_mutex_lock(&listenersLock);
 		listenersCopy = listeners;
+		listenersWithThisCopy = listenersWithThis;
 		uv_mutex_unlock(&listenersLock);
 
 		auto it = listenersCopy.cbegin();
 		auto itEnd = listenersCopy.cend();
 		for(; it != itEnd; ++it)
-			CALLBACK_CALL(*it, this);
+			CALLBACK_CALL(*it);
+
+		auto itWithThis = listenersWithThisCopy.cbegin();
+		auto itWithThisEnd = listenersWithThisCopy.cend();
+		for(; itWithThis != itWithThisEnd; ++it)
+			CALLBACK_CALL(*itWithThis, this);
 	}
 
 private:
 	std::list< Callback<EventCallback> > listeners;
+	std::list< Callback<EventCallbackWithThis> > listenersWithThis;
 	T value;
 	uv_rwlock_t lock;
 	uv_mutex_t listenersLock;
@@ -70,7 +80,6 @@ public:
 	void set(int val) { if(type == None) type = Integer; if(check(Integer, true)) data.n = val; }
 	void set(float val) { if(type == None) type = Float; if(check(Float, true)) data.f = val; }
 	void set(const std::string& val) { if(type == None) type = String; if(check(String, true)) data.s = val; }
-	void set(const ConfigValue* v) { type = v->type; data = v->data; }
 	void set(double val) { set((float)val); }
 	void set(const char* val) { set(std::string(val)); }
 
@@ -101,7 +110,7 @@ class RAPPELZLIB_EXTERN ConfigInfo : public Object
 public:
 	ConfigInfo() {}
 
-	void parseCommandLine(int argc, char **argv);
+	void parseCommandLine(int argc, char **argv, bool onlyConfigFileLocation = false);
 	bool readFile(const char *filename);
 	bool writeFile(const char* filename);
 	void dump(FILE* out, bool showDefault);
@@ -114,15 +123,11 @@ public:
 	static cval<std::string>& get(const char* key, const std::string& def) { return ConfigInfo::get()->getValue(key)->get(def); }
 	static cval<std::string>& get(const char* key, const char* def) { return ConfigInfo::get()->getValue(key)->get(def); }
 
-	static ConfigInfo* get() {
-		static ConfigInfo instance;
-		return &instance;
-	}
+	static ConfigInfo* get();
 
 private:
 	std::pair<std::unordered_map<std::string, ConfigValue*>::iterator, bool> addValue(const std::string& key, ConfigValue* v);
 	std::unordered_map<std::string, ConfigValue*> config;
-
 };
 
 #define CFG(key, defaultValue) ConfigInfo::get(key, defaultValue)

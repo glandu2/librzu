@@ -3,6 +3,8 @@
 
 #include "ConfigInfo.h"
 
+#define CONFIG_FILE_KEY "configfile"
+
 struct RAPPELZLIB_EXTERN RappelzLibConfig
 {
 	struct App {
@@ -10,7 +12,7 @@ struct RAPPELZLIB_EXTERN RappelzLibConfig
 
 		App() :
 			appName(CFG("core.appname", "RappelzEmu")),
-			configfile(CFG("core.configfile", "rappelzemu.opt")) {}
+			configfile(CFG(CONFIG_FILE_KEY, "rappelzemu.opt")) {}
 	} app;
 
 	struct Log {
