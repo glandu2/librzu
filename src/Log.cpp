@@ -4,6 +4,13 @@
 #include <time.h>
 #include <stdarg.h>
 
+#ifdef _WIN32
+#include <direct.h>
+#define createdir(dir) mkdir(dir)
+#else
+#define createdir(dir) mkdir(dir, 0755)
+#endif
+
 #ifdef _MSC_VER
 #define va_copy(d,s) ((d) = (s))
 #endif
@@ -96,6 +103,8 @@ void Log::updateFile(ICallbackGuard* instance, cval<std::string>* str) {
 bool Log::open() {
 	std::string newFileName = dir.get() + "/" + fileName.get();
 	FILE* newfile;
+
+	createdir(dir.get().c_str());
 
 	newfile = fopen(newFileName.c_str(), "ab");
 	if(!newfile) {
