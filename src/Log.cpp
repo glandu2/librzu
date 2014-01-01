@@ -89,22 +89,13 @@ void Log::updateLevel(ICallbackGuard* instance, cval<std::string>* level) {
 
 void Log::updateFile(ICallbackGuard* instance, cval<std::string>* str) {
 	Log* thisInstance = (Log*) instance;
+
 	thisInstance->open();
 }
 
 bool Log::open() {
 	std::string newFileName = dir.get() + "/" + fileName.get();
 	FILE* newfile;
-	bool alreadyOpen = false;
-
-
-	uv_mutex_lock(&lock);
-	if(openedFile == newFileName)
-		alreadyOpen = true;
-	uv_mutex_unlock(&lock);
-
-	if(alreadyOpen)
-		return true;
 
 	newfile = fopen(newFileName.c_str(), "ab");
 	if(!newfile) {
