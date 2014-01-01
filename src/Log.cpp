@@ -1,5 +1,5 @@
 #include "Log.h"
-#include "private/RappelzLibConfig.h"
+#include "RappelzLibConfig.h"
 #include <stdio.h>
 #include <time.h>
 #include <stdarg.h>

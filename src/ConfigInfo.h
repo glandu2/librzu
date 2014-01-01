@@ -20,13 +20,14 @@ public:
 	T get() { T val; uv_rwlock_rdlock(&lock); val = value; uv_rwlock_rdunlock(&lock); return val; }
 	T get(const T& def) { T val; uv_rwlock_rdlock(&lock); if(_isDefault) val = def; else val = value; uv_rwlock_rdunlock(&lock); return val; }
 	void set(const T& val) { uv_rwlock_wrlock(&lock); value = val; _isDefault = false; uv_rwlock_wrunlock(&lock); dispatchValueChanged(); }
+	void setDefault(const T& def) { bool changed = false; uv_rwlock_wrlock(&lock); if(_isDefault) { value = def; changed = true; } uv_rwlock_wrunlock(&lock); if(changed) dispatchValueChanged(); }
 
 	operator T() { return get(); }
 	cval<T>& operator=(const T& val) { set(val); return *this; }
 
 	bool isDefault() { return _isDefault; }
 
-	void addListener(ICallbackGuard* instance, EventCallback callback) { listeners.push_back(Callback<EventCallback>(instance, callback)); }
+	void addListener(ICallbackGuard* instance, EventCallback callback) { uv_mutex_lock(&listenersLock); listeners.push_back(Callback<EventCallback>(instance, callback)); uv_mutex_unlock(&listenersLock); }
 	void dispatchValueChanged() {
 		std::list< Callback<EventCallback> > listenersCopy;
 

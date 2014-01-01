@@ -1,5 +1,5 @@
 #include "RappelzLibInit.h"
-#include "private/RappelzLibConfig.h"
+#include "RappelzLibConfig.h"
 #include "Log.h"
 
 bool RappelzLibInit(int argc, char **argv, ClientConfigInit configDeclareInitCallback) {
