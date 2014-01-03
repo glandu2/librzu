@@ -94,7 +94,9 @@ bool Socket::listen(const std::string& interfaceIp, uint16_t port) {
 }
 
 size_t Socket::read(void *buffer, size_t size) {
-	size_t effectiveSize = std::min(_p->recvBuffer.size(), size);
+	size_t sizeAvailable = _p->recvBuffer.size();
+	size_t effectiveSize = sizeAvailable > size ? size : sizeAvailable;
+
 	memcpy(buffer, &_p->recvBuffer[0], effectiveSize);
 	_p->recvBuffer.erase(_p->recvBuffer.begin(), _p->recvBuffer.begin() + effectiveSize);
 
