@@ -120,7 +120,9 @@ bool Socket::accept(Socket* socket) {
 	uv_tcp_t *client = &socket->_p->socket;
 	uv_tcp_init(uvLoop, client);
 	int result = uv_accept((uv_stream_t*)&_p->socket, (uv_stream_t*) client);
-	if(result < 0) {
+	if(result == UV_EAGAIN)
+		return false;
+	else if(result < 0) {
 		debug("Cant accept: %s\n", uv_strerror(result));
 		notifyReadyError(result);
 		return false;
@@ -177,7 +179,7 @@ void Socket::setState(State state) {
 
 	const char* oldStateStr = (oldState < (sizeof(STATES)/sizeof(const char*))) ? STATES[oldState] : "Unknown";
 	const char* newStateStr = (oldState < (sizeof(STATES)/sizeof(const char*))) ? STATES[state] : "Unknown";
-	debug("Socket state change from %s to %s\n", oldStateStr, newStateStr);
+	trace("Socket state change from %s to %s\n", oldStateStr, newStateStr);
 
 	DELEGATE_CALL(_p->eventListeners, this, oldState, state);
 
@@ -186,7 +188,7 @@ void Socket::setState(State state) {
 		this->port = 0;
 		setObjectName(nullptr);
 	} else if(state == ConnectedState) {
-		_p->recvBuffer.setBufferSize(16384);
+		_p->recvBuffer.setBufferSize(65536);
 		uv_read_start((uv_stream_t*) &_p->socket, &onAllocReceiveBuffer, &onReadCompleted);
 	}
 }
@@ -260,7 +262,13 @@ void Socket::onAllocReceiveBuffer(uv_handle_t*, size_t, uv_buf_t* buf) {
 void Socket::onReadCompleted(uv_stream_t* stream, ssize_t nread, const uv_buf_t* buf) {
 	Socket* thisInstance = (Socket*)stream->data;
 
-	if(nread < 0) {
+	if(nread == UV_EOF) {
+		thisInstance->trace("Connection closed by peer\n");
+		thisInstance->close();
+	} else if(nread == UV_ECONNRESET) {
+		thisInstance->trace("Connection reset by peer\n");
+		thisInstance->abort();
+	} else if(nread < 0) {
 		if(buf->base)
 			delete[] buf->base;
 
@@ -268,7 +276,7 @@ void Socket::onReadCompleted(uv_stream_t* stream, ssize_t nread, const uv_buf_t*
 		thisInstance->error("onReadCompleted: %s\n", errorString);
 		thisInstance->notifyReadyError(nread);
 	} else {
-		thisInstance->debug("Read %ld bytes\n", (long)nread);
+		thisInstance->trace("Read %ld bytes\n", (long)nread);
 		thisInstance->_p->recvBuffer.insertData(buf->base, nread);
 		delete[] buf->base;
 		DELEGATE_CALL(thisInstance->_p->dataListeners, thisInstance);
@@ -279,13 +287,12 @@ void Socket::onWriteCompleted(uv_write_t* req, int status) {
 	WriteRequest* writeRequest = (WriteRequest*)req;
 	Socket* thisInstance = (Socket*)req->data;
 
-
 	if(status < 0) {
 		const char* errorString = uv_strerror(status);
 		thisInstance->error("onWriteCompleted: %s\n", errorString);
 		thisInstance->notifyReadyError(status);
 	} else {
-		thisInstance->debug("Written %ld bytes\n", (long)writeRequest->buffer.len);
+		thisInstance->trace("Written %ld bytes\n", (long)writeRequest->buffer.len);
 	}
 
 	delete[] writeRequest->buffer.base;

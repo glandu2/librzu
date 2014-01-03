@@ -78,7 +78,7 @@ void RappelzSocket::dataReceived(ICallbackGuard* instance, Socket*) {
 			return;
 		} else if(buffer->currentMessageSize == 0) {
 			thisInstance->read(&buffer->currentMessageSize, 4);
-			//printf(LOG_PREFIX"New message received, size = %d, available: %lu\n", buffer->currentMessageSize, thisInstance->getAvailableBytes());
+			//trace("Receiving new msg, size = %d, available: %lu\n", buffer->currentMessageSize, thisInstance->getAvailableBytes());
 		}
 
 		if(buffer->currentMessageSize != 0 && thisInstance->getAvailableBytes() >= (buffer->currentMessageSize - 4)) {

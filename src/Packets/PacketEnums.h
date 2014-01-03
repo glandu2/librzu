@@ -1,7 +1,7 @@
 #ifndef PACKETENUMS_H
 #define PACKETENUMS_H
 
-enum TS_ErrorCode
+enum TS_ResultCode
 {
 	TS_RESULT_SUCCESS = 0x0,
 	TS_RESULT_NOT_EXIST = 0x1,
