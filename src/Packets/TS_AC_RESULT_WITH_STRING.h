@@ -3,6 +3,8 @@
 
 #include "PacketBaseMessage.h"
 
+//not in 5.2 client
+
 #pragma pack(push, 1)
 struct TS_AC_RESULT_WITH_STRING : public TS_MESSAGE_WNA
 {

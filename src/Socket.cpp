@@ -132,7 +132,7 @@ bool Socket::accept(Socket* socket) {
 
 	char ipBuffer[INET_ADDRSTRLEN];
 	uv_ip4_name(&peerInfo, ipBuffer, INET_ADDRSTRLEN);
-	setPeerInfo(std::string(ipBuffer), ntohs(peerInfo.sin_port));
+	socket->setPeerInfo(std::string(ipBuffer), ntohs(peerInfo.sin_port));
 	socket->_p->currentState = UnconnectedState;
 	socket->setState(ConnectedState);
 
@@ -194,7 +194,7 @@ void Socket::setState(State state) {
 void Socket::setPeerInfo(const std::string& host, uint16_t port) {
 	this->host = host;
 	this->port = port;
-	setObjectName(host.size() + 9 + 5, "Socket[%s:%u]", host.c_str(), port);
+	setObjectName(getObjectNameSize() + 3 + host.size() + 5, "%s[%s:%u]", getObjectName(), host.c_str(), port);
 }
 
 void Socket::addDataListener(ICallbackGuard* instance, CallbackOnDataReady listener) {

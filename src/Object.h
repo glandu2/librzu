@@ -44,6 +44,7 @@ class RAPPELZLIB_EXTERN Object
 		void setObjectName(const char *name);
 		void setObjectName(int maxLen, const char *format, ...);
 		const char *getObjectName();
+		int getObjectNameSize();
 
 		void trace(const char *message, ...);
 		void debug(const char *message, ...);
@@ -55,6 +56,7 @@ class RAPPELZLIB_EXTERN Object
 		virtual void deleteLater();
     private:
 		char *objectName;
+		int objectNameSize;
 };
 
 

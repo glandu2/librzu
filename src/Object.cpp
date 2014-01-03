@@ -20,9 +20,11 @@ void Object::setObjectName(const char *name) {
 		delete[] objectName;
 
     if(name) {
-		objectName = new char[strlen(name)+1];
+		objectNameSize = strlen(name)+1;
+		objectName = new char[objectNameSize];
 		strcpy(objectName, name);
 	} else {
+		objectNameSize = 0;
 		objectName = NULL;
 	}
 }
@@ -30,29 +32,39 @@ void Object::setObjectName(const char *name) {
 //maxLen without null terminator
 void Object::setObjectName(int maxLen, const char *format, ...) {
 	va_list args;
-
-	if(objectName)
-		delete[] objectName;
+	const char* oldName = objectName;
 
 	if(format && maxLen > 0) {
-		objectName = new char[maxLen+1];
+		objectNameSize = maxLen+1;
+		objectName = new char[objectNameSize];
 		va_start(args, format);
 		vsnprintf(objectName, maxLen+1, format, args);
 		va_end(args);
 	} else {
+		objectNameSize = 0;
 		objectName = NULL;
 	}
+
+	if(oldName)
+		delete[] oldName;
 }
 
 const char *Object::getObjectName() {
 	char *name;
 
-	if(objectName) return (const char*)objectName;
+	if(objectName)
+		return (const char*)objectName;
 
-	name = new char[strlen(getClassName()) + 6];
+	objectNameSize = strlen(getClassName()) + 6;
+	name = new char[objectNameSize];
+
 	sprintf(name, "%s%lu", getClassName(), (getObjectNum()>99999)? 99999 : getObjectNum());
 	objectName = name;
 	return (const char*)objectName;
+}
+
+int Object::getObjectNameSize() {
+	return objectNameSize;
 }
 
 static void defaultLog(const char* suffix, const char* objectName, const char* message, va_list args) {
