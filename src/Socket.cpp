@@ -2,7 +2,6 @@
 #include "uv.h"
 #include <stdio.h>
 #include <string.h>
-#include "CircularBuffer.h"
 #include <unordered_map>
 #include "IDelegate.h"
 
@@ -24,7 +23,7 @@ struct SocketInternal {
 	uv_connect_t connectRequest;
 	uv_shutdown_t shutdownReq;
 	Socket::State currentState;
-	CircularBuffer recvBuffer;
+	std::vector<char> recvBuffer;
 	bool sending;
 };
 
@@ -95,7 +94,11 @@ bool Socket::listen(const std::string& interfaceIp, uint16_t port) {
 }
 
 size_t Socket::read(void *buffer, size_t size) {
-	return _p->recvBuffer.getData((char*)buffer, size);
+	size_t effectiveSize = std::min(_p->recvBuffer.size(), size);
+	memcpy(buffer, &_p->recvBuffer[0], effectiveSize);
+	_p->recvBuffer.erase(_p->recvBuffer.begin(), _p->recvBuffer.begin() + effectiveSize);
+
+	return effectiveSize;
 }
 
 size_t Socket::write(const void *buffer, size_t size) {
@@ -162,7 +165,7 @@ void Socket::abort() {
 }
 
 size_t Socket::getAvailableBytes() {
-	return _p->recvBuffer.getAvailableBytes();
+	return _p->recvBuffer.size();
 }
 
 Socket::State Socket::getState() {
@@ -188,7 +191,6 @@ void Socket::setState(State state) {
 		this->port = 0;
 		setObjectName(nullptr);
 	} else if(state == ConnectedState) {
-		_p->recvBuffer.setBufferSize(65536);
 		uv_read_start((uv_stream_t*) &_p->socket, &onAllocReceiveBuffer, &onReadCompleted);
 	}
 }
@@ -277,7 +279,9 @@ void Socket::onReadCompleted(uv_stream_t* stream, ssize_t nread, const uv_buf_t*
 		thisInstance->notifyReadyError(nread);
 	} else {
 		thisInstance->trace("Read %ld bytes\n", (long)nread);
-		thisInstance->_p->recvBuffer.insertData(buf->base, nread);
+		size_t oldSize = thisInstance->_p->recvBuffer.size();
+		thisInstance->_p->recvBuffer.resize(oldSize + nread);
+		memcpy(&thisInstance->_p->recvBuffer[oldSize], buf->base, nread);
 		delete[] buf->base;
 		DELEGATE_CALL(thisInstance->_p->dataListeners, thisInstance);
 	}
