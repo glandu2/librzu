@@ -103,6 +103,12 @@ size_t Socket::read(void *buffer, size_t size) {
 	return effectiveSize;
 }
 
+size_t Socket::readAll(std::vector<char> *buffer) {
+	buffer->swap(_p->recvBuffer);
+	_p->recvBuffer.clear();
+	_p->recvBuffer.reserve(buffer->capacity());
+}
+
 size_t Socket::write(const void *buffer, size_t size) {
 	WriteRequest* writeRequest = new WriteRequest;
 	writeRequest->buffer.len = size;

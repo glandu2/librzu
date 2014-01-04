@@ -3,13 +3,7 @@
 #include <stdio.h>
 #include <time.h>
 #include <stdarg.h>
-
-#ifdef _WIN32
-#include <direct.h>
-#define createdir(dir) mkdir(dir)
-#else
-#define createdir(dir) mkdir(dir, 0755)
-#endif
+#include "Utils.h"
 
 #ifdef _MSC_VER
 #define va_copy(d,s) ((d) = (s))
@@ -101,10 +95,10 @@ void Log::updateFile(ICallbackGuard* instance, cval<std::string>* str) {
 }
 
 bool Log::open() {
-	std::string newFileName = dir.get() + "/" + fileName.get();
+	std::string newFileName = Utils::getFullPath(dir.get() + "/" + fileName.get());
 	FILE* newfile;
 
-	createdir(dir.get().c_str());
+	Utils::mkdir(dir.get().c_str());
 
 	newfile = fopen(newFileName.c_str(), "ab");
 	if(!newfile) {
@@ -159,22 +153,20 @@ void Log::log(Level level, const char *objectName, const char* message, va_list 
 	if(level > maxLevel)
 		return;
 
-	struct tm *localtm;
-	time_t curtime = time(NULL);
+	struct tm localtm;
 	va_list argsConsole;
 	va_copy(argsConsole, args);
 
 	uv_mutex_lock(&lock);
 
-	//brktimegm(time(NULL), &localtm);
-	localtm = gmtime(&curtime);
+	Utils::getGmTime(time(NULL), &localtm);
 
-	fprintf(stderr, "%4d-%02d-%02d %02d:%02d:%02d %-5s %s: ", localtm->tm_year+1900, localtm->tm_mon+1, localtm->tm_mday, localtm->tm_hour, localtm->tm_min, localtm->tm_sec, LEVELSTRINGS[level], objectName);
+	fprintf(stderr, "%4d-%02d-%02d %02d:%02d:%02d %-5s %s: ", localtm.tm_year+1900, localtm.tm_mon+1, localtm.tm_mday, localtm.tm_hour, localtm.tm_min, localtm.tm_sec, LEVELSTRINGS[level], objectName);
 
 	vfprintf(stderr, message, argsConsole);
 
 	if(file) {
-		fprintf((FILE*)file, "%4d-%02d-%02d %02d:%02d:%02d %-5s %s: ", localtm->tm_year+1900, localtm->tm_mon+1, localtm->tm_mday, localtm->tm_hour, localtm->tm_min, localtm->tm_sec, LEVELSTRINGS[level], objectName);
+		fprintf((FILE*)file, "%4d-%02d-%02d %02d:%02d:%02d %-5s %s: ", localtm.tm_year+1900, localtm.tm_mon+1, localtm.tm_mday, localtm.tm_hour, localtm.tm_min, localtm.tm_sec, LEVELSTRINGS[level], objectName);
 
 		vfprintf((FILE*)file, message, args);
 

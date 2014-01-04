@@ -43,6 +43,7 @@ public:
 
 	virtual size_t getAvailableBytes();
 	virtual size_t read(void *buffer, size_t size);
+	virtual size_t readAll(std::vector<char>* buffer); //data in buffer will be destroyed
 	virtual size_t write(const void *buffer, size_t size);
 	virtual bool accept(Socket *socket);
 
