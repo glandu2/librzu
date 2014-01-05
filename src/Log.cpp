@@ -100,10 +100,11 @@ void Log::updateFile(ICallbackGuard* instance, cval<std::string>* str) {
 }
 
 bool Log::open() {
-	std::string newFileName = Utils::getFullPath(dir.get() + "/" + fileName.get());
+	std::string absoluteDir = Utils::getFullPath(dir.get());
+	std::string newFileName = absoluteDir + "/" + fileName.get();
 	FILE* newfile;
 
-	Utils::mkdir(dir.get().c_str());
+	Utils::mkdir(absoluteDir.c_str());
 
 	newfile = fopen(newFileName.c_str(), "ab");
 	if(!newfile) {
