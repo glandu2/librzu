@@ -107,6 +107,8 @@ size_t Socket::readAll(std::vector<char> *buffer) {
 	buffer->swap(_p->recvBuffer);
 	_p->recvBuffer.clear();
 	_p->recvBuffer.reserve(buffer->capacity());
+
+	return buffer->size();
 }
 
 size_t Socket::write(const void *buffer, size_t size) {

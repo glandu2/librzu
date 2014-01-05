@@ -4,10 +4,7 @@
 #include <time.h>
 #include <stdarg.h>
 #include "Utils.h"
-
-#ifdef _MSC_VER
-#define va_copy(d,s) ((d) = (s))
-#endif
+#include "EventLoop.h"
 
 static const char * const  LEVELSTRINGS[] = { "FATAL", "ERROR", "Warn", "Info", "Debug", "Trace" };
 
@@ -34,6 +31,10 @@ Log::Log(cval<bool>& enabled, cval<std::string>& maxLevel, cval<std::string>& di
 	maxLevel.addListener(this, &updateLevel);
 	dir.addListener(this, &updateFile);
 	fileName.addListener(this, &updateFile);
+
+	uv_timer_init(EventLoop::getLoop(), &flushTimer);
+	flushTimer.data = this;
+	uv_timer_start(&flushTimer, &flushLogFile, 5000, 5000);
 }
 
 Log::Log(cval<bool>& enabled, Level maxLevel, cval<std::string>& dir, cval<std::string>& fileName) :
@@ -49,6 +50,10 @@ Log::Log(cval<bool>& enabled, Level maxLevel, cval<std::string>& dir, cval<std::
 	enabled.addListener(this, &updateEnabled);
 	dir.addListener(this, &updateFile);
 	fileName.addListener(this, &updateFile);
+
+	uv_timer_init(EventLoop::getLoop(), &flushTimer);
+	flushTimer.data = this;
+	uv_timer_start(&flushTimer, &flushLogFile, 5000, 5000);
 }
 
 Log::~Log() {
@@ -124,7 +129,7 @@ bool Log::open() {
 			openedFile = newFileName;
 			uv_mutex_unlock(&lock);
 		}
-		log(LL_Info, getObjectName(), "Log file \"%s\" opened\n", newFileName.c_str());
+		log(LL_Info, getObjectName(), getObjectNameSize(), "Log file \"%s\" opened\n", newFileName.c_str());
 		return true;
 	}
 }
@@ -138,18 +143,18 @@ void Log::close() {
 	uv_mutex_unlock(&lock);
 }
 
-void Log::log(Level level, const char *objectName, const char* message, ...) {
+void Log::log(Level level, const char *objectName, size_t objectNameSize, const char* message, ...) {
 	va_list args;
 
 	if(level > maxLevel)
 		return;
 
 	va_start(args, message);
-	log(level, objectName, message, args);
+	log(level, objectName, objectNameSize, message, args);
 	va_end(args);
 }
 
-void Log::log(Level level, const char *objectName, const char* message, va_list args) {
+void Log::log(Level level, const char *objectName, size_t objectNameSize, const char* message, va_list args) {
 	if(level > maxLevel)
 		return;
 
@@ -161,17 +166,31 @@ void Log::log(Level level, const char *objectName, const char* message, va_list 
 
 	Utils::getGmTime(time(NULL), &localtm);
 
-	fprintf(stderr, "%4d-%02d-%02d %02d:%02d:%02d %-5s %s: ", localtm.tm_year+1900, localtm.tm_mon+1, localtm.tm_mday, localtm.tm_hour, localtm.tm_min, localtm.tm_sec, LEVELSTRINGS[level], objectName);
+	//26 char to %-5s included
+	size_t bufferSize = 26 + objectNameSize + 3;
+	char *buffer = (char*) alloca(bufferSize);
+	size_t strLen = snprintf(buffer, bufferSize, "%4d-%02d-%02d %02d:%02d:%02d %-5s %s: ", localtm.tm_year, localtm.tm_mon, localtm.tm_mday, localtm.tm_hour, localtm.tm_min, localtm.tm_sec, LEVELSTRINGS[level], objectName);
+	if(strLen >= bufferSize) {
+		fprintf(stderr, "------------------- Debug Log::log: Log buffer was too small, log source might be truncated\n");
+		strLen = bufferSize-1;
+	}
 
+	fwrite(buffer, 1, strLen, stderr);
 	vfprintf(stderr, message, argsConsole);
 
 	if(file) {
-		fprintf((FILE*)file, "%4d-%02d-%02d %02d:%02d:%02d %-5s %s: ", localtm.tm_year+1900, localtm.tm_mon+1, localtm.tm_mday, localtm.tm_hour, localtm.tm_min, localtm.tm_sec, LEVELSTRINGS[level], objectName);
-
+		fwrite(buffer, 1, strLen, (FILE*)file);
 		vfprintf((FILE*)file, message, args);
-
-		fflush((FILE*)file);
 	}
 
 	uv_mutex_unlock(&lock);
+}
+
+void Log::flushLogFile(uv_timer_t* timer, int status) {
+	Log* thisInstance = (Log*) timer->data;
+	if(status >= 0 && uv_mutex_trylock(&thisInstance->lock) == 0) {
+		if(thisInstance->file)
+			fflush((FILE*)thisInstance->file);
+		uv_mutex_unlock(&thisInstance->lock);
+	}
 }

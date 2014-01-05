@@ -8,6 +8,7 @@
 
 #ifdef _MSC_VER
 #define snprintf(buffer, size, ...) _snprintf_s(buffer, size, _TRUNCATE, __VA_ARGS__)
+#define va_copy(d,s) ((d) = (s))
 #endif
 
 class RAPPELZLIB_EXTERN Utils

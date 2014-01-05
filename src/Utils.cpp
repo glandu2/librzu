@@ -3,6 +3,7 @@
 
 #ifdef _WIN32
 #include <direct.h>
+#include <windows.h> //for GetModuleFileName
 #else
 #include <sys/stat.h>
 #include <unistd.h>

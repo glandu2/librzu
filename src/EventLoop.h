@@ -11,11 +11,13 @@ class RAPPELZLIB_EXTERN EventLoop : public Object
 
 public:
 	EventLoop();
+	~EventLoop();
 
 	void addObjectToDelete(Object* o) { objectsToDelete.push_back(o); }
 
 	void run(uv_run_mode mode) { uv_run(loop, mode); }
 
+	//one different loop per thread
 	static EventLoop* getInstance();
 	static uv_loop_t* getLoop() { return getInstance()->loop; }
 
@@ -26,6 +28,10 @@ private:
 	uv_loop_t* loop;
 	uv_prepare_t deleteObjectsHandle;
 	std::list<Object*> objectsToDelete;
+
+	static uv_once_t tlsKeyInitOnce;
+	static uv_key_t tlsKey;
+	static void initKey();
 };
 
 #endif // EVENTLOOP_H

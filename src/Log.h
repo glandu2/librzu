@@ -28,8 +28,8 @@ public:
 	bool open();
 	void close();
 
-	void log(Level level, const char* objectName, const char* message, ...);
-	void log(Level level, const char* objectName, const char* message, va_list args);
+	void log(Level level, const char* objectName, size_t objectNameSize, const char* message, ...);
+	void log(Level level, const char* objectName, size_t objectNameSize, const char* message, va_list args);
 
 	static bool init();
 	static Log* get() { return messageLogger; }
@@ -39,6 +39,7 @@ protected:
 	static void updateEnabled(ICallbackGuard* instance, cval<bool>* level);
 	static void updateLevel(ICallbackGuard* instance, cval<std::string>* level);
 	static void updateFile(ICallbackGuard* instance, cval<std::string>* str);
+	static void flushLogFile(uv_timer_t*timer, int status);
 
 private:
 	static Log* messageLogger;
@@ -50,6 +51,7 @@ private:
 	std::string openedFile;
 	void* file;
 	uv_mutex_t lock;
+	uv_timer_t flushTimer;
 };
 
 #endif // LOG_H

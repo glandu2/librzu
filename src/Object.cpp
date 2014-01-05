@@ -64,6 +64,8 @@ const char *Object::getObjectName() {
 }
 
 int Object::getObjectNameSize() {
+	if(objectName == nullptr)
+		getObjectName(); //initialize name
 	return objectNameSize;
 }
 
@@ -79,7 +81,7 @@ static void defaultLog(const char* suffix, const char* objectName, const char* m
 	va_start(args, message); \
 	 \
 	if(logger) \
-		logger->log(Log::LL_##level, getObjectName(), message, args); \
+		logger->log(Log::LL_##level, getObjectName(), getObjectNameSize(), message, args); \
 	else { \
 		defaultLog(#level, getObjectName(), message, args); \
 	} \
