@@ -20,8 +20,8 @@ public:
 
 	T get() { T val; uv_rwlock_rdlock(&lock); val = value; uv_rwlock_rdunlock(&lock); return val; }
 	T get(const T& def) { T val; uv_rwlock_rdlock(&lock); if(_isDefault) val = def; else val = value; uv_rwlock_rdunlock(&lock); return val; }
-	void set(const T& val) { uv_rwlock_wrlock(&lock); value = val; _isDefault = false; uv_rwlock_wrunlock(&lock); dispatchValueChanged(); }
-	void setDefault(const T& def) { bool changed = false; uv_rwlock_wrlock(&lock); if(_isDefault) { value = def; changed = true; } uv_rwlock_wrunlock(&lock); if(changed) dispatchValueChanged(); }
+	void set(const T& val, bool dispatch = true) { uv_rwlock_wrlock(&lock); value = val; _isDefault = false; uv_rwlock_wrunlock(&lock); if(dispatch) dispatchValueChanged(); }
+	bool setDefault(const T& def, bool dispatch = true) { bool changed = false; uv_rwlock_wrlock(&lock); if(_isDefault) { value = def; changed = true; } uv_rwlock_wrunlock(&lock); if(changed && dispatch) dispatchValueChanged(); return changed; }
 
 	operator T() { return get(); }
 	cval<T>& operator=(const T& val) { set(val); return *this; }
@@ -46,7 +46,7 @@ public:
 
 		auto itWithThis = listenersWithThisCopy.cbegin();
 		auto itWithThisEnd = listenersWithThisCopy.cend();
-		for(; itWithThis != itWithThisEnd; ++it)
+		for(; itWithThis != itWithThisEnd; ++itWithThis)
 			CALLBACK_CALL(*itWithThis, this);
 	}
 

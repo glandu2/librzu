@@ -21,8 +21,8 @@ public:
 		LL_Trace
 	};
 
-	Log(cval<bool>& enabled, cval<std::string>& maxLevel, cval<std::string>& dir, cval<std::string>& fileName);
-	Log(cval<bool>& enabled, Level maxLevel, cval<std::string>& dir, cval<std::string>& fileName);
+	Log(cval<bool>& enabled, cval<std::string>& fileMaxLevel, cval<std::string>& consoleMaxLevel, cval<std::string>& dir, cval<std::string>& fileName);
+	Log(cval<bool>& enabled, Level fileMaxLevel, Level consoleMaxLevel, cval<std::string>& dir, cval<std::string>& fileName);
 	~Log();
 
 	bool open();
@@ -37,15 +37,19 @@ public:
 
 protected:
 	static void updateEnabled(ICallbackGuard* instance, cval<bool>* level);
-	static void updateLevel(ICallbackGuard* instance, cval<std::string>* level);
+	static void updateFileLevel(ICallbackGuard* instance, cval<std::string>* level);
+	static void updateConsoleLevel(ICallbackGuard* instance, cval<std::string>* level);
 	static void updateFile(ICallbackGuard* instance, cval<std::string>* str);
 	static void flushLogFile(uv_timer_t*timer, int status);
+
+	void updateLevel(bool isConsole, const std::string& level);
 
 private:
 	static Log* messageLogger;
 	static Log* packetLogger;
 
-	Level maxLevel;
+	Level fileMaxLevel;
+	Level consoleMaxLevel;
 	cval<std::string>& dir;
 	cval<std::string>& fileName;
 	std::string openedFile;

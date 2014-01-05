@@ -2,6 +2,7 @@
 #define RAPPELZLIBCONFIG_H
 
 #include "ConfigInfo.h"
+#include "Utils.h"
 
 #define CONFIG_FILE_KEY "configfile"
 
@@ -12,18 +13,28 @@ struct RAPPELZLIB_EXTERN RappelzLibConfig
 
 		App() :
 			appName(CFG("core.appname", "RappelzEmu")),
-			configfile(CFG(CONFIG_FILE_KEY, "rappelzemu.opt")) {}
+			configfile(CFG(CONFIG_FILE_KEY, "rappelzemu.opt"))
+		{
+			Utils::autoSetAbsoluteDir(configfile);
+		}
 	} app;
 
-	struct Log {
+	struct Log : public ICallbackGuard {
 		cval<bool> &enable;
-		cval<std::string> &dir, &file, &level;
+		cval<std::string> &dir, &file, &level, &consoleLevel;
 
 		Log() :
-			enable(CFG("core.log.enable", true)),
+			enable(CFG("core.log.enablefile", true)),
 			dir(CFG("core.log.dir", "log")),
 			file(CFG("core.log.file", CFG("core.appname", "rappelzemu").get() + ".log")),
-			level(CFG("core.log.level", "trace")) {}
+			level(CFG("core.log.level", "info")),
+			consoleLevel(CFG("core.log.consolelevel", "info"))
+		{
+			Utils::autoSetAbsoluteDir(dir);
+			level.addListener(this, &updateConsoleLevel);
+		}
+
+		static void updateConsoleLevel(ICallbackGuard* instance);
 	} log;
 
 	struct TrafficDump {
@@ -33,7 +44,10 @@ struct RAPPELZLIB_EXTERN RappelzLibConfig
 		TrafficDump() :
 			enable(CFG("core.trafficdump.enable", false)),
 			dir(CFG("core.trafficdump.dir", "traffic_log")),
-			file(CFG("core.trafficdump.file", "rappelzemu.log")) {}
+			file(CFG("core.trafficdump.file", "rappelzemu.log"))
+		{
+			Utils::autoSetAbsoluteDir(dir);
+		}
 	} trafficDump;
 
 	static RappelzLibConfig* get();

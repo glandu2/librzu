@@ -1,7 +1,7 @@
 #ifndef CALLBACKGUARD_H
 #define CALLBACKGUARD_H
 
-#include <vector>
+#include <set>
 #include <utility>
 #include "RappelzLib_global.h"
 
@@ -12,11 +12,15 @@ public:
 
 	void addInstance(DelegateRef callbackValidityPtr) {
 		if(callbackValidityPtr)
-			callbackValidityPtrs.push_back(callbackValidityPtr);
+			callbackValidityPtrs.insert(callbackValidityPtr);
+	}
+
+	void delInstance(DelegateRef callbackValidityPtr) {
+		callbackValidityPtrs.erase(callbackValidityPtr);
 	}
 
 	void invalidateCallbacks() {
-		std::vector<DelegateRef>::iterator it, itEnd;
+		std::set<DelegateRef>::iterator it, itEnd;
 
 		for(it = callbackValidityPtrs.begin(), itEnd = callbackValidityPtrs.end(); it != itEnd; ++it) {
 			DelegateRef callbackValidityPtr = *it;
@@ -32,7 +36,7 @@ public:
 
 
 private:
-	std::vector<DelegateRef> callbackValidityPtrs;
+	std::set<DelegateRef> callbackValidityPtrs;
 };
 
 #endif // CALLBACKGUARD_H

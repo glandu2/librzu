@@ -10,9 +10,28 @@ struct Callback {
 	ICallbackGuard* instance;
 	T callback;
 
+	Callback(const Callback& other) : instance(other.instance), callback(other.callback) {}
+
+	Callback(Callback&& other) : instance(other.instance), callback(other.callback) {
+		other.instance = nullptr;
+		other.callback = nullptr;
+	}
+
 	Callback(ICallbackGuard* instance = nullptr, T callback = nullptr) : instance(instance), callback(callback) {
 		if(instance)
 			instance->addInstance((DelegateRef)&this->callback);
+	}
+
+	Callback& operator=(const Callback& other) {
+		instance = other.instance;
+		callback = other.callback;
+
+		return *this;
+	}
+
+	~Callback() {
+		if(instance)
+			instance->delInstance((DelegateRef)&this->callback);
 	}
 };
 #define CALLBACK_CALL(c, ...) \
@@ -28,6 +47,27 @@ public:
 		CallbackType callback;
 	};
 	typedef typename std::unordered_map<Key, CallbackInfo>::const_iterator CallbackIterator;
+
+	IDelegateHash() {}
+	IDelegateHash(const IDelegateHash& other) : callbacks(other.callbacks) {}
+	IDelegateHash(IDelegateHash&& other) : callbacks(std::move(other.callbacks)) {}
+
+	~IDelegateHash() {
+		CallbackIterator it;
+		for(it = callbacks.cbegin(); it != callbacks.cend();) {
+			const CallbackInfo& callbackInfo = it->second;
+
+			callbackInfo.instance->delInstance((DelegateRef)&callbackInfo.callback);
+
+			it = callbacks.erase(it);
+		}
+	}
+
+	IDelegateHash& operator=(const IDelegateHash& other) {
+		callbacks = other.callbacks;
+
+		return *this;
+	}
 
 	void add(Key key, ICallbackGuard* instance, CallbackType callback) {
 		typename std::unordered_map<Key, CallbackInfo>::iterator it;
@@ -78,6 +118,28 @@ class IDelegate {
 public:
 	//typedef void (*CallbackType)(ICallbackGuard* instance, Values...);
 	typedef typename std::unordered_map<ICallbackGuard*, CallbackType>::const_iterator CallbackIterator;
+
+	IDelegate() {}
+	IDelegate(IDelegate& other) : callbacks(other.callbacks) {}
+	IDelegate(IDelegate&& other) : callbacks(std::move(other.callbacks)) {}
+
+	~IDelegate() {
+		CallbackIterator it;
+		for(it = callbacks.cbegin(); it != callbacks.cend();) {
+			ICallbackGuard* instance = it->first;
+			const CallbackType& callbackInfo = it->second;
+
+			instance->delInstance((DelegateRef)&callbackInfo);
+
+			it = callbacks.erase(it);
+		}
+	}
+
+	IDelegate& operator=(const IDelegate& other) {
+		callbacks = other.callbacks;
+
+		return *this;
+	}
 
 	void add(ICallbackGuard* instance, CallbackType callback) {
 		typename std::unordered_map<ICallbackGuard*, CallbackType>::iterator it;

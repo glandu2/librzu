@@ -11,6 +11,9 @@
 #define va_copy(d,s) ((d) = (s))
 #endif
 
+class ICallbackGuard;
+template<typename T> class cval;
+
 class RAPPELZLIB_EXTERN Utils
 {
 public:
@@ -18,7 +21,12 @@ public:
 	static int mkdir(const char* dir);
 	static const char* getApplicationPath();
 	static std::string getFullPath(const std::string& partialPath);
+	static bool isAbsolute(const char* dir);
 	static void* memmem(const void *haystack, size_t hlen, const void *needle, size_t nlen);
+	static void autoSetAbsoluteDir(cval<std::string>& value);
+
+private:
+	static void autoSetAbsoluteDirConfigValue(ICallbackGuard*, cval<std::string>* value);
 };
 
 #endif // UTILS_H

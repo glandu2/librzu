@@ -1,5 +1,7 @@
 #include "Utils.h"
 #include <string.h>
+#include "ConfigInfo.h"
+#include <ctype.h>
 
 #ifdef _WIN32
 #include <direct.h>
@@ -88,7 +90,43 @@ std::string Utils::getFullPath(const std::string &partialPath) {
 	if(partialPath.size() >= 2 && partialPath.at(0) == '.' && (partialPath.at(1) == '/' || partialPath.at(1) == '\\'))
 		return partialPath;
 
+	if(isAbsolute(partialPath.c_str()))
+		return partialPath;
+
 	return std::string(Utils::getApplicationPath()) + '/' + partialPath;
+}
+
+bool Utils::isAbsolute(const char* dir) {
+#ifdef _WIN32
+	if(isalpha(dir[0]) && dir[1] == ':' && (dir[2] == '\\' || dir[2] == '/'))
+		return true;
+	else
+		return false;
+#else
+	if(dir[0] == '/')
+		return true;
+	else
+		return false;
+#endif
+}
+
+void Utils::autoSetAbsoluteDir(cval<std::string>& value) {
+	value.addListener(nullptr, &autoSetAbsoluteDirConfigValue);
+	autoSetAbsoluteDirConfigValue(nullptr, &value);
+}
+
+void Utils::autoSetAbsoluteDirConfigValue(ICallbackGuard*, cval<std::string>* value) {
+	std::string dir = value->get();
+	std::string fullPath;
+
+	if(isAbsolute(dir.c_str()))
+		return;
+
+	fullPath = getFullPath(dir);
+
+	//keep defaultness
+	if(value->setDefault(fullPath, false) == false)
+		value->set(fullPath, false);
 }
 
 void* Utils::memmem(const void *haystack, size_t hlen, const void *needle, size_t nlen)

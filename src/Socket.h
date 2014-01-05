@@ -7,6 +7,7 @@
 #include "stdint.h"
 
 #include <string>
+#include <vector>
 
 struct SocketInternal;
 class SocketPoll;
