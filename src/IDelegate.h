@@ -30,8 +30,8 @@ struct Callback {
 	}
 
 	~Callback() {
-		if(instance)
-			instance->delInstance((DelegateRef)&this->callback);
+		if(instance && callback)
+			instance->delInstance((DelegateRef)&callback);
 	}
 };
 #define CALLBACK_CALL(c, ...) \
@@ -57,7 +57,8 @@ public:
 		for(it = callbacks.cbegin(); it != callbacks.cend();) {
 			const CallbackInfo& callbackInfo = it->second;
 
-			callbackInfo.instance->delInstance((DelegateRef)&callbackInfo.callback);
+			if(callbackInfo.instance && callbackInfo.callback)
+				callbackInfo.instance->delInstance((DelegateRef)&callbackInfo.callback);
 
 			it = callbacks.erase(it);
 		}
@@ -129,7 +130,8 @@ public:
 			ICallbackGuard* instance = it->first;
 			const CallbackType& callbackInfo = it->second;
 
-			instance->delInstance((DelegateRef)&callbackInfo);
+			if(instance && callbackInfo)
+				instance->delInstance((DelegateRef)&callbackInfo);
 
 			it = callbacks.erase(it);
 		}
