@@ -11,7 +11,7 @@
 #define va_copy(d,s) ((d) = (s))
 #endif
 
-class ICallbackGuard;
+class IListener;
 template<typename T> class cval;
 
 class RAPPELZLIB_EXTERN Utils
@@ -26,7 +26,7 @@ public:
 	static void autoSetAbsoluteDir(cval<std::string>& value);
 
 private:
-	static void autoSetAbsoluteDirConfigValue(ICallbackGuard*, cval<std::string>* value);
+	static void autoSetAbsoluteDirConfigValue(IListener*, cval<std::string>* value);
 };
 
 #endif // UTILS_H

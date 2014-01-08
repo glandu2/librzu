@@ -3,7 +3,7 @@
 
 #include "Object.h"
 #include "uv.h"
-#include "ICallbackGuard.h"
+#include "IListener.h"
 #include "stdint.h"
 
 #include <string>
@@ -31,9 +31,9 @@ public:
 
 	static const char* STATES[];
 
-	typedef void (*CallbackOnDataReady)(ICallbackGuard* instance, Socket* socket);
-	typedef void (*CallbackOnStateChanged)(ICallbackGuard* instance, Socket* socket, State oldState, State newState);
-	typedef void (*CallbackOnError)(ICallbackGuard* instance, Socket* socket, int errnoValue);
+	typedef void (*CallbackOnDataReady)(IListener* instance, Socket* socket);
+	typedef void (*CallbackOnStateChanged)(IListener* instance, Socket* socket, State oldState, State newState);
+	typedef void (*CallbackOnError)(IListener* instance, Socket* socket, int errnoValue);
 
 public:
 	Socket(uv_loop_t* uvLoop);
@@ -55,11 +55,11 @@ public:
 	const std::string& getHost() { return host; }
 	uint16_t getPort() { return port; }
 
-	void addDataListener(ICallbackGuard* instance, CallbackOnDataReady listener);
-	void addConnectionListener(ICallbackGuard* instance, CallbackOnDataReady listener);
-	void addEventListener(ICallbackGuard* instance, CallbackOnStateChanged listener);
-	void addErrorListener(ICallbackGuard* instance, CallbackOnError listener);
-	void removeListener(ICallbackGuard* instance);
+	void addDataListener(IListener* instance, CallbackOnDataReady listener);
+	void addConnectionListener(IListener* instance, CallbackOnDataReady listener);
+	void addEventListener(IListener* instance, CallbackOnStateChanged listener);
+	void addErrorListener(IListener* instance, CallbackOnError listener);
+	void removeListener(IListener* instance);
 
 	void notifyReadyError(int errorValue);
 

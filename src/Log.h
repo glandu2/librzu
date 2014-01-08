@@ -8,7 +8,7 @@
 
 struct TS_MESSAGE;
 
-class RAPPELZLIB_EXTERN Log : public Object, public ICallbackGuard
+class RAPPELZLIB_EXTERN Log : public Object, public IListener
 {
 	DECLARE_CLASS(Log)
 public:
@@ -36,10 +36,10 @@ public:
 	static Log* getPacket() { return packetLogger; }
 
 protected:
-	static void updateEnabled(ICallbackGuard* instance, cval<bool>* level);
-	static void updateFileLevel(ICallbackGuard* instance, cval<std::string>* level);
-	static void updateConsoleLevel(ICallbackGuard* instance, cval<std::string>* level);
-	static void updateFile(ICallbackGuard* instance, cval<std::string>* str);
+	static void updateEnabled(IListener* instance, cval<bool>* level);
+	static void updateFileLevel(IListener* instance, cval<std::string>* level);
+	static void updateConsoleLevel(IListener* instance, cval<std::string>* level);
+	static void updateFile(IListener* instance, cval<std::string>* str);
 	static void flushLogFile(uv_timer_t*timer, int status);
 
 	void updateLevel(bool isConsole, const std::string& level);

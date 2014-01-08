@@ -211,23 +211,23 @@ void Socket::setPeerInfo(const std::string& host, uint16_t port) {
 	setObjectName(getObjectNameSize() + 3 + host.size() + 5, "%s[%s:%u]", getObjectName(), host.c_str(), port);
 }
 
-void Socket::addDataListener(ICallbackGuard* instance, CallbackOnDataReady listener) {
+void Socket::addDataListener(IListener* instance, CallbackOnDataReady listener) {
 	return _p->dataListeners.add(instance, listener);
 }
 
-void Socket::addConnectionListener(ICallbackGuard* instance, CallbackOnDataReady listener) {
+void Socket::addConnectionListener(IListener* instance, CallbackOnDataReady listener) {
 	return _p->incomingConnectionListeners.add(instance, listener);
 }
 
-void Socket::addEventListener(ICallbackGuard* instance, CallbackOnStateChanged listener) {
+void Socket::addEventListener(IListener* instance, CallbackOnStateChanged listener) {
 	return _p->eventListeners.add(instance, listener);
 }
 
-void Socket::addErrorListener(ICallbackGuard* instance, CallbackOnError listener) {
+void Socket::addErrorListener(IListener* instance, CallbackOnError listener) {
 	return _p->errorListeners.add(instance, listener);
 }
 
-void Socket::removeListener(ICallbackGuard* instance) {
+void Socket::removeListener(IListener* instance) {
 	_p->dataListeners.del(instance);
 	_p->eventListeners.del(instance);
 	_p->errorListeners.del(instance);

@@ -115,7 +115,7 @@ void Utils::autoSetAbsoluteDir(cval<std::string>& value) {
 	autoSetAbsoluteDirConfigValue(nullptr, &value);
 }
 
-void Utils::autoSetAbsoluteDirConfigValue(ICallbackGuard*, cval<std::string>* value) {
+void Utils::autoSetAbsoluteDirConfigValue(IListener*, cval<std::string>* value) {
 	std::string dir = value->get();
 	std::string fullPath;
 

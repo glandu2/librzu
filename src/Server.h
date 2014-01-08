@@ -18,7 +18,7 @@ struct TS_AC_SERVER_LIST;
 class Authentication;
 
 struct CallbacksTable;
-#include "ICallbackGuard.h"
+#include "IListener.h"
 #include "Socket.h"
 
 /**
@@ -27,7 +27,7 @@ struct CallbacksTable;
  * All network flows go through this class which redirect data to the correct server.
  * This class allow to connect to a rappelz server farm without many method calls.
  */
-class RAPPELZLIB_EXTERN Server : public Object, private ICallbackGuard
+class RAPPELZLIB_EXTERN Server : public Object, private IListener
 {
 	DECLARE_CLASS(Server)
 
@@ -45,7 +45,7 @@ class RAPPELZLIB_EXTERN Server : public Object, private ICallbackGuard
 			ST_Game
 		};
 
-		typedef void (*CallbackFunction)(ICallbackGuard* instance, Server* server, const TS_MESSAGE* packetData);
+		typedef void (*CallbackFunction)(IListener* instance, Server* server, const TS_MESSAGE* packetData);
 
 	private:
 		static const uint32_t initialInputBufferSize = 16384;
@@ -71,16 +71,16 @@ class RAPPELZLIB_EXTERN Server : public Object, private ICallbackGuard
 		void setAuth(Authentication *a) { auth = a; }
 		Authentication* getAuth() { return auth; }
 
-		void addPacketListener(ServerType server, uint16_t packetId, ICallbackGuard* instance, CallbackFunction onPacketReceivedCallback);
+		void addPacketListener(ServerType server, uint16_t packetId, IListener* instance, CallbackFunction onPacketReceivedCallback);
 		void proceedServerMove(const std::string &gameHost, uint16_t gamePort);
 
 	protected:
-		static void networkDataReceivedFromAuth(ICallbackGuard* instance, Socket* socket);
-		static void networkDataReceivedFromGame(ICallbackGuard* instance, Socket* socket);
-		static void authStateChanged(ICallbackGuard* instance, Socket* socket, Socket::State oldState, Socket::State newState);
-		static void gameStateChanged(ICallbackGuard* instance, Socket* socket, Socket::State oldState, Socket::State newState);
-		static void authSocketError(ICallbackGuard* instance, Socket* socket, int errnoValue);
-		static void gameSocketError(ICallbackGuard* instance, Socket* socket, int errnoValue);
+		static void networkDataReceivedFromAuth(IListener* instance, Socket* socket);
+		static void networkDataReceivedFromGame(IListener* instance, Socket* socket);
+		static void authStateChanged(IListener* instance, Socket* socket, Socket::State oldState, Socket::State newState);
+		static void gameStateChanged(IListener* instance, Socket* socket, Socket::State oldState, Socket::State newState);
+		static void authSocketError(IListener* instance, Socket* socket, int errnoValue);
+		static void gameSocketError(IListener* instance, Socket* socket, int errnoValue);
 
 		void networkDataProcess(ServerType serverType, EncryptedSocket* socket, InputBuffer* buffer);
 		void dispatchPacket(ServerType originatingServer, const TS_MESSAGE* packetData);

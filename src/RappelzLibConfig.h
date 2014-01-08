@@ -19,7 +19,7 @@ struct RAPPELZLIB_EXTERN RappelzLibConfig
 		}
 	} app;
 
-	struct Log : public ICallbackGuard {
+	struct Log : public IListener {
 		cval<bool> &enable;
 		cval<std::string> &dir, &file, &level, &consoleLevel;
 
@@ -34,7 +34,7 @@ struct RAPPELZLIB_EXTERN RappelzLibConfig
 			level.addListener(this, &updateConsoleLevel);
 		}
 
-		static void updateConsoleLevel(ICallbackGuard* instance);
+		static void updateConsoleLevel(IListener* instance);
 	} log;
 
 	struct TrafficDump {

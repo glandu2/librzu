@@ -2,12 +2,11 @@
 #define CALLBACKGUARD_H
 
 #include <unordered_set>
-#include <utility>
 #include "RappelzLib_global.h"
 
 typedef void** DelegateRef;
 
-class RAPPELZLIB_EXTERN ICallbackGuard {
+class RAPPELZLIB_EXTERN IListener {
 public:
 
 	void addInstance(DelegateRef callbackValidityPtr) {
@@ -30,7 +29,7 @@ public:
 		callbackValidityPtrs.clear();
 	}
 
-	~ICallbackGuard() {
+	~IListener() {
 		invalidateCallbacks();
 	}
 

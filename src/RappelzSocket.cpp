@@ -21,7 +21,7 @@ RappelzSocket::~RappelzSocket() {
 		delete[] inputBuffer.buffer;
 }
 
-void RappelzSocket::stateChanged(ICallbackGuard* instance, Socket*, Socket::State oldState, Socket::State newState) {
+void RappelzSocket::stateChanged(IListener* instance, Socket*, Socket::State oldState, Socket::State newState) {
 	RappelzSocket* thisInstance = static_cast<RappelzSocket*>(instance);
 
 	if(newState == Socket::ConnectedState) {
@@ -40,7 +40,7 @@ void RappelzSocket::stateChanged(ICallbackGuard* instance, Socket*, Socket::Stat
 	}
 }
 
-void RappelzSocket::socketError(ICallbackGuard *instance, Socket*, int errnoValue) {
+void RappelzSocket::socketError(IListener *instance, Socket*, int errnoValue) {
 	RappelzSocket* thisInstance = static_cast<RappelzSocket*>(instance);
 
 	if(thisInstance->getState() == ConnectingState) {
@@ -68,7 +68,7 @@ void RappelzSocket::dispatchPacket(const TS_MESSAGE* packetData) {
 		DELEGATE_HASH_CALL(packetListeners, reinterpret_cast<const TS_SC_RESULT*>(packetData)->request_msg_id, this, packetData);
 }
 
-void RappelzSocket::dataReceived(ICallbackGuard* instance, Socket*) {
+void RappelzSocket::dataReceived(IListener* instance, Socket*) {
 	RappelzSocket* thisInstance = static_cast<RappelzSocket*>(instance);
 	InputBuffer* buffer = &thisInstance->inputBuffer;
 
@@ -97,6 +97,6 @@ void RappelzSocket::dataReceived(ICallbackGuard* instance, Socket*) {
 	} while((buffer->currentMessageSize == 0 && thisInstance->getAvailableBytes() >= 4) || (buffer->currentMessageSize != 0 && thisInstance->getAvailableBytes() >= (buffer->currentMessageSize - 4)));
 }
 
-void RappelzSocket::addPacketListener(uint16_t packetId, ICallbackGuard* instance, CallbackFunction onPacketReceivedCallback) {
+void RappelzSocket::addPacketListener(uint16_t packetId, IListener* instance, CallbackFunction onPacketReceivedCallback) {
 	packetListeners.add(packetId, instance, onPacketReceivedCallback);
 }

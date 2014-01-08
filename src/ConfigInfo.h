@@ -12,8 +12,8 @@
 template<class T>
 class cval {
 public:
-	typedef void (*EventCallback)(ICallbackGuard* instance);
-	typedef void (*EventCallbackWithThis)(ICallbackGuard* instance, cval<T>* value);
+	typedef void (*EventCallback)(IListener* instance);
+	typedef void (*EventCallbackWithThis)(IListener* instance, cval<T>* value);
 
 	cval() : _isDefault(true) { uv_rwlock_init(&lock); uv_mutex_init(&listenersLock); }
 	cval(const T& value) : value(value), _isDefault(true)  { uv_rwlock_init(&lock); uv_mutex_init(&listenersLock); }
@@ -28,8 +28,8 @@ public:
 
 	bool isDefault() { return _isDefault; }
 
-	void addListener(ICallbackGuard* instance, EventCallback callback) { uv_mutex_lock(&listenersLock); listeners.push_back(Callback<EventCallback>(instance, callback)); uv_mutex_unlock(&listenersLock); }
-	void addListener(ICallbackGuard* instance, EventCallbackWithThis callback) { uv_mutex_lock(&listenersLock); listenersWithThis.push_back(Callback<EventCallbackWithThis>(instance, callback)); uv_mutex_unlock(&listenersLock); }
+	void addListener(IListener* instance, EventCallback callback) { uv_mutex_lock(&listenersLock); listeners.push_back(Callback<EventCallback>(instance, callback)); uv_mutex_unlock(&listenersLock); }
+	void addListener(IListener* instance, EventCallbackWithThis callback) { uv_mutex_lock(&listenersLock); listenersWithThis.push_back(Callback<EventCallbackWithThis>(instance, callback)); uv_mutex_unlock(&listenersLock); }
 	void dispatchValueChanged() {
 		std::list< Callback<EventCallback> > listenersCopy;
 		std::list< Callback<EventCallbackWithThis> > listenersWithThisCopy;

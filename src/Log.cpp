@@ -65,7 +65,7 @@ Log::~Log() {
 	close();
 }
 
-void Log::updateEnabled(ICallbackGuard* instance, cval<bool>* enable) {
+void Log::updateEnabled(IListener* instance, cval<bool>* enable) {
 	Log* thisInstance = (Log*) instance;
 
 	if(!thisInstance->file && enable->get()) {
@@ -75,13 +75,13 @@ void Log::updateEnabled(ICallbackGuard* instance, cval<bool>* enable) {
 	}
 }
 
-void Log::updateFileLevel(ICallbackGuard* instance, cval<std::string>* level) {
+void Log::updateFileLevel(IListener* instance, cval<std::string>* level) {
 	Log* thisInstance = (Log*) instance;
 
 	thisInstance->updateLevel(false, level->get());
 }
 
-void Log::updateConsoleLevel(ICallbackGuard* instance, cval<std::string>* level) {
+void Log::updateConsoleLevel(IListener* instance, cval<std::string>* level) {
 	Log* thisInstance = (Log*) instance;
 
 	thisInstance->updateLevel(true, level->get());
@@ -118,7 +118,7 @@ void Log::updateLevel(bool isConsole, const std::string& level) {
 		debug("Using file log level %s\n", LEVELSTRINGS[*levelToChange]);
 }
 
-void Log::updateFile(ICallbackGuard* instance, cval<std::string>* str) {
+void Log::updateFile(IListener* instance, cval<std::string>* str) {
 	Log* thisInstance = (Log*) instance;
 
 	thisInstance->open();
