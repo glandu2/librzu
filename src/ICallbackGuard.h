@@ -1,7 +1,7 @@
 #ifndef CALLBACKGUARD_H
 #define CALLBACKGUARD_H
 
-#include <set>
+#include <unordered_set>
 #include <utility>
 #include "RappelzLib_global.h"
 
@@ -20,7 +20,7 @@ public:
 	}
 
 	void invalidateCallbacks() {
-		std::set<DelegateRef>::iterator it, itEnd;
+		std::unordered_set<DelegateRef>::iterator it, itEnd;
 
 		for(it = callbackValidityPtrs.begin(), itEnd = callbackValidityPtrs.end(); it != itEnd; ++it) {
 			DelegateRef callbackValidityPtr = *it;
@@ -36,7 +36,7 @@ public:
 
 
 private:
-	std::set<DelegateRef> callbackValidityPtrs;
+	std::unordered_set<DelegateRef> callbackValidityPtrs;
 };
 
 #endif // CALLBACKGUARD_H
