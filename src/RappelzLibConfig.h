@@ -6,8 +6,8 @@
 
 #define CONFIG_FILE_KEY "configfile"
 
-struct RAPPELZLIB_EXTERN RappelzLibConfig
-{
+struct RAPPELZLIB_EXTERN RappelzLibConfig {
+
 	struct App {
 		cval<std::string> &appName, &configfile;
 
@@ -51,6 +51,7 @@ struct RAPPELZLIB_EXTERN RappelzLibConfig
 	} trafficDump;
 
 	static RappelzLibConfig* get();
+	static void init();
 };
 
 #ifndef CONFIG_GET
