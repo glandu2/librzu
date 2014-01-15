@@ -159,8 +159,12 @@ void Socket::close() {
 		return;
 
 	setState(ClosingState);
-	_p->shutdownReq.data = this;
-	int result = uv_shutdown(&_p->shutdownReq, (uv_stream_t*)&_p->socket, &onShutdownDone);
+	int result = UV_ENOTCONN;
+
+	if(getState() == ConnectedState) {
+		_p->shutdownReq.data = this;
+		result = uv_shutdown(&_p->shutdownReq, (uv_stream_t*)&_p->socket, &onShutdownDone);
+	}
 	if(result < 0) {
 		uv_close((uv_handle_t*)&_p->socket, &onConnectionClosed);
 	}

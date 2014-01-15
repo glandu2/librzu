@@ -70,7 +70,7 @@ int Object::getObjectNameSize() {
 }
 
 static void defaultLog(const char* suffix, const char* objectName, const char* message, va_list args) {
-	fprintf(stderr, "%s %s: ", suffix, objectName);
+	fprintf(stderr, "%5s %s: ", suffix, objectName);
 	vfprintf(stderr, message, args);
 }
 
