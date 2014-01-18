@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "RappelzLibConfig.h"
+#include <map>
 
 bool ConfigValue::check(Type expectedType, bool soft) {
 	if(expectedType != type && type != None) {
@@ -209,11 +210,13 @@ bool ConfigInfo::writeFile(const char *filename) {
 #define FLOAT2STR(i) std::to_string(i)
 #endif
 void ConfigInfo::dump(FILE *out, bool showDefault) {
-	std::unordered_map<std::string, ConfigValue*>::const_iterator it, itEnd;
+	std::map<std::string, ConfigValue*>::const_iterator it, itEnd;
 	std::string val;
 	bool isDefault;
 
-	for(it = config.cbegin(), itEnd = config.cend(); it != itEnd; ++it) {
+	std::map<std::string, ConfigValue*> ordered(config.cbegin(), config.cend());
+
+	for(it = ordered.cbegin(), itEnd = ordered.cend(); it != itEnd; ++it) {
 		ConfigValue* v = it->second;
 		char type = 'd';
 		switch(v->getType()) {
