@@ -13,5 +13,10 @@ add_library(${TARGET_NAME} ${SOURCE_FILES})
 add_dependencies(${TARGET_NAME} ${TARGET_NAME}_GitVersion)
 
 target_link_libraries(${TARGET_NAME} uv)
+if(WIN32)
+    target_link_libraries(${TARGET_NAME} odbc32)
+else()
+    target_link_libraries(${TARGET_NAME} odbc)
+endif()
 
 install(TARGETS ${TARGET_NAME} DESTINATION ./)

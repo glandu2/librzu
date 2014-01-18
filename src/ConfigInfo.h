@@ -131,5 +131,6 @@ private:
 };
 
 #define CFG(key, defaultValue) ConfigInfo::get(key, defaultValue)
+#define CFG_STR(key, defaultValue) ConfigInfo::get((key).c_str(), defaultValue)
 
 #endif // CONFIGINFO_H
