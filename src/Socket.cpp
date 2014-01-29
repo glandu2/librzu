@@ -24,6 +24,7 @@ struct SocketInternal {
 	uv_shutdown_t shutdownReq;
 	Socket::State currentState;
 	std::vector<char> recvBuffer;
+	bool socketInitialized; //for accept to prevent multiple init in case of failure of uv_accept
 	bool sending;
 };
 
@@ -32,6 +33,7 @@ const char* Socket::STATES[] = { "UnconnectedState", "ConnectingState", "Binding
 Socket::Socket(uv_loop_t *uvLoop) : _p(new SocketInternal)
 {
 	this->uvLoop = uvLoop;
+	_p->socketInitialized = false;
 	_p->currentState = UnconnectedState;
 	_p->connectRequest.data = this;
 	_p->sending = false;
@@ -131,7 +133,11 @@ size_t Socket::write(const void *buffer, size_t size) {
 
 bool Socket::accept(Socket* socket) {
 	uv_tcp_t *client = &socket->_p->socket;
-	uv_tcp_init(uvLoop, client);
+	if(socket->_p->socketInitialized == false) {
+		socket->_p->socketInitialized = true;
+		uv_tcp_init(uvLoop, client);
+	}
+
 	int result = uv_accept((uv_stream_t*)&_p->socket, (uv_stream_t*) client);
 	if(result == UV_EAGAIN)
 		return false;
