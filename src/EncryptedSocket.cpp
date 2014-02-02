@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <malloc.h>
 
-EncryptedSocket::EncryptedSocket(uv_loop_t* uvLoop, bool useEncryption) : Socket(uvLoop), useEncryption(useEncryption) {
+EncryptedSocket::EncryptedSocket(uv_loop_t* uvLoop, Mode mode) : Socket(uvLoop), useEncryption(mode == Encrypted) {
 //	static int r = 0;
 //	if(!r) {
 //		Socket::setPoll(&socketPoll);

@@ -29,7 +29,7 @@ private:
 	};
 
 public:
-	RappelzSocket(uv_loop_t* uvLoop, bool useEncryption);
+	RappelzSocket(uv_loop_t* uvLoop, Mode mode);
 	virtual ~RappelzSocket();
 
 	void sendPacket(const TS_MESSAGE* data);

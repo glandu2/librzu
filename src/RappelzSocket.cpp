@@ -3,7 +3,7 @@
 #include "Packets/TS_SC_RESULT.h"
 #include <iostream>
 
-RappelzSocket::RappelzSocket(uv_loop_t* uvLoop, bool useEncryption) : EncryptedSocket(uvLoop, useEncryption) {
+RappelzSocket::RappelzSocket(uv_loop_t* uvLoop, Mode mode) : EncryptedSocket(uvLoop, mode) {
 
 	inputBuffer.bufferSize = initialInputBufferSize;
 	inputBuffer.buffer = new uint8_t[inputBuffer.bufferSize];

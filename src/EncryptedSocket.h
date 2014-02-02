@@ -9,7 +9,12 @@ class RAPPELZLIB_EXTERN EncryptedSocket : public Socket
 	DECLARE_CLASS(EncryptedSocket)
 
 	public:
-		EncryptedSocket(uv_loop_t *uvLoop, bool useEncryption = true);
+		enum Mode {
+			NoEncryption,
+			Encrypted
+		};
+
+		EncryptedSocket(uv_loop_t *uvLoop, Mode mode = Encrypted);
 		~EncryptedSocket();
 
 		virtual bool connect(const std::string &hostName, uint16_t port);

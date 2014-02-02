@@ -212,7 +212,7 @@ bool ConfigInfo::writeFile(const char *filename) {
 void ConfigInfo::dump(FILE *out, bool showDefault) {
 	std::map<std::string, ConfigValue*>::const_iterator it, itEnd;
 	std::string val;
-	bool isDefault;
+	bool isDefault = true;
 
 	std::map<std::string, ConfigValue*> ordered(config.cbegin(), config.cend());
 

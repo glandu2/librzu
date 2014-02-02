@@ -21,10 +21,12 @@ public:
 		UnconnectedState,	//Client & server
 
 		ConnectingState,	//Client
-		Binding,			//Server
+		BindingState,			//Server
 
-		Listening,			//Server
+		ListeningState,			//Server
 		ConnectedState,		//Client
+
+		PendingAcceptState,		//Client (when accepted but not reading)
 
 		ClosingState		//Client & Server
 	};
@@ -46,12 +48,14 @@ public:
 	virtual size_t read(void *buffer, size_t size);
 	virtual size_t readAll(std::vector<char>* buffer); //data in buffer will be destroyed
 	virtual size_t write(const void *buffer, size_t size);
-	virtual bool accept(Socket *socket);
+	virtual bool accept(Socket *socket, bool autoStartRead = true);
+	virtual bool finishAccept();
 
 	virtual void close();
 	virtual void abort();
 
 	State getState();
+	struct sockaddr_in getPeerInfo();
 	const std::string& getHost() { return host; }
 	uint16_t getPort() { return port; }
 

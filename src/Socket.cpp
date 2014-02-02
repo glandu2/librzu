@@ -28,7 +28,7 @@ struct SocketInternal {
 	bool sending;
 };
 
-const char* Socket::STATES[] = { "UnconnectedState", "ConnectingState", "Binding", "Listening", "ConnectedState", "ClosingState" };
+const char* Socket::STATES[] = { "Unconnected", "Connecting", "Binding", "Listening", "Connected", "PendingAccept", "Closing" };
 
 Socket::Socket(uv_loop_t *uvLoop) : _p(new SocketInternal)
 {
@@ -63,7 +63,7 @@ bool Socket::connect(const std::string & hostName, uint16_t port) {
 	uv_ip4_addr(hostName.c_str(), port, &dest);
 	int result = uv_tcp_connect(&_p->connectRequest, &_p->socket, (struct sockaddr*)&dest, &onConnected);
 	if(result < 0) {
-		debug("Cant connect to host: %s\n", uv_strerror(result));
+		warn("Cant connect to host: %s\n", uv_strerror(result));
 		notifyReadyError(result);
 		return false;
 	}
@@ -75,7 +75,7 @@ bool Socket::listen(const std::string& interfaceIp, uint16_t port) {
 	if(getState() != UnconnectedState)
 		return false;
 
-	setState(Binding);
+	setState(BindingState);
 
 	setPeerInfo(interfaceIp, port);
 	uv_tcp_init(uvLoop, &_p->socket);
@@ -86,12 +86,12 @@ bool Socket::listen(const std::string& interfaceIp, uint16_t port) {
 	uv_tcp_bind(&_p->socket, (struct sockaddr*)&bindAddr);
 	int result = uv_listen((uv_stream_t*)&_p->socket, 30, &onNewConnection);
 	if(result < 0) {
-		debug("Cant listen: %s\n", uv_strerror(result));
+		warn("Cant listen: %s\n", uv_strerror(result));
 		notifyReadyError(result);
 		return false;
 	}
 
-	setState(Listening);
+	setState(ListeningState);
 	return true;
 }
 
@@ -131,7 +131,7 @@ size_t Socket::write(const void *buffer, size_t size) {
 	return size;
 }
 
-bool Socket::accept(Socket* socket) {
+bool Socket::accept(Socket* socket, bool autoStartRead) {
 	uv_tcp_t *client = &socket->_p->socket;
 	if(socket->_p->socketInitialized == false) {
 		socket->_p->socketInitialized = true;
@@ -154,10 +154,21 @@ bool Socket::accept(Socket* socket) {
 	char ipBuffer[INET_ADDRSTRLEN];
 	uv_ip4_name(&peerInfo, ipBuffer, INET_ADDRSTRLEN);
 	socket->setPeerInfo(std::string(ipBuffer), ntohs(peerInfo.sin_port));
-	socket->_p->currentState = UnconnectedState;
-	socket->setState(ConnectedState);
+	socket->_p->currentState = PendingAcceptState;
+
+	if(autoStartRead)
+		socket->setState(ConnectedState);
 
 	return true;
+}
+
+bool Socket::finishAccept() {
+	if(getState() == PendingAcceptState) {
+		setState(ConnectedState);
+		return true;
+	}
+
+	return false;
 }
 
 void Socket::close() {
@@ -190,6 +201,14 @@ size_t Socket::getAvailableBytes() {
 
 Socket::State Socket::getState() {
 	return _p->currentState;
+}
+
+struct sockaddr_in Socket::getPeerInfo() {
+	struct sockaddr_in peerInfo;
+	int sockAddrLen = sizeof(sockaddr_in);
+	uv_tcp_getpeername(&_p->socket, (struct sockaddr*)&peerInfo, &sockAddrLen);
+
+	return peerInfo;
 }
 
 void Socket::setState(State state) {
@@ -246,7 +265,7 @@ void Socket::removeListener(IListener* instance) {
 
 void Socket::notifyReadyError(int errorValue) {
 	DELEGATE_CALL(_p->errorListeners, this, errorValue);
-	if(getState() != Listening)
+	if(getState() != ListeningState)
 		abort();
 }
 

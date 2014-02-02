@@ -37,26 +37,26 @@ class RAPPELZLIB_EXTERN Object
 {
 	DECLARE_CLASS(Object)
 
-	public:
-		Object(const char *name = NULL);
-		virtual ~Object();
+public:
+	Object(const char *name = NULL);
+	virtual ~Object();
 
-		void setObjectName(const char *name);
-		void setObjectName(int maxLen, const char *format, ...);
-		const char *getObjectName();
-		int getObjectNameSize();
+	void setObjectName(const char *name);
+	void setObjectName(int maxLen, const char *format, ...);
+	const char *getObjectName();
+	int getObjectNameSize();
 
-		void trace(const char *message, ...);
-		void debug(const char *message, ...);
-		void info(const char *message, ...);
-		void warn(const char *message, ...);
-		void error(const char *message, ...);
-		void fatal(const char *message, ...);
+	void trace(const char *message, ...);
+	void debug(const char *message, ...);
+	void info(const char *message, ...);
+	void warn(const char *message, ...);
+	void error(const char *message, ...);
+	void fatal(const char *message, ...);
 
-		virtual void deleteLater();
-    private:
-		char *objectName;
-		int objectNameSize;
+	virtual void deleteLater();
+private:
+	char *objectName;
+	int objectNameSize;
 };
 
 
