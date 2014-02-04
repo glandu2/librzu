@@ -15,7 +15,6 @@ struct ReadBuffer {
 	bool mustBeDeleted;
 };
 
-static int debug_writecount = 0;
 const char* Socket::STATES[] = { "Unconnected", "Connecting", "Binding", "Listening", "Connected", "Closing" };
 
 Socket::Socket(uv_loop_t *uvLoop)
@@ -108,16 +107,12 @@ size_t Socket::write(const void *buffer, size_t size) {
 	writeRequest->buffer.base = new char[writeRequest->buffer.len];
 	writeRequest->writeReq.data = this;
 	memcpy(writeRequest->buffer.base, buffer, size);
-	debug_writecount++;
-	if(debug_writecount > 100)
-		printf("truc\n");
 	int result = uv_write(&writeRequest->writeReq, (uv_stream_t*)&socket, &writeRequest->buffer, 1, &onWriteCompleted);
 	if(result < 0) {
 		delete[] writeRequest->buffer.base;
 		delete writeRequest;
 		debug("Cant write: %s\n", uv_strerror(result));
 		notifyReadyError(result);
-		debug_writecount--;
 		return false;
 	}
 
@@ -321,7 +316,6 @@ void Socket::onWriteCompleted(uv_write_t* req, int status) {
 
 	delete[] writeRequest->buffer.base;
 	delete writeRequest;
-	debug_writecount--;
 }
 
 void Socket::onShutdownDone(uv_shutdown_t* req, int status) {
