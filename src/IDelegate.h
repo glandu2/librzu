@@ -70,6 +70,7 @@ public:
 		return *this;
 	}
 
+	//Do not call add() in the same delegate callbacks
 	void add(Key key, IListener* instance, CallbackType callback) {
 		CallbackIterator it;
 		it = callbacks.insert(std::pair<Key, CallbackInfo>(key, CallbackInfo(instance, callback)));
@@ -167,6 +168,7 @@ public:
 		return *this;
 	}
 
+	//Do not call add() in the same delegate callbacks
 	void add(IListener* instance, CallbackType callback) {
 		CallbackIterator it;
 		it = callbacks.insert(std::pair<IListener*, CallbackType>(instance, callback)).first;
