@@ -9,12 +9,13 @@ typedef void** DelegateRef;
 class RAPPELZLIB_EXTERN IListener {
 public:
 
-	void addInstance(DelegateRef callbackValidityPtr) {
+	void addDelegateRef(DelegateRef callbackValidityPtr) {
 		if(callbackValidityPtr)
 			callbackValidityPtrs.insert(callbackValidityPtr);
 	}
 
-	void delInstance(DelegateRef callbackValidityPtr) {
+	void delDelegateRef(DelegateRef callbackValidityPtr) {
+
 		callbackValidityPtrs.erase(callbackValidityPtr);
 	}
 
@@ -29,7 +30,7 @@ public:
 		callbackValidityPtrs.clear();
 	}
 
-	~IListener() {
+	virtual ~IListener() {
 		invalidateCallbacks();
 	}
 

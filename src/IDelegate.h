@@ -19,7 +19,7 @@ struct Callback {
 
 	Callback(IListener* instance = nullptr, T callback = nullptr) : instance(instance), callback(callback) {
 		if(instance)
-			instance->addInstance((DelegateRef)&this->callback);
+			instance->addDelegateRef((DelegateRef)&this->callback);
 	}
 
 	Callback& operator=(const Callback& other) {
@@ -31,7 +31,7 @@ struct Callback {
 
 	~Callback() {
 		if(instance && callback)
-			instance->delInstance((DelegateRef)&callback);
+			instance->delDelegateRef((DelegateRef)&callback);
 	}
 };
 #define CALLBACK_CALL(c, ...) \
@@ -46,19 +46,19 @@ public:
 		IListener *instance;
 		CallbackType callback;
 	};
-	typedef typename std::unordered_map<Key, CallbackInfo>::const_iterator CallbackIterator;
+	typedef typename std::unordered_map<Key, CallbackInfo>::iterator CallbackIterator;
 
-	IDelegateHash() {}
-	IDelegateHash(const IDelegateHash& other) : callbacks(other.callbacks) {}
-	IDelegateHash(IDelegateHash&& other) : callbacks(std::move(other.callbacks)) {}
+	IDelegateHash() : callDepth(0) {}
+	IDelegateHash(const IDelegateHash& other) : callbacks(other.callbacks), callDepth(0) {}
+	IDelegateHash(IDelegateHash&& other) : callbacks(std::move(other.callbacks)), callDepth(0) {}
 
 	~IDelegateHash() {
 		CallbackIterator it;
-		for(it = callbacks.cbegin(); it != callbacks.cend();) {
+		for(it = callbacks.begin(); it != callbacks.end();) {
 			const CallbackInfo& callbackInfo = it->second;
 
 			if(callbackInfo.instance && callbackInfo.callback)
-				callbackInfo.instance->delInstance((DelegateRef)&callbackInfo.callback);
+				callbackInfo.instance->delDelegateRef((DelegateRef)&callbackInfo.callback);
 
 			it = callbacks.erase(it);
 		}
@@ -71,19 +71,38 @@ public:
 	}
 
 	void add(Key key, IListener* instance, CallbackType callback) {
-		typename std::unordered_map<Key, CallbackInfo>::iterator it;
+		CallbackIterator it;
 		it = callbacks.insert(std::pair<Key, CallbackInfo>(key, CallbackInfo(instance, callback)));
 		if(instance)
-			instance->addInstance((DelegateRef)&(it->second.callback));
-	}
-
-	void del(DelegateRef ptr) {
-		if(ptr)
-			*ptr = nullptr;
+			instance->addDelegateRef((DelegateRef)&(it->second.callback));
 	}
 
 	void del(Key key) {
-		callbacks.erase(key);
+		CallbackIterator it;
+		std::pair<CallbackIterator, CallbackIterator> range = callbacks.equal_range(key);
+		for(it = range.first; it != range.second; ++it) {
+			const CallbackInfo& callbackInfo = it->second;
+
+			if(callbackInfo.instance && callbackInfo.callback)
+				callbackInfo.instance->delDelegateRef((DelegateRef)&callbackInfo.callback);
+
+			callbackInfo.callback = nullptr; //differed del
+		}
+	}
+
+	void del(Key key, IListener* instance) {
+		CallbackIterator it;
+		std::pair<CallbackIterator, CallbackIterator> range = callbacks.equal_range(key);
+		for(it = range.first; it != range.second; ++it) {
+			CallbackInfo& callbackInfo = it->second;
+
+			if(callbackInfo.instance == instance) {
+				if(callbackInfo.instance && callbackInfo.callback)
+					callbackInfo.instance->delDelegateRef((DelegateRef)&callbackInfo.callback);
+
+				callbackInfo.callback = nullptr; //differed del
+			}
+		}
 	}
 
 	void reserve(typename std::unordered_multimap<Key, CallbackInfo>::size_type n) {
@@ -102,36 +121,41 @@ public:
 			const DelegateType::CallbackInfo& callbackInfo = it->second; \
  \
 			if(callbackInfo.callback != nullptr) { \
+				(c).callDepth++; \
 				callbackInfo.callback(callbackInfo.instance, __VA_ARGS__); \
+				(c).callDepth--; \
 				++it; \
-			} else { \
+			} else if((c).callDepth == 0) { \
 				it = (c).callbacks.erase(it); \
+			} else { \
+				++it; \
 			} \
 		} \
 	} while(0)
 
 
 	std::unordered_multimap<Key, CallbackInfo> callbacks;
+	int callDepth; //purge removed callbacks only at depth 0
 };
 
 template<typename CallbackType>
 class IDelegate {
 public:
 	//typedef void (*CallbackType)(ICallbackGuard* instance, Values...);
-	typedef typename std::unordered_map<IListener*, CallbackType>::const_iterator CallbackIterator;
+	typedef typename std::unordered_map<IListener*, CallbackType>::iterator CallbackIterator;
 
-	IDelegate() {}
-	IDelegate(IDelegate& other) : callbacks(other.callbacks) {}
-	IDelegate(IDelegate&& other) : callbacks(std::move(other.callbacks)) {}
+	IDelegate() : callDepth(0) {}
+	IDelegate(IDelegate& other) : callbacks(other.callbacks), callDepth(0) {}
+	IDelegate(IDelegate&& other) : callbacks(std::move(other.callbacks)), callDepth(0) {}
 
 	~IDelegate() {
 		CallbackIterator it;
-		for(it = callbacks.cbegin(); it != callbacks.cend();) {
+		for(it = callbacks.begin(); it != callbacks.end();) {
 			IListener* instance = it->first;
 			const CallbackType& callbackInfo = it->second;
 
 			if(instance && callbackInfo)
-				instance->delInstance((DelegateRef)&callbackInfo);
+				instance->delDelegateRef((DelegateRef)&callbackInfo);
 
 			it = callbacks.erase(it);
 		}
@@ -144,19 +168,17 @@ public:
 	}
 
 	void add(IListener* instance, CallbackType callback) {
-		typename std::unordered_map<IListener*, CallbackType>::iterator it;
+		CallbackIterator it;
 		it = callbacks.insert(std::pair<IListener*, CallbackType>(instance, callback)).first;
 		if(instance)
-			instance->addInstance((DelegateRef)&(it->second));
-	}
-
-	void del(DelegateRef ptr) {
-		if(ptr)
-			*ptr = nullptr;
+			instance->addDelegateRef((DelegateRef)&(it->second));
 	}
 
 	void del(IListener* key) {
-		callbacks.erase(key);
+		CallbackIterator it = callbacks.find(key);
+		if(key && it->second)
+			key->delDelegateRef((DelegateRef)&(it->second));
+		it->second = nullptr;
 	}
 
 #define DELEGATE_CALL(c, ...) \
@@ -164,21 +186,26 @@ public:
 		typedef decltype(c) DelegateType;\
 		DelegateType::CallbackIterator it, itEnd; \
  \
-		for(it = (c).callbacks.cbegin(), itEnd = (c).callbacks.cend(); it != itEnd;) { \
+		for(it = (c).callbacks.begin(), itEnd = (c).callbacks.end(); it != itEnd;) { \
 			IListener* instance = it->first; \
 			auto callback = it->second; \
  \
 			if(callback != nullptr) { \
+				(c).callDepth++; \
 				callback(instance, __VA_ARGS__); \
+				(c).callDepth--; \
 				++it; \
-			} else { \
+			} else if((c).callDepth == 0) { \
 				it = (c).callbacks.erase(it); \
+			} else { \
+				++it; \
 			} \
 		} \
 	} while(0)
 
 
 	std::unordered_map<IListener*, CallbackType> callbacks;
+	int callDepth; //purge removed callbacks only at depth 0
 };
 
 #endif // IDELEGATE_H

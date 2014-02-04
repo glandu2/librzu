@@ -35,6 +35,7 @@ public:
 	void sendPacket(const TS_MESSAGE* data);
 
 	void addPacketListener(uint16_t packetId, IListener* instance, CallbackFunction onPacketReceivedCallback);
+	void removePacketListener(uint16_t packetId, IListener* instance);
 
 protected:
 	static void dataReceived(IListener *instance, Socket* socket);

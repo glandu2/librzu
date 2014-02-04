@@ -100,3 +100,7 @@ void RappelzSocket::dataReceived(IListener* instance, Socket*) {
 void RappelzSocket::addPacketListener(uint16_t packetId, IListener* instance, CallbackFunction onPacketReceivedCallback) {
 	packetListeners.add(packetId, instance, onPacketReceivedCallback);
 }
+
+void RappelzSocket::removePacketListener(uint16_t packetId, IListener* instance) {
+	packetListeners.del(packetId, instance);
+}
