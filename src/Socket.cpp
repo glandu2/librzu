@@ -1,9 +1,4 @@
 #include "Socket.h"
-#include "uv.h"
-#include <stdio.h>
-#include <string.h>
-#include <unordered_map>
-#include "IDelegate.h"
 
 #ifndef SHUT_RDWR
 #define SHUT_RDWR 2
@@ -14,31 +9,22 @@ struct WriteRequest {
 	uv_buf_t buffer;
 };
 
-struct SocketInternal {
-	IDelegate<Socket::CallbackOnDataReady> dataListeners;
-	IDelegate<Socket::CallbackOnDataReady> incomingConnectionListeners;
-	IDelegate<Socket::CallbackOnStateChanged> eventListeners;
-	IDelegate<Socket::CallbackOnError> errorListeners;
-	uv_tcp_t socket;
-	uv_connect_t connectRequest;
-	uv_shutdown_t shutdownReq;
-	Socket::State currentState;
-	std::vector<char> recvBuffer;
-	bool socketInitialized; //for accept to prevent multiple init in case of failure of uv_accept
-	bool sending;
+struct ReadBuffer {
+	char data[1024];
+	bool isUsed;
+	bool mustBeDeleted;
 };
 
-const char* Socket::STATES[] = { "Unconnected", "Connecting", "Binding", "Listening", "Connected", "PendingAccept", "Closing" };
+static int debug_writecount = 0;
+const char* Socket::STATES[] = { "Unconnected", "Connecting", "Binding", "Listening", "Connected", "Closing" };
 
-Socket::Socket(uv_loop_t *uvLoop) : _p(new SocketInternal)
+Socket::Socket(uv_loop_t *uvLoop)
 {
 	this->uvLoop = uvLoop;
-	_p->socketInitialized = false;
-	_p->currentState = UnconnectedState;
-	_p->connectRequest.data = this;
-	_p->sending = false;
-	_p->socket.data = this;
-	lastError = 0;
+	socketInitialized = false;
+	currentState = UnconnectedState;
+	connectRequest.data = this;
+	socket.data = this;
 }
 
 Socket::~Socket() {
@@ -46,22 +32,23 @@ Socket::~Socket() {
 		abort();
 	while(getState() != UnconnectedState)
 		uv_run(uvLoop, UV_RUN_ONCE);
-	delete _p;
 }
 
 bool Socket::connect(const std::string & hostName, uint16_t port) {
-	if(getState() != UnconnectedState)
+	if(getState() != UnconnectedState) {
+		warn("Attempt to connect a not unconnected socket to %s:%d\n", hostName.c_str(), port);
 		return false;
+	}
 
 	setPeerInfo(hostName, port);
 	setState(ConnectingState);
 
-	uv_tcp_init(uvLoop, &_p->socket);
+	uv_tcp_init(uvLoop, &socket);
 
 	struct sockaddr_in dest;
 
 	uv_ip4_addr(hostName.c_str(), port, &dest);
-	int result = uv_tcp_connect(&_p->connectRequest, &_p->socket, (struct sockaddr*)&dest, &onConnected);
+	int result = uv_tcp_connect(&connectRequest, &socket, (struct sockaddr*)&dest, &onConnected);
 	if(result < 0) {
 		warn("Cant connect to host: %s\n", uv_strerror(result));
 		notifyReadyError(result);
@@ -72,19 +59,21 @@ bool Socket::connect(const std::string & hostName, uint16_t port) {
 }
 
 bool Socket::listen(const std::string& interfaceIp, uint16_t port) {
-	if(getState() != UnconnectedState)
+	if(getState() != UnconnectedState) {
+		warn("Attempt to bind a not unconnected socket to %s:%d\n", interfaceIp.c_str(), port);
 		return false;
+	}
 
 	setState(BindingState);
 
 	setPeerInfo(interfaceIp, port);
-	uv_tcp_init(uvLoop, &_p->socket);
+	uv_tcp_init(uvLoop, &socket);
 
 	struct sockaddr_in bindAddr;
 
 	uv_ip4_addr(interfaceIp.c_str(), port, &bindAddr);
-	uv_tcp_bind(&_p->socket, (struct sockaddr*)&bindAddr);
-	int result = uv_listen((uv_stream_t*)&_p->socket, 30, &onNewConnection);
+	uv_tcp_bind(&socket, (struct sockaddr*)&bindAddr);
+	int result = uv_listen((uv_stream_t*)&socket, 20000, &onNewConnection);
 	if(result < 0) {
 		warn("Cant listen: %s\n", uv_strerror(result));
 		notifyReadyError(result);
@@ -96,19 +85,19 @@ bool Socket::listen(const std::string& interfaceIp, uint16_t port) {
 }
 
 size_t Socket::read(void *buffer, size_t size) {
-	size_t sizeAvailable = _p->recvBuffer.size();
+	size_t sizeAvailable = recvBuffer.size();
 	size_t effectiveSize = sizeAvailable > size ? size : sizeAvailable;
 
-	memcpy(buffer, &_p->recvBuffer[0], effectiveSize);
-	_p->recvBuffer.erase(_p->recvBuffer.begin(), _p->recvBuffer.begin() + effectiveSize);
+	memcpy(buffer, &recvBuffer[0], effectiveSize);
+	recvBuffer.erase(recvBuffer.begin(), recvBuffer.begin() + effectiveSize);
 
 	return effectiveSize;
 }
 
 size_t Socket::readAll(std::vector<char> *buffer) {
-	buffer->swap(_p->recvBuffer);
-	_p->recvBuffer.clear();
-	_p->recvBuffer.reserve(buffer->capacity());
+	buffer->swap(recvBuffer);
+	recvBuffer.clear();
+	//recvBuffer.reserve(buffer->capacity());
 
 	return buffer->size();
 }
@@ -119,26 +108,31 @@ size_t Socket::write(const void *buffer, size_t size) {
 	writeRequest->buffer.base = new char[writeRequest->buffer.len];
 	writeRequest->writeReq.data = this;
 	memcpy(writeRequest->buffer.base, buffer, size);
-	int result = uv_write(&writeRequest->writeReq, (uv_stream_t*)&_p->socket, &writeRequest->buffer, 1, &onWriteCompleted);
+	debug_writecount++;
+	if(debug_writecount > 100)
+		printf("truc\n");
+	int result = uv_write(&writeRequest->writeReq, (uv_stream_t*)&socket, &writeRequest->buffer, 1, &onWriteCompleted);
 	if(result < 0) {
 		delete[] writeRequest->buffer.base;
 		delete writeRequest;
 		debug("Cant write: %s\n", uv_strerror(result));
 		notifyReadyError(result);
+		debug_writecount--;
 		return false;
 	}
 
 	return size;
 }
 
-bool Socket::accept(Socket* socket, bool autoStartRead) {
-	uv_tcp_t *client = &socket->_p->socket;
-	if(socket->_p->socketInitialized == false) {
-		socket->_p->socketInitialized = true;
+bool Socket::accept(Socket* clientSocket) {
+	uv_tcp_t *client = &clientSocket->socket;
+
+	if(clientSocket->socketInitialized == false) {
+		clientSocket->socketInitialized = true;
 		uv_tcp_init(uvLoop, client);
 	}
 
-	int result = uv_accept((uv_stream_t*)&_p->socket, (uv_stream_t*) client);
+	int result = uv_accept((uv_stream_t*)&socket, (uv_stream_t*) client);
 	if(result == UV_EAGAIN)
 		return false;
 	else if(result < 0) {
@@ -147,28 +141,10 @@ bool Socket::accept(Socket* socket, bool autoStartRead) {
 		return false;
 	}
 
-	struct sockaddr_in peerInfo;
-	int sockAddrLen = sizeof(sockaddr_in);
-	uv_tcp_getpeername(client, (struct sockaddr*)&peerInfo, &sockAddrLen);
-
-	char ipBuffer[INET_ADDRSTRLEN];
-	uv_ip4_name(&peerInfo, ipBuffer, INET_ADDRSTRLEN);
-	socket->setPeerInfo(std::string(ipBuffer), ntohs(peerInfo.sin_port));
-	socket->_p->currentState = PendingAcceptState;
-
-	if(autoStartRead)
-		socket->setState(ConnectedState);
+	clientSocket->currentState = UnconnectedState;
+	clientSocket->setState(ConnectedState);
 
 	return true;
-}
-
-bool Socket::finishAccept() {
-	if(getState() == PendingAcceptState) {
-		setState(ConnectedState);
-		return true;
-	}
-
-	return false;
 }
 
 void Socket::close() {
@@ -179,11 +155,11 @@ void Socket::close() {
 	int result = UV_ENOTCONN;
 
 	if(getState() == ConnectedState) {
-		_p->shutdownReq.data = this;
-		result = uv_shutdown(&_p->shutdownReq, (uv_stream_t*)&_p->socket, &onShutdownDone);
+		shutdownReq.data = this;
+		result = uv_shutdown(&shutdownReq, (uv_stream_t*)&socket, &onShutdownDone);
 	}
 	if(result < 0) {
-		uv_close((uv_handle_t*)&_p->socket, &onConnectionClosed);
+		uv_close((uv_handle_t*)&socket, &onConnectionClosed);
 	}
 }
 
@@ -192,45 +168,36 @@ void Socket::abort() {
 		return;
 
 	setState(ClosingState);
-	uv_close((uv_handle_t*)&_p->socket, &onConnectionClosed);
-}
-
-size_t Socket::getAvailableBytes() {
-	return _p->recvBuffer.size();
-}
-
-Socket::State Socket::getState() {
-	return _p->currentState;
+	uv_close((uv_handle_t*)&socket, &onConnectionClosed);
 }
 
 struct sockaddr_in Socket::getPeerInfo() {
 	struct sockaddr_in peerInfo;
 	int sockAddrLen = sizeof(sockaddr_in);
-	uv_tcp_getpeername(&_p->socket, (struct sockaddr*)&peerInfo, &sockAddrLen);
+	uv_tcp_getpeername(&socket, (struct sockaddr*)&peerInfo, &sockAddrLen);
 
 	return peerInfo;
 }
 
 void Socket::setState(State state) {
-	if(state == _p->currentState)
+	if(state == currentState)
 		return;
 
-
-	State oldState = _p->currentState;
-	_p->currentState = state;
+	State oldState = currentState;
+	currentState = state;
 
 	const char* oldStateStr = (oldState < (sizeof(STATES)/sizeof(const char*))) ? STATES[oldState] : "Unknown";
 	const char* newStateStr = (oldState < (sizeof(STATES)/sizeof(const char*))) ? STATES[state] : "Unknown";
 	trace("Socket state change from %s to %s\n", oldStateStr, newStateStr);
 
-	DELEGATE_CALL(_p->eventListeners, this, oldState, state);
+	DELEGATE_CALL(eventListeners, this, oldState, state);
 
 	if(state == UnconnectedState) {
 		this->host.clear();
 		this->port = 0;
 		setObjectName(nullptr);
 	} else if(state == ConnectedState) {
-		uv_read_start((uv_stream_t*) &_p->socket, &onAllocReceiveBuffer, &onReadCompleted);
+		uv_read_start((uv_stream_t*) &socket, &onAllocReceiveBuffer, &onReadCompleted);
 	}
 }
 
@@ -241,30 +208,30 @@ void Socket::setPeerInfo(const std::string& host, uint16_t port) {
 }
 
 void Socket::addDataListener(IListener* instance, CallbackOnDataReady listener) {
-	return _p->dataListeners.add(instance, listener);
+	return dataListeners.add(instance, listener);
 }
 
 void Socket::addConnectionListener(IListener* instance, CallbackOnDataReady listener) {
-	return _p->incomingConnectionListeners.add(instance, listener);
+	return incomingConnectionListeners.add(instance, listener);
 }
 
 void Socket::addEventListener(IListener* instance, CallbackOnStateChanged listener) {
-	return _p->eventListeners.add(instance, listener);
+	return eventListeners.add(instance, listener);
 }
 
 void Socket::addErrorListener(IListener* instance, CallbackOnError listener) {
-	return _p->errorListeners.add(instance, listener);
+	return errorListeners.add(instance, listener);
 }
 
 void Socket::removeListener(IListener* instance) {
-	_p->dataListeners.del(instance);
-	_p->eventListeners.del(instance);
-	_p->errorListeners.del(instance);
-	_p->incomingConnectionListeners.del(instance);
+	dataListeners.del(instance);
+	eventListeners.del(instance);
+	errorListeners.del(instance);
+	incomingConnectionListeners.del(instance);
 }
 
 void Socket::notifyReadyError(int errorValue) {
-	DELEGATE_CALL(_p->errorListeners, this, errorValue);
+	DELEGATE_CALL(errorListeners, this, errorValue);
 	if(getState() != ListeningState)
 		abort();
 }
@@ -292,12 +259,25 @@ void Socket::onNewConnection(uv_stream_t* req, int status) {
 		return;
 	}
 
-	DELEGATE_CALL(thisInstance->_p->incomingConnectionListeners, thisInstance);
+	DELEGATE_CALL(thisInstance->incomingConnectionListeners, thisInstance);
 }
 
 void Socket::onAllocReceiveBuffer(uv_handle_t*, size_t, uv_buf_t* buf) {
-	buf->base = new char[1024];
-	buf->len = 1024;
+	static ReadBuffer staticReadBuffer = {{0}, false, false};
+
+	static_assert((void*)staticReadBuffer.data == (void*)&staticReadBuffer, "Expected ReadBuffer adresses wrong");
+
+	if(staticReadBuffer.isUsed == false) {
+		staticReadBuffer.isUsed = true;
+		buf->base = staticReadBuffer.data;
+		buf->len = sizeof(staticReadBuffer.data);
+	} else {
+		ReadBuffer* buffer = new ReadBuffer;
+		buffer->isUsed = true;
+		buffer->mustBeDeleted = true;
+		buf->base = buffer->data;
+		buf->len = sizeof(buffer->data);
+	}
 }
 
 void Socket::onReadCompleted(uv_stream_t* stream, ssize_t nread, const uv_buf_t* buf) {
@@ -310,20 +290,21 @@ void Socket::onReadCompleted(uv_stream_t* stream, ssize_t nread, const uv_buf_t*
 		thisInstance->trace("Connection reset by peer\n");
 		thisInstance->abort();
 	} else if(nread < 0) {
-		if(buf->base)
-			delete[] buf->base;
-
 		const char* errorString = uv_strerror(nread);
 		thisInstance->error("onReadCompleted: %s\n", errorString);
 		thisInstance->notifyReadyError(nread);
 	} else {
 		thisInstance->trace("Read %ld bytes\n", (long)nread);
-		size_t oldSize = thisInstance->_p->recvBuffer.size();
-		thisInstance->_p->recvBuffer.resize(oldSize + nread);
-		memcpy(&thisInstance->_p->recvBuffer[oldSize], buf->base, nread);
-		delete[] buf->base;
-		DELEGATE_CALL(thisInstance->_p->dataListeners, thisInstance);
+		size_t oldSize = thisInstance->recvBuffer.size();
+		thisInstance->recvBuffer.resize(oldSize + nread);
+		memcpy(&thisInstance->recvBuffer[oldSize], buf->base, nread);
+		DELEGATE_CALL(thisInstance->dataListeners, thisInstance);
 	}
+
+	ReadBuffer* buffer = (ReadBuffer*) buf->base;
+	buffer->isUsed = false;
+	if(buffer->mustBeDeleted)
+		delete buffer;
 }
 
 void Socket::onWriteCompleted(uv_write_t* req, int status) {
@@ -340,6 +321,7 @@ void Socket::onWriteCompleted(uv_write_t* req, int status) {
 
 	delete[] writeRequest->buffer.base;
 	delete writeRequest;
+	debug_writecount--;
 }
 
 void Socket::onShutdownDone(uv_shutdown_t* req, int status) {
