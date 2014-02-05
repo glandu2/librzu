@@ -260,7 +260,9 @@ void Socket::onNewConnection(uv_stream_t* req, int status) {
 void Socket::onAllocReceiveBuffer(uv_handle_t*, size_t, uv_buf_t* buf) {
 	static ReadBuffer staticReadBuffer = {{0}, false, false};
 
+#ifdef __GNUC__
 	static_assert((void*)staticReadBuffer.data == (void*)&staticReadBuffer, "Expected ReadBuffer adresses wrong");
+#endif
 
 	if(staticReadBuffer.isUsed == false) {
 		staticReadBuffer.isUsed = true;
