@@ -109,6 +109,7 @@ class RAPPELZLIB_EXTERN ConfigInfo : public Object
 
 public:
 	ConfigInfo() {}
+	~ConfigInfo();
 
 	void parseCommandLine(int argc, char **argv, bool onlyConfigFileLocation = false);
 	bool readFile(const char *filename);

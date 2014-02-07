@@ -37,6 +37,7 @@ Log::Log(cval<bool>& enabled, cval<std::string>& fileMaxLevel, cval<std::string>
 
 	uv_timer_init(EventLoop::getLoop(), &flushTimer);
 	flushTimer.data = this;
+	uv_unref((uv_handle_t*)&flushTimer);
 	uv_timer_start(&flushTimer, &flushLogFile, 5000, 5000);
 }
 
@@ -58,6 +59,7 @@ Log::Log(cval<bool>& enabled, Level fileMaxLevel, Level consoleMaxLevel, cval<st
 
 	uv_timer_init(EventLoop::getLoop(), &flushTimer);
 	flushTimer.data = this;
+	uv_unref((uv_handle_t*)&flushTimer);
 	uv_timer_start(&flushTimer, &flushLogFile, 5000, 5000);
 }
 

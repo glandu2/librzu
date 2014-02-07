@@ -197,22 +197,22 @@ void Server::proceedServerMove(const std::string &gameHost, uint16_t gamePort) {
 }
 
 void Server::dispatchPacket(ServerType originatingServer, const TS_MESSAGE* packetData) {
-	IDelegateHash<uint16_t, Server::CallbackFunction> packetListeners;
+	IDelegateHash<uint16_t, Server::CallbackFunction>* packetListeners;
 
 	printf(LOG_PREFIX"Packet from %d, id: %5d, size: %d\n", originatingServer, packetData->id, packetData->size);
 
 	if(originatingServer == ST_Auth) {
-		packetListeners = callbacks->authPacketListeners;
+		packetListeners = &callbacks->authPacketListeners;
 	} else if(originatingServer == ST_Game) {
-		packetListeners = callbacks->gamePacketListeners;
+		packetListeners = &callbacks->gamePacketListeners;
 	} else {
 		return;
 	}
 
 	if(packetData->id != TS_SC_RESULT::packetID)
-		DELEGATE_HASH_CALL(packetListeners, packetData->id, this, packetData);
+		DELEGATE_HASH_CALL((*packetListeners), packetData->id, this, packetData);
 	else
-		DELEGATE_HASH_CALL(packetListeners, reinterpret_cast<const TS_SC_RESULT*>(packetData)->request_msg_id, this, packetData);
+		DELEGATE_HASH_CALL((*packetListeners), reinterpret_cast<const TS_SC_RESULT*>(packetData)->request_msg_id, this, packetData);
 }
 
 void Server::networkDataReceivedFromAuth(IListener* instance, Socket*) {

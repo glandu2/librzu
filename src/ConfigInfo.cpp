@@ -29,6 +29,12 @@ bool ConfigValue::check(Type expectedType, bool soft) {
 
 // ConfigInfo ////////////////////////////////////////////////////////////////////////
 
+ConfigInfo::~ConfigInfo() {
+	for(auto it = config.begin(); it != config.end(); ++it) {
+		delete it->second;
+	}
+}
+
 ConfigInfo* ConfigInfo::get() {
 	static ConfigInfo instance;
 

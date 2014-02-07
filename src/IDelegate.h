@@ -3,6 +3,7 @@
 
 #include <unordered_map>
 #include <tuple>
+#include <list>
 #include "IListener.h"
 
 template<typename T>
@@ -10,21 +11,30 @@ struct Callback {
 	IListener* instance;
 	T callback;
 
-	Callback(const Callback& other) : instance(other.instance), callback(other.callback) {}
+	Callback(const Callback& other) : instance(other.instance), callback(other.callback) {
+		if(instance && callback)
+			instance->addDelegateRef((DelegateRef)&this->callback);
+	}
 
 	Callback(Callback&& other) : instance(other.instance), callback(other.callback) {
+		if(instance && callback) {
+			instance->delDelegateRef((DelegateRef)&other.callback);
+			instance->addDelegateRef((DelegateRef)&this->callback);
+		}
 		other.instance = nullptr;
 		other.callback = nullptr;
 	}
 
 	Callback(IListener* instance = nullptr, T callback = nullptr) : instance(instance), callback(callback) {
-		if(instance)
+		if(instance && callback)
 			instance->addDelegateRef((DelegateRef)&this->callback);
 	}
 
 	Callback& operator=(const Callback& other) {
 		instance = other.instance;
 		callback = other.callback;
+		if(instance && callback)
+			instance->addDelegateRef((DelegateRef)&this->callback);
 
 		return *this;
 	}
@@ -49,8 +59,8 @@ public:
 	typedef typename std::unordered_map<Key, CallbackInfo>::iterator CallbackIterator;
 
 	IDelegateHash() : callDepth(0) {}
-	IDelegateHash(const IDelegateHash& other) : callbacks(other.callbacks), callDepth(0) {}
-	IDelegateHash(IDelegateHash&& other) : callbacks(std::move(other.callbacks)), callDepth(0) {}
+	//IDelegateHash(const IDelegateHash& other) : callbacks(other.callbacks), callDepth(0) {}
+	//IDelegateHash(IDelegateHash&& other) : callbacks(std::move(other.callbacks)), callDepth(0) {}
 
 	~IDelegateHash() {
 		CallbackIterator it;
@@ -64,18 +74,27 @@ public:
 		}
 	}
 
-	IDelegateHash& operator=(const IDelegateHash& other) {
-		callbacks = other.callbacks;
+	//manage delDelegateRef
+//	IDelegateHash& operator=(const IDelegateHash& other) {
+//		callbacks = other.callbacks;
 
-		return *this;
-	}
+//		return *this;
+//	}
 
 	//Do not call add() in the same delegate callbacks
 	void add(Key key, IListener* instance, CallbackType callback) {
-		CallbackIterator it;
-		it = callbacks.insert(std::pair<Key, CallbackInfo>(key, CallbackInfo(instance, callback)));
-		if(instance)
-			instance->addDelegateRef((DelegateRef)&(it->second.callback));
+		if(!callback)
+			return;
+
+		if(callDepth != 0) {
+			PendingAdd pendingAdd = {key, instance, callback};
+			pendingAdds.push_back(pendingAdd);
+		} else {
+			CallbackIterator it;
+			it = callbacks.insert(std::pair<Key, CallbackInfo>(key, CallbackInfo(instance, callback)));
+			if(instance)
+				instance->addDelegateRef((DelegateRef)&(it->second.callback));
+		}
 	}
 
 	void del(Key key) {
@@ -114,12 +133,11 @@ public:
 
 #define DELEGATE_HASH_CALL(c, key, ...) \
 	do { \
-		typedef decltype(c) DelegateType;\
-		std::pair<DelegateType::CallbackIterator, DelegateType::CallbackIterator> callbackIterators = (c).callbacks.equal_range(key); \
-		DelegateType::CallbackIterator it; \
+		auto callbackIterators = (c).callbacks.equal_range(key); \
+		auto it = callbackIterators.first; \
  \
-		for(it = callbackIterators.first; it != callbackIterators.second;) { \
-			const DelegateType::CallbackInfo& callbackInfo = it->second; \
+		for(; it != callbackIterators.second;) { \
+			auto callbackInfo = it->second; \
  \
 			if(callbackInfo.callback != nullptr) { \
 				(c).callDepth++; \
@@ -132,11 +150,36 @@ public:
 				++it; \
 			} \
 		} \
+		(c).processPendingAdds(); \
 	} while(0)
 
 
+	void processPendingAdds() {
+		if(callDepth != 0)
+			return;
+
+		for(auto it = pendingAdds.begin(); it != pendingAdds.end();) {
+			const PendingAdd& pendingAdd = *it;
+			add(pendingAdd.key, pendingAdd.instance, pendingAdd.callback);
+
+			it = pendingAdds.erase(it);
+		}
+	}
+
 	std::unordered_multimap<Key, CallbackInfo> callbacks;
 	int callDepth; //purge removed callbacks only at depth 0
+
+private:
+	IDelegateHash(IDelegateHash& other);
+	IDelegateHash(IDelegateHash&& other);
+	IDelegateHash& operator=(const IDelegateHash& other);
+
+	struct PendingAdd {
+		Key key;
+		IListener* instance;
+		CallbackType callback;
+	};
+	std::list<PendingAdd> pendingAdds;
 };
 
 template<typename CallbackType>
@@ -146,8 +189,8 @@ public:
 	typedef typename std::unordered_map<IListener*, CallbackType>::iterator CallbackIterator;
 
 	IDelegate() : callDepth(0) {}
-	IDelegate(IDelegate& other) : callbacks(other.callbacks), callDepth(0) {}
-	IDelegate(IDelegate&& other) : callbacks(std::move(other.callbacks)), callDepth(0) {}
+	//IDelegate(IDelegate& other) : callbacks(other.callbacks), callDepth(0) {}
+	//IDelegate(IDelegate&& other) : callbacks(std::move(other.callbacks)), callDepth(0) {}
 
 	~IDelegate() {
 		CallbackIterator it;
@@ -162,18 +205,24 @@ public:
 		}
 	}
 
-	IDelegate& operator=(const IDelegate& other) {
-		callbacks = other.callbacks;
+	//manage delDelegateRef
+//	IDelegate& operator=(const IDelegate& other) {
+//		callbacks = other.callbacks;
 
-		return *this;
-	}
+//		return *this;
+//	}
 
 	//Do not call add() in the same delegate callbacks
 	void add(IListener* instance, CallbackType callback) {
-		CallbackIterator it;
-		it = callbacks.insert(std::pair<IListener*, CallbackType>(instance, callback)).first;
-		if(instance)
-			instance->addDelegateRef((DelegateRef)&(it->second));
+		if(callDepth != 0) {
+			PendingAdd pendingAdd = {instance, callback};
+			pendingAdds.push_back(pendingAdd);
+		} else {
+			CallbackIterator it;
+			it = callbacks.insert(std::pair<IListener*, CallbackType>(instance, callback)).first;
+			if(instance)
+				instance->addDelegateRef((DelegateRef)&(it->second));
+		}
 	}
 
 	void del(IListener* key) {
@@ -185,10 +234,10 @@ public:
 
 #define DELEGATE_CALL(c, ...) \
 	do { \
-		typedef decltype(c) DelegateType;\
-		DelegateType::CallbackIterator it, itEnd; \
+		auto it = (c).callbacks.begin(); \
+		auto itEnd = (c).callbacks.end(); \
  \
-		for(it = (c).callbacks.begin(), itEnd = (c).callbacks.end(); it != itEnd;) { \
+		for(; it != itEnd;) { \
 			IListener* instance = it->first; \
 			auto callback = it->second; \
  \
@@ -203,11 +252,35 @@ public:
 				++it; \
 			} \
 		} \
+		(c).processPendingAdds(); \
 	} while(0)
 
 
+	void processPendingAdds() {
+		if(callDepth != 0)
+			return;
+
+		for(auto it = pendingAdds.begin(); it != pendingAdds.end();) {
+			const PendingAdd& pendingAdd = *it;
+			add(pendingAdd.instance, pendingAdd.callback);
+
+			it = pendingAdds.erase(it);
+		}
+	}
+
 	std::unordered_map<IListener*, CallbackType> callbacks;
 	int callDepth; //purge removed callbacks only at depth 0
+
+private:
+	IDelegate(IDelegate& other);
+	IDelegate(IDelegate&& other);
+	IDelegate& operator=(const IDelegate& other);
+
+	struct PendingAdd {
+		IListener* instance;
+		CallbackType callback;
+	};
+	std::list<PendingAdd> pendingAdds;
 };
 
 #endif // IDELEGATE_H

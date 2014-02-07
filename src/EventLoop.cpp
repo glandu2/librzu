@@ -12,6 +12,7 @@ EventLoop::EventLoop() : loop(uv_loop_new())
 	deleteObjectsHandle.data = this;
 	uv_prepare_init(loop, &deleteObjectsHandle);
 	uv_prepare_start(&deleteObjectsHandle, &deleteObjects);
+	uv_unref((uv_handle_t*)&deleteObjectsHandle);
 }
 EventLoop::~EventLoop() {
 	if(uv_loop_alive(loop))
