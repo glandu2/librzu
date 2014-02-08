@@ -4,6 +4,7 @@
 #include <stdarg.h>
 #include "EventLoop.h"
 #include "Log.h"
+#include "RappelzLibConfig.h"
 
 Object::Object(const char* name) {
     objectName = NULL;
@@ -88,7 +89,10 @@ static void defaultLog(const char* suffix, const char* objectName, const char* m
 	va_end(args);
 
 void Object::trace(const char *message, ...) {
-	LOG_USELOGGER(message, Trace)
+	//early check for performance boost if trace is not active
+	if(Log::LL_Trace <= Log::get()->getMaxLevel()) {
+		LOG_USELOGGER(message, Trace)
+	}
 }
 
 void Object::debug(const char *message, ...) {

@@ -7,6 +7,7 @@
 struct WriteRequest {
 	uv_write_t writeReq;
 	uv_buf_t buffer;
+	char data[];
 };
 
 struct ReadBuffer {
@@ -102,15 +103,14 @@ size_t Socket::readAll(std::vector<char> *buffer) {
 }
 
 size_t Socket::write(const void *buffer, size_t size) {
-	WriteRequest* writeRequest = new WriteRequest;
+	WriteRequest* writeRequest = (WriteRequest*)new char[sizeof(WriteRequest) + size];
 	writeRequest->buffer.len = size;
-	writeRequest->buffer.base = new char[writeRequest->buffer.len];
+	writeRequest->buffer.base = writeRequest->data;
 	writeRequest->writeReq.data = this;
 	memcpy(writeRequest->buffer.base, buffer, size);
 	int result = uv_write(&writeRequest->writeReq, (uv_stream_t*)&socket, &writeRequest->buffer, 1, &onWriteCompleted);
 	if(result < 0) {
-		delete[] writeRequest->buffer.base;
-		delete writeRequest;
+		delete[] (char*)writeRequest;
 		debug("Cant write: %s\n", uv_strerror(result));
 		notifyReadyError(result);
 		return false;
@@ -316,8 +316,9 @@ void Socket::onWriteCompleted(uv_write_t* req, int status) {
 		thisInstance->trace("Written %ld bytes\n", (long)writeRequest->buffer.len);
 	}
 
-	delete[] writeRequest->buffer.base;
-	delete writeRequest;
+//	delete[] writeRequest->buffer.base;
+//	delete writeRequest;
+	delete[] (char*)writeRequest;
 }
 
 void Socket::onShutdownDone(uv_shutdown_t* req, int status) {

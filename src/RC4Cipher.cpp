@@ -9,7 +9,7 @@ inline void exchange(char *a, char *b) {
 }
 
 RC4Cipher::RC4Cipher() {
-	prepare("Neat & Simple");
+	//prepare("Neat & Simple");
 }
 
 void RC4Cipher::prepare(const char *key) {

@@ -35,6 +35,8 @@ public:
 	static Log* get() { return messageLogger; }
 	static Log* getPacket() { return packetLogger; }
 
+	Level getMaxLevel() { return fileMaxLevel > consoleMaxLevel ? fileMaxLevel : consoleMaxLevel; }
+
 protected:
 	static void updateEnabled(IListener* instance, cval<bool>* level);
 	static void updateFileLevel(IListener* instance, cval<std::string>* level);
