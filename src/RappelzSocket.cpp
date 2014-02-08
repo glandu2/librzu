@@ -31,7 +31,7 @@ void RappelzSocket::stateChanged(IListener* instance, Socket*, Socket::State old
 		TS_MESSAGE::initMessage<TS_CC_EVENT>(&eventMsg);
 		eventMsg.event = TS_CC_EVENT::CE_ServerConnected;
 		thisInstance->dispatchPacket(&eventMsg);
-	} else if(oldState == Socket::ConnectedState) {
+	} else if(newState == Socket::UnconnectedState) {
 		TS_CC_EVENT eventMsg;
 		TS_MESSAGE::initMessage<TS_CC_EVENT>(&eventMsg);
 		eventMsg.event = TS_CC_EVENT::CE_ServerDisconnected;
