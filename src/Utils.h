@@ -6,9 +6,11 @@
 #include <string>
 #include <stdio.h>
 
-#ifdef _MSC_VER
-#define snprintf(buffer, size, ...) _snprintf_s(buffer, size, _TRUNCATE, __VA_ARGS__)
-#define va_copy(d,s) ((d) = (s))
+#if defined(_MSC_VER)
+	#define snprintf(buffer, size, ...) _snprintf_s(buffer, size, _TRUNCATE, __VA_ARGS__)
+	#if _MSC_VER < 1800
+		#define va_copy(d,s) ((d) = (s))
+	#endif
 #endif
 
 class IListener;
