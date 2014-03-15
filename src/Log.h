@@ -54,7 +54,6 @@ private:
 	Level consoleMaxLevel;
 	cval<std::string>& dir;
 	cval<std::string>& fileName;
-	std::string openedFile;
 	void* file;
 	uv_mutex_t lock;
 	uv_timer_t flushTimer;

@@ -148,13 +148,11 @@ bool Log::open() {
 
 			fclose((FILE*)file);
 			file = newfile;
-			openedFile = newFileName;
 
 			uv_mutex_unlock(&lock);
 		} else {
 			uv_mutex_lock(&lock);
 			file = newfile;
-			openedFile = newFileName;
 			uv_mutex_unlock(&lock);
 		}
 		log(LL_Info, getObjectName(), getObjectNameSize(), "Log file \"%s\" opened\n", newFileName.c_str());
