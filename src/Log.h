@@ -42,7 +42,7 @@ protected:
 	static void updateFileLevel(IListener* instance, cval<std::string>* level);
 	static void updateConsoleLevel(IListener* instance, cval<std::string>* level);
 	static void updateFile(IListener* instance, cval<std::string>* str);
-	static void flushLogFile(uv_timer_t*timer, int status);
+	static void flushLogFile(uv_timer_t*timer);
 
 	void updateLevel(bool isConsole, const std::string& level);
 

@@ -7,18 +7,20 @@ void EventLoop::initKey() {
 	uv_key_create(&tlsKey);
 }
 
-EventLoop::EventLoop() : loop(uv_loop_new())
+EventLoop::EventLoop()
 {
+	uv_loop_init(&loop);
 	deleteObjectsHandle.data = this;
-	uv_prepare_init(loop, &deleteObjectsHandle);
+	uv_prepare_init(&loop, &deleteObjectsHandle);
 	uv_prepare_start(&deleteObjectsHandle, &deleteObjects);
 	uv_unref((uv_handle_t*)&deleteObjectsHandle);
 }
+
 EventLoop::~EventLoop() {
-	if(uv_loop_alive(loop))
+	if(uv_loop_alive(&loop))
 		warn("Loop still used but delete requested\n");
-	uv_stop(loop);
-	uv_loop_delete(loop);
+	uv_stop(&loop);
+	uv_loop_close(&loop);
 
 	EventLoop* threadLoop = (EventLoop*) uv_key_get(&tlsKey);
 	if(threadLoop == this)
@@ -39,7 +41,7 @@ EventLoop* EventLoop::getInstance() {
 	return threadLocalEventLoop;
 }
 
-void EventLoop::deleteObjects(uv_prepare_t* handle, int status) {
+void EventLoop::deleteObjects(uv_prepare_t* handle) {
 	EventLoop* thisInstance = (EventLoop*)handle->data;
 
 	std::list<Object*>::iterator it = thisInstance->objectsToDelete.begin();

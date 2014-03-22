@@ -72,7 +72,7 @@ bool Socket::listen(const std::string& interfaceIp, uint16_t port) {
 	struct sockaddr_in bindAddr;
 
 	uv_ip4_addr(interfaceIp.c_str(), port, &bindAddr);
-	uv_tcp_bind(&socket, (struct sockaddr*)&bindAddr);
+	uv_tcp_bind(&socket, (struct sockaddr*)&bindAddr, 0);
 	int result = uv_listen((uv_stream_t*)&socket, 20000, &onNewConnection);
 	if(result < 0) {
 		warn("Cant listen: %s\n", uv_strerror(result));

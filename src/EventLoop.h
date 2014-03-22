@@ -15,17 +15,17 @@ public:
 
 	void addObjectToDelete(Object* o) { objectsToDelete.push_back(o); }
 
-	void run(uv_run_mode mode) { uv_run(loop, mode); }
+	void run(uv_run_mode mode) { uv_run(&loop, mode); }
 
 	//one different loop per thread
 	static EventLoop* getInstance();
-	static uv_loop_t* getLoop() { return getInstance()->loop; }
+	static uv_loop_t* getLoop() { return &getInstance()->loop; }
 
 protected:
-	static void deleteObjects(uv_prepare_t* handle, int status);
+	static void deleteObjects(uv_prepare_t* handle);
 
 private:
-	uv_loop_t* loop;
+	uv_loop_t loop;
 	uv_prepare_t deleteObjectsHandle;
 	std::list<Object*> objectsToDelete;
 
