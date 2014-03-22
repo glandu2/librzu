@@ -71,7 +71,10 @@ int Object::getObjectNameSize() {
 }
 
 static void defaultLog(const char* suffix, const char* objectName, const char* message, va_list args) {
-	fprintf(stderr, "%5s %s: ", suffix, objectName);
+	struct tm localtm;
+	Utils::getGmTime(time(NULL), &localtm);
+
+	fprintf(stderr, "%4d-%02d-%02d %02d:%02d:%02d %-5s %s: ", localtm.tm_year, localtm.tm_mon, localtm.tm_mday, localtm.tm_hour, localtm.tm_min, localtm.tm_sec, suffix, objectName);
 	vfprintf(stderr, message, args);
 }
 
@@ -90,7 +93,8 @@ static void defaultLog(const char* suffix, const char* objectName, const char* m
 
 void Object::trace(const char *message, ...) {
 	//early check for performance boost if trace is not active
-	if(Log::LL_Trace <= Log::get()->getMaxLevel()) {
+	Log* logger = Log::get();
+	if(logger && Log::LL_Trace <= logger->getMaxLevel()) {
 		LOG_USELOGGER(message, Trace)
 	}
 }

@@ -133,6 +133,8 @@ bool ConfigInfo::readFile(const char* filename) {
 		return false;
 	}
 
+	info("Using config file %s\n", filename);
+
 	while(fgets(line, 1024, file)) {
 		size_t len = strlen(line);
 
@@ -219,6 +221,8 @@ void ConfigInfo::dump(FILE *out, bool showDefault) {
 	std::map<std::string, ConfigValue*>::const_iterator it, itEnd;
 	std::string val;
 	bool isDefault = true;
+
+	info("Config dump:\n");
 
 	std::map<std::string, ConfigValue*> ordered(config.cbegin(), config.cend());
 
