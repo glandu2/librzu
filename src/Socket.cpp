@@ -25,6 +25,7 @@ Socket::Socket(uv_loop_t *uvLoop)
 	currentState = UnconnectedState;
 	connectRequest.data = this;
 	socket.data = this;
+	port = 0;
 }
 
 Socket::~Socket() {
@@ -137,6 +138,11 @@ bool Socket::accept(Socket* clientSocket) {
 	}
 
 	clientSocket->currentState = UnconnectedState;
+
+	struct sockaddr_in peerInfo = clientSocket->getPeerInfo();
+	char buffer[INET_ADDRSTRLEN] = {0};
+	uv_inet_ntop(AF_INET, &peerInfo.sin_addr, buffer, INET_ADDRSTRLEN);
+	clientSocket->setPeerInfo(std::string(buffer), ntohs(peerInfo.sin_port));
 	clientSocket->setState(ConnectedState);
 
 	return true;
