@@ -13,7 +13,7 @@ bool RappelzLibInit(int argc, char **argv, ClientConfigInit configDeclareInitCal
 	ConfigInfo::get()->parseCommandLine(argc, argv);
 	Log::init();
 
-	ConfigInfo::get()->dump(stderr, true);
+	ConfigInfo::get()->dump(true);
 
 	return true;
 }

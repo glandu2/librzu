@@ -92,7 +92,7 @@ void CircularBuffer::setBufferSize(size_t size) {
 
 	if(size > 0) {
 		buffer = (char*)malloc(size);
-		if(!buffer) fprintf(stderr, "WARNING NO MEMORY");
+		if(!buffer) error("WARNING NO MEMORY");
 
 		dataSize = size;
 		dataOut = buffer;

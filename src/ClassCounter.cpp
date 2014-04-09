@@ -41,8 +41,5 @@ DECLARE_CLASSCOUNT_STATIC(RappelzSocket)
 #include "RC4Cipher.h"
 DECLARE_CLASSCOUNT_STATIC(RC4Cipher)
 
-#include "Server.h"
-DECLARE_CLASSCOUNT_STATIC(Server)
-
 #include "Socket.h"
 DECLARE_CLASSCOUNT_STATIC(Socket)

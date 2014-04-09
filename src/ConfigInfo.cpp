@@ -14,7 +14,7 @@ bool ConfigValue::check(Type expectedType, bool soft) {
 			"String",
 			"None"
 		};
-		fprintf(stderr, "%s: config value type mismatch for %s[%s], tried to get as %s. Check the config file.\n",
+		ConfigInfo::get()->fatal("%s: config value type mismatch for %s[%s], tried to get as %s. Check the config file.\n",
 				soft ? "Warning" : "Fatal",
 				keyName != nullptr ? keyName->c_str() : "unknown key",
 				typeStr[type],
@@ -197,19 +197,6 @@ bool ConfigInfo::readFile(const char* filename) {
 	return true;
 }
 
-bool ConfigInfo::writeFile(const char *filename) {
-	FILE* file;
-
-	file = fopen(filename, "wb");
-	if(!file)
-		return false;
-	dump(file, false);
-	fclose(file);
-
-	return true;
-}
-
-
 #ifdef _MSC_VER
 #define INT2STR(i) std::to_string((long long)(i))
 #define FLOAT2STR(i) std::to_string((long double)(i))
@@ -217,7 +204,7 @@ bool ConfigInfo::writeFile(const char *filename) {
 #define INT2STR(i) std::to_string(i)
 #define FLOAT2STR(i) std::to_string(i)
 #endif
-void ConfigInfo::dump(FILE *out, bool showDefault) {
+void ConfigInfo::dump(bool showDefault) {
 	std::map<std::string, ConfigValue*>::const_iterator it, itEnd;
 	std::string val;
 	bool isDefault = true;
@@ -261,6 +248,6 @@ void ConfigInfo::dump(FILE *out, bool showDefault) {
 				break;
 		}
 		if(!isDefault || showDefault)
-			fprintf(out, "%c%c%s:%s\n", type, isDefault ? '*' : ' ', it->first.c_str(), val.c_str());
+			info("%c%c%s:%s\n", type, isDefault ? '*' : ' ', it->first.c_str(), val.c_str());
 	}
 }
