@@ -12,7 +12,7 @@ EventLoop::EventLoop()
 	uv_loop_init(&loop);
 	deleteObjectsHandle.data = this;
 	uv_prepare_init(&loop, &deleteObjectsHandle);
-	uv_prepare_start(&deleteObjectsHandle, &deleteObjects);
+	uv_prepare_start(&deleteObjectsHandle, &staticDeleteObjects);
 	uv_unref((uv_handle_t*)&deleteObjectsHandle);
 }
 
@@ -25,6 +25,8 @@ EventLoop::~EventLoop() {
 	EventLoop* threadLoop = (EventLoop*) uv_key_get(&tlsKey);
 	if(threadLoop == this)
 		uv_key_set(&tlsKey, NULL);
+
+	deleteObjects();
 }
 
 EventLoop* EventLoop::getInstance() {
@@ -41,12 +43,16 @@ EventLoop* EventLoop::getInstance() {
 	return threadLocalEventLoop;
 }
 
-void EventLoop::deleteObjects(uv_prepare_t* handle) {
+void EventLoop::deleteObjects() {
+	std::list<Object*>::iterator it = objectsToDelete.begin();
+	for(; it != objectsToDelete.end(); ) {
+		delete *it;
+		it = objectsToDelete.erase(it);
+	}
+}
+
+void EventLoop::staticDeleteObjects(uv_prepare_t* handle) {
 	EventLoop* thisInstance = (EventLoop*)handle->data;
 
-	std::list<Object*>::iterator it = thisInstance->objectsToDelete.begin();
-	for(; it != thisInstance->objectsToDelete.end(); ) {
-		delete *it;
-		it = thisInstance->objectsToDelete.erase(it);
-	}
+	thisInstance->deleteObjects();
 }

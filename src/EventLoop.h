@@ -14,6 +14,7 @@ public:
 	~EventLoop();
 
 	void addObjectToDelete(Object* o) { objectsToDelete.push_back(o); }
+	void deleteObjects();
 
 	void run(uv_run_mode mode) { uv_run(&loop, mode); }
 
@@ -22,7 +23,7 @@ public:
 	static uv_loop_t* getLoop() { return &getInstance()->loop; }
 
 protected:
-	static void deleteObjects(uv_prepare_t* handle);
+	static void staticDeleteObjects(uv_prepare_t* handle);
 
 private:
 	uv_loop_t loop;
