@@ -7,20 +7,20 @@
 #include <Windows.h>
 
 template<typename T>
-class cstatval
+class cstatval : public ConfigTypedValue<T>
 {
 public:
-	cstatval(T initVal = 0) : std::atomic<T>(initVal) {}
+	cstatval(T initVal = 0) : value((unsigned long long)initVal) {}
 
 	T get() { return (T) InterlockedCompareExchange(&value, 0, 0); }
 	T get(const T& def) { return (T) InterlockedCompareExchange(&value, 0, 0); }
 	void set(const T& val, bool dispatch = true) { InterlockedExchange(&value, (unsigned long long) val); }
 
-	T operator++(int) { return InterlockedIncrement(&value); }
-	T operator--(int) { return InterlockedDecrement(&value); }
+	T operator++(int) { return (T) InterlockedIncrement(&value); }
+	T operator--(int) { return (T) InterlockedDecrement(&value); }
 
-	T operator++() { return InterlockedIncrement(&value) + 1; }
-	T operator--() { return InterlockedDecrement(&value) - 1; }
+	T operator++() { return (T) (InterlockedIncrement(&value) + 1); }
+	T operator--() { return (T) (InterlockedDecrement(&value) - 1); }
 
 	cstatval<T>& operator= (T val) { set(val); return *this; }
 
