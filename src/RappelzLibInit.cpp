@@ -15,5 +15,7 @@ bool RappelzLibInit(int argc, char **argv, ClientConfigInit configDeclareInitCal
 
 	ConfigInfo::get()->dump(true);
 
+	Log::get()->flushLog();
+
 	return true;
 }

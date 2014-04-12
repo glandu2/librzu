@@ -12,8 +12,8 @@ struct RAPPELZLIB_EXTERN RappelzLibConfig {
 		cval<std::string> &appName, &configfile;
 
 		App() :
-			appName(CFG("core.appname", "RappelzEmu")),
-			configfile(CFG(CONFIG_FILE_KEY, "rappelzemu.opt"))
+			appName(CFG_CREATE("core.appname", "RappelzEmu")),
+			configfile(CFG_CREATE(CONFIG_FILE_KEY, "rappelzemu.opt"))
 		{
 			Utils::autoSetAbsoluteDir(configfile);
 		}
@@ -24,11 +24,11 @@ struct RAPPELZLIB_EXTERN RappelzLibConfig {
 		cval<std::string> &dir, &file, &level, &consoleLevel;
 
 		Log() :
-			enable(CFG("core.log.enablefile", true)),
-			dir(CFG("core.log.dir", "log")),
-			file(CFG("core.log.file", CFG("core.appname", "rappelzemu").get() + ".log")),
-			level(CFG("core.log.level", "info")),
-			consoleLevel(CFG("core.log.consolelevel", "info"))
+			enable(CFG_CREATE("core.log.enablefile", true)),
+			dir(CFG_CREATE("core.log.dir", "log")),
+			file(CFG_CREATE("core.log.file", CFG_GET("core.appname")->getString() + ".log")),
+			level(CFG_CREATE("core.log.level", "info")),
+			consoleLevel(CFG_CREATE("core.log.consolelevel", "info"))
 		{
 			Utils::autoSetAbsoluteDir(dir);
 			level.addListener(this, &updateConsoleLevel);
@@ -42,9 +42,9 @@ struct RAPPELZLIB_EXTERN RappelzLibConfig {
 		cval<std::string> &dir, &file;
 
 		TrafficDump() :
-			enable(CFG("core.trafficdump.enable", false)),
-			dir(CFG("core.trafficdump.dir", "traffic_log")),
-			file(CFG("core.trafficdump.file", "rappelzemu.log"))
+			enable(CFG_CREATE("core.trafficdump.enable", false)),
+			dir(CFG_CREATE("core.trafficdump.dir", "traffic_log")),
+			file(CFG_CREATE("core.trafficdump.file", "rappelzemu.log"))
 		{
 			Utils::autoSetAbsoluteDir(dir);
 		}

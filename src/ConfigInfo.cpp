@@ -5,27 +5,6 @@
 #include "RappelzLibConfig.h"
 #include <map>
 
-bool ConfigValue::check(Type expectedType, bool soft) {
-	if(expectedType != type && type != None) {
-		const char* typeStr[] = {
-			"Bool",
-			"Integer",
-			"Float",
-			"String",
-			"None"
-		};
-		ConfigInfo::get()->fatal("%s: config value type mismatch for %s[%s], tried to get as %s. Check the config file.\n",
-				soft ? "Warning" : "Fatal",
-				keyName != nullptr ? keyName->c_str() : "unknown key",
-				typeStr[type],
-				typeStr[expectedType]);
-		if(!soft)
-			abort();
-		return false;
-	}
-	return true;
-}
-
 
 // ConfigInfo ////////////////////////////////////////////////////////////////////////
 
@@ -41,21 +20,14 @@ ConfigInfo* ConfigInfo::get() {
 	return &instance;
 }
 
-ConfigValue* ConfigInfo::getValue(const std::string& key, bool createIfNonExistant) {
+ConfigValue* ConfigInfo::getValue(const std::string& key) {
 	std::unordered_map<std::string, ConfigValue*>::const_iterator it;
 
 	it = config.find(key);
-	if(it != config.cend()) {
+	if(it != config.cend())
 		return it->second;
-	} else {
-		if(createIfNonExistant) {
-			ConfigValue* v = new ConfigValue(ConfigValue::None);
-			addValue(key, v);
-			return v;
-		} else {
-			return nullptr;
-		}
-	}
+	else
+		return nullptr;
 }
 
 std::pair<std::unordered_map<std::string, ConfigValue*>::iterator, bool> ConfigInfo::addValue(const std::string& key, ConfigValue* v) {
@@ -92,7 +64,7 @@ void ConfigInfo::parseCommandLine(int argc, char **argv, bool onlyConfigFileLoca
 			continue;
 
 		value++;
-		ConfigValue* v = getValue(keyStr, false);
+		ConfigValue* v = getValue(keyStr);
 		if(v == nullptr) {
 			warn("Unknown key \"%s\", ignoring\n", keyStr.c_str());
 			continue;
@@ -100,23 +72,19 @@ void ConfigInfo::parseCommandLine(int argc, char **argv, bool onlyConfigFileLoca
 
 		switch(v->getType()) {
 			case ConfigValue::Bool:
-				v->set(!strcmp(value, "true") || !strcmp(value, "1"));
+				v->setBool(!strcmp(value, "true") || !strcmp(value, "1"));
 				break;
 
 			case ConfigValue::Integer:
-				v->set(atoi(value));
+				v->setInt(atoi(value));
 				break;
 
 			case ConfigValue::Float:
-				v->set(atof(value));
+				v->setFloat((float)atof(value));
 				break;
 
 			case ConfigValue::String:
-				v->set(std::string(value));
-				break;
-
-			case ConfigValue::None:
-				error("Key \"%s\" data type is None, ignoring\n", keyStr.c_str());
+				v->setString(value);
 				break;
 		}
 	}
@@ -163,7 +131,7 @@ bool ConfigInfo::readFile(const char* filename) {
 
 		std::string keyStr(key);
 
-		ConfigValue* v = getValue(keyStr, false);
+		ConfigValue* v = getValue(keyStr);
 		if(v == nullptr) {
 			warn("Unknown key \"%s\" in config file, ignoring\n", keyStr.c_str());
 			continue;
@@ -171,23 +139,19 @@ bool ConfigInfo::readFile(const char* filename) {
 
 		switch(v->getType()) {
 			case ConfigValue::Bool:
-				v->set(!strcmp(value, "true") || !strcmp(value, "1"));
+				v->setBool(!strcmp(value, "true") || !strcmp(value, "1"));
 				break;
 
 			case ConfigValue::Integer:
-				v->set(atoi(value));
+				v->setInt(atoi(value));
 				break;
 
 			case ConfigValue::Float:
-				v->set(atof(value));
+				v->setFloat((float)atof(value));
 				break;
 
 			case ConfigValue::String:
-				v->set(std::string(value));
-				break;
-
-			case ConfigValue::None:
-				error("Key \"%s\" data type is None, ignoring\n", keyStr.c_str());
+				v->setString(value);
 				break;
 		}
 	}
@@ -207,7 +171,6 @@ bool ConfigInfo::readFile(const char* filename) {
 void ConfigInfo::dump(bool showDefault) {
 	std::map<std::string, ConfigValue*>::const_iterator it, itEnd;
 	std::string val;
-	bool isDefault = true;
 
 	info("Config dump:\n");
 
@@ -219,35 +182,25 @@ void ConfigInfo::dump(bool showDefault) {
 		switch(v->getType()) {
 			case ConfigValue::Bool:
 				type = 'B';
-				val = v->get(false) ? "true" : "false";
-				isDefault = v->get(false).isDefault();
+				val = v->getBool() ? "true" : "false";
 				break;
 
 			case ConfigValue::Integer:
 				type = 'N';
-				val = INT2STR(v->get(0));
-				isDefault = v->get(0).isDefault();
+				val = INT2STR(v->getInt());
 				break;
 
 			case ConfigValue::Float:
 				type = 'F';
-				val = FLOAT2STR(v->get(0.0f));
-				isDefault = v->get(0.0f).isDefault();
+				val = FLOAT2STR(v->getFloat());
 				break;
 
 			case ConfigValue::String:
 				type = 'S';
-				val = v->get("<NULL>");
-				isDefault = v->get("<NULL>").isDefault();
-				break;
-
-			case ConfigValue::None:
-				type = '0';
-				val = "<NONE>";
-				isDefault = true;
+				val = v->getString();
 				break;
 		}
-		if(!isDefault || showDefault)
-			info("%c%c%s:%s\n", type, isDefault ? '*' : ' ', it->first.c_str(), val.c_str());
+		if(!v->isDefault() || showDefault)
+			info("%c%c%s:%s\n", type, v->isDefault() ? '*' : ' ', it->first.c_str(), val.c_str());
 	}
 }

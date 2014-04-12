@@ -31,6 +31,8 @@ public:
 	void log(Level level, const char* objectName, size_t objectNameSize, const char* message, ...);
 	void log(Level level, const char* objectName, size_t objectNameSize, const char* message, va_list args);
 
+	void flushLog();
+
 	static bool init();
 	static Log* get() { return messageLogger; }
 	static Log* getPacket() { return packetLogger; }

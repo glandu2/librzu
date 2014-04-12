@@ -9,7 +9,7 @@ RappelzLibConfig* RappelzLibConfig::get() {
 
 void RappelzLibConfig::init() {
 	RappelzLibConfig::get();
-	CFG("core.version", RappelzLibVersion);
+	CFG_CREATE("core.version", RappelzLibVersion);
 }
 
 void RappelzLibConfig::Log::updateConsoleLevel(IListener *instance) {

@@ -214,11 +214,16 @@ void Log::log(Level level, const char *objectName, size_t objectNameSize, const 
 	uv_mutex_unlock(&lock);
 }
 
+void Log::flushLog() {
+	if(uv_mutex_trylock(&lock) == 0) {
+		if(file) {
+			fflush((FILE*)file);
+		}
+		uv_mutex_unlock(&lock);
+	}
+}
+
 void Log::flushLogFile(uv_timer_t* timer) {
 	Log* thisInstance = (Log*) timer->data;
-	if(uv_mutex_trylock(&thisInstance->lock) == 0) {
-		if(thisInstance->file)
-			fflush((FILE*)thisInstance->file);
-		uv_mutex_unlock(&thisInstance->lock);
-	}
+	thisInstance->flushLog();
 }

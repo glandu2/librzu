@@ -19,9 +19,9 @@ struct tm * Utils::getGmTime(time_t secs, struct tm *tm) {
 	int days, y, ny, m;
 	int md[] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
 
-	days = secs / 86400;
+	days = (int)(secs / 86400);
 	secs %= 86400;
-	tm->tm_hour = secs / 3600;
+	tm->tm_hour = (int)(secs / 3600);
 	tm->tm_min = (secs % 3600) / 60;
 	tm->tm_sec =  secs % 60;
 
