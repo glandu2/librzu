@@ -5,9 +5,6 @@
 #include "RappelzLibConfig.h"
 #include <map>
 
-
-// ConfigInfo ////////////////////////////////////////////////////////////////////////
-
 ConfigInfo::~ConfigInfo() {
 	for(auto it = config.begin(); it != config.end(); ++it) {
 		delete it->second;

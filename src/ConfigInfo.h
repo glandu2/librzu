@@ -19,17 +19,6 @@ public:
 
 	ConfigValue* getValue(const std::string& key);
 
-	/*template<typename T> cval<T>& createParam(const char* key, T def);
-	template<typename T> cval<T>& createParam(const std::string& key, T def);
-	cval<std::string>& createParam(const char* key, const char* def);
-	cval<std::string>& createParam(const std::string& key, const char* def);*/
-
-	//Create parameter value
-	/*template<typename T> cstatval<T>& createStat(const char* key, T def);
-	template<typename T> cstatval<T>& createStat(const std::string& key, T def);
-	cstatval<std::string>& createStat(const char* key, const char* def);
-	cstatval<std::string>& createStat(const std::string& key, const char* def);*/
-
 	template<template<class> class U, typename T>
 	U<T>& createValue(const char* key, T def) {
 		U<T>* value = new U<T>(def);
@@ -76,73 +65,5 @@ private:
 #define CFG_CREATE(key, defaultValue) ConfigInfo::get()->createValue<cval>(key, defaultValue)
 #define CFG_STAT_CREATE(key, defaultValue) ConfigInfo::get()->createValue<cstatval>(key, defaultValue)
 #define CFG_GET(key) ConfigInfo::get()->getValue(key)
-
-
-////////////////////////////////
-///Create parameter value
-////////////////////////////////
-/*template<typename T>
-cval<T>& createParam(const char* key, T def) {
-	cval<T>* value = new cval<T>(def);
-
-	if(!addValue(std::string(key), value).second) {
-		error("Config value already exist: %s\n", key);
-	}
-
-	return *value;
-}
-
-cval<std::string>& createParam(const char* key, const char* def) {
-	cval<std::string>* value = new cval<std::string>(std::string(def));
-
-	if(!addValue(std::string(key), value).second) {
-		error("Config value already exist: %s\n", key);
-	}
-
-	return *value;
-}
-
-template<typename T>
-cval<T>& createParam(const std::string& key, T def) {
-	return createParam<T>(key.c_str(), def);
-}
-
-cval<std::string>& createParam(const std::string& key, const char* def) {
-	return createParam(key.c_str(), def);
-}*/
-
-
-////////////////////////////////
-///Create stat value
-////////////////////////////////
-/*template<typename T>
-cstatval<T>& createStat(const char* key, T def) {
-	cstatval<T>* value = new cstatval<T>(def);
-
-	if(!addValue(std::string(key), value).second) {
-		error("Config value already exist: %s\n", key);
-	}
-
-	return *value;
-}
-
-cstatval<std::string>& createStat(const char* key, const char* def) {
-	cstatval<std::string>* value = new cstatval<std::string>(std::string(def));
-
-	if(!addValue(std::string(key), value).second) {
-		error("Config value already exist: %s\n", key);
-	}
-
-	return *value;
-}
-
-template<typename T>
-cstatval<T>& createStat(const std::string& key, T def) {
-	return createParam<T>(key.c_str(), def);
-}
-
-cstatval<std::string>& createStat(const std::string& key, const char* def) {
-	return createParam(key.c_str(), def);
-}*/
 
 #endif // CONFIGINFO_H
