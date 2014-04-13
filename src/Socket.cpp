@@ -304,10 +304,14 @@ void Socket::onReadCompleted(uv_stream_t* stream, ssize_t nread, const uv_buf_t*
 		DELEGATE_CALL(thisInstance->dataListeners, thisInstance);
 	}
 
-	ReadBuffer* buffer = (ReadBuffer*) buf->base;
-	buffer->isUsed = false;
-	if(buffer->mustBeDeleted)
-		delete buffer;
+	if(buf) {
+		ReadBuffer* buffer = (ReadBuffer*) buf->base;
+		if(buffer) {
+			buffer->isUsed = false;
+			if(buffer->mustBeDeleted)
+				delete buffer;
+		}
+	}
 }
 
 void Socket::onWriteCompleted(uv_write_t* req, int status) {

@@ -25,7 +25,10 @@ public:
 	cstatval<T>& operator= (T val) { set(val); return *this; }
 
 public:
-	__declspec (align(8)) volatile unsigned long long value;
+#ifdef _MSC_VER
+	__declspec (align(8))
+#endif
+	volatile unsigned long long value;
 };
 
 #else // _WIN32

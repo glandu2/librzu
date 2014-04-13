@@ -211,6 +211,9 @@ void Log::log(Level level, const char *objectName, size_t objectNameSize, const 
 		vfprintf((FILE*)file, message, args);
 	}
 
+	if(file && level <= LL_Fatal)
+		fflush((FILE*)file);
+
 	uv_mutex_unlock(&lock);
 }
 
