@@ -36,6 +36,7 @@ public:
 
 	void addPacketListener(uint16_t packetId, IListener* instance, CallbackFunction onPacketReceivedCallback);
 	void removePacketListener(uint16_t packetId, IListener* instance);
+	void setUnknownPacketListener(IListener* instance, CallbackFunction onPacketReceivedCallback);
 
 protected:
 	static void dataReceived(IListener *instance, Socket* socket);
@@ -46,6 +47,7 @@ protected:
 
 private:
 	IDelegateHash<uint16_t, CallbackFunction> packetListeners;
+	Callback<CallbackFunction> defaultPacketListener; //called when packet id is not known
 
 	InputBuffer inputBuffer;
 };

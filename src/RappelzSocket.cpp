@@ -59,13 +59,17 @@ void RappelzSocket::sendPacket(const TS_MESSAGE* data) {
 
 void RappelzSocket::dispatchPacket(const TS_MESSAGE* packetData) {
 	trace("Packet in id: %5d, size: %d\n", packetData->id, packetData->size);
+	int callcount;
 
 	//packetListeners.dispatch(ALL_PACKETS, this, packetData);
 
 	if(packetData->id != TS_SC_RESULT::packetID)
-		DELEGATE_HASH_CALL(packetListeners, packetData->id, this, packetData);
+		DELEGATE_HASH_CALL_GETNUM(callcount, packetListeners, packetData->id, this, packetData);
 	else
-		DELEGATE_HASH_CALL(packetListeners, reinterpret_cast<const TS_SC_RESULT*>(packetData)->request_msg_id, this, packetData);
+		DELEGATE_HASH_CALL_GETNUM(callcount, packetListeners, reinterpret_cast<const TS_SC_RESULT*>(packetData)->request_msg_id, this, packetData);
+
+	if(callcount == 0)
+		CALLBACK_CALL(defaultPacketListener, this, packetData);
 }
 
 void RappelzSocket::dataReceived(IListener* instance, Socket*) {
@@ -103,4 +107,8 @@ void RappelzSocket::addPacketListener(uint16_t packetId, IListener* instance, Ca
 
 void RappelzSocket::removePacketListener(uint16_t packetId, IListener* instance) {
 	packetListeners.del(packetId, instance);
+}
+
+void RappelzSocket::setUnknownPacketListener(IListener* instance, CallbackFunction onPacketReceivedCallback) {
+	defaultPacketListener = Callback<CallbackFunction>(instance, onPacketReceivedCallback);
 }

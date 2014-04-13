@@ -153,6 +153,32 @@ public:
 		(c).processPendingAdds(); \
 	} while(0)
 
+#define DELEGATE_HASH_CALL_GETNUM(numcalled, c, key, ...) \
+	do { \
+		auto callbackIterators = (c).callbacks.equal_range(key); \
+		auto it = callbackIterators.first; \
+		int num = 0; \
+ \
+		for(; it != callbackIterators.second;) { \
+			auto callbackInfo = it->second; \
+ \
+			if(callbackInfo.callback != nullptr) { \
+				(c).callDepth++; \
+				callbackInfo.callback(callbackInfo.instance, __VA_ARGS__); \
+				(c).callDepth--; \
+				num++; \
+				++it; \
+			} else if((c).callDepth == 0) { \
+				it = (c).callbacks.erase(it); \
+			} else { \
+				++it; \
+			} \
+		} \
+		(c).processPendingAdds(); \
+		numcalled = num; \
+	} while(0)
+
+
 
 	void processPendingAdds() {
 		if(callDepth != 0)
