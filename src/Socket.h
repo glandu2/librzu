@@ -47,6 +47,7 @@ public:
 	size_t getAvailableBytes() { return recvBuffer.size(); }
 	size_t read(void *buffer, size_t size);
 	size_t readAll(std::vector<char>* buffer); //data in buffer will be destroyed
+	size_t discard(size_t size); //read but does not store read data
 	size_t write(const void *buffer, size_t size);
 	bool accept(Socket *clientSocket);
 

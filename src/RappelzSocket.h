@@ -19,13 +19,15 @@ class RAPPELZLIB_EXTERN RappelzSocket : public EncryptedSocket, private IListene
 public:
 	typedef void (*CallbackFunction)(IListener* instance, RappelzSocket* server, const TS_MESSAGE* packetData);
 	static const uint16_t ALL_PACKETS = 0xFFFE;
+	static const uint32_t MAX_PACKET_SIZE = 65536;
 
 private:
-	static const uint32_t initialInputBufferSize = 16384;
+	static const uint32_t INITIAL_INPUT_BUFFERSIZE = 1024;
 	struct InputBuffer {
 		uint8_t* buffer;
 		uint32_t bufferSize;
 		uint32_t currentMessageSize;
+		bool discardPacket;
 	};
 
 public:

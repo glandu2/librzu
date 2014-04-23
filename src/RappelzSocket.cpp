@@ -5,9 +5,10 @@
 
 RappelzSocket::RappelzSocket(uv_loop_t* uvLoop, Mode mode) : EncryptedSocket(uvLoop, mode) {
 
-	inputBuffer.bufferSize = initialInputBufferSize;
+	inputBuffer.bufferSize = INITIAL_INPUT_BUFFERSIZE;
 	inputBuffer.buffer = new uint8_t[inputBuffer.bufferSize];
 	inputBuffer.currentMessageSize = 0;
+	inputBuffer.discardPacket = false;
 
 	addDataListener(this, &dataReceived);
 	addErrorListener(this, &socketError);
@@ -78,14 +79,18 @@ void RappelzSocket::dataReceived(IListener* instance, Socket*) {
 
 	//std::cout << LOG_PREFIX << "Server: " << " Received data, size = " << thisInstance->getAvailableBytes() << "CurrentSize = " << buffer->currentMessageSize << std::endl;
 	do {
+		// if buffer->currentMessageSize == 0 => waiting for a new message
 		if(buffer->currentMessageSize == 0 && thisInstance->getAvailableBytes() < 4) {
 			return;
 		} else if(buffer->currentMessageSize == 0) {
 			thisInstance->read(&buffer->currentMessageSize, 4);
+			buffer->discardPacket = buffer->currentMessageSize > MAX_PACKET_SIZE;
 			//trace("Receiving new msg, size = %d, available: %lu\n", buffer->currentMessageSize, thisInstance->getAvailableBytes());
 		}
 
-		if(buffer->currentMessageSize != 0 && thisInstance->getAvailableBytes() >= (buffer->currentMessageSize - 4)) {
+		if(buffer->currentMessageSize != 0 && buffer->discardPacket) {
+			buffer->currentMessageSize -= (uint32_t) thisInstance->discard(buffer->currentMessageSize);
+		} else if(buffer->currentMessageSize != 0 && thisInstance->getAvailableBytes() >= (buffer->currentMessageSize - 4)) {
 			if(buffer->currentMessageSize > buffer->bufferSize) {
 				if(buffer->bufferSize)
 					delete[] buffer->buffer;
