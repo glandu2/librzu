@@ -50,6 +50,27 @@ struct RAPPELZLIB_EXTERN RappelzLibConfig {
 		}
 	} trafficDump;
 
+	struct Ban {
+		//DbConfig dbBan;
+		cval<std::string> &banFile;
+
+		Ban() :
+			//dbBan("ban."),
+			banFile(CFG_CREATE("ban.ipfile", "bannedip.txt"))
+		{
+			Utils::autoSetAbsoluteDir(banFile);
+		}
+	} ban;
+
+
+	struct Statistics {
+		cstatval<int>& connectionCount, &disconnectionCount;
+
+		Statistics() :
+			connectionCount(CFG_STAT_CREATE("stats.connections", 0)),
+			disconnectionCount(CFG_STAT_CREATE("stats.disconnections", 0)) {}
+	} stats;
+
 	static RappelzLibConfig* get();
 	static void init();
 };
