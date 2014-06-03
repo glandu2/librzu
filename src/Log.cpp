@@ -310,7 +310,8 @@ void Log::logWritterThread() {
 			delete msg;
 		}
 
-		fflush((FILE*)this->file);
+		if(this->file)
+			fflush((FILE*)this->file);
 
 		uv_mutex_unlock(&this->fileMutex);
 

@@ -231,7 +231,7 @@ void Socket::packetLog(Log::Level level, const char* format, ...) {
 	va_list args;
 
 	va_start(args, format);
-	packetLogger->log(level, host.c_str(), host.size(), format, args);
+	packetLogger->log(level, getObjectName(), getObjectNameSize(), format, args);
 	va_end(args);
 }
 
@@ -268,7 +268,7 @@ void Socket::packetLogRawData(Log::Level level, const char* rawData, int size) {
 				buffer << '.';
 		}
 
-		packetLogger->log(level, host.c_str(), host.size(),
+		packetLogger->log(level, getObjectName(), getObjectNameSize(),
 						  "%s\n",
 						  buffer.str().c_str());
 		buffer.str("");
