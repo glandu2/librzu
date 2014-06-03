@@ -185,6 +185,8 @@ bool Log::open() {
 
 void Log::close() {
 	info("Closing log file\n");
+	if(defaultLogger == this)
+		defaultLogger = nullptr;
 	uv_mutex_lock(&this->fileMutex);
 	if(this->file)
 		fclose((FILE*)this->file);
