@@ -15,7 +15,7 @@ class RAPPELZLIB_EXTERN ConfigInfo : public Object
 public:
 	void parseCommandLine(int argc, char **argv, bool onlyConfigFileLocation = false);
 	bool readFile(const char *filename);
-	void dump(bool showDefault);
+	void dump(bool showDefault = true);
 
 	ConfigValue* getValue(const std::string& key);
 
