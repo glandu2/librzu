@@ -1,6 +1,8 @@
 #ifndef PACKETBASEMESSAGE_H
 #define PACKETBASEMESSAGE_H
 
+#include <string.h>
+
 #ifdef __GNUC__
 #include <stdint-gcc.h>
 #else
@@ -23,6 +25,7 @@ struct TS_MESSAGE {
 
 	template<typename MessageType>
 	static void initMessage(MessageType* msg) {
+		memset(msg, 0, sizeof(MessageType));
 		msg->size = sizeof(MessageType);
 		msg->id = MessageType::packetID;
 		msg->msg_check_sum = checkMessage(msg);
@@ -43,6 +46,7 @@ struct TS_MESSAGE {
 	template<typename PacketType>
 	static PacketType* create(uint32_t size = sizeof(PacketType)) {
 		PacketType* msg = (PacketType*) new char[size];
+		memset(msg, 0, size);
 		msg->size = size;
 		msg->id = PacketType::packetID;
 		msg->msg_check_sum = checkMessage(msg);
@@ -73,7 +77,9 @@ struct TS_MESSAGE_WNA : public TS_MESSAGE {
 		template<typename PacketType, typename NestedArray>
 		static PacketType* create(int nestedElementCount = 0) {
 			PacketType* msg = (PacketType*) new char[sizeof(PacketType) + sizeof(NestedArray)*nestedElementCount];
-			msg->size = sizeof(PacketType) + sizeof(NestedArray)*nestedElementCount;
+			int size = sizeof(PacketType) + sizeof(NestedArray)*nestedElementCount;
+			memset(msg, 0, size);
+			msg->size = size;
 			msg->id = PacketType::packetID;
 			msg->msg_check_sum = checkMessage(msg);
 			return msg;
