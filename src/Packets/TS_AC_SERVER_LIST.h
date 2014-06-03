@@ -22,6 +22,22 @@ struct TS_AC_SERVER_LIST : public TS_MESSAGE_WNA
 
 	static const uint16_t packetID = 10022;
 };
+
+struct TS_AC_SERVER_LIST_EPIC_2 : public TS_MESSAGE_WNA
+{
+	uint16_t count;
+
+	struct TS_SERVER_INFO
+	{
+		uint16_t server_idx;
+		char server_name[21];
+		char server_ip[16];
+		int32_t server_port;
+		uint16_t user_ratio;
+	} servers[0];
+
+	static const uint16_t packetID = 10022;
+};
 #pragma pack(pop)
 
 #endif // TS_AC_SERVER_LIST_H

@@ -24,7 +24,14 @@ struct TS_CA_ACCOUNT : public TS_MESSAGE
 	};
 };
 
-struct TS_CA_ACCOUNT_V2 : public TS_MESSAGE
+struct TS_CA_ACCOUNT_EPIC4 : public TS_MESSAGE
+{
+	char account[19];
+	char password[32];
+	static const uint16_t packetID = 10010;
+};
+
+struct TS_CA_ACCOUNT_RSA : public TS_MESSAGE
 {
 		char account[61];
 		unsigned int aes_block_size;
