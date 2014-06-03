@@ -23,7 +23,7 @@ struct TS_AC_SERVER_LIST : public TS_MESSAGE_WNA
 	static const uint16_t packetID = 10022;
 };
 
-struct TS_AC_SERVER_LIST_EPIC_2 : public TS_MESSAGE_WNA
+struct TS_AC_SERVER_LIST_EPIC2 : public TS_MESSAGE_WNA
 {
 	uint16_t count;
 

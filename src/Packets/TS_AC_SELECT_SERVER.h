@@ -12,7 +12,7 @@ struct TS_AC_SELECT_SERVER : public TS_MESSAGE
 	static const uint16_t packetID = 10024;
 };
 
-struct TS_AC_SELECT_SERVER_V2 : public TS_MESSAGE
+struct TS_AC_SELECT_SERVER_RSA : public TS_MESSAGE
 {
 	uint16_t result;
 	int32_t encrypted_data_size;
