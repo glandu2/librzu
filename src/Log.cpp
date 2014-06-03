@@ -139,7 +139,7 @@ void Log::stopWriter() {
 		return;
 	}
 
-	debug("Wait log thread\n");
+	debug("Stopping log thread\n");
 
 	uv_mutex_lock(&this->messageListMutex);
 	this->stop = true;
