@@ -1,9 +1,11 @@
 #include "RappelzSocket.h"
 #include <string.h>
 #include "Packets/TS_SC_RESULT.h"
-#include <iostream>
+#include "Log.h"
 
-RappelzSocket::RappelzSocket(uv_loop_t* uvLoop, Mode mode) : EncryptedSocket(uvLoop, mode) {
+RappelzSocket::RappelzSocket(uv_loop_t* uvLoop, Mode mode)
+	: EncryptedSocket(uvLoop, mode)
+{
 
 	inputBuffer.bufferSize = INITIAL_INPUT_BUFFERSIZE;
 	inputBuffer.buffer = new uint8_t[inputBuffer.bufferSize];
@@ -53,16 +55,17 @@ void RappelzSocket::socketError(IListener *instance, Socket*, int errnoValue) {
 }
 
 void RappelzSocket::sendPacket(const TS_MESSAGE* data) {
-	trace("Packet out id: %5d, size: %d\n", data->id, data->size);
-
 	write(data, data->size);
+
+	//Log after for better latency
+	logPacket(true, data);
 }
 
 void RappelzSocket::dispatchPacket(const TS_MESSAGE* packetData) {
-	trace("Packet in id: %5d, size: %d\n", packetData->id, packetData->size);
 	int callcount;
 
-	//packetListeners.dispatch(ALL_PACKETS, this, packetData);
+	//Log before to avoid having logging a packet send after having received this packet before logging this packet
+	logPacket(false, packetData);
 
 	if(packetData->id != TS_SC_RESULT::packetID)
 		DELEGATE_HASH_CALL_GETNUM(callcount, packetListeners, packetData->id, this, packetData);
@@ -71,6 +74,19 @@ void RappelzSocket::dispatchPacket(const TS_MESSAGE* packetData) {
 
 	if(callcount == 0)
 		CALLBACK_CALL(defaultPacketListener, this, packetData);
+}
+
+void RappelzSocket::logPacket(bool outgoing, const TS_MESSAGE* msg) {
+	trace("Packet %s id: %5d, size: %d\n",
+		  (outgoing)? "out" : " in",
+		  msg->id,
+		  msg->size);
+
+	packetLog(Log::LL_Info, "Packet %s id: %5d, size: %d\n",
+					(outgoing)? "out" : " in",
+					msg->id,
+					msg->size);
+	packetLogRawData(Log::LL_Debug, reinterpret_cast<const char*>(msg), (int)msg->size);
 }
 
 void RappelzSocket::dataReceived(IListener* instance, Socket*) {

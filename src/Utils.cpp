@@ -2,6 +2,7 @@
 #include <string.h>
 #include "ConfigInfo.h"
 #include <ctype.h>
+#include "uv.h"
 
 #ifdef _WIN32
 #include <direct.h>

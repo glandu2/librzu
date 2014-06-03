@@ -4,7 +4,13 @@
 #include "BanManager.h"
 #include "RappelzLibConfig.h"
 
-RappelzServerCommon::RappelzServerCommon() : openServer(false), serverSocket(new Socket(EventLoop::getLoop())), lastWaitingInstance(nullptr), banManager(nullptr) {
+RappelzServerCommon::RappelzServerCommon(Log *packetLogger)
+	: openServer(false),
+	  serverSocket(new Socket(EventLoop::getLoop())),
+	  lastWaitingInstance(nullptr),
+	  banManager(nullptr),
+	  packetLogger(packetLogger)
+{
 	serverSocket->addConnectionListener(this, &onNewConnection);
 }
 
@@ -40,6 +46,7 @@ void RappelzServerCommon::onNewConnection(IListener* instance, Socket* serverSoc
 
 	if(thisInstance->lastWaitingInstance == nullptr) {
 		thisInstance->lastWaitingInstance = thisInstance->createSession();
+		thisInstance->lastWaitingInstance->socket->setPacketLogger(thisInstance->packetLogger);
 		thisInstance->lastWaitingInstance->socket->addEventListener(thisInstance->lastWaitingInstance, &onSocketStateChanged);
 	}
 

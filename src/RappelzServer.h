@@ -7,13 +7,14 @@
 
 class SocketSession;
 class BanManager;
+class Log;
 
 class RAPPELZLIB_EXTERN RappelzServerCommon : public Object, public IListener
 {
 	DECLARE_CLASS(RappelzServerCommon)
 
 public:
-	RappelzServerCommon();
+	RappelzServerCommon(Log* packetLogger = nullptr);
 	~RappelzServerCommon();
 
 	bool startServer(const std::string& interfaceIp, uint16_t port, BanManager* banManager = nullptr);
@@ -36,11 +37,15 @@ private:
 	SocketSession* lastWaitingInstance;
 	std::list<Socket*> sockets;
 	BanManager* banManager;
+	Log* packetLogger;
 };
 
 template<class T>
 class RappelzServer : public RappelzServerCommon
 {
+public:
+	RappelzServer(Log* packetLogger = nullptr) : RappelzServerCommon(packetLogger) {}
+
 protected:
 	virtual SocketSession* createSession() {
 		return new T();

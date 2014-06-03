@@ -6,6 +6,7 @@
 #include "IListener.h"
 #include "stdint.h"
 #include "IDelegate.h"
+#include "Log.h"
 
 #include <unordered_map>
 #include <string>
@@ -38,7 +39,7 @@ public:
 	typedef void (*CallbackOnError)(IListener* instance, Socket* socket, int errnoValue);
 
 public:
-	Socket(uv_loop_t* uvLoop);
+	Socket(uv_loop_t* uvLoop, Log* packetLogger = nullptr, bool logPackets = true);
 	virtual ~Socket();
 
 	bool connect(const std::string& hostName, uint16_t port);
@@ -67,10 +68,17 @@ public:
 
 	void notifyReadyError(int errorValue);
 
+	void setPacketLogger(Log* packetLogger) { this->packetLogger = packetLogger; }
+
 
 protected:
 	void setState(State state);
 	void setPeerInfo(const std::string& host, uint16_t port);
+
+	void packetLog(Log::Level level, const char* format, ...);
+	void packetLogRawData(Log::Level level, const char* rawData, int size);
+
+
 	static void onConnected(uv_connect_t* req, int status);
 	static void onNewConnection(uv_stream_t* req, int status);
 
@@ -98,6 +106,9 @@ private:
 
 	std::vector<char> recvBuffer;
 	bool socketInitialized; //for accept to prevent multiple init in case of failure of uv_accept
+
+	Log* packetLogger;
+	bool logPackets; //set to false when logging is done in a derived class (ie: RappelzSocket)
 };
 
 #endif // SOCKET_H

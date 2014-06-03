@@ -6,6 +6,7 @@
 #include <list>
 
 class RappelzServerCommon;
+class Log;
 
 class RAPPELZLIB_EXTERN SocketSession : public Object, public IListener
 {

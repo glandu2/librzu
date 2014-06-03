@@ -37,19 +37,6 @@ struct RAPPELZLIB_EXTERN RappelzLibConfig {
 		static void updateConsoleLevel(IListener* instance);
 	} log;
 
-	struct TrafficDump {
-		cval<bool> &enable;
-		cval<std::string> &dir, &file;
-
-		TrafficDump() :
-			enable(CFG_CREATE("core.trafficdump.enable", false)),
-			dir(CFG_CREATE("core.trafficdump.dir", "traffic_log")),
-			file(CFG_CREATE("core.trafficdump.file", "rappelzemu.log"))
-		{
-			Utils::autoSetAbsoluteDir(dir);
-		}
-	} trafficDump;
-
 	struct Ban {
 		//DbConfig dbBan;
 		cval<std::string> &banFile;

@@ -8,14 +8,7 @@
 
 static const char * const  LEVELSTRINGS[] = { "FATAL", "ERROR", "Warn", "Info", "Debug", "Trace" };
 
-Log* Log::messageLogger = nullptr;
-Log* Log::packetLogger = nullptr;
-
-bool Log::init() {
-	messageLogger = new Log(CONFIG_GET()->log.enable, CONFIG_GET()->log.level, CONFIG_GET()->log.consoleLevel, CONFIG_GET()->log.dir, CONFIG_GET()->log.file);
-	packetLogger = new Log(CONFIG_GET()->trafficDump.enable, LL_Trace, LL_Error, CONFIG_GET()->trafficDump.dir, CONFIG_GET()->trafficDump.file);
-	return true;
-}
+Log* Log::defaultLogger = nullptr;
 
 Log::Log(cval<bool>& enabled, cval<std::string>& fileMaxLevel, cval<std::string>& consoleMaxLevel, cval<std::string>& dir, cval<std::string>& fileName) :
 	fileMaxLevel(LL_Info),
@@ -24,21 +17,13 @@ Log::Log(cval<bool>& enabled, cval<std::string>& fileMaxLevel, cval<std::string>
 	fileName(fileName),
 	file(nullptr)
 {
-	uv_mutex_init(&lock);
-	updateEnabled(this, &enabled);
+	construct(enabled, dir, fileName);
+
 	updateFileLevel(this, &fileMaxLevel);
 	updateConsoleLevel(this, &consoleMaxLevel);
 
-	enabled.addListener(this, &updateEnabled);
 	fileMaxLevel.addListener(this, &updateFileLevel);
 	consoleMaxLevel.addListener(this, &updateConsoleLevel);
-	dir.addListener(this, &updateFile);
-	fileName.addListener(this, &updateFile);
-
-	uv_timer_init(EventLoop::getLoop(), &flushTimer);
-	flushTimer.data = this;
-	uv_unref((uv_handle_t*)&flushTimer);
-	uv_timer_start(&flushTimer, &flushLogFile, 5000, 5000);
 }
 
 Log::Log(cval<bool>& enabled, Level fileMaxLevel, Level consoleMaxLevel, cval<std::string>& dir, cval<std::string>& fileName) :
@@ -48,31 +33,37 @@ Log::Log(cval<bool>& enabled, Level fileMaxLevel, Level consoleMaxLevel, cval<st
 	fileName(fileName),
 	file(nullptr)
 {
-	uv_mutex_init(&lock);
-	updateEnabled(this, &enabled);
+	construct(enabled, dir, fileName);
+
 	this->fileMaxLevel = fileMaxLevel;
 	this->consoleMaxLevel = consoleMaxLevel;
+}
+
+void Log::construct(cval<bool>& enabled, cval<std::string>& dir, cval<std::string>& fileName) {
+	this->stop = true;
+	uv_mutex_init(&this->fileMutex);
+	uv_mutex_init(&this->messageListMutex);
+	uv_cond_init(&this->messageListCond);
+	startWriter();
+
+	updateEnabled(this, &enabled);
 
 	enabled.addListener(this, &updateEnabled);
 	dir.addListener(this, &updateFile);
 	fileName.addListener(this, &updateFile);
-
-	uv_timer_init(EventLoop::getLoop(), &flushTimer);
-	flushTimer.data = this;
-	uv_unref((uv_handle_t*)&flushTimer);
-	uv_timer_start(&flushTimer, &flushLogFile, 5000, 5000);
 }
 
 Log::~Log() {
 	close();
+	stopWriter();
 }
 
 void Log::updateEnabled(IListener* instance, cval<bool>* enable) {
 	Log* thisInstance = (Log*) instance;
 
-	if(!thisInstance->file && enable->get()) {
+	if(enable->get()) {
 		thisInstance->open();
-	} else if(thisInstance->file && !enable->get()) {
+	} else {
 		thisInstance->close();
 	}
 }
@@ -126,6 +117,37 @@ void Log::updateFile(IListener* instance, cval<std::string>* str) {
 	thisInstance->open();
 }
 
+void Log::startWriter() {
+	if(this->stop == false)
+		return;
+
+	this->stop = false;
+	uv_thread_create(&this->logWritterThreadId, &logWritterThreadStatic, this);
+}
+
+void Log::stopWriter() {
+	if(this->stop == true)
+		return;
+
+#ifdef _WIN32
+	if(GetProcessId((HANDLE)this->logWritterThreadId) == GetCurrentProcessId())
+#else /* unix */
+	if(pthread_equal(pthread_self(), this->logWritterThreadId))
+#endif
+	{
+		this->stop = true;
+		return;
+	}
+
+	uv_mutex_lock(&this->messageListMutex);
+	this->stop = true;
+	uv_cond_signal(&this->messageListCond);
+	uv_mutex_unlock(&this->messageListMutex);
+
+	printf("Wait log thread\n");
+	uv_thread_join(&this->logWritterThreadId);
+}
+
 bool Log::open() {
 	std::string absoluteDir = dir.get();
 	std::string newFileName = absoluteDir + "/" + fileName.get();
@@ -135,26 +157,27 @@ bool Log::open() {
 
 	newfile = fopen(newFileName.c_str(), "ab");
 	if(!newfile) {
-		if(file)
+		if(this->file)
 			error("Couldnt open new log file %s, keeping old one\n", newFileName.c_str());
 		else
 			error("Couldnt open log file %s for writting !\n", newFileName.c_str());
 		return false;
 	} else {
-		if(file) {
+		uv_mutex_lock(&this->fileMutex);
+
+		if(this->file) {
 			info("Switching log file to %s\n", newFileName.c_str());
 
-			uv_mutex_lock(&lock);
 
-			fclose((FILE*)file);
-			file = newfile;
+			fclose((FILE*)this->file);
+			this->file = newfile;
 
-			uv_mutex_unlock(&lock);
 		} else {
-			uv_mutex_lock(&lock);
-			file = newfile;
-			uv_mutex_unlock(&lock);
+			this->file = newfile;
 		}
+
+		uv_mutex_unlock(&this->fileMutex);
+
 		log(LL_Info, getObjectName(), getObjectNameSize(), "Log file \"%s\" opened\n", newFileName.c_str());
 		return true;
 	}
@@ -162,11 +185,11 @@ bool Log::open() {
 
 void Log::close() {
 	info("Closing log file\n");
-	uv_mutex_lock(&lock);
-	if(file)
-		fclose((FILE*)file);
-	file = nullptr;
-	uv_mutex_unlock(&lock);
+	uv_mutex_lock(&this->fileMutex);
+	if(this->file)
+		fclose((FILE*)this->file);
+	this->file = nullptr;
+	uv_mutex_unlock(&this->fileMutex);
 }
 
 void Log::log(Level level, const char *objectName, size_t objectNameSize, const char* message, ...) {
@@ -180,53 +203,120 @@ void Log::log(Level level, const char *objectName, size_t objectNameSize, const 
 	va_end(args);
 }
 
+int c99vsnprintf(char* dest, int size, const char* format, va_list args) {
+	va_list argsForCount;
+	va_copy(argsForCount, args);
+
+	int result = vsnprintf(dest, size, format, args);
+
+#ifdef _WIN32
+	if(result == -1)
+		result = _vscprintf(format, argsForCount);
+#endif
+
+	return result;
+}
+
+void stringformat(std::string& dest, const char* message, va_list args) {
+	va_list argsFor2ndPass;
+	va_copy(argsFor2ndPass, args);
+
+	dest.resize(128);
+	int result = c99vsnprintf(&dest[0], dest.size(), message, args);
+
+	if(result < 0) {
+		dest = message;
+		return;
+	}
+
+	if(result < (int)dest.size()) {
+		dest.resize(result);
+	} else if(result >= (int)dest.size()) {
+		dest.resize(result+1);
+
+		vsnprintf(&dest[0], dest.size(), message, argsFor2ndPass);
+		dest.resize(result);
+	}
+}
+
 void Log::log(Level level, const char *objectName, size_t objectNameSize, const char* message, va_list args) {
 	if(level > fileMaxLevel && level > consoleMaxLevel)
 		return;
 
+	Message* msg = new Message;
+	msg->time = time(NULL);
+	msg->level = level;
+	msg->writeToConsole = level <= consoleMaxLevel;
+	msg->writeToFile = level <= fileMaxLevel;
+	msg->objectName = std::string(objectName, objectName + objectNameSize);
+	stringformat(msg->message, message, args);
+
+	uv_mutex_lock(&this->messageListMutex);
+	this->messageQueue.push_back(msg);
+	uv_cond_signal(&this->messageListCond);
+	uv_mutex_unlock(&this->messageListMutex);
+}
+
+void Log::logWritterThreadStatic(void* arg) { reinterpret_cast<Log*>(arg)->logWritterThread(); }
+void Log::logWritterThread() {
+	std::vector<Message*>* messagesToWrite = new std::vector<Message*>;
+	size_t i, size;
 	struct tm localtm;
-	va_list argsConsole;
-	va_copy(argsConsole, args);
+	std::vector<char> logHeader;
+	bool endLoop = false;
 
-	uv_mutex_lock(&lock);
+	while(endLoop == false) {
+		uv_mutex_lock(&this->messageListMutex);
 
-	Utils::getGmTime(time(NULL), &localtm);
-
-	//26 char to %-5s included
-	size_t bufferSize = 26 + objectNameSize + 3;
-	char *buffer = (char*) alloca(bufferSize);
-	size_t strLen = snprintf(buffer, bufferSize, "%4d-%02d-%02d %02d:%02d:%02d %-5s %s: ", localtm.tm_year, localtm.tm_mon, localtm.tm_mday, localtm.tm_hour, localtm.tm_min, localtm.tm_sec, LEVELSTRINGS[level], objectName);
-	if(strLen >= bufferSize) {
-		fprintf(stderr, "------------------- ERROR Log::log: Log buffer was too small, log source might be truncated\n");
-		strLen = bufferSize-1;
-	}
-
-	if(level <= consoleMaxLevel) {
-		fwrite(buffer, 1, strLen, stderr);
-		vfprintf(stderr, message, argsConsole);
-	}
-
-	if(file && level <= fileMaxLevel) {
-		fwrite(buffer, 1, strLen, (FILE*)file);
-		vfprintf((FILE*)file, message, args);
-	}
-
-	if(file && level <= LL_Fatal)
-		fflush((FILE*)file);
-
-	uv_mutex_unlock(&lock);
-}
-
-void Log::flushLog() {
-	if(uv_mutex_trylock(&lock) == 0) {
-		if(file) {
-			fflush((FILE*)file);
+		while(this->messageQueue.size() == 0 && this->stop == false) {
+			uv_cond_wait(&this->messageListCond, &this->messageListMutex);
 		}
-		uv_mutex_unlock(&lock);
+
+		endLoop = this->stop;
+		messagesToWrite->swap(this->messageQueue);
+
+		uv_mutex_unlock(&this->messageListMutex);
+
+
+		uv_mutex_lock(&this->fileMutex);
+
+		size = messagesToWrite->size();
+		for(i = 0; i < size; i++) {
+			const Message* const msg = messagesToWrite->at(i);
+
+			Utils::getGmTime(msg->time, &localtm);
+
+			//26 char to %-5s included
+			logHeader.resize(27 + msg->objectName.size() + 3);
+			size_t strLen = snprintf(&logHeader[0], logHeader.size(), "%4d-%02d-%02d %02d:%02d:%02d %-5s %s: ", localtm.tm_year, localtm.tm_mon, localtm.tm_mday, localtm.tm_hour, localtm.tm_min, localtm.tm_sec, LEVELSTRINGS[msg->level], msg->objectName.c_str());
+			if(strLen >= logHeader.size()) {
+				fprintf(stderr, "------------------- ERROR Log::logWritterThread: Log buffer was too small, next log message might be truncated\n");
+				strLen = logHeader.size()-1; //do not write the \0
+			}
+
+			if(msg->writeToConsole) {
+				fwrite(&logHeader[0], 1, strLen, stderr);
+				fwrite(msg->message.c_str(), 1, msg->message.size(), stderr);
+			}
+
+			if(this->file && msg->writeToFile) {
+				fwrite(&logHeader[0], 1, strLen, (FILE*)this->file);
+				fwrite(msg->message.c_str(), 1, msg->message.size(), (FILE*)this->file);
+			}
+
+			delete msg;
+		}
+
+		fflush((FILE*)this->file);
+
+		uv_mutex_unlock(&this->fileMutex);
+
+		messagesToWrite->clear();
 	}
+
+	delete messagesToWrite;
 }
 
-void Log::flushLogFile(uv_timer_t* timer) {
-	Log* thisInstance = (Log*) timer->data;
-	thisInstance->flushLog();
+bool Log::isAllMessageWritten() {
+	return true;
 }

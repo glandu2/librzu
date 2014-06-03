@@ -46,6 +46,7 @@ protected:
 	static void socketError(IListener* instance, Socket* socket, int errnoValue);
 
 	void dispatchPacket(const TS_MESSAGE* packetData);
+	void logPacket(bool outgoing, const TS_MESSAGE* msg);
 
 private:
 	IDelegateHash<uint16_t, CallbackFunction> packetListeners;

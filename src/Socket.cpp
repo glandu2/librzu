@@ -1,4 +1,8 @@
 #include "Socket.h"
+#include "Log.h"
+#include <sstream>
+#include <iomanip>
+#include <stdarg.h>
 
 #ifndef SHUT_RDWR
 #define SHUT_RDWR 2
@@ -18,14 +22,16 @@ struct ReadBuffer {
 
 const char* Socket::STATES[] = { "Unconnected", "Connecting", "Binding", "Listening", "Connected", "Closing" };
 
-Socket::Socket(uv_loop_t *uvLoop)
+Socket::Socket(uv_loop_t *uvLoop, Log *packetLogger, bool logPackets)
+	: uvLoop(uvLoop),
+	  port(0),
+	  currentState(UnconnectedState),
+	  socketInitialized(false),
+	  packetLogger(packetLogger),
+	  logPackets(logPackets)
 {
-	this->uvLoop = uvLoop;
-	socketInitialized = false;
-	currentState = UnconnectedState;
 	connectRequest.data = this;
 	socket.data = this;
-	port = 0;
 }
 
 Socket::~Socket() {
@@ -215,6 +221,59 @@ void Socket::setPeerInfo(const std::string& host, uint16_t port) {
 	this->host = host;
 	this->port = port;
 	setObjectName(getObjectNameSize() + 3 + host.size() + 5, "%s[%s:%u]", getObjectName(), host.c_str(), port);
+}
+
+
+void Socket::packetLog(Log::Level level, const char* format, ...) {
+	if(packetLogger == nullptr)
+		return;
+
+	va_list args;
+
+	va_start(args, format);
+	packetLogger->log(level, host.c_str(), host.size(), format, args);
+	va_end(args);
+}
+
+void Socket::packetLogRawData(Log::Level level, const char* rawData, int size) {
+	if(packetLogger == nullptr)
+		return;
+
+	std::ostringstream buffer;
+	buffer << std::hex << std::setfill('0');
+
+	//Log full packet data
+	const int lineNum = (size+15)/16;
+
+	for(int line = 0; line < lineNum; line++) {
+		int maxCharNum = size - (line*16);
+		if(maxCharNum > 16)
+			maxCharNum = 16;
+
+		for(int row = 0; row < 16; row++) {
+			if(row < maxCharNum)
+				buffer << std::setw(2) << (int)(unsigned char)rawData[line*16+row] << ' ';
+			else
+				buffer << "   ";
+		}
+
+		buffer << ' ';
+
+		for(int row = 0; row < maxCharNum; row++) {
+			const char c = rawData[line*16+row];
+
+			if(c >= 32 && c < 127)
+				buffer << c;
+			else
+				buffer << '.';
+		}
+
+		packetLogger->log(level, host.c_str(), host.size(),
+						  "%s\n",
+						  buffer.str().c_str());
+		buffer.str("");
+		buffer.clear();
+	}
 }
 
 void Socket::addDataListener(IListener* instance, CallbackOnDataReady listener) {
