@@ -14,7 +14,7 @@ add_dependencies(${TARGET_NAME} ${TARGET_NAME}_GitVersion)
 
 target_link_libraries(${TARGET_NAME} uv)
 if(WIN32)
-    target_link_libraries(${TARGET_NAME} odbc32)
+    target_link_libraries(${TARGET_NAME} odbc32 dbghelp)
 else()
     target_link_libraries(${TARGET_NAME} odbc)
 endif()
