@@ -139,12 +139,13 @@ void Log::stopWriter() {
 		return;
 	}
 
+	debug("Wait log thread\n");
+
 	uv_mutex_lock(&this->messageListMutex);
 	this->stop = true;
 	uv_cond_signal(&this->messageListCond);
 	uv_mutex_unlock(&this->messageListMutex);
 
-	printf("Wait log thread\n");
 	uv_thread_join(&this->logWritterThreadId);
 }
 
