@@ -11,6 +11,15 @@ ConfigInfo::~ConfigInfo() {
 	}
 }
 
+void ConfigInfo::init(int argc, char **argv) {
+	RappelzLibConfig::init();
+
+	parseCommandLine(argc, argv, true);
+	readFile(RappelzLibConfig::get()->app.configfile.get().c_str());
+	//Set all keys given on the command line to overwrite config file values
+	parseCommandLine(argc, argv);
+}
+
 ConfigInfo* ConfigInfo::get() {
 	static ConfigInfo instance;
 

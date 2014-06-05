@@ -13,6 +13,8 @@ class RAPPELZLIB_EXTERN ConfigInfo : public Object
 	DECLARE_CLASS(ConfigInfo)
 
 public:
+	void init(int argc, char **argv);
+
 	void parseCommandLine(int argc, char **argv, bool onlyConfigFileLocation = false);
 	bool readFile(const char *filename);
 	void dump(bool showDefault = true);

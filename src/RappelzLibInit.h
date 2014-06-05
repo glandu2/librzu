@@ -6,6 +6,6 @@
 typedef void (*ClientConfigInit)();
 
 //configDeclareInitCallback must bind or declare config keys to set their types (if there is no config used in client code, set to nullptr)
-bool RAPPELZLIB_EXTERN RappelzLibInit(int argc, char **argv, ClientConfigInit configDeclareInitCallback);
+bool RAPPELZLIB_EXTERN RappelzLibInit();
 
 #endif // RAPPELZLIBINIT_H

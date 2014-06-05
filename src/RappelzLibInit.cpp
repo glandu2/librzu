@@ -1,6 +1,7 @@
 #include "RappelzLibInit.h"
 #include "RappelzLibConfig.h"
 #include "Log.h"
+#include "CrashHandler.h"
 
 #ifdef __unix
 #include <signal.h>
@@ -12,11 +13,10 @@ void disableSigPipe() {
 #endif
 }
 
-bool RappelzLibInit(int argc, char **argv, ClientConfigInit configDeclareInitCallback) {
+bool RappelzLibInit() {
 	disableSigPipe();
-
-	RappelzLibConfig::init();
-
+	CrashHandler::setProcessExceptionHandlers();
+	CrashHandler::setThreadExceptionHandlers();
 
 	return true;
 }
