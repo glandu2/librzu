@@ -224,55 +224,65 @@ void Socket::setPeerInfo(const std::string& host, uint16_t port) {
 }
 
 
-void Socket::packetLog(Log::Level level, const char* format, ...) {
+void Socket::packetLog(Log::Level level, const char* rawData, int size, const char* format, ...) {
 	if(packetLogger == nullptr)
 		return;
+
+	char messageBuffer[4096];
 
 	va_list args;
 
 	va_start(args, format);
-	packetLogger->log(level, getObjectName(), getObjectNameSize(), format, args);
+	vsnprintf(messageBuffer, 4096, format, args);
+	messageBuffer[4095] = 0;
 	va_end(args);
-}
 
-void Socket::packetLogRawData(Log::Level level, const char* rawData, int size) {
-	if(packetLogger == nullptr)
-		return;
+	if(rawData && size > 0) {
+		std::ostringstream buffer;
+		buffer << std::hex << std::setfill('0');
 
-	std::ostringstream buffer;
-	buffer << std::hex << std::setfill('0');
+		//Log full packet data
+		const int lineNum = (size+15)/16;
 
-	//Log full packet data
-	const int lineNum = (size+15)/16;
+		for(int line = 0; line < lineNum; line++) {
+			int maxCharNum = size - (line*16);
+			if(maxCharNum > 16)
+				maxCharNum = 16;
 
-	for(int line = 0; line < lineNum; line++) {
-		int maxCharNum = size - (line*16);
-		if(maxCharNum > 16)
-			maxCharNum = 16;
+			buffer << std::setw(4) << line*16 << ": ";
 
-		for(int row = 0; row < 16; row++) {
-			if(row < maxCharNum)
-				buffer << std::setw(2) << (int)(unsigned char)rawData[line*16+row] << ' ';
-			else
-				buffer << "   ";
-		}
+			for(int row = 0; row < 16; row++) {
+				if(row < maxCharNum)
+					buffer << std::setw(2) << (int)(unsigned char)rawData[line*16+row] << ' ';
+				else
+					buffer << "   ";
+				if(row == 7)
+					buffer << ' ';
+			}
 
-		buffer << ' ';
+			buffer << ' ';
 
-		for(int row = 0; row < maxCharNum; row++) {
-			const char c = rawData[line*16+row];
+			for(int row = 0; row < maxCharNum; row++) {
+				const char c = rawData[line*16+row];
 
-			if(c >= 32 && c < 127)
-				buffer << c;
-			else
-				buffer << '.';
+				if(c >= 32 && c < 127)
+					buffer << c;
+				else
+					buffer << '.';
+				if(row == 7)
+					buffer << ' ';
+			}
+			buffer << "\n";
 		}
 
 		packetLogger->log(level, getObjectName(), getObjectNameSize(),
-						  "%s\n",
+						  "%s%s\n",
+						  messageBuffer,
 						  buffer.str().c_str());
-		buffer.str("");
-		buffer.clear();
+	} else {
+		packetLogger->log(level, getObjectName(), getObjectNameSize(),
+						  "%s",
+						  messageBuffer);
 	}
 }
 

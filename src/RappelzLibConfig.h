@@ -22,13 +22,15 @@ struct RAPPELZLIB_EXTERN RappelzLibConfig {
 	struct Log : public IListener {
 		cval<bool> &enable;
 		cval<std::string> &dir, &file, &level, &consoleLevel;
+		cval<int> &maxQueueSize;
 
 		Log() :
 			enable(CFG_CREATE("core.log.enablefile", true)),
 			dir(CFG_CREATE("core.log.dir", "log")),
 			file(CFG_CREATE("core.log.file", CFG_GET("core.appname")->getString() + ".log")),
 			level(CFG_CREATE("core.log.level", "info")),
-			consoleLevel(CFG_CREATE("core.log.consolelevel", "info"))
+			consoleLevel(CFG_CREATE("core.log.consolelevel", "info")),
+			maxQueueSize(CFG_CREATE("core.log.maxqueuesize", 1000))
 		{
 			Utils::autoSetAbsoluteDir(dir);
 			level.addListener(this, &updateConsoleLevel);

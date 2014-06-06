@@ -22,8 +22,8 @@ public:
 		LL_Trace
 	};
 
-	Log(cval<bool>& enabled, cval<std::string>& fileMaxLevel, cval<std::string>& consoleMaxLevel, cval<std::string>& dir, cval<std::string>& fileName);
-	Log(cval<bool>& enabled, Level fileMaxLevel, Level consoleMaxLevel, cval<std::string>& dir, cval<std::string>& fileName);
+	Log(cval<bool>& enabled, cval<std::string>& fileMaxLevel, cval<std::string>& consoleMaxLevel, cval<std::string>& dir, cval<std::string>& fileName, cval<int>& maxQueueSize);
+	Log(cval<bool>& enabled, Level fileMaxLevel, Level consoleMaxLevel, cval<std::string>& dir, cval<std::string>& fileName, cval<int>& maxQueueSize);
 
 	~Log();
 
@@ -79,6 +79,7 @@ private:
 	Level consoleMaxLevel;
 	cval<std::string>& dir;
 	cval<std::string>& fileName;
+	cval<int>& maxQueueSize;
 	void* file;
 	uv_mutex_t fileMutex;
 	uv_timer_t flushTimer;

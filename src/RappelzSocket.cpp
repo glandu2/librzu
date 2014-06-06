@@ -82,11 +82,11 @@ void RappelzSocket::logPacket(bool outgoing, const TS_MESSAGE* msg) {
 		  msg->id,
 		  msg->size);
 
-	packetLog(Log::LL_Info, "Packet %s id: %5d, size: %d\n",
-					(outgoing)? "out" : " in",
-					msg->id,
-					msg->size);
-	packetLogRawData(Log::LL_Debug, reinterpret_cast<const char*>(msg), (int)msg->size);
+	packetLog(Log::LL_Info, reinterpret_cast<const char*>(msg), (int)msg->size,
+			  "Packet %s id: %5d, size: %d\n",
+			  (outgoing)? "out" : "in ",
+			  msg->id,
+			  msg->size);
 }
 
 void RappelzSocket::dataReceived(IListener* instance, Socket*) {

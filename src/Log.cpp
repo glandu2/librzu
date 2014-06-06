@@ -10,11 +10,12 @@ static const char * const  LEVELSTRINGS[] = { "FATAL", "ERROR", "Warn", "Info", 
 
 Log* Log::defaultLogger = nullptr;
 
-Log::Log(cval<bool>& enabled, cval<std::string>& fileMaxLevel, cval<std::string>& consoleMaxLevel, cval<std::string>& dir, cval<std::string>& fileName) :
+Log::Log(cval<bool>& enabled, cval<std::string>& fileMaxLevel, cval<std::string>& consoleMaxLevel, cval<std::string>& dir, cval<std::string>& fileName, cval<int>& maxQueueSize) :
 	fileMaxLevel(LL_Info),
 	consoleMaxLevel(LL_Info),
 	dir(dir),
 	fileName(fileName),
+	maxQueueSize(maxQueueSize),
 	file(nullptr)
 {
 	construct(enabled, dir, fileName);
@@ -26,11 +27,12 @@ Log::Log(cval<bool>& enabled, cval<std::string>& fileMaxLevel, cval<std::string>
 	consoleMaxLevel.addListener(this, &updateConsoleLevel);
 }
 
-Log::Log(cval<bool>& enabled, Level fileMaxLevel, Level consoleMaxLevel, cval<std::string>& dir, cval<std::string>& fileName) :
+Log::Log(cval<bool>& enabled, Level fileMaxLevel, Level consoleMaxLevel, cval<std::string>& dir, cval<std::string>& fileName, cval<int>& maxQueueSize) :
 	fileMaxLevel(LL_Info),
 	consoleMaxLevel(LL_Info),
 	dir(dir),
 	fileName(fileName),
+	maxQueueSize(maxQueueSize),
 	file(nullptr)
 {
 	construct(enabled, dir, fileName);
@@ -255,7 +257,8 @@ void Log::log(Level level, const char *objectName, size_t objectNameSize, const 
 	stringformat(msg->message, message, args);
 
 	uv_mutex_lock(&this->messageListMutex);
-	this->messageQueue.push_back(msg);
+	if(this->messageQueue.size() < maxQueueSize.get())
+		this->messageQueue.push_back(msg);
 	uv_cond_signal(&this->messageListCond);
 	uv_mutex_unlock(&this->messageListMutex);
 }
