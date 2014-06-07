@@ -47,7 +47,7 @@ static int __cdecl newHandler(size_t);
 
 static void sigabrtHandler(int);
 static void sigfpeHandler(int /*code*/, int subcode);
-static void sigintHandler(int);
+//static void sigintHandler(int);
 static void sigillHandler(int);
 static void sigsegvHandler(int);
 static void sigtermHandler(int);
@@ -94,7 +94,7 @@ void CrashHandler::setProcessExceptionHandlers()
 	signal(SIGABRT, &sigabrtHandler);
 
 	// Catch illegal instruction handler
-	signal(SIGINT, &sigintHandler);
+	//signal(SIGINT, &sigintHandler);
 
 	// Catch a termination request
 	signal(SIGTERM, &sigtermHandler);
@@ -416,7 +416,7 @@ void sigillHandler(int)
 }
 
 // CRT sigint signal handler
-void sigintHandler(int)
+/*void sigintHandler(int)
 {
 	// Interruption (SIGINT)
 
@@ -430,7 +430,7 @@ void sigintHandler(int)
 	// Terminate process
 	TerminateProcess(GetCurrentProcess(), 1);
 
-}
+}*/
 
 // CRT SIGSEGV signal handler
 void sigsegvHandler(int)

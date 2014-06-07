@@ -225,7 +225,7 @@ void Socket::setPeerInfo(const std::string& host, uint16_t port) {
 
 
 void Socket::packetLog(Log::Level level, const char* rawData, int size, const char* format, ...) {
-	if(packetLogger == nullptr)
+	if(packetLogger == nullptr || !packetLogger->wouldLog(level))
 		return;
 
 	char messageBuffer[4096];

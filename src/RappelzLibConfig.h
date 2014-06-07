@@ -25,7 +25,7 @@ struct RAPPELZLIB_EXTERN RappelzLibConfig {
 		cval<int> &maxQueueSize;
 
 		Log() :
-			enable(CFG_CREATE("core.log.enablefile", true)),
+			enable(CFG_CREATE("core.log.enable", true)),
 			dir(CFG_CREATE("core.log.dir", "log")),
 			file(CFG_CREATE("core.log.file", CFG_GET("core.appname")->getString() + ".log")),
 			level(CFG_CREATE("core.log.level", "info")),

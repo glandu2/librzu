@@ -28,9 +28,7 @@ public:
 	~Log();
 
 	void startWriter();
-	void stopWriter();
-	bool open();
-	void close();
+	void stopWriter(bool waitThread = true);
 
 	uv_thread_t getLogWriterThread() { return logWritterThreadId; }
 
@@ -42,7 +40,7 @@ public:
 
 	Level getMaxLevel() { return fileMaxLevel > consoleMaxLevel ? fileMaxLevel : consoleMaxLevel; }
 
-	bool isAllMessageWritten();
+	bool wouldLog(Level level) { return (level <= fileMaxLevel || level <= consoleMaxLevel) && stop == false; }
 
 protected:
 	static void updateEnabled(IListener* instance, cval<bool>* level);
@@ -80,9 +78,7 @@ private:
 	cval<std::string>& dir;
 	cval<std::string>& fileName;
 	cval<int>& maxQueueSize;
-	void* file;
-	uv_mutex_t fileMutex;
-	uv_timer_t flushTimer;
+	bool updateFileRequested;
 };
 
 #endif // LOG_H

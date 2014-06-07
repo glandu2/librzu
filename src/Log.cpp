@@ -15,8 +15,7 @@ Log::Log(cval<bool>& enabled, cval<std::string>& fileMaxLevel, cval<std::string>
 	consoleMaxLevel(LL_Info),
 	dir(dir),
 	fileName(fileName),
-	maxQueueSize(maxQueueSize),
-	file(nullptr)
+	maxQueueSize(maxQueueSize)
 {
 	construct(enabled, dir, fileName);
 
@@ -32,8 +31,7 @@ Log::Log(cval<bool>& enabled, Level fileMaxLevel, Level consoleMaxLevel, cval<st
 	consoleMaxLevel(LL_Info),
 	dir(dir),
 	fileName(fileName),
-	maxQueueSize(maxQueueSize),
-	file(nullptr)
+	maxQueueSize(maxQueueSize)
 {
 	construct(enabled, dir, fileName);
 
@@ -43,20 +41,20 @@ Log::Log(cval<bool>& enabled, Level fileMaxLevel, Level consoleMaxLevel, cval<st
 
 void Log::construct(cval<bool>& enabled, cval<std::string>& dir, cval<std::string>& fileName) {
 	this->stop = true;
-	uv_mutex_init(&this->fileMutex);
 	uv_mutex_init(&this->messageListMutex);
 	uv_cond_init(&this->messageListCond);
 	startWriter();
 
-	updateEnabled(this, &enabled);
-
 	enabled.addListener(this, &updateEnabled);
 	dir.addListener(this, &updateFile);
 	fileName.addListener(this, &updateFile);
+
+	updateEnabled(this, &enabled);
 }
 
 Log::~Log() {
-	close();
+	if(defaultLogger == this)
+		defaultLogger = nullptr;
 	stopWriter();
 }
 
@@ -64,9 +62,9 @@ void Log::updateEnabled(IListener* instance, cval<bool>* enable) {
 	Log* thisInstance = (Log*) instance;
 
 	if(enable->get()) {
-		thisInstance->open();
+		thisInstance->startWriter();
 	} else {
-		thisInstance->close();
+		thisInstance->stopWriter(false);
 	}
 }
 
@@ -90,7 +88,7 @@ void Log::updateLevel(bool isConsole, const std::string& level) {
 	else
 		levelToChange = &fileMaxLevel;
 
-	if(level == "fatal")
+	if(level == "fatal" || level == "never")
 		*levelToChange = LL_Fatal;
 	else if(level == "error")
 		*levelToChange = LL_Error;
@@ -103,7 +101,13 @@ void Log::updateLevel(bool isConsole, const std::string& level) {
 	else if(level == "trace")
 		*levelToChange = LL_Trace;
 	else {
-		error("Invalid level value: %s. Using warning.\n", level.c_str());
+		const char* target;
+		if(!isConsole)
+			target = "file";
+		else
+			target = "console";
+
+		error("Invalid %s level value: %s. Using warning. (valid ones are: fatal, never (alias for fatal), error, warning, info, debug and trace)\n", target, level.c_str());
 		*levelToChange = LL_Warning;
 	}
 
@@ -116,7 +120,7 @@ void Log::updateLevel(bool isConsole, const std::string& level) {
 void Log::updateFile(IListener* instance, cval<std::string>* str) {
 	Log* thisInstance = (Log*) instance;
 
-	thisInstance->open();
+	thisInstance->updateFileRequested = true;
 }
 
 void Log::startWriter() {
@@ -124,10 +128,12 @@ void Log::startWriter() {
 		return;
 
 	this->stop = false;
+	this->updateFileRequested = true;
 	uv_thread_create(&this->logWritterThreadId, &logWritterThreadStatic, this);
+	log(LL_Info, getObjectName(), getObjectNameSize(), "Log thread started using filename %s\n", fileName.get().c_str());
 }
 
-void Log::stopWriter() {
+void Log::stopWriter(bool waitThread) {
 	if(this->stop == true)
 		return;
 
@@ -142,65 +148,21 @@ void Log::stopWriter() {
 	}
 
 	debug("Stopping log thread\n");
+	log(LL_Info, getObjectName(), getObjectNameSize(), "Log thread stopped\n");
 
 	uv_mutex_lock(&this->messageListMutex);
 	this->stop = true;
 	uv_cond_signal(&this->messageListCond);
 	uv_mutex_unlock(&this->messageListMutex);
 
-	uv_thread_join(&this->logWritterThreadId);
-}
-
-bool Log::open() {
-	std::string absoluteDir = dir.get();
-	std::string newFileName = absoluteDir + "/" + fileName.get();
-	FILE* newfile;
-
-	Utils::mkdir(absoluteDir.c_str());
-
-	newfile = fopen(newFileName.c_str(), "ab");
-	if(!newfile) {
-		if(this->file)
-			error("Couldnt open new log file %s, keeping old one\n", newFileName.c_str());
-		else
-			error("Couldnt open log file %s for writting !\n", newFileName.c_str());
-		return false;
-	} else {
-		uv_mutex_lock(&this->fileMutex);
-
-		if(this->file) {
-			info("Switching log file to %s\n", newFileName.c_str());
-
-
-			fclose((FILE*)this->file);
-			this->file = newfile;
-
-		} else {
-			this->file = newfile;
-		}
-
-		uv_mutex_unlock(&this->fileMutex);
-
-		log(LL_Info, getObjectName(), getObjectNameSize(), "Log file \"%s\" opened\n", newFileName.c_str());
-		return true;
-	}
-}
-
-void Log::close() {
-	info("Closing log file\n");
-	if(defaultLogger == this)
-		defaultLogger = nullptr;
-	uv_mutex_lock(&this->fileMutex);
-	if(this->file)
-		fclose((FILE*)this->file);
-	this->file = nullptr;
-	uv_mutex_unlock(&this->fileMutex);
+	if(waitThread)
+		uv_thread_join(&this->logWritterThreadId);
 }
 
 void Log::log(Level level, const char *objectName, size_t objectNameSize, const char* message, ...) {
 	va_list args;
 
-	if(level > fileMaxLevel && level > consoleMaxLevel)
+	if(!wouldLog(level))
 		return;
 
 	va_start(args, message);
@@ -245,7 +207,7 @@ void stringformat(std::string& dest, const char* message, va_list args) {
 }
 
 void Log::log(Level level, const char *objectName, size_t objectNameSize, const char* message, va_list args) {
-	if(level > fileMaxLevel && level > consoleMaxLevel)
+	if(!wouldLog(level))
 		return;
 
 	Message* msg = new Message;
@@ -257,10 +219,39 @@ void Log::log(Level level, const char *objectName, size_t objectNameSize, const 
 	stringformat(msg->message, message, args);
 
 	uv_mutex_lock(&this->messageListMutex);
-	if(this->messageQueue.size() < maxQueueSize.get())
+	if((int)this->messageQueue.size() < maxQueueSize.get())
 		this->messageQueue.push_back(msg);
 	uv_cond_signal(&this->messageListCond);
 	uv_mutex_unlock(&this->messageListMutex);
+}
+
+/*************************************/
+/* In a thread                       */
+/*************************************/
+
+static FILE* openLogFile(FILE* currentFile, const std::string& dir, const std::string& filename, int year, int month, int day) {
+	std::string absoluteDir = dir + '/';
+	std::string newFileName = filename;
+	char datesuffix[16];
+	FILE* newfile;
+
+	Utils::mkdir(absoluteDir.c_str());
+
+	sprintf(datesuffix, "_%04d-%02d-%02d", year, month, day);
+	newFileName.insert(newFileName.find_last_of('.'), datesuffix);
+	newFileName = absoluteDir + newFileName;
+
+	newfile = fopen(newFileName.c_str(), "ab");
+	if(!newfile) {
+		return currentFile;
+	} else {
+		if(currentFile)
+			fclose(currentFile);
+
+		currentFile = newfile;
+	}
+
+	return currentFile;
 }
 
 void Log::logWritterThreadStatic(void* arg) { reinterpret_cast<Log*>(arg)->logWritterThread(); }
@@ -269,7 +260,14 @@ void Log::logWritterThread() {
 	size_t i, size;
 	struct tm localtm;
 	std::vector<char> logHeader;
+
 	bool endLoop = false;
+	bool willUpdateFile;
+
+	FILE* logFile = nullptr;
+	int lastYear = -1;
+	int lastMonth = -1;
+	int lastDay = -1;
 
 	while(endLoop == false) {
 		uv_mutex_lock(&this->messageListMutex);
@@ -279,14 +277,44 @@ void Log::logWritterThread() {
 		}
 
 		endLoop = this->stop;
+		willUpdateFile = this->updateFileRequested;
 		messagesToWrite->swap(this->messageQueue);
 
 		uv_mutex_unlock(&this->messageListMutex);
 
 
-		uv_mutex_lock(&this->fileMutex);
-
 		size = messagesToWrite->size();
+
+		//Check if the date changed, if so, update the log file to us a new one (filename has timestamp)
+		if(size > 0) {
+			time_t firstMsgTime = messagesToWrite->at(0)->time;
+
+			Utils::getGmTime(firstMsgTime, &localtm);
+
+			if(localtm.tm_year != lastYear) {
+				willUpdateFile = true;
+				lastYear = localtm.tm_year;
+			}
+			if(localtm.tm_mon != lastMonth) {
+				willUpdateFile = true;
+				lastMonth = localtm.tm_mon;
+			}
+			if(localtm.tm_mday != lastDay) {
+				willUpdateFile = true;
+				lastDay = localtm.tm_mday;
+			}
+
+			if(willUpdateFile || logFile == nullptr) {
+				this->updateFileRequested = false;
+
+				FILE* newfile = openLogFile(logFile, this->dir.get(), this->fileName.get(), lastYear, lastMonth, lastDay);
+				if(newfile == logFile) {
+					fprintf(logFile, "Failed to change log file to %s\n", this->fileName.get().c_str());
+				}
+				logFile = newfile;
+			}
+		}
+
 		for(i = 0; i < size; i++) {
 			const Message* const msg = messagesToWrite->at(i);
 
@@ -305,25 +333,21 @@ void Log::logWritterThread() {
 				fwrite(msg->message.c_str(), 1, msg->message.size(), stderr);
 			}
 
-			if(this->file && msg->writeToFile) {
-				fwrite(&logHeader[0], 1, strLen, (FILE*)this->file);
-				fwrite(msg->message.c_str(), 1, msg->message.size(), (FILE*)this->file);
+			if(logFile && msg->writeToFile) {
+				fwrite(&logHeader[0], 1, strLen, logFile);
+				fwrite(msg->message.c_str(), 1, msg->message.size(), logFile);
 			}
 
 			delete msg;
 		}
 
-		if(this->file)
-			fflush((FILE*)this->file);
-
-		uv_mutex_unlock(&this->fileMutex);
+		if(logFile)
+			fflush(logFile);
 
 		messagesToWrite->clear();
 	}
 
 	delete messagesToWrite;
-}
-
-bool Log::isAllMessageWritten() {
-	return true;
+	if(logFile)
+		fclose(logFile);
 }
