@@ -46,6 +46,7 @@ void RC4Cipher::getXOR(char *out, size_t size) {
 
 void RC4Cipher::encode(const char *in, char *out, size_t size) {
 	size_t i;
+	register unsigned char x = this->x, y = this->y;
 
 	for(i=0; i<size; i++) {
 		x = (x + 1) & 0xFF;
@@ -53,4 +54,6 @@ void RC4Cipher::encode(const char *in, char *out, size_t size) {
 		exchange(&s[x], &s[y]);
 		out[i] = in[i] ^ s[(s[x] + s[y]) & 0xFF];
 	}
+	this->x = x;
+	this->y = y;
 }
