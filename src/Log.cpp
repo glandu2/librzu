@@ -241,7 +241,7 @@ static FILE* openLogFile(FILE* currentFile, const std::string& dir, const std::s
 	newFileName.insert(newFileName.find_last_of('.'), datesuffix);
 	newFileName = absoluteDir + newFileName;
 
-	newfile = fopen(newFileName.c_str(), "ab");
+	newfile = fopen(newFileName.c_str(), "at");
 	if(!newfile) {
 		return currentFile;
 	} else {

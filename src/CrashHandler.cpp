@@ -81,14 +81,17 @@ void CrashHandler::setProcessExceptionHandlers()
 	_set_purecall_handler(&pureCallHandler);
 
 	// Catch new operator memory allocation exceptions
+#ifndef __MINGW32__
 	_set_new_handler(&newHandler);
+#endif
 
 	// Catch invalid parameter exceptions.
 	_set_invalid_parameter_handler(&invalidParameterHandler);
 
 	// Set up C++ signal handlers
-
+#ifndef __MINGW32__
 	_set_abort_behavior(_CALL_REPORTFAULT, _CALL_REPORTFAULT);
+#endif
 
 	// Catch an abnormal program termination
 	signal(SIGABRT, &sigabrtHandler);
@@ -109,14 +112,14 @@ void CrashHandler::setThreadExceptionHandlers()
 	// separately for each thread. Each new thread needs to install its own
 	// terminate function. Thus, each thread is in charge of its own termination handling.
 	// http://msdn.microsoft.com/en-us/library/t6fk7h29.aspx
-	set_terminate(&terminateHandler);
+	std::set_terminate(&terminateHandler);
 
 	// Catch unexpected() calls.
 	// In a multithreaded environment, unexpected functions are maintained
 	// separately for each thread. Each new thread needs to install its own
 	// unexpected function. Thus, each thread is in charge of its own unexpected handling.
 	// http://msdn.microsoft.com/en-us/library/h46t5b69.aspx
-	set_unexpected(&unexpectedHandler);
+	std::set_unexpected(&unexpectedHandler);
 
 	// Catch a floating point error
 	typedef void (*sigh)(int);
@@ -182,7 +185,12 @@ void getExceptionPointers(DWORD dwExceptionCode,
 	ZeroMemory(&ExceptionRecord, sizeof(EXCEPTION_RECORD));
 
 	ExceptionRecord.ExceptionCode = dwExceptionCode;
+
+#ifdef __MINGW32__
+	ExceptionRecord.ExceptionAddress = __builtin_return_address(0);
+#else
 	ExceptionRecord.ExceptionAddress = _ReturnAddress();
+#endif
 
 	///
 

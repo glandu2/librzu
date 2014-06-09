@@ -75,7 +75,7 @@ protected:
 	void setState(State state);
 	void setPeerInfo(const std::string& host, uint16_t port);
 
-	void packetLog(Log::Level level, const char *rawData, int size, const char* format, ...);
+	void packetLog(Log::Level level, const unsigned char *rawData, int size, const char* format, ...);
 
 
 	static void onConnected(uv_connect_t* req, int status);
