@@ -24,12 +24,12 @@ protected:
 	Socket* getSocket() { return socket; }
 	RappelzServerCommon* getServer() { return server; }
 
-	static void onDataReceived(IListener* instance, Socket* socket);
-
-
 	void setServer(RappelzServerCommon* server, std::list<Socket*>::iterator socketIterator) { this->server = server; this->socketIterator = socketIterator; }
 	std::list<Socket*>::iterator getSocketIterator() { return socketIterator; }
 	friend class RappelzServerCommon;
+
+private:
+	static void onDataReceived(IListener* instance, Socket* socket);
 
 private:
 	Socket* socket;

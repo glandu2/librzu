@@ -119,20 +119,26 @@ size_t Socket::discard(size_t size) {
 }
 
 size_t Socket::write(const void *buffer, size_t size) {
-	WriteRequest* writeRequest = (WriteRequest*)new char[sizeof(WriteRequest) + size];
-	writeRequest->buffer.len = size;
-	writeRequest->buffer.base = writeRequest->data;
-	writeRequest->writeReq.data = this;
-	memcpy(writeRequest->buffer.base, buffer, size);
-	int result = uv_write(&writeRequest->writeReq, (uv_stream_t*)&socket, &writeRequest->buffer, 1, &onWriteCompleted);
-	if(result < 0) {
-		delete[] (char*)writeRequest;
-		debug("Cant write: %s\n", uv_strerror(result));
-		notifyReadyError(result);
-		return false;
+	if(getState() == ConnectedState) {
+		WriteRequest* writeRequest = (WriteRequest*)new char[sizeof(WriteRequest) + size];
+		writeRequest->buffer.len = size;
+		writeRequest->buffer.base = writeRequest->data;
+		writeRequest->writeReq.data = this;
+		memcpy(writeRequest->buffer.base, buffer, size);
+		int result = uv_write(&writeRequest->writeReq, (uv_stream_t*)&socket, &writeRequest->buffer, 1, &onWriteCompleted);
+		if(result < 0) {
+			delete[] (char*)writeRequest;
+			debug("Cant write: %s\n", uv_strerror(result));
+			notifyReadyError(result);
+			return 0;
+		}
+
+		return size;
+	} else {
+		error("Attempt to send data but socket not connected, current state is: %s(%d)\n", (getState() < (sizeof(STATES)/sizeof(const char*))) ? STATES[getState()] : "Unknown", getState());
+		return 0;
 	}
 
-	return size;
 }
 
 bool Socket::accept(Socket* clientSocket) {
@@ -203,7 +209,7 @@ void Socket::setState(State state) {
 	currentState = state;
 
 	const char* oldStateStr = (oldState < (sizeof(STATES)/sizeof(const char*))) ? STATES[oldState] : "Unknown";
-	const char* newStateStr = (oldState < (sizeof(STATES)/sizeof(const char*))) ? STATES[state] : "Unknown";
+	const char* newStateStr = (state < (sizeof(STATES)/sizeof(const char*))) ? STATES[state] : "Unknown";
 	trace("Socket state change from %s to %s\n", oldStateStr, newStateStr);
 
 	DELEGATE_CALL(eventListeners, this, oldState, state);

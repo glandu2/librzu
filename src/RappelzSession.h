@@ -23,6 +23,7 @@ protected:
 	void addPacketsToListen(int packetsIdNum, int firstPacketId, ...);
 	RappelzSocket* getSocket() { return static_cast<RappelzSocket*>(SocketSession::getSocket()); }
 
+private:
 	static void onDataReceived(IListener* instance, RappelzSocket* clientSocket, const TS_MESSAGE* packet);
 };
 
