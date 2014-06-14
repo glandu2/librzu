@@ -43,7 +43,6 @@ void Log::construct(cval<bool>& enabled, cval<std::string>& dir, cval<std::strin
 	this->stop = true;
 	uv_mutex_init(&this->messageListMutex);
 	uv_cond_init(&this->messageListCond);
-	startWriter();
 
 	enabled.addListener(this, &updateEnabled);
 	dir.addListener(this, &updateFile);
