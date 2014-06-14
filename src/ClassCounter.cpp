@@ -29,6 +29,12 @@ DECLARE_CLASSCOUNT_STATIC(CircularBuffer)
 #include "ConfigInfo.h"
 DECLARE_CLASSCOUNT_STATIC(ConfigInfo)
 
+#include "DbConnectionPool.h"
+DECLARE_CLASSCOUNT_STATIC(DbConnection)
+
+#include "DbQueryJob.h"
+DECLARE_CLASSCOUNT_STATIC(DbQueryBinding)
+
 #include "EncryptedSocket.h"
 DECLARE_CLASSCOUNT_STATIC(EncryptedSocket)
 
