@@ -1,5 +1,6 @@
 #include "ServersManager.h"
 #include "ConfigInfo.h"
+#include "BanManager.h"
 
 ServersManager* ServersManager::instance = nullptr;
 
@@ -46,12 +47,18 @@ bool ServersManager::start() {
 		ServerInfo* serverInfo = it->second;
 
 		if(serverInfo->autoStart->getBool()) {
-			if(serverInfo->server->isListening() == false)
+			if(serverInfo->banManager)
+				serverInfo->banManager->loadFile();
+
+			if(serverInfo->server->isListening() == false) {
 				info("Starting server %s on %s:%d\n", it->first.c_str(), serverInfo->listenIp->getString().c_str(), serverInfo->listenPort->getInt());
 
-			serverInfo->server->startServer(serverInfo->listenIp->getString(),
-											serverInfo->listenPort->getInt(),
-											serverInfo->banManager);
+				serverInfo->server->startServer(serverInfo->listenIp->getString(),
+												serverInfo->listenPort->getInt(),
+												serverInfo->banManager);
+			} else {
+				info("Server %s already started\n", it->first.c_str());
+			}
 		}
 	}
 
@@ -78,12 +85,18 @@ bool ServersManager::start(const std::string& name) {
 	if(it != servers.end()) {
 		ServerInfo* serverInfo = it->second;
 
-		if(serverInfo->server->isListening() == false)
+		if(serverInfo->banManager)
+			serverInfo->banManager->loadFile();
+
+		if(serverInfo->server->isListening() == false) {
 			info("Starting server %s on %s:%d\n", it->first.c_str(), serverInfo->listenIp->getString().c_str(), serverInfo->listenPort->getInt());
 
-		serverInfo->server->startServer(serverInfo->listenIp->getString(),
-										serverInfo->listenPort->getInt(),
-										serverInfo->banManager);
+			serverInfo->server->startServer(serverInfo->listenIp->getString(),
+											serverInfo->listenPort->getInt(),
+											serverInfo->banManager);
+		} else {
+			info("Server %s already started\n", it->first.c_str());
+		}
 
 		return true;
 	}

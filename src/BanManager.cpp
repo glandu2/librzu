@@ -15,6 +15,8 @@ void BanManager::loadFile() {
 
 	char line[512];
 
+	std::unordered_set<uint32_t> newBannedIps;
+
 	while(fgets(line, 512, file)) {
 		char *p = line;
 		while(*p && (isdigit(*p) || *p == '.'))
@@ -25,11 +27,21 @@ void BanManager::loadFile() {
 		if(line[0]) {
 			uint32_t inet;
 			if(stringToIpNetwork(line, &inet)) {
-				bannedIps.insert(inet);
-				info("Add banned ip: %s\n", line);
+				newBannedIps.insert(inet);
+				if(bannedIps.erase(inet) == 0)
+					info("Add banned ip: %s\n", line);
 			}
 		}
 	}
+
+	std::unordered_set<uint32_t>::const_iterator it, itEnd;
+	char ipStr[16];
+	for(it = bannedIps.cbegin(), itEnd = bannedIps.cend(); it != itEnd; ++it) {
+		ipNetworkToString(ipStr, *it);
+		info("Removed banned ip: %s\n", ipStr);
+	}
+
+	bannedIps.swap(newBannedIps);
 
 	fclose(file);
 }
@@ -55,4 +67,17 @@ bool BanManager::stringToIpNetwork(const char* ip, uint32_t *out) {
 	*out = htonl(*out);
 
 	return true;
+}
+
+void BanManager::ipNetworkToString(char ipStr[16], uint32_t ip) {
+	int a, b, c, d;
+
+	//host order -> network order
+	uint32_t ipLE = htonl(ip);
+	a = (ipLE >> 24) & 0xFF;
+	b = (ipLE >> 16) & 0xFF;
+	c = (ipLE >> 8) & 0xFF;
+	d = ipLE & 0xFF;
+
+	sprintf(ipStr, "%d.%d.%d.%d", a, b, c, d);
 }
