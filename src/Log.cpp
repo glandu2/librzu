@@ -254,6 +254,13 @@ static FILE* openLogFile(FILE* currentFile, const std::string& dir, const std::s
 	return currentFile;
 }
 
+
+static uv_mutex_t consoleMutex;
+static uv_once_t initMutexOnce = UV_ONCE_INIT;
+static void initMutex() {
+	uv_mutex_init(&consoleMutex);
+}
+
 void Log::logWritterThreadStatic(void* arg) { reinterpret_cast<Log*>(arg)->logWritterThread(); }
 void Log::logWritterThread() {
 	std::vector<Message*>* messagesToWrite = new std::vector<Message*>;
@@ -268,6 +275,8 @@ void Log::logWritterThread() {
 	int lastYear = -1;
 	int lastMonth = -1;
 	int lastDay = -1;
+
+	uv_once(&initMutexOnce, &initMutex);
 
 	while(endLoop == false) {
 		uv_mutex_lock(&this->messageListMutex);
@@ -324,13 +333,17 @@ void Log::logWritterThread() {
 			logHeader.resize(27 + msg->objectName.size() + 3);
 			size_t strLen = snprintf(&logHeader[0], logHeader.size(), "%4d-%02d-%02d %02d:%02d:%02d %-5s %s: ", localtm.tm_year, localtm.tm_mon, localtm.tm_mday, localtm.tm_hour, localtm.tm_min, localtm.tm_sec, LEVELSTRINGS[msg->level], msg->objectName.c_str());
 			if(strLen >= logHeader.size()) {
-				fprintf(stderr, "------------------- ERROR Log::logWritterThread: Log buffer was too small, next log message might be truncated\n");
+				uv_mutex_lock(&consoleMutex);
+					fprintf(stderr, "------------------- ERROR Log::logWritterThread: Log buffer was too small, next log message might be truncated\n");
+				uv_mutex_unlock(&consoleMutex);
 				strLen = logHeader.size()-1; //do not write the \0
 			}
 
 			if(msg->writeToConsole) {
-				fwrite(&logHeader[0], 1, strLen, stderr);
-				fwrite(msg->message.c_str(), 1, msg->message.size(), stderr);
+				uv_mutex_lock(&consoleMutex);
+					fwrite(&logHeader[0], 1, strLen, stderr);
+					fwrite(msg->message.c_str(), 1, msg->message.size(), stderr);
+				uv_mutex_unlock(&consoleMutex);
 			}
 
 			if(logFile && msg->writeToFile) {
