@@ -96,10 +96,16 @@ void ConfigInfo::parseCommandLine(int argc, char **argv, bool onlyConfigFileLoca
 	}
 }
 
-bool ConfigInfo::readFile(const char* filename) {
+bool ConfigInfo::readFile(const char* filename, int fileDepth) {
 	FILE* file;
 	char line[1024];
 	char *p, *key, *value;
+	int lineNumber = 0;
+
+	if(fileDepth > 10) {
+		error("Too many file inclusions (%d) while reading %s, continuing without going deeper\n", fileDepth, filename);
+		return false;
+	}
 
 	file = fopen(filename, "rb");
 	if(!file) {
@@ -107,10 +113,11 @@ bool ConfigInfo::readFile(const char* filename) {
 		return false;
 	}
 
-	info("Using config file %s\n", filename);
+	info("Reading config file %s\n", filename);
 
 	while(fgets(line, 1024, file)) {
 		size_t len = strlen(line);
+		lineNumber++;
 
 		//remove leading spaces
 		p = line;
@@ -135,30 +142,88 @@ bool ConfigInfo::readFile(const char* filename) {
 		*p = 0;
 		value = p+1;
 
-		std::string keyStr(key);
+		trace("%s:%d: Read key: %s, value: %s\n", filename, lineNumber, key, value);
 
-		ConfigValue* v = getValue(keyStr);
-		if(v == nullptr) {
-			warn("Unknown key \"%s\" in config file, ignoring\n", keyStr.c_str());
-			continue;
-		}
+		if(key[0] == '%') {
+			//special command
+			trace("Config line is a command: %s\n", key+1);
 
-		switch(v->getType()) {
-			case ConfigValue::Bool:
-				v->setBool(!strcmp(value, "true") || !strcmp(value, "1"));
-				break;
+			if(!strcmp(key+1, "include")) {
+				std::string fileToInclude;
 
-			case ConfigValue::Integer:
-				v->setInt(atoi(value));
-				break;
+				const char *p = filename + strlen(filename);
+				while(p >= filename) {
+					if(*p == '/' || *p == '\\')
+						break;
+					p--;
+				}
+				fileToInclude = std::string(filename, p+1);
 
-			case ConfigValue::Float:
-				v->setFloat((float)atof(value));
-				break;
+				if(value[0] != '$') {
+					if(Utils::isAbsolute(value))
+						fileToInclude = value;
+					else
+						fileToInclude += value;
+				} else {
+					std::string keyStr(value+1);
+					ConfigValue* v = getValue(keyStr);
+					if(v == nullptr) {
+						warn("In %s:%d: Unknown key \"%s\" in config file %s, ignoring\n", filename, lineNumber, keyStr.c_str());
+					} else if(v->getType() == ConfigValue::String) {
+						std::string keyValue = v->getString();
+						if(Utils::isAbsolute(keyValue.c_str()))
+							fileToInclude = keyValue;
+						else
+							fileToInclude += keyValue;
+					} else {
+						warn("In %s:%d: can\'t include \"%s\", value is not a string\n", filename, lineNumber, keyStr.c_str());
+					}
+				}
 
-			case ConfigValue::String:
-				v->setString(value);
-				break;
+				if(fileToInclude.empty() == false) {
+					trace("Including file %s\n", fileToInclude.c_str());
+					readFile(fileToInclude.c_str(), fileDepth+1);
+				} else {
+					trace("Not including a file, filename is empty: \"%s\"\n", fileToInclude.c_str());
+				}
+			}
+		} else {
+			std::string keyStr;
+
+			if(key[0] == '!') {
+				createValue<cval>((const char*)key+1, (const char*)value);
+				trace("Created config parameter: %s\n", key+1);
+				keyStr = key+1;
+			} else {
+				keyStr = key;
+				trace("Config line is a config parameter: %s\n", key);
+			}
+
+
+
+			ConfigValue* v = getValue(keyStr);
+			if(v == nullptr) {
+				warn("In %s:%d: Unknown key \"%s\", ignoring\n", filename, lineNumber, keyStr.c_str());
+				continue;
+			}
+
+			switch(v->getType()) {
+				case ConfigValue::Bool:
+					v->setBool(!strcmp(value, "true") || !strcmp(value, "1"));
+					break;
+
+				case ConfigValue::Integer:
+					v->setInt(atoi(value));
+					break;
+
+				case ConfigValue::Float:
+					v->setFloat((float)atof(value));
+					break;
+
+				case ConfigValue::String:
+					v->setString(value);
+					break;
+			}
 		}
 	}
 
