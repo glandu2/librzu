@@ -43,7 +43,6 @@ class IDbQueryJob {
 public:
 	enum Status {
 		S_Ok,
-		S_NotCompleted,
 		S_Canceled,
 		S_Error
 	};
@@ -120,7 +119,7 @@ public:
 	};
 
 public:
-	DbQueryBinding(DbConnectionPool* dbConnectionPool, cval<std::string>& connectionString, cval<std::string>& query, const std::vector<ParameterBinding>& parameters, const std::vector<ColumnBinding>& columns);
+	DbQueryBinding(DbConnectionPool* dbConnectionPool, cval<bool>& enabled, cval<std::string>& connectionString, cval<std::string>& query, const std::vector<ParameterBinding>& parameters, const std::vector<ColumnBinding>& columns);
 	virtual ~DbQueryBinding();
 
 
@@ -130,10 +129,12 @@ protected:
 
 private:
 	DbConnectionPool* dbConnectionPool;
+	cval<bool>& enabled;
 	cval<std::string>& connectionString;
 	cval<std::string>& query;
 	std::vector<ParameterBinding> parameterBindings;
 	std::vector<ColumnBinding> columnBindings;
+	int errorCount;
 };
 
 template<class T>
@@ -141,11 +142,10 @@ class DbQueryJob : public Object, public IDbQueryJob {
 public:
 	typedef DbQueryBinding::ExecuteMode ExecuteMode;
 public:
-	DbQueryJob(cval<bool>& enabled) : enabled(&enabled), instance(nullptr), completed(false), canceled(false) {}
-	DbQueryJob() : enabled(nullptr), instance(nullptr), completed(false), canceled(false) {}
+	DbQueryJob() : instance(nullptr), done(false), canceled(false) {}
 
 	bool execute(ExecuteMode mode) {
-		completed = false;
+		done = false;
 		canceled = false;
 		this->mode = mode;
 
@@ -167,7 +167,7 @@ public:
 		uv_cancel((uv_req_t*)&req);
 	}
 
-	bool isCompleted() { return completed; }
+	bool isDone() { return done; }
 
 protected:
 	static void onProcessStatic(uv_work_t *req) {
@@ -177,15 +177,18 @@ protected:
 
 	void onProcess() {
 		DbQueryBinding* binding = dbBinding;
-		if(!binding || canceled || (enabled != nullptr && enabled->get() == false)) {
-			completed = false;
+
+		//check enabled here so onDone is called
+		if(!binding || canceled) {
+			done = false;
 			return;
 		}
 		if(onPreProcess() == false) {
 			warn("Aborted DB query in preprocess step\n");
 			return;
 		}
-		completed = binding->process(this, instance, mode);
+		done = binding->process(this, instance, mode);
+
 		onPostProcess();
 	}
 
@@ -193,14 +196,10 @@ protected:
 		DbQueryJob* dbQueryJob = (DbQueryJob*) req->data;
 		if(status == UV_ECANCELED)
 			dbQueryJob->onDone(S_Canceled);
-		else if(status != 0)
-			dbQueryJob->onDone(S_Error);
-		else if(dbQueryJob->completed == false)
-			dbQueryJob->onDone(S_NotCompleted);
-		else if(dbQueryJob->completed == true)
+		else if(status == 0 && dbQueryJob->done == true)
 			dbQueryJob->onDone(S_Ok);
 		else
-			dbQueryJob->onDone(S_Error); //in case there is a new forbidden case
+			dbQueryJob->onDone(S_Error);
 
 		delete dbQueryJob;
 	}
@@ -211,11 +210,10 @@ protected:
 	static DbQueryBinding* dbBinding;
 
 private:
-	cval<bool>* enabled;
 	uv_work_t req;
 	void* instance;
 	ExecuteMode mode;
-	bool completed;
+	bool done;
 	bool canceled;
 };
 

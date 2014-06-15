@@ -6,15 +6,18 @@
 #include "DbConnectionPool.h"
 
 DbQueryBinding::DbQueryBinding(DbConnectionPool* dbConnectionPool,
+					   cval<bool>& enabled,
 					   cval<std::string>& connectionString,
 					   cval<std::string>& query,
 					   const std::vector<ParameterBinding>& parameterBindings,
 					   const std::vector<ColumnBinding>& columnBindings)
 	: dbConnectionPool(dbConnectionPool),
+	  enabled(enabled),
 	  connectionString(connectionString),
 	  query(query),
 	  parameterBindings(parameterBindings),
-	  columnBindings(columnBindings)
+	  columnBindings(columnBindings),
+	  errorCount(0)
 {
 }
 
@@ -24,6 +27,11 @@ DbQueryBinding::~DbQueryBinding() {
 bool DbQueryBinding::process(IDbQueryJob* queryJob, void* instance, ExecuteMode mode) {
 	DbConnection* connection;
 	bool columnCountOk;
+
+	if(enabled.get() == false) {
+		errorCount = 0;
+		return true;
+	}
 
 	connection = dbConnectionPool->getConnection(connectionString.get().c_str());
 	if(!connection) {
@@ -60,6 +68,13 @@ bool DbQueryBinding::process(IDbQueryJob* queryJob, void* instance, ExecuteMode 
 	if(!connection->execute(queryStr.c_str())) {
 		connection->releaseWithError();
 		debug("DB query failed: %s\n", queryStr.c_str());
+		errorCount++;
+		if(errorCount > 10) {
+			enabled.setBool(false);
+			error("Disabled query: %s, too many errors\n", queryStr.c_str());
+
+			errorCount = 0;
+		}
 		return false;
 	}
 
