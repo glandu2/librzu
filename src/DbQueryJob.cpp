@@ -33,13 +33,14 @@ bool DbQueryBinding::process(IDbQueryJob* queryJob, void* instance, ExecuteMode 
 		return true;
 	}
 
-	connection = dbConnectionPool->getConnection(connectionString.get().c_str());
+	std::string queryStr = query.get();
+
+	connection = dbConnectionPool->getConnection(connectionString.get().c_str(), queryStr);
 	if(!connection) {
 		warn("Could not retrieve a DB connection from pool\n");
 		return false;
 	}
 
-	std::string queryStr = query.get();
 
 	trace("Executing: %s\n", queryStr.c_str());
 

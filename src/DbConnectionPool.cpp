@@ -35,7 +35,7 @@ DbConnectionPool::~DbConnectionPool() {
 	uv_mutex_destroy(&listLock);
 }
 
-DbConnection* DbConnectionPool::getConnection(const char* connectionString) {
+DbConnection* DbConnectionPool::getConnection(const char* connectionString, std::string wantedQuery) {
 	DbConnection* dbConnection = nullptr;
 
 	uv_mutex_lock(&listLock);
@@ -43,8 +43,21 @@ DbConnection* DbConnectionPool::getConnection(const char* connectionString) {
 	for(it = openedConnections.begin(), itEnd = openedConnections.end(); it != itEnd; ++it) {
 		DbConnection* connection = *it;
 		if(connection->trylock()) {
-			dbConnection = connection;
-			break;
+			if(wantedQuery == std::string() || connection->getCachedQuery() == wantedQuery) {
+				dbConnection = connection;
+				break;
+			} else {
+				connection->release();
+			}
+		}
+	}
+	if(dbConnection == nullptr) {
+		for(it = openedConnections.begin(), itEnd = openedConnections.end(); it != itEnd; ++it) {
+			DbConnection* connection = *it;
+			if(connection->trylock()) {
+				dbConnection = connection;
+				break;
+			}
 		}
 	}
 	uv_mutex_unlock(&listLock);

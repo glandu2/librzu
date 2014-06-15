@@ -17,7 +17,7 @@ public:
 	DbConnectionPool();
 	~DbConnectionPool();
 
-	DbConnection* getConnection(const char* connectionString);
+	DbConnection* getConnection(const char* connectionString, std::string wantedQuery = std::string());
 	DbConnection* addConnection(const char* connectionString, bool createLocked);
 	void closeConnection(DbConnection* dbConnection);
 	void* getHenv() { return henv; }
@@ -93,6 +93,8 @@ public:
 
 		return checkResult(SQLColAttribute(hstmt, ColumnNumber, SQL_DESC_LABEL, ColumnName, BufferLength, NULL, NULL), "SQLColAttribute");
 	}
+
+	const std::string& getCachedQuery() { return lastQuery; }
 
 protected:
 	bool checkResult(SQLRETURN result, const char* function);
