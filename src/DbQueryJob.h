@@ -12,6 +12,7 @@
 #include <stddef.h>
 
 #define OFFSETOF(C, f) (size_t(&((C*)1)->f) - 1)
+#define TYPEOFFIELD(C, f) decltype(((C*)1)->f)
 
 class DbConnectionPool;
 
@@ -86,9 +87,9 @@ public:
 			: index(index), cType(cType), dbType(dbType), dbSize(dbSize), dbPrecision(dbPrecision), isStdString(isStdString), bufferOffset(bufferOffset), bufferSize(bufferSize), infoPtr(infoPtr) {}
 
 		#define DECLARE_PARAMETER(C, field, size, index) \
-			DbQueryBinding::ParameterBinding(index, DbTypeBinding<decltype( C::field )>::C_TYPE, DbTypeBinding<decltype( C::field )>::SQL_TYPE, DbTypeBinding<decltype( C::field )>::SQL_SIZE, DbTypeBinding<decltype( C::field )>::SQL_PRECISION, IsStdString<decltype( C::field )>::value, OFFSETOF(C, field), size)
+			DbQueryBinding::ParameterBinding(index, DbTypeBinding<TYPEOFFIELD(C, field)>::C_TYPE, DbTypeBinding<TYPEOFFIELD(C, field)>::SQL_TYPE, DbTypeBinding<TYPEOFFIELD(C, field)>::SQL_SIZE, DbTypeBinding<TYPEOFFIELD(C, field)>::SQL_PRECISION, IsStdString<TYPEOFFIELD(C, field)>::value, OFFSETOF(C, field), size)
 		#define DECLARE_PARAMETER_WITH_INFO(C, field, size, index, info) \
-			DbQueryBinding::ParameterBinding(index, DbTypeBinding<decltype( C::field )>::C_TYPE, DbTypeBinding<decltype( C::field )>::SQL_TYPE, DbTypeBinding<decltype( C::field )>::SQL_SIZE, DbTypeBinding<decltype( C::field )>::SQL_PRECISION, IsStdString<decltype( C::field )>::value, OFFSETOF(C, field), size, info)
+			DbQueryBinding::ParameterBinding(index, DbTypeBinding<TYPEOFFIELD(C, field)>::C_TYPE, DbTypeBinding<TYPEOFFIELD(C, field)>::SQL_TYPE, DbTypeBinding<TYPEOFFIELD(C, field)>::SQL_SIZE, DbTypeBinding<TYPEOFFIELD(C, field)>::SQL_PRECISION, IsStdString<TYPEOFFIELD(C, field)>::value, OFFSETOF(C, field), size, info)
 
 	};
 
@@ -106,9 +107,9 @@ public:
 
 
 		#define DECLARE_COLUMN(C, field, size, name) \
-			DbQueryBinding::ColumnBinding(name, DbTypeBinding<decltype( C::field )>::C_TYPE, IsStdString<decltype( C::field )>::value, OFFSETOF(C, field), size)
+			DbQueryBinding::ColumnBinding(name, DbTypeBinding<TYPEOFFIELD(C, field)>::C_TYPE, IsStdString<TYPEOFFIELD(C, field)>::value, OFFSETOF(C, field), size)
 		#define DECLARE_COLUMN_WITH_INFO(C, field, size, name, info) \
-			DbQueryBinding::ColumnBinding(name, DbTypeBinding<decltype( C::field )>::C_TYPE, IsStdString<decltype( C::field )>::value, OFFSETOF(C, field), size, info)
+			DbQueryBinding::ColumnBinding(name, DbTypeBinding<TYPEOFFIELD(C, field)>::C_TYPE, IsStdString<TYPEOFFIELD(C, field)>::value, OFFSETOF(C, field), size, info)
 
 	};
 

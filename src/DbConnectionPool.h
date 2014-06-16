@@ -58,7 +58,7 @@ public:
 			if(!result)
 				return false;
 			lastQuery = query;
-			info("Cached DB query: %s\n", query);
+			debug("Cached DB query: %s\n", query);
 		}
 		return checkResult(SQLExecute(hstmt), "SQLExecute");
 	}
