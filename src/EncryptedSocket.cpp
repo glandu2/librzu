@@ -5,13 +5,7 @@
 RC4Cipher EncryptedSocket::cachedCipher;
 std::string EncryptedSocket::cachedCipherKey;
 
-EncryptedSocket::EncryptedSocket(uv_loop_t* uvLoop, Mode mode) : Socket(uvLoop), useEncryption(mode == Encrypted) {
-//	static int r = 0;
-//	if(!r) {
-//		Socket::setPoll(&socketPoll);
-//		new std::thread(&updatePoll);
-//		r = 1;
-//	}
+EncryptedSocket::EncryptedSocket(uv_loop_t* uvLoop, Mode mode, bool logPackets) : Socket(uvLoop, logPackets), useEncryption(mode == Encrypted) {
 	if(useEncryption) {
 		initRC4Cipher();
 	}

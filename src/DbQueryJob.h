@@ -185,7 +185,7 @@ protected:
 			return;
 		}
 		if(onPreProcess() == false) {
-			warn("Aborted DB query in preprocess step\n");
+			debug("Canceled DB query in preprocess step\n");
 			return;
 		}
 		done = binding->process(this, instance, mode);

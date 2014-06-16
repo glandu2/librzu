@@ -39,7 +39,7 @@ public:
 	typedef void (*CallbackOnError)(IListener* instance, Socket* socket, int errnoValue);
 
 public:
-	Socket(uv_loop_t* uvLoop, Log* packetLogger = nullptr, bool logPackets = true);
+	Socket(uv_loop_t* uvLoop, bool logPackets = true);
 	virtual ~Socket();
 
 	bool connect(const std::string& hostName, uint16_t port);

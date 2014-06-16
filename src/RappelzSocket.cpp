@@ -4,7 +4,7 @@
 #include "Log.h"
 
 RappelzSocket::RappelzSocket(uv_loop_t* uvLoop, Mode mode)
-	: EncryptedSocket(uvLoop, mode)
+	: EncryptedSocket(uvLoop, mode, false)
 {
 
 	inputBuffer.bufferSize = INITIAL_INPUT_BUFFERSIZE;

@@ -22,12 +22,12 @@ struct ReadBuffer {
 
 const char* Socket::STATES[] = { "Unconnected", "Connecting", "Binding", "Listening", "Connected", "Closing" };
 
-Socket::Socket(uv_loop_t *uvLoop, Log *packetLogger, bool logPackets)
+Socket::Socket(uv_loop_t *uvLoop, bool logPackets)
 	: uvLoop(uvLoop),
 	  port(0),
 	  currentState(UnconnectedState),
 	  socketInitialized(false),
-	  packetLogger(packetLogger),
+	  packetLogger(nullptr),
 	  logPackets(logPackets)
 {
 	connectRequest.data = this;
@@ -132,6 +132,11 @@ size_t Socket::write(const void *buffer, size_t size) {
 			notifyReadyError(result);
 			return 0;
 		}
+
+		if(logPackets)
+			packetLog(Log::LL_Info, reinterpret_cast<const unsigned char*>(buffer), (int)size,
+									"Written %ld bytes\n",
+									(int)size);
 
 		return size;
 	} else {
@@ -279,9 +284,10 @@ void Socket::packetLog(Log::Level level, const unsigned char* rawData, int size,
 			buffer += ": ";
 
 			for(int row = 0; row < 16; row++) {
-				if(row < maxCharNum)
+				if(row < maxCharNum) {
 					buffer += char2hex[rawData[line*16+row]];
-				else
+					buffer += " ";
+				} else
 					buffer += "   ";
 				if(row == 7)
 					buffer += ' ';
@@ -403,6 +409,12 @@ void Socket::onReadCompleted(uv_stream_t* stream, ssize_t nread, const uv_buf_t*
 		thisInstance->notifyReadyError(nread);
 	} else {
 		thisInstance->trace("Read %ld bytes\n", (long)nread);
+
+		if(thisInstance->logPackets)
+			thisInstance->packetLog(Log::LL_Info, reinterpret_cast<const unsigned char*>(buf->base), (int)nread,
+									"Read    %ld bytes\n",  //large space to align with writes
+									(long)nread);
+
 		size_t oldSize = thisInstance->recvBuffer.size();
 		thisInstance->recvBuffer.resize(oldSize + nread);
 		memcpy(&thisInstance->recvBuffer[oldSize], buf->base, nread);
