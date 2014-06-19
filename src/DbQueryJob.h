@@ -31,8 +31,8 @@ template<> struct DbTypeBinding<unsigned short> : DbTypeBinding<short> {};
 template<> struct DbTypeBinding<unsigned int> : DbTypeBinding<int> {};
 template<> struct DbTypeBinding<unsigned long long> : DbTypeBinding<long long> {};
 
-template<int ARRAY_SIZE> struct DbTypeBinding<char[ARRAY_SIZE]> { enum { C_TYPE = SQL_C_CHAR, SQL_TYPE = SQL_LONGVARCHAR, SQL_SIZE = ARRAY_SIZE, SQL_PRECISION = 0 }; };
-template<> struct DbTypeBinding<std::string> { enum { C_TYPE = SQL_C_CHAR, SQL_TYPE = SQL_LONGVARCHAR, SQL_SIZE = -1, SQL_PRECISION = 0 }; };
+template<int ARRAY_SIZE> struct DbTypeBinding<char[ARRAY_SIZE]> { enum { C_TYPE = SQL_C_CHAR, SQL_TYPE = SQL_VARCHAR, SQL_SIZE = ARRAY_SIZE, SQL_PRECISION = 0 }; };
+template<> struct DbTypeBinding<std::string> { enum { C_TYPE = SQL_C_CHAR, SQL_TYPE = SQL_VARCHAR, SQL_SIZE = -1, SQL_PRECISION = 0 }; };
 
 template<int ARRAY_SIZE> struct DbTypeBinding<unsigned char[ARRAY_SIZE]> : DbTypeBinding<char(&)[ARRAY_SIZE]> { };
 

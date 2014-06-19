@@ -51,7 +51,8 @@ DbConnection* DbConnectionPool::getConnection(const char* connectionString, std:
 			}
 		}
 	}
-	if(dbConnection == nullptr) {
+	//If more than 8 connections are already opened, try to reuse one even if the cached query is not the same
+	if(dbConnection == nullptr && openedConnections.size() >= 8) {
 		for(it = openedConnections.begin(), itEnd = openedConnections.end(); it != itEnd; ++it) {
 			DbConnection* connection = *it;
 			if(connection->trylock()) {
