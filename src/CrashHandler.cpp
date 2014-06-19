@@ -1,11 +1,25 @@
 #include "CrashHandler.h"
 #include "Log.h"
+#include "EventLoop.h"
 
 //if equal to 1, don't do a crashdump
 static long long int dumpMode = 0;
+uv_async_t CrashHandler::asyncCallback;
+void* CrashHandler::callbackInstance = nullptr;
 
 void CrashHandler::setDumpMode(int _dumpMode) {
 	dumpMode = _dumpMode;
+}
+
+void CrashHandler::setTerminateCallback(TerminateCallback callback, void* instance) {
+	asyncCallback.data = (void*)callback;
+	callbackInstance = instance;
+}
+
+void CrashHandler::onTerminate(uv_async_t *) {
+	TerminateCallback callback = (TerminateCallback) asyncCallback.data;
+	if(callback)
+		callback(callbackInstance);
 }
 
 #ifdef _WIN32
@@ -51,6 +65,7 @@ static void sigfpeHandler(int /*code*/, int subcode);
 static void sigillHandler(int);
 static void sigsegvHandler(int);
 static void sigtermHandler(int);
+static BOOL WINAPI handlerRoutine(DWORD dwCtrlType);
 
 #ifndef _AddressOfReturnAddress
 
@@ -70,8 +85,11 @@ EXTERNC void * _ReturnAddress(void);
 
 void CrashHandler::setProcessExceptionHandlers()
 {
+	uv_async_init(EventLoop::getLoop(), &asyncCallback, &onTerminate);
+	uv_unref((uv_handle_t*)&asyncCallback);
 	// Install top-level SEH handler
 	SetUnhandledExceptionFilter(&sehHandler);
+	SetConsoleCtrlHandler(&handlerRoutine, TRUE);
 
 	// Catch pure virtual function calls.
 	// Because there is one _purecall_handler for the whole process,
@@ -429,7 +447,7 @@ void sigsegvHandler(int)
 void sigtermHandler(int)
 {
 	// Termination request (SIGTERM)
-
+/*
 	// Retrieve exception information
 	EXCEPTION_POINTERS* pExceptionPtrs = NULL;
 	getExceptionPointers(0, &pExceptionPtrs);
@@ -438,15 +456,43 @@ void sigtermHandler(int)
 	createMiniDump(pExceptionPtrs);
 
 	// Terminate process
-	TerminateProcess(GetCurrentProcess(), 1);
+	TerminateProcess(GetCurrentProcess(), 1);*/
+	CrashHandler::onTerminate();
 
+}
+
+static BOOL WINAPI handlerRoutine(DWORD dwCtrlType) {
+	if(dwCtrlType == CTRL_CLOSE_EVENT || dwCtrlType == CTRL_BREAK_EVENT || dwCtrlType == CTRL_C_EVENT || dwCtrlType == CTRL_SHUTDOWN_EVENT) {
+		CrashHandler::terminate();
+		//wait end
+		Sleep(5000);
+		return TRUE;
+	}
+	return FALSE;
 }
 
 #else /* _WIN32 */
 
 //UNIX
 
+#include <signal.h>
+
+static void onSignal(int sig) {
+	CrashHandler::terminate();
+}
+
 void CrashHandler::setProcessExceptionHandlers() {
+	struct sigaction sa;
+
+	uv_async_init(EventLoop::getLoop(), &asyncCallback, &onTerminate);
+	uv_unref((uv_handle_t*)&asyncCallback);
+
+	sa.sa_flags = 0;
+	sigemptyset(&sa.sa_mask);
+	sa.sa_handler = &onSignal;
+	sigaction(SIGINT, &sa, NULL);
+	sigaction(SIGTERM, &sa, NULL);
+	sigaction(SIGHUP, &sa, NULL);
 }
 
 void CrashHandler::setThreadExceptionHandlers() {
