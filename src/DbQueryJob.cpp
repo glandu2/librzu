@@ -93,8 +93,8 @@ bool DbQueryBinding::process(IDbQueryJob* queryJob, void* instance, ExecuteMode 
 			}
 
 			char columnName[32];
-			for(int i = 0; i < columnCount; i++) {
-				const int columnIndex = i + 1;
+			for(int col = 0; col < columnCount; col++) {
+				const int columnIndex = col + 1;
 				SQLLEN StrLen_Or_Ind;
 
 				connection->getColumnName(columnIndex, columnName, sizeof(columnName));

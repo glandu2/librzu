@@ -20,6 +20,8 @@ void CrashHandler::onTerminate(uv_async_t *) {
 	TerminateCallback callback = (TerminateCallback) asyncCallback.data;
 	if(callback)
 		callback(callbackInstance);
+	else
+		exit(1);
 }
 
 #ifdef _WIN32
