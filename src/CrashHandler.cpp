@@ -459,8 +459,7 @@ void sigtermHandler(int)
 
 	// Terminate process
 	TerminateProcess(GetCurrentProcess(), 1);*/
-	CrashHandler::onTerminate();
-
+	CrashHandler::terminate();
 }
 
 static BOOL WINAPI handlerRoutine(DWORD dwCtrlType) {

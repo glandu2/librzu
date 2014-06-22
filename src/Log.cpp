@@ -137,7 +137,7 @@ void Log::stopWriter(bool waitThread) {
 		return;
 
 #ifdef _WIN32
-	if(GetProcessId((HANDLE)this->logWritterThreadId) == GetCurrentProcessId())
+	if(this->logWritterThreadNativeId == GetCurrentThreadId())
 #else /* unix */
 	if(pthread_equal(pthread_self(), this->logWritterThreadId))
 #endif
@@ -274,6 +274,10 @@ void Log::logWritterThread() {
 	int lastYear = -1;
 	int lastMonth = -1;
 	int lastDay = -1;
+
+#ifdef _WIN32
+	this->logWritterThreadNativeId = GetCurrentThreadId();
+#endif
 
 	uv_once(&initMutexOnce, &initMutex);
 

@@ -68,6 +68,10 @@ private:
 	static Log* defaultLogger;
 
 	uv_thread_t logWritterThreadId;
+#ifdef _WIN32
+	int logWritterThreadNativeId;
+#endif
+
 	uv_mutex_t messageListMutex;
 	uv_cond_t messageListCond;
 	volatile bool stop;
