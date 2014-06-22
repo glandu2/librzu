@@ -239,7 +239,7 @@ void createMiniDump(EXCEPTION_POINTERS* pExcPtrs)
 				hProcess,
 				dwProcessId,
 				hFile,
-				MiniDumpWithDataSegs,
+				MINIDUMP_TYPE(MiniDumpWithDataSegs | MiniDumpWithIndirectlyReferencedMemory),
 				&mei,
 				NULL,
 				&mci);
