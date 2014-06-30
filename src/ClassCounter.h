@@ -2,6 +2,8 @@
 #define CLASSCOUNTER_H
 
 #include "RappelzLib_global.h"
+#include <map>
+#include <string>
 
 //Provide a counter for each classes so each instance has an unique name based on it's class name
 
@@ -10,9 +12,11 @@
 //this var is implemented in ClassCounter.cpp
 extern unsigned int RAPPELZLIB_EXTERN ClassCounter__internal_object_engine_class_counter;
 
+std::map<std::string, unsigned long*>& getObjectsCount();
+
 #define DECLARE_CLASSCOUNT_STATIC(classname) \
 	unsigned long classname::__objectCount = 0; \
 	unsigned long classname::__objectsCreated = 0; \
-	const unsigned int classname::__classTypeHash = ClassCounter__internal_object_engine_class_counter++;
+	const unsigned int classname::__classTypeHash = (getObjectsCount().insert(std::pair<std::string, unsigned long*>(#classname, &classname::__objectCount)), ClassCounter__internal_object_engine_class_counter++);
 
 #endif // CLASSCOUNTER_H

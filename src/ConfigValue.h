@@ -6,6 +6,7 @@
 
 class RAPPELZLIB_EXTERN ConfigValue : public Object
 {
+	DECLARE_CLASS(ConfigValue)
 public:
 	enum Type {
 		Bool,

@@ -3,6 +3,12 @@
 //For detail about this variable, see ClassCounter.h
 unsigned int ClassCounter__internal_object_engine_class_counter = 0;
 
+std::map<std::string, unsigned long*>& getObjectsCount() {
+	static std::map<std::string, unsigned long*> objectsCount;
+
+	return objectsCount;
+}
+
 //generated with notepad++ with this pattern: (.*) ->
 //#include "\1.h"\nDECLARE_CLASSCOUNT_STATIC\(\1\)\n
 /* Class list:
@@ -23,11 +29,11 @@ DECLARE_CLASSCOUNT_STATIC(Object)
 #include "BanManager.h"
 DECLARE_CLASSCOUNT_STATIC(BanManager)
 
-#include "CircularBuffer.h"
-DECLARE_CLASSCOUNT_STATIC(CircularBuffer)
-
 #include "ConfigInfo.h"
 DECLARE_CLASSCOUNT_STATIC(ConfigInfo)
+
+#include "ConfigValue.h"
+DECLARE_CLASSCOUNT_STATIC(ConfigValue)
 
 #include "DbConnectionPool.h"
 DECLARE_CLASSCOUNT_STATIC(DbConnection)

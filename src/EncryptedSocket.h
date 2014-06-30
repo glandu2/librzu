@@ -8,11 +8,11 @@ class RAPPELZLIB_EXTERN EncryptedSocket : public Socket
 {
 	DECLARE_CLASS(EncryptedSocket)
 
-	public:
-		enum Mode {
-				 NoEncryption,
-				 Encrypted
-};
+public:
+	enum Mode {
+		NoEncryption,
+		Encrypted
+	};
 
 	EncryptedSocket(uv_loop_t *uvLoop, Mode mode = Encrypted, bool logPackets = false);
 	~EncryptedSocket();

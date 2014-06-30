@@ -9,8 +9,6 @@
 
 #include "RappelzLib_global.h"
 
-//#include "ClassCounter.h"
-
 //used to count objects, "c" stand for class type, WARNING: declare public block
 //getTrueClassHash: for variable used like this: Object *obj = new Actor();, obj.getTrueClassHash() return hash of class Actor.
 #define DECLARE_CLASS(C) \

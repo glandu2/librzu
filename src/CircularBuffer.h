@@ -8,7 +8,7 @@
 
 class RAPPELZLIB_EXTERN CircularBuffer : public Object
 {
-	DECLARE_CLASS(CircularBuffer)
+	DECLARE_CLASSNAME(CircularBuffer, 0)
 
 	protected:
 		char *buffer;
