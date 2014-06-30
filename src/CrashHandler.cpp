@@ -6,6 +6,7 @@
 static long long int dumpMode = 0;
 uv_async_t CrashHandler::asyncCallback;
 void* CrashHandler::callbackInstance = nullptr;
+bool  CrashHandler::interruptAttemptInProgress = false;
 
 void CrashHandler::setDumpMode(int _dumpMode) {
 	dumpMode = _dumpMode;
@@ -14,6 +15,15 @@ void CrashHandler::setDumpMode(int _dumpMode) {
 void CrashHandler::setTerminateCallback(TerminateCallback callback, void* instance) {
 	asyncCallback.data = (void*)callback;
 	callbackInstance = instance;
+}
+
+void CrashHandler::terminate() {
+	if(!interruptAttemptInProgress) {
+		interruptAttemptInProgress = true;
+		uv_async_send(&asyncCallback);
+	} else {
+		exit(1);
+	}
 }
 
 void CrashHandler::onTerminate(uv_async_t *) {

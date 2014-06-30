@@ -19,12 +19,13 @@ public:
 
 	static void setTerminateCallback(TerminateCallback callback, void* instance);
 
-	static void terminate() { uv_async_send(&asyncCallback); }
+	static void terminate();
 
 private:
 	static void onTerminate(uv_async_t*);
 	static uv_async_t asyncCallback;
 	static void* callbackInstance;
+	static bool interruptAttemptInProgress;
 };
 
 #endif // CRASHHANDLER_H
