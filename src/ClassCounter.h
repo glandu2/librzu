@@ -12,7 +12,7 @@
 //this var is implemented in ClassCounter.cpp
 extern unsigned int RAPPELZLIB_EXTERN ClassCounter__internal_object_engine_class_counter;
 
-std::map<std::string, unsigned long*>& getObjectsCount();
+std::map<std::string, unsigned long*> RAPPELZLIB_EXTERN &   getObjectsCount();
 
 #define DECLARE_CLASSCOUNT_STATIC(classname) \
 	unsigned long classname::__objectCount = 0; \
