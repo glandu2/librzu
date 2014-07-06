@@ -7,7 +7,6 @@ SocketSession::SocketSession() : socket(new Socket(EventLoop::getLoop())), serve
 }
 
 SocketSession::SocketSession(Socket* socket) : socket(socket), server(nullptr) {
-	socket->addDataListener(this, &SocketSession::onDataReceived);
 }
 
 SocketSession::~SocketSession() {
