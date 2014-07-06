@@ -33,11 +33,39 @@ class RAPPELZLIB_EXTERN DbConnection : public Object
 {
 	DECLARE_CLASS(DbConnection)
 public:
-	DbConnection(DbConnectionPool* conPool, void *hdbc, void *hstmt) : conPool(conPool), hdbc(hdbc), hstmt(hstmt) { uv_mutex_init(&lock); }
-	virtual ~DbConnection() { SQLFreeHandle(SQL_HANDLE_STMT, hstmt); SQLDisconnect(hdbc); SQLFreeHandle(SQL_HANDLE_DBC, hdbc); uv_mutex_destroy(&lock); }
+	DbConnection(DbConnectionPool* conPool, void *hdbc, void *hstmt) : conPool(conPool), hdbc(hdbc), hstmt(hstmt)
+	, isUsed(false)
+	{
+//		uv_mutex_init(&lock);
+		uv_mutex_init(&usedLock);
+	}
+	virtual ~DbConnection() {
+		SQLFreeHandle(SQL_HANDLE_STMT, hstmt);
+		SQLDisconnect(hdbc);
+		SQLFreeHandle(SQL_HANDLE_DBC, hdbc);
+//		uv_mutex_destroy(&lock);
+		uv_mutex_destroy(&usedLock);
+	}
 
-	bool trylock() { return uv_mutex_trylock(&lock) == 0; }
-	void release() { SQLFreeStmt(hstmt, SQL_CLOSE); SQLFreeStmt(hstmt, SQL_RESET_PARAMS); uv_mutex_unlock(&lock); }
+	bool trylock() {
+		bool locked = false;
+		uv_mutex_lock(&usedLock);
+		if(isUsed == false) {
+			locked = isUsed = true;
+		}
+		uv_mutex_unlock(&usedLock);
+		return locked;
+
+//		return uv_mutex_trylock(&lock) == 0;
+	}
+	void release() {
+		SQLFreeStmt(hstmt, SQL_CLOSE);
+		SQLFreeStmt(hstmt, SQL_RESET_PARAMS);
+		uv_mutex_lock(&usedLock);
+		isUsed = false;
+		uv_mutex_unlock(&usedLock);
+//		uv_mutex_unlock(&lock);
+	}
 	void releaseWithError();
 
 	bool bindParameter(SQLUSMALLINT       ipar,
@@ -101,11 +129,14 @@ protected:
 	bool checkResult(SQLRETURN result, const char* function);
 
 private:
-	uv_mutex_t lock;
+//	uv_mutex_t lock;
 	DbConnectionPool* conPool;
 	std::string lastQuery;
 	SQLHDBC hdbc;
 	SQLHSTMT hstmt;
+
+	uv_mutex_t usedLock;
+	bool isUsed; //workaround trylock in valgrind ...
 };
 
 
