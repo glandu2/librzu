@@ -3,6 +3,7 @@
 #include <sstream>
 #include <iomanip>
 #include <stdarg.h>
+#include <string.h>
 
 #ifndef SHUT_RDWR
 #define SHUT_RDWR 2

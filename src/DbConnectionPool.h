@@ -7,6 +7,7 @@
 #include <string>
 #include <sqlext.h>
 #include "Log.h"
+#include <string.h>
 
 class DbConnection;
 

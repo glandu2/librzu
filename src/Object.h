@@ -1,11 +1,7 @@
 #ifndef OBJECT
 #define OBJECT
 
-#include <string.h>
-#include <math.h>
-#include <float.h>
-#include <stdlib.h>
-#include <stdio.h>
+#include <string>
 
 #include "RappelzLib_global.h"
 

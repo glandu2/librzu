@@ -16,15 +16,14 @@ EncryptedSocket::~EncryptedSocket() {
 }
 
 void EncryptedSocket::initRC4Cipher() {
-	std::string cipherKey("}h79q~B%al;k'y $E");
+	static const std::string cipherKey("}h79q~B%al;k'y $E");
 
 	if(cachedCipherKey != cipherKey) {
 		cachedCipher.prepare(cipherKey.c_str());
 		cachedCipherKey = cipherKey;
 	}
 
-	inputEnc = cachedCipher;
-	outputEnc = cachedCipher;
+	outputEnc = inputEnc = cachedCipher;
 }
 
 bool EncryptedSocket::connect(const std::string & hostName, uint16_t port) {
