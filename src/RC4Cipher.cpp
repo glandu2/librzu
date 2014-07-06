@@ -1,8 +1,8 @@
 #include "RC4Cipher.h"
 #include <string.h>
 
-inline void exchange(char *a, char *b) {
-	char tmp;
+inline void exchange(RC4_INT *a, RC4_INT *b) {
+	RC4_INT tmp;
 	tmp = *a;
 	*a = *b;
 	*b = tmp;
@@ -12,48 +12,48 @@ RC4Cipher::RC4Cipher() {
 	//prepare("Neat & Simple");
 }
 
-void RC4Cipher::prepare(const char *key) {
-	size_t i, j, keyLen = strlen(key);
+static void rappelz_modified_RC4_set_key(RC4_KEY *key, int len, const unsigned char *data)
+{
+	register RC4_INT tmp;
+	register int j;
+	register RC4_INT *d;
+	unsigned int i;
 
-	for(i=0; i<256; i++)
-		s[i] = (char)i;
+	d= &(key->data[0]);
+	key->x = 0;
+	key->y = 0;
+	j=0;
 
-	for(i=0,j=0; i<256; i++) {
-		j = (j + s[j] + key[j%keyLen]) & 0xFF;
-		exchange(&s[i], &s[j]);
-	}
+#define SK_LOOP(d,n) { \
+	j = (data[j%len] + d[j] + j) & 0xff; \
+	tmp=d[(n)]; \
+	d[(n)]=d[j]; \
+	d[j]=tmp; }
 
-	//simulate transmition with 1013 bytes
-	y=0;
-	x=0;
-	for(i=0; i<1013; i++) {
-		x = (x + 1) & 0xFF;
-		y = (s[x] + y) & 0xFF;
-		exchange(&s[x], &s[y]);
+	for (i=0; i < 256; i++) d[i]=i;
+	for (i=0; i < 256; i+=4)
+	{
+		SK_LOOP(d,i+0);
+		SK_LOOP(d,i+1);
+		SK_LOOP(d,i+2);
+		SK_LOOP(d,i+3);
 	}
 }
 
-void RC4Cipher::getXOR(char *out, size_t size) {
-	size_t i;
+void RC4Cipher::prepare(const char *key) {
+	rappelz_modified_RC4_set_key(&state, strlen(key), (const unsigned char*)key);
 
-	for(i=0; i<size; i++) {
-		x = (x + 1) & 0xFF;
-		y = (s[x] + y) & 0xFF;
-		exchange(&s[x], &s[y]);
-		out[i] = s[(s[x] + s[y]) & 0xFF];
+	//simulate transmition with 1013 bytes
+	state.y=0;
+	state.x=0;
+	unsigned int i;
+	for(i=0; i<1013; i++) {
+		state.x = (state.x + 1) & 0xFF;
+		state.y = (state.data[state.x] + state.y) & 0xFF;
+		exchange(&state.data[state.x], &state.data[state.y]);
 	}
 }
 
 void RC4Cipher::encode(const char *in, char *out, size_t size) {
-	size_t i;
-	register unsigned char x = this->x, y = this->y;
-
-	for(i=0; i<size; i++) {
-		x = (x + 1) & 0xFF;
-		y = (s[x] + y) & 0xFF;
-		exchange(&s[x], &s[y]);
-		out[i] = in[i] ^ s[(s[x] + s[y]) & 0xFF];
-	}
-	this->x = x;
-	this->y = y;
+	RC4(&state, size, (const unsigned char*)in, (unsigned char*)out);
 }

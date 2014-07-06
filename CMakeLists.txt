@@ -10,4 +10,6 @@ endif()
 include_directories("${CMAKE_CURRENT_LIST_DIR}/src")
 include_directories("${CMAKE_CURRENT_LIST_DIR}/../libuv/include")
 
+find_package(OpenSSL REQUIRED)
+
 add_subdirectory("${CMAKE_CURRENT_LIST_DIR}/src" src)
