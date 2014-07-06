@@ -129,7 +129,7 @@ void Log::startWriter() {
 	this->stop = false;
 	this->updateFileRequested = true;
 	uv_thread_create(&this->logWritterThreadId, &logWritterThreadStatic, this);
-	log(LL_Info, getObjectName(), getObjectNameSize(), "Log thread started using filename %s\n", fileName.get().c_str());
+	log(LL_Info, this, "Log thread started using filename %s\n", fileName.get().c_str());
 }
 
 void Log::stopWriter(bool waitThread) {
@@ -147,7 +147,7 @@ void Log::stopWriter(bool waitThread) {
 	}
 
 	debug("Stopping log thread\n");
-	log(LL_Info, getObjectName(), getObjectNameSize(), "Log thread stopped\n");
+	log(LL_Info, this, "Log thread stopped\n");
 
 	uv_mutex_lock(&this->messageListMutex);
 	this->stop = true;
@@ -156,6 +156,35 @@ void Log::stopWriter(bool waitThread) {
 
 	if(waitThread)
 		uv_thread_join(&this->logWritterThreadId);
+}
+
+
+void Log::log(Level level, Object* object, const char* message, ...) {
+	size_t nameSize;
+	const char* name;
+	va_list args;
+
+	if(!wouldLog(level))
+		return;
+
+	name = object->getObjectName(&nameSize);
+
+	va_start(args, message);
+	log(level, name, nameSize, message, args);
+	va_end(args);
+
+}
+
+void Log::log(Level level, Object* object, const char* message, va_list args) {
+	size_t nameSize;
+	const char* name;
+
+	if(!wouldLog(level))
+		return;
+
+	name = object->getObjectName(&nameSize);
+	log(level, name, nameSize, message, args);
+
 }
 
 void Log::log(Level level, const char *objectName, size_t objectNameSize, const char* message, ...) {

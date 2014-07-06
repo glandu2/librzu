@@ -6,21 +6,21 @@
 #include "Log.h"
 #include "RappelzLibConfig.h"
 
-Object::Object(const char* name) {
-    objectName = NULL;
-
-    setObjectName(name);
+Object::Object() {
+	objectName = nullptr;
+	objectNameSize = 0;
+	dirtyName = true;
 }
 
 Object::~Object() {
-    if(objectName) delete[] objectName;
+	if(objectName)
+		delete[] objectName;
 }
 
 void Object::setObjectName(const char *name) {
-	if(objectName)
-		delete[] objectName;
+	const char* oldName = objectName;
 
-    if(name) {
+	if(name) {
 		objectNameSize = strlen(name)+1;
 		objectName = new char[objectNameSize];
 		strcpy(objectName, name);
@@ -28,6 +28,11 @@ void Object::setObjectName(const char *name) {
 		objectNameSize = 0;
 		objectName = NULL;
 	}
+
+	dirtyName = false;
+
+	if(oldName)
+		delete[] oldName;
 }
 
 //maxLen without null terminator
@@ -41,33 +46,40 @@ void Object::setObjectName(int maxLen, const char *format, ...) {
 		va_start(args, format);
 		vsnprintf(objectName, maxLen+1, format, args);
 		va_end(args);
+		objectName[maxLen] = 0;
 	} else {
 		objectNameSize = 0;
 		objectName = NULL;
 	}
 
+	dirtyName = false;
+
 	if(oldName)
 		delete[] oldName;
 }
 
-const char *Object::getObjectName() {
+const char *Object::getObjectName(size_t *size) {
+	if(dirtyName)
+		updateObjectName();
+	dirtyName = false;
+	if(size)
+		*size = objectNameSize;
+	if(objectName)
+		return objectName;
+	return "";
+}
+
+void Object::updateObjectName() {
 	char *name;
 
 	if(objectName)
-		return (const char*)objectName;
+		return;
 
-	objectNameSize = strlen(getClassName()) + 6;
+	objectNameSize = getClassNameSize() + 9;
 	name = new char[objectNameSize];
 
-	sprintf(name, "%s%lu", getClassName(), (getObjectNum()>99999)? 99999 : getObjectNum());
+	sprintf(name, "%s%lu", getClassName(), (getObjectNum()>999999999)? 999999999 : getObjectNum());
 	objectName = name;
-	return (const char*)objectName;
-}
-
-int Object::getObjectNameSize() {
-	if(objectName == nullptr)
-		getObjectName(); //initialize name
-	return objectNameSize;
 }
 
 static void defaultLog(const char* suffix, const char* objectName, const char* message, va_list args) {
@@ -85,7 +97,7 @@ static void defaultLog(const char* suffix, const char* objectName, const char* m
 	va_start(args, message); \
 	 \
 	if(logger) \
-		logger->log(Log::LL_##level, getObjectName(), getObjectNameSize(), message, args); \
+		logger->log(Log::LL_##level, this, message, args); \
 	else { \
 		defaultLog(#level, getObjectName(), message, args); \
 	} \

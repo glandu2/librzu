@@ -232,7 +232,11 @@ void Socket::setState(State state) {
 void Socket::setPeerInfo(const std::string& host, uint16_t port) {
 	this->host = host;
 	this->port = port;
-	setObjectName(getObjectNameSize() + 3 + host.size() + 5, "%s[%s:%u]", getObjectName(), host.c_str(), port);
+	setDirtyObjectName();
+}
+
+void Socket::updateObjectName() {
+	setObjectName(getClassNameSize() + 3 + host.size() + 5, "%s[%s:%u]", getClassName(), host.c_str(), port);
 }
 
 
@@ -309,12 +313,12 @@ void Socket::packetLog(Log::Level level, const unsigned char* rawData, int size,
 			buffer += '\n';
 		}
 
-		packetLogger->log(level, getObjectName(), getObjectNameSize(),
+		packetLogger->log(level, this,
 						  "%s%s\n",
 						  messageBuffer,
 						  buffer.c_str());
 	} else {
-		packetLogger->log(level, getObjectName(), getObjectNameSize(),
+		packetLogger->log(level, this,
 						  "%s",
 						  messageBuffer);
 	}

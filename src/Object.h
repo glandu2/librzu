@@ -17,6 +17,7 @@
 	static unsigned long __objectCount; \
 	static const unsigned int __classTypeHash; \
 	public: virtual const char *getClassName() { return #C; } \
+	virtual unsigned int getClassNameSize() { return sizeof(#C); } \
 	virtual unsigned int getTrueClassHash() { return __classTypeHash; } \
 	static unsigned int getClassHash() { return __classTypeHash; } \
 	static unsigned long getObjectCount() { return __objectCount; } \
@@ -24,6 +25,7 @@
 
 #define DECLARE_CLASSNAME(C, count) \
 	public: virtual const char *getClassName() { return #C; } \
+	virtual unsigned int getClassNameSize() { return sizeof(#C); } \
 	virtual unsigned long getObjectNum() { return count; }
 
 
@@ -32,13 +34,12 @@ class RAPPELZLIB_EXTERN Object
 	DECLARE_CLASS(Object)
 
 public:
-	Object(const char *name = NULL);
+	Object();
 	virtual ~Object();
 
 	void setObjectName(const char *name);
 	void setObjectName(int maxLen, const char *format, ...);
-	const char *getObjectName();
-	int getObjectNameSize();
+	const char *getObjectName(size_t *size = nullptr);
 
 	void trace(const char *message, ...);
 	void debug(const char *message, ...);
@@ -48,9 +49,15 @@ public:
 	void fatal(const char *message, ...);
 
 	virtual void deleteLater();
+
+protected:
+	void setDirtyObjectName() { dirtyName = true; }
+	virtual void updateObjectName();
+
 private:
 	char *objectName;
-	int objectNameSize;
+	size_t objectNameSize;
+	bool dirtyName;
 };
 
 

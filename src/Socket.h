@@ -74,6 +74,7 @@ public:
 protected:
 	void setState(State state);
 	void setPeerInfo(const std::string& host, uint16_t port);
+	virtual void updateObjectName();
 
 	void packetLog(Log::Level level, const unsigned char *rawData, int size, const char* format, ...);
 
