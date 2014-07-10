@@ -35,6 +35,20 @@ DbConnectionPool::~DbConnectionPool() {
 	uv_mutex_destroy(&listLock);
 }
 
+bool DbConnectionPool::checkConnection(const char* connectionString) {
+	DbConnection* dbConnection;
+
+	info("Checking connection to \"%s\"\n", connectionString);
+	dbConnection = getConnection(connectionString, "");
+	if(!dbConnection) {
+		error("Could not retrieve a DB connection from pool\n");
+		return false;
+	}
+	dbConnection->release();
+	info("Connection ok\n");
+	return true;
+}
+
 DbConnection* DbConnectionPool::getConnection(const char* connectionString, std::string wantedQuery) {
 	DbConnection* dbConnection = nullptr;
 

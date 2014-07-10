@@ -18,6 +18,8 @@ public:
 	DbConnectionPool();
 	~DbConnectionPool();
 
+	bool checkConnection(const char* connectionString);
+
 	DbConnection* getConnection(const char* connectionString, std::string wantedQuery = std::string());
 	DbConnection* addConnection(const char* connectionString, bool createLocked);
 	void closeConnection(DbConnection* dbConnection);
