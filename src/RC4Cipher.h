@@ -3,7 +3,6 @@
 
 #include "Object.h"
 #include <string.h>
-#include <openssl/rc4.h>
 
 class RAPPELZLIB_EXTERN RC4Cipher : public Object
 {
@@ -20,7 +19,13 @@ class RAPPELZLIB_EXTERN RC4Cipher : public Object
 		}
 
 	private:
-		RC4_KEY state;
+		void rappelz_modified_RC4_set_key(int len, const unsigned char *data);
+
+		struct RC4Key
+		{
+			unsigned int x,y;
+			unsigned int data[256];
+		} state;
 };
 
 #endif // RC4CIPHER_H

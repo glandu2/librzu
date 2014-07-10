@@ -1,5 +1,7 @@
 #include "RC4Cipher.h"
 #include <string.h>
+#include <openssl/rc4.h>
+
 
 inline void exchange(RC4_INT *a, RC4_INT *b) {
 	RC4_INT tmp;
@@ -9,19 +11,18 @@ inline void exchange(RC4_INT *a, RC4_INT *b) {
 }
 
 RC4Cipher::RC4Cipher() {
-	//prepare("Neat & Simple");
 }
 
-static void rappelz_modified_RC4_set_key(RC4_KEY *key, int len, const unsigned char *data)
+void RC4Cipher::rappelz_modified_RC4_set_key(int len, const unsigned char *data)
 {
 	register RC4_INT tmp;
 	register int j;
 	register RC4_INT *d;
 	unsigned int i;
 
-	d= &(key->data[0]);
-	key->x = 0;
-	key->y = 0;
+	d= &(state.data[0]);
+	state.x = 0;
+	state.y = 0;
 	j=0;
 
 #define SK_LOOP(d,n) { \
@@ -41,11 +42,9 @@ static void rappelz_modified_RC4_set_key(RC4_KEY *key, int len, const unsigned c
 }
 
 void RC4Cipher::prepare(const char *key) {
-	rappelz_modified_RC4_set_key(&state, strlen(key), (const unsigned char*)key);
+	rappelz_modified_RC4_set_key(strlen(key), (const unsigned char*)key);
 
 	//simulate transmition with 1013 bytes
-	state.y=0;
-	state.x=0;
 	unsigned int i;
 	for(i=0; i<1013; i++) {
 		state.x = (state.x + 1) & 0xFF;
@@ -55,5 +54,6 @@ void RC4Cipher::prepare(const char *key) {
 }
 
 void RC4Cipher::encode(const char *in, char *out, size_t size) {
-	RC4(&state, size, (const unsigned char*)in, (unsigned char*)out);
+	static_assert(sizeof(RC4Cipher::state) == sizeof(RC4_KEY), "RC4 openssl size different from own key struct");
+	RC4((RC4_KEY*)&state, size, (const unsigned char*)in, (unsigned char*)out);
 }
