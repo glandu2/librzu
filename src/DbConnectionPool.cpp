@@ -44,6 +44,7 @@ bool DbConnectionPool::checkConnection(const char* connectionString) {
 		error("Could not retrieve a DB connection from pool\n");
 		return false;
 	}
+	closeConnection(dbConnection);
 	dbConnection->release();
 	info("Connection ok\n");
 	return true;
