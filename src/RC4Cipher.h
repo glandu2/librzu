@@ -21,11 +21,21 @@ class RAPPELZLIB_EXTERN RC4Cipher : public Object
 	private:
 		void rappelz_modified_RC4_set_key(int len, const unsigned char *data);
 
+#ifdef __arm__
+		struct RC4Key
+		{
+			unsigned char x,y;
+			unsigned char data[256];
+		};
+#else
 		struct RC4Key
 		{
 			unsigned int x,y;
 			unsigned int data[256];
-		} state;
+		};
+#endif
+
+		RC4Key state;
 };
 
 #endif // RC4CIPHER_H
