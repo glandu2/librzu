@@ -66,13 +66,14 @@ void RappelzServerCommon::onNewConnection(IListener* instance, Socket* serverSoc
 	}
 }
 
-
 void RappelzServerCommon::onSocketStateChanged(IListener* instance, Socket*, Socket::State, Socket::State newState) {
 	SocketSession* thisInstance = static_cast<SocketSession*>(instance);
 
 	if(newState == Socket::UnconnectedState) {
 		CONFIG_GET()->stats.disconnectionCount++;
-		thisInstance->getServer()->socketClosed(thisInstance->getSocketIterator());
+		RappelzServerCommon* server = thisInstance->getServer();
+		if(server)
+			server->socketClosed(thisInstance->getSocketIterator());
 		delete thisInstance;
 	}
 }
