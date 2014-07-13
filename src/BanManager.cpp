@@ -56,32 +56,3 @@ bool BanManager::isBanned(uint32_t ip) {
 
 	return false;
 }
-
-//bool BanManager::stringToIpNetwork(const char* ip, uint32_t *out) {
-//	int a, b, c, d;
-
-//	if(sscanf(ip, "%d.%d.%d.%d", &a, &b, &c, &d) != 4)
-//		return false;
-
-//	//host order -> network order
-//	*out = a << 24;
-//	*out |= b << 16;
-//	*out |= c << 8;
-//	*out |= d;
-//	*out = htonl(*out);
-
-//	return true;
-//}
-
-//void BanManager::ipNetworkToString(char ipStr[16], uint32_t ip) {
-//	int a, b, c, d;
-
-//	//host order -> network order
-//	uint32_t ipLE = htonl(ip);
-//	a = (ipLE >> 24) & 0xFF;
-//	b = (ipLE >> 16) & 0xFF;
-//	c = (ipLE >> 8) & 0xFF;
-//	d = ipLE & 0xFF;
-
-//	sprintf(ipStr, "%d.%d.%d.%d", a, b, c, d);
-//}
