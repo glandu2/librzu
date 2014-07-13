@@ -23,4 +23,10 @@
 #    pragma warning(disable: 4251) /* class 'A' needs to have dll interface for to be used by clients of class 'B'. dll and users must use same crt dll and compiler flags. */
 #endif
 
+#ifdef __GNUC__
+#define PRINTFCHECK(formatidx, argsidx) __attribute__((format (printf, formatidx, argsidx)))
+#else
+#define PRINTFCHECK(formatidx, argsidx)
+#endif
+
 #endif // RAPPELZLIB_GLOBAL_H

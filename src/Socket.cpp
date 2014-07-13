@@ -135,8 +135,8 @@ size_t Socket::write(const void *buffer, size_t size) {
 		}
 
 		if(logPackets)
-			packetLog(Log::LL_Info, reinterpret_cast<const unsigned char*>(buffer), (int)size,
-									"Written %ld bytes\n",
+			packetLog(Log::LL_Debug, reinterpret_cast<const unsigned char*>(buffer), (int)size,
+									"Written %d bytes\n",
 									(int)size);
 
 		return size;

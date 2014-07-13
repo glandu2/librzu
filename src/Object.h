@@ -38,15 +38,15 @@ public:
 	virtual ~Object();
 
 	void setObjectName(const char *name);
-	void setObjectName(int maxLen, const char *format, ...);
+	void setObjectName(int maxLen, const char *format, ...) PRINTFCHECK(3, 4);
 	const char *getObjectName(size_t *size = nullptr);
 
-	void trace(const char *message, ...);
-	void debug(const char *message, ...);
-	void info(const char *message, ...);
-	void warn(const char *message, ...);
-	void error(const char *message, ...);
-	void fatal(const char *message, ...);
+	void trace(const char *message, ...) PRINTFCHECK(2, 3);
+	void debug(const char *message, ...) PRINTFCHECK(2, 3);
+	void info(const char *message, ...) PRINTFCHECK(2, 3);
+	void warn(const char *message, ...) PRINTFCHECK(2, 3);
+	void error(const char *message, ...) PRINTFCHECK(2, 3);
+	void fatal(const char *message, ...) PRINTFCHECK(2, 3);
 
 	virtual void deleteLater();
 

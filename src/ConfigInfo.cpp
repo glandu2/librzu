@@ -168,7 +168,7 @@ bool ConfigInfo::readFile(const char* filename, int fileDepth) {
 					std::string keyStr(value+1);
 					ConfigValue* v = getValue(keyStr);
 					if(v == nullptr) {
-						warn("In %s:%d: Unknown key \"%s\" in config file %s, ignoring\n", filename, lineNumber, keyStr.c_str());
+						warn("In %s:%d: Unknown key \"%s\", ignoring\n", filename, lineNumber, keyStr.c_str());
 					} else if(v->getType() == ConfigValue::String) {
 						std::string keyValue = v->getString();
 						if(Utils::isAbsolute(keyValue.c_str()))

@@ -76,7 +76,7 @@ protected:
 	void setPeerInfo(const std::string& host, uint16_t port);
 	virtual void updateObjectName();
 
-	void packetLog(Log::Level level, const unsigned char *rawData, int size, const char* format, ...);
+	void packetLog(Log::Level level, const unsigned char *rawData, int size, const char* format, ...) PRINTFCHECK(5, 6);
 
 
 	static void onConnected(uv_connect_t* req, int status);

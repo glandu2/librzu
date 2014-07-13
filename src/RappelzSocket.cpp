@@ -2,6 +2,7 @@
 #include <string.h>
 #include "Packets/TS_SC_RESULT.h"
 #include "Log.h"
+#include "PrintfFormats.h"
 
 RappelzSocket::RappelzSocket(uv_loop_t* uvLoop, Mode mode)
 	: EncryptedSocket(uvLoop, mode, false)
@@ -80,13 +81,13 @@ void RappelzSocket::logPacket(bool outgoing, const TS_MESSAGE* msg) {
 	trace("Packet %s id: %5d, size: %d\n",
 		  (outgoing)? "out" : " in",
 		  msg->id,
-		  msg->size);
+		  int(msg->size - sizeof(TS_MESSAGE)));
 
-	packetLog(Log::LL_Info, reinterpret_cast<const unsigned char*>(msg), (int)msg->size,
+	packetLog(Log::LL_Debug, reinterpret_cast<const unsigned char*>(msg) + sizeof(TS_MESSAGE), (int)msg->size - sizeof(TS_MESSAGE),
 			  "Packet %s id: %5d, size: %d\n",
 			  (outgoing)? "out" : "in ",
 			  msg->id,
-			  msg->size);
+			  int(msg->size - sizeof(TS_MESSAGE)));
 }
 
 void RappelzSocket::dataReceived(IListener* instance, Socket*) {
