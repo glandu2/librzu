@@ -17,8 +17,8 @@ public:
 	bool isBanned(uint32_t ip);
 
 protected:
-	bool stringToIpNetwork(const char* ip, uint32_t* out);
-	void ipNetworkToString(char ipStr[16], uint32_t ip);
+//	bool stringToIpNetwork(const char* ip, uint32_t* out);
+//	void ipNetworkToString(char ipStr[16], uint32_t ip);
 
 private:
 	std::unordered_set<uint32_t> bannedIps;
