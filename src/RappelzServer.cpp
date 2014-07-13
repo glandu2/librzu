@@ -51,9 +51,9 @@ void RappelzServerCommon::onNewConnection(IListener* instance, Socket* serverSoc
 	}
 
 	if(serverSocket->accept(thisInstance->lastWaitingInstance->getSocket())) {
-		if(thisInstance->banManager && thisInstance->banManager->isBanned(thisInstance->lastWaitingInstance->getSocket()->getPeerInfo().sin_addr.s_addr)) {
+		if(thisInstance->banManager && thisInstance->banManager->isBanned(thisInstance->lastWaitingInstance->getSocket()->getRemoteHost())) {
 			thisInstance->lastWaitingInstance->getSocket()->abort();
-			thisInstance->info("Kick banned ip %s\n", thisInstance->lastWaitingInstance->getSocket()->getHost().c_str());
+			thisInstance->debug("Kick banned ip %s\n", thisInstance->lastWaitingInstance->getSocket()->getRemoteHostName());
 		} else {
 			thisInstance->sockets.push_back(thisInstance->lastWaitingInstance->getSocket());
 			thisInstance->lastWaitingInstance->setServer(thisInstance, --thisInstance->sockets.end());

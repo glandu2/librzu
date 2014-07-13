@@ -25,12 +25,16 @@ const char* Socket::STATES[] = { "Unconnected", "Connecting", "Binding", "Listen
 
 Socket::Socket(uv_loop_t *uvLoop, bool logPackets)
 	: uvLoop(uvLoop),
-	  port(0),
+	  remoteHost(0),
+	  remotePort(0),
+	  localHost(0),
+	  localPort(0),
 	  currentState(UnconnectedState),
 	  socketInitialized(false),
 	  packetLogger(nullptr),
 	  logPackets(logPackets)
 {
+	remoteHostName[0] = localHostName[0] = 0;
 	connectRequest.data = this;
 	socket.data = this;
 }
@@ -48,7 +52,8 @@ bool Socket::connect(const std::string & hostName, uint16_t port) {
 		return false;
 	}
 
-	setPeerInfo(hostName, port);
+	strncpy(remoteHostName, hostName.c_str(), sizeof(remoteHostName));
+	remotePort = port;
 	setState(ConnectingState);
 
 	uv_tcp_init(uvLoop, &socket);
@@ -72,9 +77,11 @@ bool Socket::listen(const std::string& interfaceIp, uint16_t port) {
 		return false;
 	}
 
+
+	strncpy(localHostName, interfaceIp.c_str(), sizeof(localHostName));
+	localPort = port;
 	setState(BindingState);
 
-	setPeerInfo(interfaceIp, port);
 	uv_tcp_init(uvLoop, &socket);
 
 	struct sockaddr_in bindAddr;
@@ -165,11 +172,6 @@ bool Socket::accept(Socket* clientSocket) {
 	}
 
 	clientSocket->currentState = UnconnectedState;
-
-	struct sockaddr_in peerInfo = clientSocket->getPeerInfo();
-	char buffer[INET_ADDRSTRLEN] = {0};
-	uv_inet_ntop(AF_INET, &peerInfo.sin_addr, buffer, INET_ADDRSTRLEN);
-	clientSocket->setPeerInfo(std::string(buffer), ntohs(peerInfo.sin_port));
 	clientSocket->setState(ConnectedState);
 
 	return true;
@@ -199,44 +201,82 @@ void Socket::abort() {
 	uv_close((uv_handle_t*)&socket, &onConnectionClosed);
 }
 
-struct sockaddr_in Socket::getPeerInfo() {
-	struct sockaddr_in peerInfo;
+void Socket::retrieveSocketBoundsInfo() {
+	// Retrieve remote bound infos
+	struct sockaddr_in sockInfo;
 	int sockAddrLen = sizeof(sockaddr_in);
-	uv_tcp_getpeername(&socket, (struct sockaddr*)&peerInfo, &sockAddrLen);
+	if(uv_tcp_getpeername(&socket, (struct sockaddr*)&sockInfo, &sockAddrLen) >= 0) {
+		remoteHost = sockInfo.sin_addr.s_addr;
+		uv_inet_ntop(AF_INET, &sockInfo.sin_addr.s_addr, remoteHostName, sizeof(remoteHostName));
+		remotePort = ntohs(sockInfo.sin_port);
+	} else {
+		remoteHostName[0] = 0;
+		remoteHost = 0;
+		remotePort = 0;
+	}
 
-	return peerInfo;
+	// Retrieve local bound infos
+	sockAddrLen = sizeof(sockaddr_in);
+	if(uv_tcp_getsockname(&socket, (struct sockaddr*)&sockInfo, &sockAddrLen) >= 0) {
+		localHost = sockInfo.sin_addr.s_addr;
+		uv_inet_ntop(AF_INET, &sockInfo.sin_addr.s_addr, localHostName, sizeof(localHostName));
+		localPort = ntohs(sockInfo.sin_port);
+	} else {
+		localHostName[0] = 0;
+		localHost = 0;
+		localPort = 0;
+	}
+
+	setDirtyObjectName();
 }
 
 void Socket::setState(State state) {
 	if(state == currentState)
 		return;
 
+	if(state == ConnectedState || state == ListeningState) {
+		retrieveSocketBoundsInfo();
+	}
+
 	State oldState = currentState;
 	currentState = state;
 
 	const char* oldStateStr = (oldState < (sizeof(STATES)/sizeof(const char*))) ? STATES[oldState] : "Unknown";
 	const char* newStateStr = (state < (sizeof(STATES)/sizeof(const char*))) ? STATES[state] : "Unknown";
-	trace("Socket state change from %s to %s\n", oldStateStr, newStateStr);
+	trace("Socket state changed from %s to %s\n", oldStateStr, newStateStr);
+	packetLog(Log::LL_Info, nullptr, 0, "Socket state changed from %s to %s\n", oldStateStr, newStateStr);
 
 	DELEGATE_CALL(eventListeners, this, oldState, state);
 
 	if(state == UnconnectedState) {
-		this->host.clear();
-		this->port = 0;
-		setObjectName(nullptr);
+		remoteHostName[0] = 0;
+		remoteHost = 0;
+		remotePort = 0;
+		localHostName[0] = 0;
+		localHost = 0;
+		localPort = 0;
+
+		setDirtyObjectName();
 	} else if(state == ConnectedState) {
 		uv_read_start((uv_stream_t*) &socket, &onAllocReceiveBuffer, &onReadCompleted);
 	}
-}
 
-void Socket::setPeerInfo(const std::string& host, uint16_t port) {
-	this->host = host;
-	this->port = port;
-	setDirtyObjectName();
 }
 
 void Socket::updateObjectName() {
-	setObjectName(getClassNameSize() + 3 + host.size() + 5, "%s[%s:%u]", getClassName(), host.c_str(), port);
+//	int nameSize = 0;
+//	nameSize += getClassNameSize(); //name prefix is class name
+//	nameSize += 1; // "["
+//	nameSize += strlen(localHostName);
+//	nameSize += 1; // ":"
+//	nameSize += 5; // localPort
+//	nameSize += 4; // " <> "
+//	nameSize += strlen(remoteHostName);
+//	nameSize += 1; // ":"
+//	nameSize += 5; // remotePort
+//	nameSize += 2; // "]\0"
+	int nameSize = getClassNameSize() + strlen(localHostName) + strlen(remoteHostName) + 19;
+	setObjectName(nameSize, "%s[%s:%u <> %s:%u]", getClassName(), localHostName, localPort, remoteHostName, remotePort);
 }
 
 
@@ -416,7 +456,7 @@ void Socket::onReadCompleted(uv_stream_t* stream, ssize_t nread, const uv_buf_t*
 		thisInstance->trace("Read %ld bytes\n", (long)nread);
 
 		if(thisInstance->logPackets)
-			thisInstance->packetLog(Log::LL_Info, reinterpret_cast<const unsigned char*>(buf->base), (int)nread,
+			thisInstance->packetLog(Log::LL_Debug, reinterpret_cast<const unsigned char*>(buf->base), (int)nread,
 									"Read    %ld bytes\n",  //large space to align with writes
 									(long)nread);
 
