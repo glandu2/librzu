@@ -97,7 +97,7 @@ static void defaultLog(const char* suffix, const char* objectName, const char* m
 	va_start(args, message); \
 	 \
 	if(logger) \
-		logger->log(Log::LL_##level, this, message, args); \
+		logger->logv(Log::LL_##level, this, message, args); \
 	else { \
 		defaultLog(#level, getObjectName(), message, args); \
 	} \

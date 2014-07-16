@@ -33,9 +33,9 @@ public:
 	uv_thread_t getLogWriterThread() { return logWritterThreadId; }
 
 	void log(Level level, Object* object, const char* message, ...) PRINTFCHECK(4, 5);
-	void log(Level level, Object* object, const char* message, va_list args);
+	void logv(Level level, Object* object, const char* message, va_list args);
 	void log(Level level, const char* objectName, size_t objectNameSize, const char* message, ...) PRINTFCHECK(5, 6);
-	void log(Level level, const char* objectName, size_t objectNameSize, const char* message, va_list args);
+	void logv(Level level, const char* objectName, size_t objectNameSize, const char* message, va_list args);
 
 	static Log* get() { return defaultLogger; }
 	static Log* setDefaultLogger(Log* newLogger) { Log* old = defaultLogger; defaultLogger = newLogger; return old; }

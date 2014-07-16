@@ -170,12 +170,12 @@ void Log::log(Level level, Object* object, const char* message, ...) {
 	name = object->getObjectName(&nameSize);
 
 	va_start(args, message);
-	log(level, name, nameSize, message, args);
+	logv(level, name, nameSize, message, args);
 	va_end(args);
 
 }
 
-void Log::log(Level level, Object* object, const char* message, va_list args) {
+void Log::logv(Level level, Object* object, const char* message, va_list args) {
 	size_t nameSize;
 	const char* name;
 
@@ -183,7 +183,7 @@ void Log::log(Level level, Object* object, const char* message, va_list args) {
 		return;
 
 	name = object->getObjectName(&nameSize);
-	log(level, name, nameSize, message, args);
+	logv(level, name, nameSize, message, args);
 
 }
 
@@ -194,7 +194,7 @@ void Log::log(Level level, const char *objectName, size_t objectNameSize, const 
 		return;
 
 	va_start(args, message);
-	log(level, objectName, objectNameSize, message, args);
+	logv(level, objectName, objectNameSize, message, args);
 	va_end(args);
 }
 
@@ -234,7 +234,7 @@ void stringformat(std::string& dest, const char* message, va_list args) {
 	}
 }
 
-void Log::log(Level level, const char *objectName, size_t objectNameSize, const char* message, va_list args) {
+void Log::logv(Level level, const char *objectName, size_t objectNameSize, const char* message, va_list args) {
 	if(!wouldLog(level))
 		return;
 
