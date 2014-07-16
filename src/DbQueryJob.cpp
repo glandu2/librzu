@@ -4,6 +4,7 @@
 #include "EventLoop.h"
 #include "Log.h"
 #include "DbConnectionPool.h"
+#include "DbConnection.h"
 
 DbQueryBinding::DbQueryBinding(DbConnectionPool* dbConnectionPool,
 					   cval<bool>& enabled,

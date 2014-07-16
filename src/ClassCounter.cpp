@@ -35,7 +35,7 @@ DECLARE_CLASSCOUNT_STATIC(ConfigInfo)
 #include "ConfigValue.h"
 DECLARE_CLASSCOUNT_STATIC(ConfigValue)
 
-#include "DbConnectionPool.h"
+#include "DbConnection.h"
 DECLARE_CLASSCOUNT_STATIC(DbConnection)
 
 #include "DbQueryJob.h"

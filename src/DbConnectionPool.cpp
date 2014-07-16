@@ -1,12 +1,17 @@
 #include "DbConnectionPool.h"
 #include "Log.h"
 #include <stdlib.h>
+#include "EventLoop.h"
+#include "DbConnection.h"
 
-static bool checkSqlResult(SQLRETURN result, const char* function, SQLHENV henv, SQLHDBC hdbc, SQLHSTMT hstmt);
 static void outputError(Log::Level errorLevel, SQLHANDLE handle, SQLSMALLINT type);
+
+DbConnectionPool *DbConnectionPool::instance = nullptr;
 
 DbConnectionPool::DbConnectionPool() {
 	SQLRETURN result;
+
+	instance = this;
 
 	uv_mutex_init(&listLock);
 
@@ -44,17 +49,16 @@ bool DbConnectionPool::checkConnection(const char* connectionString) {
 		error("Could not retrieve a DB connection from pool\n");
 		return false;
 	}
-	closeConnection(dbConnection);
-	dbConnection->release();
+	dbConnection->releaseAndClose();
 	info("Connection ok\n");
 	return true;
 }
 
 DbConnection* DbConnectionPool::getConnection(const char* connectionString, std::string wantedQuery) {
 	DbConnection* dbConnection = nullptr;
+	std::list<DbConnection*>::iterator it, itEnd;
 
 	uv_mutex_lock(&listLock);
-	std::list<DbConnection*>::iterator it, itEnd;
 	for(it = openedConnections.begin(), itEnd = openedConnections.end(); it != itEnd; ++it) {
 		DbConnection* connection = *it;
 		if(connection->trylock()) {
@@ -130,24 +134,36 @@ DbConnection* DbConnectionPool::addConnection(const char* connectionString, bool
 	return dbConnection;
 }
 
-void DbConnectionPool::closeConnection(DbConnection* dbConnection) {
+void DbConnectionPool::removeConnection(DbConnection* dbConnection) {
 	uv_mutex_lock(&listLock);
 	openedConnections.remove(dbConnection);
 	uv_mutex_unlock(&listLock);
-
-	dbConnection->deleteLater();
 }
 
-void DbConnection::releaseWithError() {
-	conPool->closeConnection(this);
-	release();
+int DbConnectionPool::closeAllConnections() {
+	std::list<DbConnection*> connectionsToRemove;
+	std::list<DbConnection*>::iterator it, itEnd;
+
+	//Retrieve and lock all idle connections
+	uv_mutex_lock(&listLock);
+	for(it = openedConnections.begin(), itEnd = openedConnections.end(); it != itEnd; ++it) {
+		DbConnection* connection = *it;
+		if(connection->trylock()) {
+			connectionsToRemove.push_back(connection);
+		}
+	}
+	uv_mutex_unlock(&listLock);
+
+	//Release and close them
+	for(it = connectionsToRemove.begin(), itEnd = connectionsToRemove.end(); it != itEnd; ++it) {
+		DbConnection* connection = *it;
+		connection->releaseAndClose();
+	}
+
+	return connectionsToRemove.size();
 }
 
-bool DbConnection::checkResult(SQLRETURN result, const char* function) {
-	return checkSqlResult(result, function, conPool->getHenv(), hdbc, hstmt);
-}
-
-static bool checkSqlResult(SQLRETURN result, const char* function, SQLHENV henv, SQLHDBC hdbc, SQLHSTMT hstmt) {
+bool DbConnectionPool::checkSqlResult(SQLRETURN result, const char* function, SQLHENV henv, SQLHDBC hdbc, SQLHSTMT hstmt) {
 	if(result == SQL_SUCCESS_WITH_INFO) {
 		Log::get()->log(Log::LL_Info, "ODBC", 4, "%s: additional info:\n", function);
 		if(hstmt)
