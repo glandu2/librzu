@@ -73,6 +73,9 @@ public:
 
 	void setPacketLogger(Log* packetLogger) { this->packetLogger = packetLogger; }
 
+	void resetPacketTransferedFlag() { packetTransferedSinceLastCheck = false; }
+	bool isPacketTransferedSinceLastCheck() { return packetTransferedSinceLastCheck; }
+
 
 protected:
 	void setState(State state);
@@ -116,6 +119,7 @@ private:
 
 	Log* packetLogger;
 	bool logPackets; //set to false when logging is done in a derived class (ie: RappelzSocket)
+	bool packetTransferedSinceLastCheck; //when checking idle sockets, if this flag is false, then the socket is closed (idle)
 };
 
 #endif // SOCKET_H

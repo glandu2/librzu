@@ -4,14 +4,17 @@
 #include "BanManager.h"
 #include "RappelzLibConfig.h"
 
-RappelzServerCommon::RappelzServerCommon(Log *packetLogger)
+RappelzServerCommon::RappelzServerCommon(int idleTimeoutSec, Log *packetLogger)
 	: openServer(false),
 	  serverSocket(new Socket(EventLoop::getLoop())),
 	  lastWaitingInstance(nullptr),
 	  banManager(nullptr),
-	  packetLogger(packetLogger)
+	  packetLogger(packetLogger),
+	  checkIdleSocketPeriod(idleTimeoutSec)
 {
 	serverSocket->addConnectionListener(this, &onNewConnection);
+	uv_timer_init(EventLoop::getLoop(), &checkIdleSocketTimer);
+	checkIdleSocketTimer.data = this;
 }
 
 RappelzServerCommon::~RappelzServerCommon() {
@@ -26,10 +29,16 @@ RappelzServerCommon::~RappelzServerCommon() {
 bool RappelzServerCommon::startServer(const std::string &interfaceIp, uint16_t port, BanManager *banManager) {
 	this->banManager = banManager;
 	openServer = true;
+	if(checkIdleSocketPeriod) {
+		uint64_t timeoutMs = uint64_t(checkIdleSocketPeriod)*1000;
+		uv_timer_start(&checkIdleSocketTimer, &onCheckIdleSockets, timeoutMs, timeoutMs);
+	}
 	return serverSocket->listen(interfaceIp, port);
 }
 
 void RappelzServerCommon::stop() {
+	if(checkIdleSocketPeriod)
+		uv_timer_stop(&checkIdleSocketTimer);
 	serverSocket->close();
 	openServer = false;
 	for(auto it = sockets.begin(); it != sockets.end();) {
@@ -75,5 +84,19 @@ void RappelzServerCommon::onSocketStateChanged(IListener* instance, Socket*, Soc
 		if(server)
 			server->socketClosed(thisInstance->getSocketIterator());
 		delete thisInstance;
+	}
+}
+
+void RappelzServerCommon::onCheckIdleSockets(uv_timer_t* timer) {
+	RappelzServerCommon* thisInstance = static_cast<RappelzServerCommon*>(timer->data);
+	thisInstance->trace("Idle socket check\n");
+	for(auto it = thisInstance->sockets.begin(); it != thisInstance->sockets.end(); ++it) {
+		Socket* socket = *it;
+		if(socket->getState() == Socket::ConnectedState && socket->isPacketTransferedSinceLastCheck() == false) {
+			socket->close();
+			thisInstance->info("Kicked idle connection: %s:%d\n", socket->getRemoteHostName(), socket->getRemotePort());
+		} else {
+			socket->resetPacketTransferedFlag();
+		}
 	}
 }

@@ -17,7 +17,9 @@
 	static unsigned long __objectCount; \
 	static const unsigned int __classTypeHash; \
 	public: virtual const char *getClassName() { return #C; } \
+	static const char* getStaticClassName() { return #C; } \
 	virtual unsigned int getClassNameSize() { return sizeof(#C); } \
+	static unsigned int getStaticClassNameSize() { return sizeof(#C); } \
 	virtual unsigned int getTrueClassHash() { return __classTypeHash; } \
 	static unsigned int getClassHash() { return __classTypeHash; } \
 	static unsigned long getObjectCount() { return __objectCount; } \

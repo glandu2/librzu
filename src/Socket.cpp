@@ -32,7 +32,8 @@ Socket::Socket(uv_loop_t *uvLoop, bool logPackets)
 	  currentState(UnconnectedState),
 	  socketInitialized(false),
 	  packetLogger(nullptr),
-	  logPackets(logPackets)
+	  logPackets(logPackets),
+	  packetTransferedSinceLastCheck(true)
 {
 	remoteHostName[0] = localHostName[0] = 0;
 	connectRequest.data = this;
@@ -259,6 +260,7 @@ void Socket::setState(State state) {
 		setDirtyObjectName();
 	} else if(state == ConnectedState) {
 		uv_read_start((uv_stream_t*) &socket, &onAllocReceiveBuffer, &onReadCompleted);
+		packetTransferedSinceLastCheck = true;
 	}
 
 }
@@ -453,6 +455,7 @@ void Socket::onReadCompleted(uv_stream_t* stream, ssize_t nread, const uv_buf_t*
 		thisInstance->error("onReadCompleted: %s\n", errorString);
 		thisInstance->notifyReadyError(nread);
 	} else {
+		thisInstance->packetTransferedSinceLastCheck = true;
 		thisInstance->trace("Read %ld bytes\n", (long)nread);
 
 		if(thisInstance->logPackets)
@@ -485,6 +488,7 @@ void Socket::onWriteCompleted(uv_write_t* req, int status) {
 		thisInstance->error("onWriteCompleted: %s\n", errorString);
 		thisInstance->notifyReadyError(status);
 	} else {
+		thisInstance->packetTransferedSinceLastCheck = true;
 		thisInstance->trace("Written %ld bytes\n", (long)writeRequest->buffer.len);
 	}
 
