@@ -15,8 +15,8 @@ class RAPPELZLIB_EXTERN RappelzServerCommon : public Object, public IListener
 	DECLARE_CLASS(RappelzServerCommon)
 
 public:
-		//Timeout idle connection (real timeout vary between idleTimeoutSec and idleTimeoutSec*2 seconds)
-	RappelzServerCommon(int idleTimeoutSec, Log* packetLogger = nullptr);
+	//Timeout idle connection (real timeout vary between idleTimeoutSec and idleTimeoutSec*2 seconds)
+	RappelzServerCommon(cval<int>* idleTimeoutSec = nullptr, Log* packetLogger = nullptr);
 	~RappelzServerCommon();
 
 	bool startServer(const std::string& interfaceIp, uint16_t port, BanManager* banManager = nullptr);
@@ -42,14 +42,14 @@ private:
 	BanManager* banManager;
 	Log* packetLogger;
 	uv_timer_t checkIdleSocketTimer;
-	int checkIdleSocketPeriod;
+	cval<int>* checkIdleSocketPeriod;
 };
 
 template<class T>
 class RappelzServer : public RappelzServerCommon
 {
 public:
-	RappelzServer(int idleTimeoutSec = 0, Log* packetLogger = nullptr) : RappelzServerCommon(idleTimeoutSec, packetLogger) {}
+	RappelzServer(cval<int>* idleTimeoutSec = nullptr, Log* packetLogger = nullptr) : RappelzServerCommon(idleTimeoutSec, packetLogger) {}
 
 	void updateObjectName() {
 		setObjectName(15 + T::getStaticClassNameSize(), "RappelzServer<%s>", T::getStaticClassName());

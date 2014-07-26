@@ -3,8 +3,9 @@
 #include "SocketSession.h"
 #include "BanManager.h"
 #include "RappelzLibConfig.h"
+#include "PrintfFormats.h"
 
-RappelzServerCommon::RappelzServerCommon(int idleTimeoutSec, Log *packetLogger)
+RappelzServerCommon::RappelzServerCommon(cval<int>* idleTimeoutSec, Log *packetLogger)
 	: openServer(false),
 	  serverSocket(new Socket(EventLoop::getLoop())),
 	  lastWaitingInstance(nullptr),
@@ -29,8 +30,9 @@ RappelzServerCommon::~RappelzServerCommon() {
 bool RappelzServerCommon::startServer(const std::string &interfaceIp, uint16_t port, BanManager *banManager) {
 	this->banManager = banManager;
 	openServer = true;
-	if(checkIdleSocketPeriod) {
-		uint64_t timeoutMs = uint64_t(checkIdleSocketPeriod)*1000;
+	int idleTimeout = checkIdleSocketPeriod? checkIdleSocketPeriod->get() : 0;
+	if(idleTimeout) {
+		uint64_t timeoutMs = uint64_t(idleTimeout)*1000;
 		uv_timer_start(&checkIdleSocketTimer, &onCheckIdleSockets, timeoutMs, timeoutMs);
 	}
 	return serverSocket->listen(interfaceIp, port);
@@ -89,14 +91,27 @@ void RappelzServerCommon::onSocketStateChanged(IListener* instance, Socket*, Soc
 
 void RappelzServerCommon::onCheckIdleSockets(uv_timer_t* timer) {
 	RappelzServerCommon* thisInstance = static_cast<RappelzServerCommon*>(timer->data);
-	thisInstance->trace("Idle socket check\n");
-	for(auto it = thisInstance->sockets.begin(); it != thisInstance->sockets.end(); ++it) {
+	int kickedConnections = 0;
+	uint64_t begin;
+	bool logTrace = Log::get() && Log::get()->wouldLog(Log::LL_Trace);
+
+	if(logTrace)
+		begin = uv_hrtime();
+
+	for(auto it = thisInstance->sockets.begin(); it != thisInstance->sockets.end();) {
 		Socket* socket = *it;
-		if(socket->getState() == Socket::ConnectedState && socket->isPacketTransferedSinceLastCheck() == false) {
-			socket->close();
-			thisInstance->info("Kicked idle connection: %s:%d\n", socket->getRemoteHostName(), socket->getRemotePort());
-		} else {
-			socket->resetPacketTransferedFlag();
+		++it; //if the socket is removed from the list (when closed), we keep a valid iterator
+		if(socket->getState() == Socket::ConnectedState) {
+			if(socket->isPacketTransferedSinceLastCheck() == false) {
+				socket->close();
+				kickedConnections++;
+				thisInstance->info("Kicked idle connection: %s:%d\n", socket->getRemoteHostName(), socket->getRemotePort());
+			} else {
+				socket->resetPacketTransferedFlag();
+			}
 		}
 	}
+	//check fo trace to avoid call to uv_hrtime if not needed
+	if(logTrace)
+		thisInstance->trace("Idle socket check: kicked %d sockets in %" PRIu64 " ns\n", kickedConnections, uv_hrtime() - begin);
 }
