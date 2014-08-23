@@ -22,7 +22,7 @@ public:
 	static const uint32_t MAX_PACKET_SIZE = 65536;
 
 private:
-	static const uint32_t INITIAL_INPUT_BUFFERSIZE = 1024;
+	static const uint32_t INITIAL_INPUT_BUFFERSIZE = 296;
 	struct InputBuffer {
 		uint8_t* buffer;
 		uint32_t bufferSize;

@@ -26,12 +26,12 @@ const char* Socket::STATES[] = { "Unconnected", "Connecting", "Binding", "Listen
 Socket::Socket(uv_loop_t *uvLoop, bool logPackets)
 	: uvLoop(uvLoop),
 	  remoteHost(0),
-	  remotePort(0),
 	  localHost(0),
+	  remotePort(0),
 	  localPort(0),
 	  currentState(UnconnectedState),
-	  socketInitialized(false),
 	  packetLogger(nullptr),
+	  socketInitialized(false),
 	  logPackets(logPackets),
 	  packetTransferedSinceLastCheck(true)
 {

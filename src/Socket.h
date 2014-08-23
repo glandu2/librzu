@@ -98,10 +98,10 @@ protected:
 private:
 	uv_loop_t* uvLoop;
 	uint32_t remoteHost;
-	uint16_t remotePort;
-	char remoteHostName[INET_ADDRSTRLEN];
 	uint32_t localHost;
+	uint16_t remotePort;
 	uint16_t localPort;
+	char remoteHostName[INET_ADDRSTRLEN];
 	char localHostName[INET_ADDRSTRLEN];
 
 	IDelegate<Socket::CallbackOnDataReady> dataListeners;
@@ -115,9 +115,10 @@ private:
 	Socket::State currentState;
 
 	std::vector<char> recvBuffer;
-	bool socketInitialized; //for accept to prevent multiple init in case of failure of uv_accept
 
 	Log* packetLogger;
+
+	bool socketInitialized; //for accept to prevent multiple init in case of failure of uv_accept
 	bool logPackets; //set to false when logging is done in a derived class (ie: RappelzSocket)
 	bool packetTransferedSinceLastCheck; //when checking idle sockets, if this flag is false, then the socket is closed (idle)
 };
