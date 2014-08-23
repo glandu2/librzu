@@ -85,6 +85,7 @@ private:
 	cval<std::string>& fileName;
 	cval<int>& maxQueueSize;
 	bool updateFileRequested;
+	bool messageQueueFull;
 };
 
 #endif // LOG_H

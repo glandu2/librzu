@@ -128,6 +128,7 @@ void Log::startWriter() {
 
 	this->stop = false;
 	this->updateFileRequested = true;
+	this->messageQueueFull = false;
 	uv_thread_create(&this->logWritterThreadId, &logWritterThreadStatic, this);
 	log(LL_Info, this, "Log thread started using filename %s\n", fileName.get().c_str());
 }
@@ -235,7 +236,7 @@ void stringformat(std::string& dest, const char* message, va_list args) {
 }
 
 void Log::logv(Level level, const char *objectName, size_t objectNameSize, const char* message, va_list args) {
-	if(!wouldLog(level))
+	if(!wouldLog(level) || this->messageQueueFull)
 		return;
 
 	Message* msg = new Message;
@@ -249,6 +250,8 @@ void Log::logv(Level level, const char *objectName, size_t objectNameSize, const
 	uv_mutex_lock(&this->messageListMutex);
 	if((int)this->messageQueue.size() < maxQueueSize.get())
 		this->messageQueue.push_back(msg);
+	else
+		this->messageQueueFull = true;
 	uv_cond_signal(&this->messageListCond);
 	uv_mutex_unlock(&this->messageListMutex);
 }
@@ -320,6 +323,7 @@ void Log::logWritterThread() {
 		endLoop = this->stop;
 		willUpdateFile = this->updateFileRequested;
 		messagesToWrite->swap(this->messageQueue);
+		this->messageQueueFull = false;
 
 		uv_mutex_unlock(&this->messageListMutex);
 
