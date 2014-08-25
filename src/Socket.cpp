@@ -38,6 +38,7 @@ Socket::Socket(uv_loop_t *uvLoop, bool logPackets)
 	remoteHostName[0] = localHostName[0] = 0;
 	connectRequest.data = this;
 	socket.data = this;
+	uv_tcp_nodelay(&socket, true);
 }
 
 Socket::~Socket() {
