@@ -9,6 +9,7 @@ RappelzSession::RappelzSession(EncryptedSocket::Mode mode) : SocketSession(new R
 void RappelzSession::addPacketsToListen(int packetsIdNum, int firstPacketId, ...) {
 	va_list l;
 	va_start(l, firstPacketId);
+	reserveCallbackCount(packetsIdNum);
 	for(int i = 0; i < packetsIdNum; i++) {
 		if(i != 0)
 			getSocket()->addPacketListener(va_arg(l, int), this, &onDataReceived);

@@ -1,28 +1,45 @@
 #ifndef CALLBACKGUARD_H
 #define CALLBACKGUARD_H
 
-#include <unordered_set>
+#include <vector>
 #include "RappelzLib_global.h"
 
 typedef void** DelegateRef;
 
 class RAPPELZLIB_EXTERN IListener {
 public:
+	IListener() {}
+	virtual ~IListener() {
+		invalidateCallbacks();
+	}
+
+	virtual const char *getClassName() = 0;
+
+	void reserveCallbackCount(size_t count) {
+		if(count)
+			callbackValidityPtrs.reserve(callbackValidityPtrs.size() + count);
+	}
 
 	void addDelegateRef(DelegateRef callbackValidityPtr) {
 		if(callbackValidityPtr)
-			callbackValidityPtrs.insert(callbackValidityPtr);
+			callbackValidityPtrs.push_back(callbackValidityPtr);
 	}
 
 	void delDelegateRef(DelegateRef callbackValidityPtr) {
-
-		callbackValidityPtrs.erase(callbackValidityPtr);
+		auto it = callbackValidityPtrs.cbegin();
+		for(; it != callbackValidityPtrs.cend(); ++it) {
+			if(*it == callbackValidityPtr) {
+				callbackValidityPtrs.erase(it);
+				break;
+			}
+		}
 	}
 
 	void invalidateCallbacks() {
-		std::unordered_set<DelegateRef>::iterator it, itEnd;
+		auto it = callbackValidityPtrs.cbegin();
+		auto itEnd = callbackValidityPtrs.cend();
 
-		for(it = callbackValidityPtrs.begin(), itEnd = callbackValidityPtrs.end(); it != itEnd; ++it) {
+		for(; it != itEnd; ++it) {
 			DelegateRef callbackValidityPtr = *it;
 			*callbackValidityPtr = nullptr;
 		}
@@ -30,13 +47,8 @@ public:
 		callbackValidityPtrs.clear();
 	}
 
-	virtual ~IListener() {
-		invalidateCallbacks();
-	}
-
-
 private:
-	std::unordered_set<DelegateRef> callbackValidityPtrs;
+	std::vector<DelegateRef> callbackValidityPtrs;
 };
 
 #endif // CALLBACKGUARD_H

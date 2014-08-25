@@ -13,6 +13,7 @@ RappelzSocket::RappelzSocket(uv_loop_t* uvLoop, Mode mode)
 	inputBuffer.currentMessageSize = 0;
 	inputBuffer.discardPacket = false;
 
+	reserveCallbackCount(3);
 	addDataListener(this, &dataReceived);
 	addErrorListener(this, &socketError);
 	addEventListener(this, &stateChanged);
@@ -20,7 +21,7 @@ RappelzSocket::RappelzSocket(uv_loop_t* uvLoop, Mode mode)
 
 RappelzSocket::~RappelzSocket() {
 	abort();
-	invalidateCallbacks();
+	//invalidateCallbacks();
 	if(inputBuffer.buffer)
 		delete[] inputBuffer.buffer;
 }

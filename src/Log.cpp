@@ -134,8 +134,9 @@ void Log::startWriter() {
 }
 
 void Log::stopWriter(bool waitThread) {
-	if(this->stop == true)
+	if(this->stop == true) {
 		return;
+	}
 
 #ifdef _WIN32
 	if(this->logWritterThreadNativeId == GetCurrentThreadId())
