@@ -13,8 +13,6 @@ public:
 		invalidateCallbacks();
 	}
 
-	virtual const char *getClassName() = 0;
-
 	void reserveCallbackCount(size_t count) {
 		if(count)
 			callbackValidityPtrs.reserve(callbackValidityPtrs.size() + count);
