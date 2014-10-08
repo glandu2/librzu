@@ -24,8 +24,8 @@ public:
 	}
 
 	void delDelegateRef(DelegateRef callbackValidityPtr) {
-		auto it = callbackValidityPtrs.cbegin();
-		for(; it != callbackValidityPtrs.cend(); ++it) {
+		auto it = callbackValidityPtrs.begin();
+		for(; it != callbackValidityPtrs.end(); ++it) {
 			if(*it == callbackValidityPtr) {
 				callbackValidityPtrs.erase(it);
 				break;
