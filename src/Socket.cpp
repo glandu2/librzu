@@ -38,7 +38,6 @@ Socket::Socket(uv_loop_t *uvLoop, bool logPackets)
 	remoteHostName[0] = localHostName[0] = 0;
 	connectRequest.data = this;
 	socket.data = this;
-	uv_tcp_nodelay(&socket, true);
 }
 
 Socket::~Socket() {
@@ -260,6 +259,7 @@ void Socket::setState(State state) {
 
 		setDirtyObjectName();
 	} else if(state == ConnectedState) {
+		uv_tcp_nodelay(&socket, true);
 		uv_read_start((uv_stream_t*) &socket, &onAllocReceiveBuffer, &onReadCompleted);
 		packetTransferedSinceLastCheck = true;
 	}
