@@ -9,12 +9,6 @@
 #define SHUT_RDWR 2
 #endif
 
-struct WriteRequest {
-	uv_write_t writeReq;
-	uv_buf_t buffer;
-	char data[];
-};
-
 struct ReadBuffer {
 	char data[1024];
 	bool isUsed;
@@ -22,6 +16,19 @@ struct ReadBuffer {
 };
 
 const char* Socket::STATES[] = { "Unconnected", "Connecting", "Binding", "Listening", "Connected", "Closing" };
+
+Socket::WriteRequest* Socket::WriteRequest::create(size_t dataSize) {
+	WriteRequest* writeRequest = reinterpret_cast<WriteRequest*>(malloc(sizeof(WriteRequest) + dataSize));
+
+	writeRequest->buffer.len = (ULONG)dataSize;
+	writeRequest->buffer.base = writeRequest->data;
+
+	return writeRequest;
+}
+
+void Socket::WriteRequest::destroy(WriteRequest* req) {
+	free(req);
+}
 
 Socket::Socket(uv_loop_t *uvLoop, bool logPackets)
 	: uvLoop(uvLoop),
@@ -127,32 +134,38 @@ size_t Socket::discard(size_t size) {
 	return effectiveSize;
 }
 
-size_t Socket::write(const void *buffer, size_t size) {
+size_t Socket::write(WriteRequest* writeRequest) {
 	if(getState() == ConnectedState) {
-		WriteRequest* writeRequest = (WriteRequest*)new char[sizeof(WriteRequest) + size];
-		writeRequest->buffer.len = size;
-		writeRequest->buffer.base = writeRequest->data;
 		writeRequest->writeReq.data = this;
-		memcpy(writeRequest->buffer.base, buffer, size);
 		int result = uv_write(&writeRequest->writeReq, (uv_stream_t*)&socket, &writeRequest->buffer, 1, &onWriteCompleted);
 		if(result < 0) {
-			delete[] (char*)writeRequest;
+			WriteRequest::destroy(writeRequest);
 			debug("Cant write: %s\n", uv_strerror(result));
 			notifyReadyError(result);
 			return 0;
 		}
 
 		if(logPackets)
-			packetLog(Log::LL_Debug, reinterpret_cast<const unsigned char*>(buffer), (int)size,
+			packetLog(Log::LL_Debug, reinterpret_cast<const unsigned char*>(writeRequest->buffer.base), (int)writeRequest->buffer.len,
 									"Written %d bytes\n",
-									(int)size);
+									(int)writeRequest->buffer.len);
 
-		return size;
+		return writeRequest->buffer.len;
 	} else {
 		error("Attempt to send data but socket not connected, current state is: %s(%d)\n", (getState() < (sizeof(STATES)/sizeof(const char*))) ? STATES[getState()] : "Unknown", getState());
 		return 0;
 	}
+}
 
+size_t Socket::write(const void *buffer, size_t size) {
+	if(getState() == ConnectedState) {
+		WriteRequest* writeRequest = WriteRequest::create(size);
+		memcpy(writeRequest->buffer.base, buffer, size);
+		return write(writeRequest);
+	} else {
+		error("Attempt to send data but socket not connected, current state is: %s(%d)\n", (getState() < (sizeof(STATES)/sizeof(const char*))) ? STATES[getState()] : "Unknown", getState());
+		return 0;
+	}
 }
 
 bool Socket::accept(Socket* clientSocket) {
@@ -493,9 +506,7 @@ void Socket::onWriteCompleted(uv_write_t* req, int status) {
 		thisInstance->trace("Written %ld bytes\n", (long)writeRequest->buffer.len);
 	}
 
-//	delete[] writeRequest->buffer.base;
-//	delete writeRequest;
-	delete[] (char*)writeRequest;
+	WriteRequest::destroy(writeRequest);
 }
 
 void Socket::onShutdownDone(uv_shutdown_t* req, int status) {

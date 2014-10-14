@@ -32,6 +32,21 @@ public:
 		ClosingState		//Client & Server
 	};
 
+	struct WriteRequest {
+		uv_write_t writeReq;
+		uv_buf_t buffer;
+		char data[];
+
+		static WriteRequest* create(size_t dataSize);
+		static void destroy(WriteRequest* req);
+
+	private:
+		WriteRequest();
+		~WriteRequest();
+		WriteRequest(const WriteRequest &);
+		WriteRequest& operator =(const WriteRequest&);
+	};
+
 	static const char* STATES[];
 
 	typedef void (*CallbackOnDataReady)(IListener* instance, Socket* socket);
@@ -49,6 +64,7 @@ public:
 	size_t read(void *buffer, size_t size);
 	size_t readAll(std::vector<char>* buffer); //data in buffer will be destroyed
 	size_t discard(size_t size); //read but does not store read data
+	size_t write(WriteRequest* writeRequest); //take writeRequest's ownership
 	size_t write(const void *buffer, size_t size);
 	bool accept(Socket *clientSocket);
 
