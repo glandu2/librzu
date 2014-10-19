@@ -468,7 +468,7 @@ void Socket::onReadCompleted(uv_stream_t* stream, ssize_t nread, const uv_buf_t*
 		const char* errorString = uv_strerror(nread);
 		thisInstance->error("onReadCompleted: %s\n", errorString);
 		thisInstance->notifyReadyError(nread);
-	} else {
+	} else if(nread > 0) {
 		thisInstance->packetTransferedSinceLastCheck = true;
 		thisInstance->trace("Read %ld bytes\n", (long)nread);
 
