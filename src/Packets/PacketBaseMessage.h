@@ -3,6 +3,9 @@
 
 #include <string.h>
 
+#include "../BufferReader.h"
+#include "../BufferWriter.h"
+
 #ifdef __GNUC__
 #include <stdint-gcc.h>
 #else
@@ -95,6 +98,61 @@ struct TS_MESSAGE_WNA : public TS_MESSAGE {
 		   ~TS_MESSAGE_WNA() {}
 		   TS_MESSAGE_WNA( TS_MESSAGE_WNA const & );            // undefined
 		   TS_MESSAGE_WNA& operator=( TS_MESSAGE_WNA const & ); // undefined
+};
+
+
+// New serialization
+
+struct TS_MESSAGE_BASE {
+	uint16_t id;
+
+	virtual int getSize() const = 0;
+	virtual void serialize(BufferWriter* buffer) const {}
+	virtual void deserialize(BufferReader* buffer) {}
+};
+
+struct TS_MESSAGE_SERIALIZABLE : TS_MESSAGE_BASE {
+	void serializeHeader(BufferWriter* buffer) const {
+		buffer->write32(buffer->getSize());
+		buffer->write16(id);
+		buffer->write8(checkMessage(buffer->getSize(), id));
+	}
+private:
+	static uint8_t checkMessage(uint32_t size, uint16_t id) {
+		uint8_t value = 0;
+
+		value += size & 0xFF;
+		value += (size >> 8) & 0xFF;
+		value += (size >> 16) & 0xFF;
+		value += (size >> 24) & 0xFF;
+
+		value += id & 0xFF;
+		value += (id >> 8) & 0xFF;
+
+		return value;
+	}
+};
+
+struct TS_MESSAGE_HEADER : TS_MESSAGE_BASE {
+	BufferReader* buffer;
+
+	void deserializeHeader(BufferReader* buffer) {
+		this->buffer = buffer;
+
+		buffer->read32();
+		buffer->read16(&id);
+		buffer->read8();
+	}
+
+	template<class TS_TYPE>
+	operator TS_TYPE() {
+		TS_TYPE val;
+		val.id = id;
+		val.buffer = buffer;
+
+		val.deserialize(buffer);
+		return val;
+	}
 };
 
 #pragma pack(pop)

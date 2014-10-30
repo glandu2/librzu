@@ -62,6 +62,19 @@ void RappelzSocket::sendPacket(const TS_MESSAGE* data) {
 	//Log after for better latency
 	logPacket(true, data);
 }
+/*
+void RappelzSocket::sendPacket(const TS_MESSAGE_SERIALIZABLE* data) {
+	fprintf(stderr, "WTF\n");
+	BufferWriter buffer(data->getSize(), 0);
+
+	data->serializeHeader(&buffer);
+	data->serialize(&buffer);
+
+	write(buffer.getData(), buffer.getSize());
+
+	//Log after for better latency
+	logPacket(true, (const TS_MESSAGE*)buffer.getData());
+}*/
 
 void RappelzSocket::dispatchPacket(const TS_MESSAGE* packetData) {
 	int callcount;

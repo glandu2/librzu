@@ -20,7 +20,7 @@ const char* Socket::STATES[] = { "Unconnected", "Connecting", "Binding", "Listen
 Socket::WriteRequest* Socket::WriteRequest::create(size_t dataSize) {
 	WriteRequest* writeRequest = reinterpret_cast<WriteRequest*>(malloc(sizeof(WriteRequest) + dataSize));
 
-	writeRequest->buffer.len = (ULONG)dataSize;
+	writeRequest->buffer.len = dataSize;
 	writeRequest->buffer.base = writeRequest->data;
 
 	return writeRequest;

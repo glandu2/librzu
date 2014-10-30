@@ -35,6 +35,7 @@ public:
 	virtual ~RappelzSocket();
 
 	void sendPacket(const TS_MESSAGE* data);
+	/*void sendPacket(const TS_MESSAGE_SERIALIZABLE* data);*/
 
 	void addPacketListener(uint16_t packetId, IListener* instance, CallbackFunction onPacketReceivedCallback);
 	void removePacketListener(uint16_t packetId, IListener* instance);
