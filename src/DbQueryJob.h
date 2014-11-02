@@ -11,7 +11,7 @@
 #include "EventLoop.h"
 #include <stddef.h>
 
-#define OFFSETOF(C, f) (size_t(&((C*)1)->f) - 1)
+#define OFFSETOF(C, f, type) (size_t((type*)&((C*)1)->f) - 1)
 #define TYPEOFFIELD(C, f) decltype(((C*)1)->f)
 
 class DbConnectionPool;
@@ -81,15 +81,15 @@ public:
 		bool isStdString;
 		size_t bufferOffset; //use offsetof
 		SQLLEN bufferSize;
-		SQLLEN *infoPtr;
+		size_t infoPtr;
 
-		ParameterBinding(cval<int>& index, SQLSMALLINT cType, SQLSMALLINT dbType, SQLULEN dbSize, SQLSMALLINT dbPrecision, bool isStdString, size_t bufferOffset, SQLLEN bufferSize, SQLLEN* infoPtr = nullptr)
+		ParameterBinding(cval<int>& index, SQLSMALLINT cType, SQLSMALLINT dbType, SQLULEN dbSize, SQLSMALLINT dbPrecision, bool isStdString, size_t bufferOffset, SQLLEN bufferSize, size_t infoPtr = 0)
 			: index(index), cType(cType), dbType(dbType), dbSize(dbSize), dbPrecision(dbPrecision), isStdString(isStdString), bufferOffset(bufferOffset), bufferSize(bufferSize), infoPtr(infoPtr) {}
 
 		#define DECLARE_PARAMETER(C, field, size, index) \
-			DbQueryBinding::ParameterBinding(index, DbTypeBinding<TYPEOFFIELD(C, field)>::C_TYPE, DbTypeBinding<TYPEOFFIELD(C, field)>::SQL_TYPE, DbTypeBinding<TYPEOFFIELD(C, field)>::SQL_SIZE, DbTypeBinding<TYPEOFFIELD(C, field)>::SQL_PRECISION, IsStdString<TYPEOFFIELD(C, field)>::value, OFFSETOF(C, field), size)
+			DbQueryBinding::ParameterBinding(index, DbTypeBinding<TYPEOFFIELD(C, field)>::C_TYPE, DbTypeBinding<TYPEOFFIELD(C, field)>::SQL_TYPE, DbTypeBinding<TYPEOFFIELD(C, field)>::SQL_SIZE, DbTypeBinding<TYPEOFFIELD(C, field)>::SQL_PRECISION, IsStdString<TYPEOFFIELD(C, field)>::value, OFFSETOF(C, field, const void), size)
 		#define DECLARE_PARAMETER_WITH_INFO(C, field, size, index, info) \
-			DbQueryBinding::ParameterBinding(index, DbTypeBinding<TYPEOFFIELD(C, field)>::C_TYPE, DbTypeBinding<TYPEOFFIELD(C, field)>::SQL_TYPE, DbTypeBinding<TYPEOFFIELD(C, field)>::SQL_SIZE, DbTypeBinding<TYPEOFFIELD(C, field)>::SQL_PRECISION, IsStdString<TYPEOFFIELD(C, field)>::value, OFFSETOF(C, field), size, info)
+			DbQueryBinding::ParameterBinding(index, DbTypeBinding<TYPEOFFIELD(C, field)>::C_TYPE, DbTypeBinding<TYPEOFFIELD(C, field)>::SQL_TYPE, DbTypeBinding<TYPEOFFIELD(C, field)>::SQL_SIZE, DbTypeBinding<TYPEOFFIELD(C, field)>::SQL_PRECISION, IsStdString<TYPEOFFIELD(C, field)>::value, OFFSETOF(C, field, const void), size, OFFSETOF(C, info, SQLLEN))
 
 	};
 
@@ -100,16 +100,16 @@ public:
 		bool isStdString;
 		size_t bufferOffset; //use offsetof
 		SQLLEN bufferSize;
-		SQLLEN *infoPtr;
+		size_t isNullPtr;
 
-		ColumnBinding(cval<std::string>& name, SQLSMALLINT cType, bool isStdString, size_t bufferOffset, SQLLEN bufferSize, SQLLEN* infoPtr = nullptr)
-			: name(name), cType(cType), isStdString(isStdString), bufferOffset(bufferOffset), bufferSize(bufferSize), infoPtr(infoPtr) {}
+		ColumnBinding(cval<std::string>& name, SQLSMALLINT cType, bool isStdString, size_t bufferOffset, SQLLEN bufferSize, size_t isNullPtr = 0)
+			: name(name), cType(cType), isStdString(isStdString), bufferOffset(bufferOffset), bufferSize(bufferSize), isNullPtr(isNullPtr) {}
 
 
 		#define DECLARE_COLUMN(C, field, size, name) \
-			DbQueryBinding::ColumnBinding(name, DbTypeBinding<TYPEOFFIELD(C, field)>::C_TYPE, IsStdString<TYPEOFFIELD(C, field)>::value, OFFSETOF(C, field), size)
-		#define DECLARE_COLUMN_WITH_INFO(C, field, size, name, info) \
-			DbQueryBinding::ColumnBinding(name, DbTypeBinding<TYPEOFFIELD(C, field)>::C_TYPE, IsStdString<TYPEOFFIELD(C, field)>::value, OFFSETOF(C, field), size, info)
+			DbQueryBinding::ColumnBinding(name, DbTypeBinding<TYPEOFFIELD(C, field)>::C_TYPE, IsStdString<TYPEOFFIELD(C, field)>::value, OFFSETOF(C, field, void), size)
+		#define DECLARE_COLUMN_WITH_INFO(C, field, size, name, isNullPtr) \
+			DbQueryBinding::ColumnBinding(name, DbTypeBinding<TYPEOFFIELD(C, field)>::C_TYPE, IsStdString<TYPEOFFIELD(C, field)>::value, OFFSETOF(C, field, void), size, OFFSETOF(C, isNullPtr, bool))
 
 	};
 
