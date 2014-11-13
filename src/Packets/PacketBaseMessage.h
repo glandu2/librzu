@@ -1,5 +1,5 @@
-#ifndef PACKETBASEMESSAGE_H
-#define PACKETBASEMESSAGE_H
+#ifndef PACKETS_PACKETBASEMESSAGE_H
+#define PACKETS_PACKETBASEMESSAGE_H
 
 #include <string.h>
 
@@ -99,4 +99,4 @@ struct TS_MESSAGE_WNA : public TS_MESSAGE {
 
 #pragma pack(pop)
 
-#endif // PACKETBASEMESSAGE_H
+#endif // PACKETS_PACKETBASEMESSAGE_H

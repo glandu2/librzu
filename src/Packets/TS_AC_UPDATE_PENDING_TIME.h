@@ -1,5 +1,5 @@
-#ifndef TS_AC_UPDATE_PENDING_TIME_H
-#define TS_AC_UPDATE_PENDING_TIME_H
+#ifndef PACKETS_TS_AC_UPDATE_PENDING_TIME_H
+#define PACKETS_TS_AC_UPDATE_PENDING_TIME_H
 
 #include "PacketBaseMessage.h"
 
@@ -10,4 +10,4 @@ struct TS_AC_UPDATE_PENDING_TIME : public TS_MESSAGE //Not used in 6.1 server ..
 };
 #pragma pack(pop)
 
-#endif // TS_AC_UPDATE_PENDING_TIME_H
+#endif // PACKETS_TS_AC_UPDATE_PENDING_TIME_H

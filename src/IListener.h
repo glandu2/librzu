@@ -1,5 +1,5 @@
-#ifndef CALLBACKGUARD_H
-#define CALLBACKGUARD_H
+#ifndef ILISTENER_H
+#define ILISTENER_H
 
 #include <vector>
 #include "RappelzLib_global.h"
@@ -49,4 +49,4 @@ private:
 	std::vector<DelegateRef> callbackValidityPtrs;
 };
 
-#endif // CALLBACKGUARD_H
+#endif // ILISTENER_H

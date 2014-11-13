@@ -1,5 +1,5 @@
-#ifndef TS_SC_CHAT_LOCAL_H
-#define TS_SC_CHAT_LOCAL_H
+#ifndef PACKETS_TS_SC_CHAT_LOCAL_H
+#define PACKETS_TS_SC_CHAT_LOCAL_H
 
 #include "Packets/PacketBaseMessage.h"
 #include "Packets/PacketEnums.h"
@@ -15,4 +15,4 @@ struct TS_SC_CHAT_LOCAL : public TS_MESSAGE_WNA
 };
 #pragma pack(pop)
 
-#endif // TS_SC_CHAT_LOCAL_H
+#endif // PACKETS_TS_SC_CHAT_LOCAL_H

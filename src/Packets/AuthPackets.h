@@ -1,5 +1,5 @@
-#ifndef AUTHPACKETS_H
-#define AUTHPACKETS_H
+#ifndef PACKETS_AUTHPACKETS_H
+#define PACKETS_AUTHPACKETS_H
 
 #include "TS_AC_RESULT.h"
 #include "TS_AC_RESULT_WITH_STRING.h"
@@ -19,4 +19,4 @@
 #include "TS_CS_VERSION.h"
 #include "TS_SC_RESULT.h"
 
-#endif // AUTHPACKETS_H
+#endif // PACKETS_AUTHPACKETS_H

@@ -1,5 +1,5 @@
-#ifndef TS_AG_PCBANG_EXPIRE_H
-#define TS_AG_PCBANG_EXPIRE_H
+#ifndef PACKETS_TS_AG_PCBANG_EXPIRE_H
+#define PACKETS_TS_AG_PCBANG_EXPIRE_H
 
 #include "PacketBaseMessage.h"
 
@@ -10,4 +10,4 @@ struct TS_AG_PCBANG_EXPIRE : public TS_MESSAGE
 };
 #pragma pack(pop)
 
-#endif // TS_AG_PCBANG_EXPIRE_H
+#endif // PACKETS_TS_AG_PCBANG_EXPIRE_H

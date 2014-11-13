@@ -1,5 +1,5 @@
-#ifndef CIRCULARBUFFER_H_
-#define CIRCULARBUFFER_H_
+#ifndef CIRCULARBUFFER_H
+#define CIRCULARBUFFER_H
 
 #include "Object.h"
 #include "uv.h"
@@ -29,4 +29,4 @@ class RAPPELZLIB_EXTERN CircularBuffer : public Object
 		size_t getAvailableBytes();
 };
 
-#endif
+#endif // CIRCULARBUFFER_H

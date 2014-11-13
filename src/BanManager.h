@@ -1,5 +1,5 @@
-#ifndef BANNEDIP_H
-#define BANNEDIP_H
+#ifndef BANMANAGER_H
+#define BANMANAGER_H
 
 #include "Object.h"
 #include <unordered_set>
@@ -20,4 +20,4 @@ private:
 	std::unordered_set<uint32_t> bannedIps;
 };
 
-#endif // BANNEDIP_H
+#endif // BANMANAGER_H

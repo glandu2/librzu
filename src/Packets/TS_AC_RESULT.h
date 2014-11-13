@@ -1,5 +1,5 @@
-#ifndef TS_AC_RESULT_H
-#define TS_AC_RESULT_H
+#ifndef PACKETS_TS_AC_RESULT_H
+#define PACKETS_TS_AC_RESULT_H
 
 #include "PacketBaseMessage.h"
 #include "PacketEnums.h"
@@ -21,4 +21,4 @@ struct TS_AC_RESULT : public TS_MESSAGE
 };
 #pragma pack(pop)
 
-#endif // TS_AC_RESULT_H
+#endif // PACKETS_TS_AC_RESULT_H

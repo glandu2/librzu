@@ -1,5 +1,5 @@
-#ifndef TS_US_UPLOAD_H
-#define TS_US_UPLOAD_H
+#ifndef PACKETS_TS_US_UPLOAD_H
+#define PACKETS_TS_US_UPLOAD_H
 
 #include "Packets/PacketBaseMessage.h"
 #include "Packets/PacketEnums.h"
@@ -17,4 +17,4 @@ struct TS_US_UPLOAD : public TS_MESSAGE_WNA
 };
 #pragma pack(pop)
 
-#endif // TS_US_UPLOAD_H
+#endif // PACKETS_TS_US_UPLOAD_H

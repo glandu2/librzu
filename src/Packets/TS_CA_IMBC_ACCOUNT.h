@@ -1,5 +1,5 @@
-#ifndef TS_CA_IMBC_ACCOUNT_H
-#define TS_CA_IMBC_ACCOUNT_H
+#ifndef PACKETS_TS_CA_IMBC_ACCOUNT_H
+#define PACKETS_TS_CA_IMBC_ACCOUNT_H
 
 #include "PacketBaseMessage.h"
 
@@ -12,4 +12,4 @@ struct TS_CA_IMBC_ACCOUNT : public TS_MESSAGE
 };
 #pragma pack(pop)
 
-#endif // TS_CA_IMBC_ACCOUNT_H
+#endif // PACKETS_TS_CA_IMBC_ACCOUNT_H

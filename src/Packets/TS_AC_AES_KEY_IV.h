@@ -1,5 +1,5 @@
-#ifndef TS_AC_AES_KEY_IV_H
-#define TS_AC_AES_KEY_IV_H
+#ifndef PACKETS_TS_AC_AES_KEY_IV_H
+#define PACKETS_TS_AC_AES_KEY_IV_H
 
 #include "PacketBaseMessage.h"
 
@@ -12,4 +12,4 @@ struct TS_AC_AES_KEY_IV : public TS_MESSAGE_WNA
 };
 #pragma pack(pop)
 
-#endif // TS_AC_AES_KEY_IV_H
+#endif // PACKETS_TS_AC_AES_KEY_IV_H

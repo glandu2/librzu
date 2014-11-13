@@ -1,5 +1,5 @@
-#ifndef TS_SC_CHAT_H
-#define TS_SC_CHAT_H
+#ifndef PACKETS_TS_SC_CHAT_H
+#define PACKETS_TS_SC_CHAT_H
 
 #include "Packets/PacketBaseMessage.h"
 #include "Packets/PacketEnums.h"
@@ -16,4 +16,4 @@ struct TS_SC_CHAT : public TS_MESSAGE
 };
 #pragma pack(pop)
 
-#endif // TS_SC_CHAT_H
+#endif // PACKETS_TS_SC_CHAT_H

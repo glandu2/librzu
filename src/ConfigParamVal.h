@@ -1,5 +1,5 @@
-#ifndef CONFIGVAL_H
-#define CONFIGVAL_H
+#ifndef CONFIGPARAMVAL_H
+#define CONFIGPARAMVAL_H
 
 #include "ConfigValue.h"
 #include <string>
@@ -168,4 +168,4 @@ private:
 
 
 
-#endif // CONFIGVAL_H
+#endif // CONFIGPARAMVAL_H

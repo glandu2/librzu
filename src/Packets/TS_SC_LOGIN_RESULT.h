@@ -1,5 +1,5 @@
-#ifndef TS_SC_LOGIN_RESULT_H
-#define TS_SC_LOGIN_RESULT_H
+#ifndef PACKETS_TS_SC_LOGIN_RESULT_H
+#define PACKETS_TS_SC_LOGIN_RESULT_H
 
 #include "Packets/PacketBaseMessage.h"
 #include "Packets/PacketEnums.h"
@@ -34,4 +34,4 @@ struct TS_SC_LOGIN_RESULT : public TS_MESSAGE
 };
 #pragma pack(pop)
 
-#endif // TS_SC_LOGIN_RESULT_H
+#endif // PACKETS_TS_SC_LOGIN_RESULT_H

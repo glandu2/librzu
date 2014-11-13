@@ -1,5 +1,5 @@
-#ifndef OBJECT
-#define OBJECT
+#ifndef OBJECT_H
+#define OBJECT_H
 
 #include <string>
 
@@ -63,4 +63,4 @@ private:
 };
 
 
-#endif
+#endif // OBJECT_H

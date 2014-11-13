@@ -1,5 +1,5 @@
-#ifndef TS_GA_SECURITY_NO_CHECK_H
-#define TS_GA_SECURITY_NO_CHECK_H
+#ifndef PACKETS_TS_GA_SECURITY_NO_CHECK_H
+#define PACKETS_TS_GA_SECURITY_NO_CHECK_H
 
 #include "PacketBaseMessage.h"
 
@@ -14,4 +14,4 @@ struct TS_GA_SECURITY_NO_CHECK : public TS_MESSAGE
 };
 #pragma pack(pop)
 
-#endif // TS_GA_SECURITY_NO_CHECK_H
+#endif // PACKETS_TS_GA_SECURITY_NO_CHECK_H

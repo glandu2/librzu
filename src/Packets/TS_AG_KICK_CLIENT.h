@@ -1,5 +1,5 @@
-#ifndef TS_AG_KICK_CLIENT_H
-#define TS_AG_KICK_CLIENT_H
+#ifndef PACKETS_TS_AG_KICK_CLIENT_H
+#define PACKETS_TS_AG_KICK_CLIENT_H
 
 #include "PacketBaseMessage.h"
 
@@ -20,4 +20,4 @@ struct TS_AG_KICK_CLIENT : public TS_MESSAGE
 };
 #pragma pack(pop)
 
-#endif // TS_AG_KICK_CLIENT_H
+#endif // PACKETS_TS_AG_KICK_CLIENT_H

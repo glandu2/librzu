@@ -1,5 +1,5 @@
-#ifndef TS_CS_ACCOUNT_WITH_AUTH_H
-#define TS_CS_ACCOUNT_WITH_AUTH_H
+#ifndef PACKETS_TS_CS_ACCOUNT_WITH_AUTH_H
+#define PACKETS_TS_CS_ACCOUNT_WITH_AUTH_H
 
 #include "PacketBaseMessage.h"
 
@@ -13,4 +13,4 @@ struct TS_CS_ACCOUNT_WITH_AUTH : public TS_MESSAGE
 };
 #pragma pack(pop)
 
-#endif // TS_CS_ACCOUNT_WITH_AUTH_H
+#endif // PACKETS_TS_CS_ACCOUNT_WITH_AUTH_H

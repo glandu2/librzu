@@ -1,5 +1,5 @@
-#ifndef TS_TIMESYNC_H
-#define TS_TIMESYNC_H
+#ifndef PACKETS_TS_TIMESYNC_H
+#define PACKETS_TS_TIMESYNC_H
 
 #include "Packets/PacketBaseMessage.h"
 #include "Packets/PacketEnums.h"
@@ -12,4 +12,4 @@ struct TS_TIMESYNC : public TS_MESSAGE
 };
 #pragma pack(pop)
 
-#endif // TS_TIMESYNC_H
+#endif // PACKETS_TS_TIMESYNC_H
