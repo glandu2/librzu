@@ -4,6 +4,7 @@
 #include <iomanip>
 #include <stdarg.h>
 #include <string.h>
+#include "RappelzLibConfig.h"
 
 #ifndef SHUT_RDWR
 #define SHUT_RDWR 2
@@ -20,7 +21,7 @@ const char* Socket::STATES[] = { "Unconnected", "Connecting", "Binding", "Listen
 Socket::WriteRequest* Socket::WriteRequest::create(size_t dataSize) {
 	WriteRequest* writeRequest = reinterpret_cast<WriteRequest*>(malloc(sizeof(WriteRequest) + dataSize));
 
-	writeRequest->buffer.len = (ULONG)dataSize;
+	writeRequest->buffer.len = dataSize;
 	writeRequest->buffer.base = writeRequest->data;
 
 	return writeRequest;
@@ -272,7 +273,8 @@ void Socket::setState(State state) {
 
 		setDirtyObjectName();
 	} else if(state == ConnectedState) {
-		uv_tcp_nodelay(&socket, true);
+		if(CONFIG_GET()->app.useTcpNoDelay.get())
+			uv_tcp_nodelay(&socket, true);
 		uv_read_start((uv_stream_t*) &socket, &onAllocReceiveBuffer, &onReadCompleted);
 		packetTransferedSinceLastCheck = true;
 	}

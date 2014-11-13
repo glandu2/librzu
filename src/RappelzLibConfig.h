@@ -10,10 +10,12 @@ struct RAPPELZLIB_EXTERN RappelzLibConfig {
 
 	struct App {
 		cval<std::string> &appName, &configfile;
+		cval<bool> &useTcpNoDelay;
 
 		App() :
 			appName(CFG_CREATE("core.appname", "RappelzEmu")),
-			configfile(CFG_CREATE(CONFIG_FILE_KEY, "rappelzemu.opt"))
+			configfile(CFG_CREATE(CONFIG_FILE_KEY, "rappelzemu.opt")),
+			useTcpNoDelay(CFG_CREATE("core.usetcpnodelay", false))
 		{
 			Utils::autoSetAbsoluteDir(configfile);
 		}
