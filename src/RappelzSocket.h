@@ -5,12 +5,7 @@
 #include "IDelegate.h"
 #include "Packets/PacketBaseMessage.h"
 
-//Pour le syntax higlighting de intxx_t
-#ifdef __GNUC__
-# include <stdint-gcc.h>
-#else
-# include <stdint.h>
-#endif
+#include <stdint.h>
 
 class RAPPELZLIB_EXTERN RappelzSocket : public EncryptedSocket, private IListener
 {

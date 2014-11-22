@@ -2,12 +2,7 @@
 #define PACKETS_PACKETBASEMESSAGE_H
 
 #include <string.h>
-
-#ifdef __GNUC__
-#include <stdint-gcc.h>
-#else
 #include <stdint.h>
-#endif
 
 #ifndef __GNUC__
 #pragma warning(disable:4200)  //array [0] extension
