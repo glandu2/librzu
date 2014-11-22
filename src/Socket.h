@@ -72,10 +72,10 @@ public:
 	void abort();
 
 	State getState() { return currentState; }
-	const char* getRemoteHostName() { return remoteHostName; }
+	const char* getRemoteHostName();
 	uint32_t getRemoteHost() { return remoteHost; }
 	uint16_t getRemotePort() { return remotePort; }
-	const char* getLocalHostName() { return localHostName; }
+	const char* getLocalHostName();
 	uint32_t getLocalHost() { return localHost; }
 	uint16_t getLocalPort() { return localPort; }
 
