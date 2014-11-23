@@ -55,6 +55,7 @@ Log::~Log() {
 	if(defaultLogger == this)
 		defaultLogger = nullptr;
 	stopWriter();
+	uv_mutex_destroy(&messageListMutex);
 }
 
 void Log::updateEnabled(IListener* instance, cval<bool>* enable) {

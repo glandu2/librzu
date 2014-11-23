@@ -29,6 +29,13 @@ public:
 #endif
 	}
 
+	virtual ~cval() {
+#ifndef NOMUTEX
+		uv_mutex_destroy(&lock);
+		uv_mutex_destroy(&listenersLock);
+#endif
+	}
+
 	T get() {
 #ifdef NOMUTEX
 		return value;
