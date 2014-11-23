@@ -12,9 +12,6 @@
 #include <string>
 #include <vector>
 
-struct SocketInternal;
-class SocketPoll;
-
 class RAPPELZLIB_EXTERN Socket : public Object
 {
 	DECLARE_CLASS(Socket)

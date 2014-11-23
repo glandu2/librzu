@@ -22,10 +22,6 @@ struct CRYPTO_dynlock_value {
 
 static std::vector<uv_mutex_t> staticLocks;
 
-static void OPENSSL_threadGetId(CRYPTO_THREADID* id) {
-	CRYPTO_THREADID_set_numeric(id, uv_thread_self());
-}
-
 static void OPENSSL_staticLock(int mode, int type, const char *file, int line) {
 	Log* logger = Log::get();
 
@@ -79,11 +75,12 @@ void OPENSSL_dyn_destroy_function(struct CRYPTO_dynlock_value *l, const char *fi
 	if(logger)
 		logger->log(Log::LL_Trace, "OPENSSL", 7, "Destroying dynamic lock: %p\n", l);
 
+	uv_mutex_destroy(&l->mutex);
 	free(l);
 }
 
 static void initOpenssl() {
-	CRYPTO_THREADID_set_callback(&OPENSSL_threadGetId);
+	CRYPTO_set_id_callback(&uv_thread_self);
 
 	staticLocks.resize(CRYPTO_num_locks());
 	for(int i = 0; i < CRYPTO_num_locks(); i++) {
