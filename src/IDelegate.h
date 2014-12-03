@@ -245,17 +245,21 @@ public:
 			pendingAdds.push_back(pendingAdd);
 		} else {
 			CallbackIterator it;
-			it = callbacks.insert(std::pair<IListener*, CallbackType>(instance, callback)).first;
+			it = callbacks.insert(std::pair<IListener*, CallbackType>(instance, callback));
 			if(instance)
 				instance->addDelegateRef((DelegateRef)&(it->second));
 		}
 	}
 
 	void del(IListener* key) {
-		CallbackIterator it = callbacks.find(key);
-		if(key && it->second)
-			key->delDelegateRef((DelegateRef)&(it->second));
-		it->second = nullptr;
+		CallbackIterator it;
+		std::pair<CallbackIterator, CallbackIterator> range = callbacks.equal_range(key);
+		for(it = range.first; it != range.second; ++it) {
+			if(it->first && it->second) {
+				it->first->delDelegateRef((DelegateRef)&(it->second));
+			}
+			it->second = nullptr;
+		}
 	}
 
 #define DELEGATE_CALL(c, ...) \
@@ -294,7 +298,7 @@ public:
 		}
 	}
 
-	std::unordered_map<IListener*, CallbackType> callbacks;
+	std::unordered_multimap<IListener*, CallbackType> callbacks;
 	int callDepth; //purge removed callbacks only at depth 0
 
 private:
