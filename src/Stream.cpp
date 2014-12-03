@@ -77,7 +77,7 @@ Stream::StreamType Stream::parseConnectionUrl(const char *url, std::string &targ
 
 bool Stream::connect(const std::string & hostName, uint16_t port) {
 	if(getState() != UnconnectedState) {
-		warn("Attempt to connect a not unconnected pipe to %s\n", hostName.c_str());
+		warn("Attempt to connect a not unconnected stream to %s\n", hostName.c_str());
 		return false;
 	}
 
@@ -96,7 +96,7 @@ bool Stream::connect(const std::string & hostName, uint16_t port) {
 
 bool Stream::listen(const std::string& interfaceIp, uint16_t port) {
 	if(getState() != UnconnectedState) {
-		warn("Attempt to bind a not unconnected pipe to %s\n", interfaceIp.c_str());
+		warn("Attempt to bind a not unconnected stream to %s\n", interfaceIp.c_str());
 		return false;
 	}
 
@@ -166,7 +166,7 @@ size_t Stream::write(WriteRequest* writeRequest) {
 
 		return writeRequest->buffer.len;
 	} else {
-		error("Attempt to send data but pipe not connected, current state is: %s(%d)\n", (getState() < (sizeof(STATES)/sizeof(const char*))) ? STATES[getState()] : "Unknown", getState());
+		error("Attempt to send data but stream not connected, current state is: %s(%d)\n", (getState() < (sizeof(STATES)/sizeof(const char*))) ? STATES[getState()] : "Unknown", getState());
 		return 0;
 	}
 }
@@ -177,7 +177,7 @@ size_t Stream::write(const void *buffer, size_t size) {
 		memcpy(writeRequest->buffer.base, buffer, size);
 		return write(writeRequest);
 	} else {
-		error("Attempt to send data but pipe not connected, current state is: %s(%d)\n", (getState() < (sizeof(STATES)/sizeof(const char*))) ? STATES[getState()] : "Unknown", getState());
+		error("Attempt to send data but stream not connected, current state is: %s(%d)\n", (getState() < (sizeof(STATES)/sizeof(const char*))) ? STATES[getState()] : "Unknown", getState());
 		return 0;
 	}
 }
@@ -253,28 +253,7 @@ void Stream::setState(State state) {
 	trace("Stream state changed from %s to %s\n", oldStateStr, newStateStr);
 	packetLog(Log::LL_Info, nullptr, 0, "Stream state changed from %s to %s\n", oldStateStr, newStateStr);
 
-	//DELEGATE_CALL(eventListeners, this, oldState, state);
-	do {
-		auto it = eventListeners.callbacks.begin();
-		auto itEnd = eventListeners.callbacks.end();
-
-		for(; it != itEnd;) {
-			IListener* instance = it->first;
-			auto callback = it->second;
-
-			if(callback != nullptr) {
-				eventListeners.callDepth++;
-				callback(instance, this, oldState, state);
-				eventListeners.callDepth--;
-				++it;
-			} else if(eventListeners.callDepth == 0) {
-				it = eventListeners.callbacks.erase(it);
-			} else {
-				++it;
-			}
-		}
-		eventListeners.processPendingAdds();
-	} while(0);
+	DELEGATE_CALL(eventListeners, this, oldState, state);
 
 	if(state == UnconnectedState) {
 		remoteHostName[0] = 0;
