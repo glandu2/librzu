@@ -49,7 +49,7 @@ void RappelzServerCommon::stop() {
 	}
 }
 
-void RappelzServerCommon::onNewConnection(IListener* instance, Socket* serverSocket) {
+void RappelzServerCommon::onNewConnection(IListener* instance, Stream* serverSocket) {
 	RappelzServerCommon* thisInstance = static_cast<RappelzServerCommon*>(instance);
 
 	if(!thisInstance->openServer)
@@ -57,8 +57,8 @@ void RappelzServerCommon::onNewConnection(IListener* instance, Socket* serverSoc
 
 	if(thisInstance->lastWaitingInstance == nullptr) {
 		thisInstance->lastWaitingInstance = thisInstance->createSession();
-		thisInstance->lastWaitingInstance->socket->setPacketLogger(thisInstance->packetLogger);
-		thisInstance->lastWaitingInstance->socket->addEventListener(thisInstance->lastWaitingInstance, &onSocketStateChanged);
+		thisInstance->lastWaitingInstance->stream->setPacketLogger(thisInstance->packetLogger);
+		thisInstance->lastWaitingInstance->stream->addEventListener(thisInstance->lastWaitingInstance, &onSocketStateChanged);
 	}
 
 	if(serverSocket->accept(thisInstance->lastWaitingInstance->getSocket())) {
@@ -77,10 +77,10 @@ void RappelzServerCommon::onNewConnection(IListener* instance, Socket* serverSoc
 	}
 }
 
-void RappelzServerCommon::onSocketStateChanged(IListener* instance, Socket*, Socket::State, Socket::State newState) {
+void RappelzServerCommon::onSocketStateChanged(IListener* instance, Stream*, Stream::State, Stream::State newState) {
 	SocketSession* thisInstance = static_cast<SocketSession*>(instance);
 
-	if(newState == Socket::UnconnectedState) {
+	if(newState == Stream::UnconnectedState) {
 		CONFIG_GET()->stats.disconnectionCount++;
 		RappelzServerCommon* server = thisInstance->getServer();
 		if(server)
@@ -99,9 +99,9 @@ void RappelzServerCommon::onCheckIdleSockets(uv_timer_t* timer) {
 		begin = uv_hrtime();
 
 	for(auto it = thisInstance->sockets.begin(); it != thisInstance->sockets.end();) {
-		Socket* socket = *it;
+		Stream* socket = *it;
 		++it; //if the socket is removed from the list (when closed), we keep a valid iterator
-		if(socket->getState() == Socket::ConnectedState) {
+		if(socket->getState() == Stream::ConnectedState) {
 			if(socket->isPacketTransferedSinceLastCheck() == false) {
 				socket->close();
 				kickedConnections++;

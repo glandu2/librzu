@@ -50,6 +50,9 @@ DECLARE_CLASSCOUNT_STATIC(EventLoop)
 #include "Log.h"
 DECLARE_CLASSCOUNT_STATIC(Log)
 
+#include "Pipe.h"
+DECLARE_CLASSCOUNT_STATIC(Pipe)
+
 #include "RappelzServer.h"
 DECLARE_CLASSCOUNT_STATIC(RappelzServerCommon)
 

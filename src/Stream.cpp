@@ -37,7 +37,8 @@ Stream::Stream(uv_loop_t *uvLoop, uv_stream_t* handle, bool logPackets)
 	  handle(handle),
 	  currentState(UnconnectedState),
 	  packetLogger(nullptr),
-	  packetTransferedSinceLastCheck(true)
+	  packetTransferedSinceLastCheck(true),
+	  streamInitialized(false)
 {
 	remoteHostName[0] = localHostName[0] = 0;
 	remoteHost = localHost = 0;
@@ -181,12 +182,12 @@ size_t Stream::write(const void *buffer, size_t size) {
 	}
 }
 
-bool Stream::accept(Stream** clientSocketPtr) {
-	if(*clientSocketPtr == nullptr) {
-		*clientSocketPtr = createStream_impl();
+bool Stream::accept(Stream* clientSocket) {
+	if(clientSocket->streamInitialized == false) {
+		clientSocket->createStream_impl();
+		clientSocket->streamInitialized = true;
 	}
 
-	Stream* clientSocket = *clientSocketPtr;
 	uv_stream_t *client = clientSocket->handle;
 
 	int result = uv_accept(handle, client);

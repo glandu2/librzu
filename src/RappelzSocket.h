@@ -36,9 +36,9 @@ public:
 	void setUnknownPacketListener(IListener* instance, CallbackFunction onPacketReceivedCallback);
 
 protected:
-	static void dataReceived(IListener *instance, Socket* socket);
-	static void stateChanged(IListener* instance, Socket* socket, Socket::State oldState, Socket::State newState);
-	static void socketError(IListener* instance, Socket* socket, int errnoValue);
+	static void dataReceived(IListener *instance, Stream* socket);
+	static void stateChanged(IListener* instance, Stream* socket, Stream::State oldState, Stream::State newState);
+	static void socketError(IListener* instance, Stream* socket, int errnoValue);
 
 	void dispatchPacket(const TS_MESSAGE* packetData);
 	void logPacket(bool outgoing, const TS_MESSAGE* msg);

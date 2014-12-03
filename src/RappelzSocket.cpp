@@ -26,17 +26,17 @@ RappelzSocket::~RappelzSocket() {
 		delete[] inputBuffer.buffer;
 }
 
-void RappelzSocket::stateChanged(IListener* instance, Socket*, Socket::State oldState, Socket::State newState) {
+void RappelzSocket::stateChanged(IListener* instance, Stream*, Stream::State oldState, Stream::State newState) {
 	RappelzSocket* thisInstance = static_cast<RappelzSocket*>(instance);
 
-	if(newState == Socket::ConnectedState) {
+	if(newState == Stream::ConnectedState) {
 		thisInstance->inputBuffer.currentMessageSize = 0;
 
 		TS_CC_EVENT eventMsg;
 		TS_MESSAGE::initMessage<TS_CC_EVENT>(&eventMsg);
 		eventMsg.event = TS_CC_EVENT::CE_ServerConnected;
 		thisInstance->dispatchPacket(&eventMsg);
-	} else if(newState == Socket::UnconnectedState) {
+	} else if(newState == Stream::UnconnectedState) {
 		TS_CC_EVENT eventMsg;
 		TS_MESSAGE::initMessage<TS_CC_EVENT>(&eventMsg);
 		eventMsg.event = TS_CC_EVENT::CE_ServerDisconnected;
@@ -45,7 +45,7 @@ void RappelzSocket::stateChanged(IListener* instance, Socket*, Socket::State old
 	}
 }
 
-void RappelzSocket::socketError(IListener *instance, Socket*, int errnoValue) {
+void RappelzSocket::socketError(IListener *instance, Stream*, int errnoValue) {
 	RappelzSocket* thisInstance = static_cast<RappelzSocket*>(instance);
 
 	if(thisInstance->getState() == ConnectingState) {
@@ -91,7 +91,7 @@ void RappelzSocket::logPacket(bool outgoing, const TS_MESSAGE* msg) {
 			  int(msg->size - sizeof(TS_MESSAGE)));
 }
 
-void RappelzSocket::dataReceived(IListener* instance, Socket*) {
+void RappelzSocket::dataReceived(IListener* instance, Stream*) {
 	RappelzSocket* thisInstance = static_cast<RappelzSocket*>(instance);
 	InputBuffer* buffer = &thisInstance->inputBuffer;
 

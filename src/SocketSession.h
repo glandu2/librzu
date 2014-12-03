@@ -18,23 +18,23 @@ public:
 
 protected:
 	SocketSession();
-	SocketSession(Socket* socket);
+	SocketSession(Stream* socket);
 	virtual ~SocketSession(); //deleted when disconnected by RappelzServer
 
-	Socket* getSocket() { return socket; }
+	Stream* getSocket() { return stream; }
 	RappelzServerCommon* getServer() { return server; }
 
-	void setServer(RappelzServerCommon* server, std::list<Socket*>::iterator socketIterator) { this->server = server; this->socketIterator = socketIterator; }
-	std::list<Socket*>::iterator getSocketIterator() { return socketIterator; }
+	void setServer(RappelzServerCommon* server, std::list<Stream*>::iterator socketIterator) { this->server = server; this->socketIterator = socketIterator; }
+	std::list<Stream*>::iterator getSocketIterator() { return socketIterator; }
 	friend class RappelzServerCommon;
 
 private:
-	static void onDataReceived(IListener* instance, Socket* socket);
+	static void onDataReceived(IListener* instance, Stream *stream);
 
 private:
-	Socket* socket;
+	Stream* stream;
 	RappelzServerCommon* server;
-	std::list<Socket*>::iterator socketIterator;
+	std::list<Stream*>::iterator socketIterator;
 };
 
 #endif // SOCKETSESSION_H

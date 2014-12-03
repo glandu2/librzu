@@ -2,18 +2,18 @@
 #include "RappelzServer.h"
 #include "EventLoop.h"
 
-SocketSession::SocketSession() : socket(new Socket(EventLoop::getLoop())), server(nullptr) {
-	socket->addDataListener(this, &SocketSession::onDataReceived);
+SocketSession::SocketSession() : stream(new Socket(EventLoop::getLoop())), server(nullptr) {
+	stream->addDataListener(this, &SocketSession::onDataReceived);
 }
 
-SocketSession::SocketSession(Socket* socket) : socket(socket), server(nullptr) {
+SocketSession::SocketSession(Stream* stream) : stream(stream), server(nullptr) {
 }
 
 SocketSession::~SocketSession() {
-	socket->deleteLater();
+	stream->deleteLater();
 }
 
-void SocketSession::onDataReceived(IListener* instance, Socket* socket) {
+void SocketSession::onDataReceived(IListener* instance, Stream* stream) {
 	SocketSession* thisInstance = static_cast<SocketSession*>(instance);
 
 	thisInstance->onDataReceived();

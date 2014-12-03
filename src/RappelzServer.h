@@ -21,24 +21,24 @@ public:
 
 	bool startServer(const std::string& interfaceIp, uint16_t port, BanManager* banManager = nullptr);
 	void stop();
-	bool isListening() { return serverSocket->getState() == Socket::ListeningState; }
+	bool isListening() { return serverSocket->getState() == Stream::ListeningState; }
 
-	Socket::State getState() { return serverSocket->getState(); }
+	Stream::State getState() { return serverSocket->getState(); }
 
-	void socketClosed(std::list<Socket*>::iterator socketIterator) { if(openServer) sockets.erase(socketIterator); }
+	void socketClosed(std::list<Stream*>::iterator socketIterator) { if(openServer) sockets.erase(socketIterator); }
 
 protected:
-	static void onNewConnection(IListener* instance, Socket* serverSocket);
-	static void onSocketStateChanged(IListener* instance, Socket*, Socket::State, Socket::State newState);
+	static void onNewConnection(IListener* instance, Stream* serverSocket);
+	static void onSocketStateChanged(IListener* instance, Stream*, Stream::State, Stream::State newState);
 	static void onCheckIdleSockets(uv_timer_t* timer);
 
 	virtual SocketSession* createSession() = 0;
 
 private:
 	bool openServer;
-	Socket* serverSocket;
+	Stream* serverSocket;
 	SocketSession* lastWaitingInstance;
-	std::list<Socket*> sockets;
+	std::list<Stream*> sockets;
 	BanManager* banManager;
 	Log* packetLogger;
 	uv_timer_t checkIdleSocketTimer;
