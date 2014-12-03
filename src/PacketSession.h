@@ -1,18 +1,18 @@
-#ifndef RAPPELZSOCKET_H
-#define RAPPELZSOCKET_H
+#ifndef PACKETSESSION_H
+#define PACKETSESSION_H
 
-#include "EncryptedSocket.h"
-#include "IDelegate.h"
+#include "SocketSession.h"
 #include "Packets/PacketBaseMessage.h"
+#include "Stream.h"
 
-#include <stdint.h>
+class RappelzServerCommon;
 
-class RAPPELZLIB_EXTERN RappelzSocket : public EncryptedSocket, private IListener
+class RAPPELZLIB_EXTERN PacketSession : public SocketSession
 {
-	DECLARE_CLASS(RappelzSocket)
+	DECLARE_CLASS(PacketSession)
 
 public:
-	typedef void (*CallbackFunction)(IListener* instance, RappelzSocket* server, const TS_MESSAGE* packetData);
+	typedef void (*CallbackFunction)(IListener* instance, PacketSession* server, const TS_MESSAGE* packetData);
 	static const uint16_t ALL_PACKETS = 0xFFFE;
 	static const uint32_t MAX_PACKET_SIZE = 65536;
 
@@ -26,8 +26,11 @@ private:
 	};
 
 public:
-	RappelzSocket(uv_loop_t* uvLoop, Mode mode);
-	virtual ~RappelzSocket();
+	PacketSession();
+	virtual void assignStream(Stream* stream);
+
+	virtual void onPacketReceived(const TS_MESSAGE* packet) {}
+
 
 	void sendPacket(const TS_MESSAGE* data);
 
@@ -36,7 +39,12 @@ public:
 	void setUnknownPacketListener(IListener* instance, CallbackFunction onPacketReceivedCallback);
 
 protected:
-	static void dataReceived(IListener *instance, Stream* socket);
+	virtual ~PacketSession() {}
+	void addPacketsToListen(int packetsIdNum, int firstPacketId, ...);
+
+	void onDataReceived();
+
+	static void onPacketReceivedStatic(IListener* instance, PacketSession* clientSocket, const TS_MESSAGE* packet);
 	static void stateChanged(IListener* instance, Stream* socket, Stream::State oldState, Stream::State newState);
 	static void socketError(IListener* instance, Stream* socket, int errnoValue);
 
@@ -44,10 +52,10 @@ protected:
 	void logPacket(bool outgoing, const TS_MESSAGE* msg);
 
 private:
+
 	IDelegateHash<uint16_t, CallbackFunction> packetListeners;
-	Callback<CallbackFunction> defaultPacketListener; //called when packet id is not known
 
 	InputBuffer inputBuffer;
 };
 
-#endif // RAPPELZSOCKET_H
+#endif // PACKETSESSION_H

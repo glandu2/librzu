@@ -21,14 +21,17 @@ public:
 
 	bool startServer(const std::string& interfaceIp, uint16_t port, BanManager* banManager = nullptr);
 	void stop();
-	bool isListening() { return serverSocket->getState() == Stream::ListeningState; }
+	bool isListening() { return serverSocket && serverSocket->getState() == Stream::ListeningState; }
 
-	Stream::State getState() { return serverSocket->getState(); }
+	Stream::State getState() { return serverSocket ? serverSocket->getState() : Stream::UnconnectedState; }
 
 	void socketClosed(std::list<Stream*>::iterator socketIterator) { if(openServer) sockets.erase(socketIterator); }
 
 protected:
-	static void onNewConnection(IListener* instance, Stream* serverSocket);
+	static void onNewConnectionStatic(IListener* instance, Stream *serverSocket);
+	void onNewConnection();
+
+
 	static void onSocketStateChanged(IListener* instance, Stream*, Stream::State, Stream::State newState);
 	static void onCheckIdleSockets(uv_timer_t* timer);
 
@@ -37,7 +40,7 @@ protected:
 private:
 	bool openServer;
 	Stream* serverSocket;
-	SocketSession* lastWaitingInstance;
+	Stream* lastWaitingStreamInstance;
 	std::list<Stream*> sockets;
 	BanManager* banManager;
 	Log* packetLogger;

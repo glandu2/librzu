@@ -41,9 +41,6 @@ DECLARE_CLASSCOUNT_STATIC(DbConnection)
 #include "DbQueryJob.h"
 DECLARE_CLASSCOUNT_STATIC(DbQueryBinding)
 
-#include "EncryptedSocket.h"
-DECLARE_CLASSCOUNT_STATIC(EncryptedSocket)
-
 #include "EventLoop.h"
 DECLARE_CLASSCOUNT_STATIC(EventLoop)
 
@@ -56,11 +53,8 @@ DECLARE_CLASSCOUNT_STATIC(Pipe)
 #include "RappelzServer.h"
 DECLARE_CLASSCOUNT_STATIC(RappelzServerCommon)
 
-#include "RappelzSocket.h"
-DECLARE_CLASSCOUNT_STATIC(RappelzSocket)
-
-#include "RappelzSession.h"
-DECLARE_CLASSCOUNT_STATIC(RappelzSession)
+#include "PacketSession.h"
+DECLARE_CLASSCOUNT_STATIC(PacketSession)
 
 #include "RC4Cipher.h"
 DECLARE_CLASSCOUNT_STATIC(RC4Cipher)
