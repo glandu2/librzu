@@ -10,9 +10,6 @@ inline void exchange(RC4_INT *a, RC4_INT *b) {
 	*b = tmp;
 }
 
-RC4Cipher::RC4Cipher() {
-}
-
 void RC4Cipher::rappelz_modified_RC4_set_key(int len, const unsigned char *data)
 {
 	register RC4_INT tmp;
