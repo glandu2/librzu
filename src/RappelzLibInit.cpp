@@ -37,7 +37,7 @@ static void OPENSSL_staticLock(int mode, int type, const char *file, int line) {
 }
 
 struct CRYPTO_dynlock_value * OPENSSL_dyn_create_function(const char *file, int line) {
-	struct CRYPTO_dynlock_value* lock = (struct CRYPTO_dynlock_value*) malloc(sizeof(struct CRYPTO_dynlock_value));
+	struct CRYPTO_dynlock_value* lock = new struct CRYPTO_dynlock_value;
 	uv_mutex_init(&lock->mutex);
 
 	file = file;
@@ -76,7 +76,7 @@ void OPENSSL_dyn_destroy_function(struct CRYPTO_dynlock_value *l, const char *fi
 		logger->log(Log::LL_Trace, "OPENSSL", 7, "Destroying dynamic lock: %p\n", l);
 
 	uv_mutex_destroy(&l->mutex);
-	free(l);
+	delete l;
 }
 
 static void initOpenssl() {

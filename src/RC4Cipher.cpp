@@ -2,7 +2,6 @@
 #include <string.h>
 #include <openssl/rc4.h>
 
-
 inline void exchange(RC4_INT *a, RC4_INT *b) {
 	RC4_INT tmp;
 	tmp = *a;
@@ -41,7 +40,7 @@ void RC4Cipher::rappelz_modified_RC4_set_key(int len, const unsigned char *data)
 void RC4Cipher::prepare(const char *key) {
 	rappelz_modified_RC4_set_key(strlen(key), (const unsigned char*)key);
 
-	//simulate transmition with 1013 bytes
+	//simulate transmition of 1013 bytes
 	unsigned int i;
 	for(i=0; i<1013; i++) {
 		state.x = (state.x + 1) & 0xFF;
