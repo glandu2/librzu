@@ -11,17 +11,6 @@ std::map<std::string, unsigned long*>& getObjectsCount() {
 
 //generated with notepad++ with this pattern: (.*) ->
 //#include "\1.h"\nDECLARE_CLASSCOUNT_STATIC\(\1\)\n
-/* Class list:
-Object
-CircularBuffer
-ConfigInfo
-EncryptedSocket
-EventLoop
-RappelzSocket
-RC4Cipher
-Server
-Socket
-*/
 
 #include "Object.h"
 DECLARE_CLASSCOUNT_STATIC(Object)
