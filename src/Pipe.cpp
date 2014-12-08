@@ -34,6 +34,9 @@ int Pipe::bind_impl(const std::string& interfaceIp, uint16_t port) {
 	return uv_pipe_bind(&pipe, interfaceIp.c_str());
 }
 
-void Pipe::createStream_impl() {
-	uv_pipe_init(getLoop(), &pipe, false);
+Stream* Pipe::createStream_impl() {
+	Pipe* newStream = new Pipe(getLoop(), logPackets);
+	uv_pipe_init(getLoop(), &newStream->pipe, false);
+
+	return newStream;
 }
