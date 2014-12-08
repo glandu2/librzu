@@ -39,7 +39,7 @@ public:
 	void setUnknownPacketListener(IListener* instance, CallbackFunction onPacketReceivedCallback);
 
 protected:
-	virtual ~PacketSession() {}
+	virtual ~PacketSession();
 	void addPacketsToListen(int packetsIdNum, int firstPacketId, ...);
 
 	void onDataReceived();

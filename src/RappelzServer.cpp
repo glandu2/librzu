@@ -29,7 +29,7 @@ RappelzServerCommon::~RappelzServerCommon() {
 		serverSocket->deleteLater();
 }
 
-bool RappelzServerCommon::startServer(const std::string &interfaceIp, uint16_t , BanManager *banManager) {
+bool RappelzServerCommon::startServer(const std::string &interfaceIp, uint16_t port, BanManager *banManager) {
 	this->banManager = banManager;
 	openServer = true;
 	int idleTimeout = checkIdleSocketPeriod? checkIdleSocketPeriod->get() : 0;
@@ -39,8 +39,8 @@ bool RappelzServerCommon::startServer(const std::string &interfaceIp, uint16_t ,
 	}
 
 	std::string target;
-	int port;
-	Stream::StreamType type = Stream::parseConnectionUrl(interfaceIp.c_str(), target, port);
+	int dummy;
+	Stream::StreamType type = Stream::parseConnectionUrl(interfaceIp.c_str(), target, dummy);
 
 	switch(type) {
 		case Stream::ST_Socket:

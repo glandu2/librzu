@@ -21,8 +21,8 @@ public:
 protected:
 	void initRC4Cipher();
 
-	virtual size_t read(void *buffer, size_t size);
-	virtual size_t write(const void *buffer, size_t size);
+	size_t read(void *buffer, size_t size);
+	size_t write(const void *buffer, size_t size);
 
 private:
 	RC4Cipher inputEnc, outputEnc;

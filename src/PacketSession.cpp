@@ -14,11 +14,13 @@ PacketSession::PacketSession() {
 
 }
 
+PacketSession::~PacketSession() {
+	delete[] inputBuffer.buffer;
+}
+
 void PacketSession::assignStream(Stream* stream) {
 	SocketSession::assignStream(stream);
-	reserveCallbackCount(2);
 	stream->addErrorListener(this, &socketError);
-	stream->addEventListener(this, &stateChanged);
 }
 
 void PacketSession::addPacketsToListen(int packetsIdNum, int firstPacketId, ...) {
