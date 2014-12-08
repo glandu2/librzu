@@ -102,8 +102,10 @@ void RappelzServerCommon::onNewConnection() {
 	}
 }
 
-void RappelzServerCommon::onSocketStateChanged(IListener* instance, Stream*, Stream::State, Stream::State newState) {
+void RappelzServerCommon::onSocketStateChanged(IListener* instance, Stream*, Stream::State oldState, Stream::State newState) {
 	SocketSession* thisInstance = static_cast<SocketSession*>(instance);
+
+	thisInstance->onStateChanged(oldState, newState);
 
 	if(newState == Stream::UnconnectedState) {
 		CONFIG_GET()->stats.disconnectionCount++;

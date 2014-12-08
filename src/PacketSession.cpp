@@ -40,22 +40,20 @@ void PacketSession::onPacketReceivedStatic(IListener* instance, PacketSession*, 
 	static_cast<PacketSession*>(instance)->onPacketReceived(packet);
 }
 
-void PacketSession::stateChanged(IListener* instance, Stream*, Stream::State oldState, Stream::State newState) {
-	PacketSession* thisInstance = static_cast<PacketSession*>(instance);
-
+void PacketSession::onStateChanged(Stream::State oldState, Stream::State newState) {
 	if(newState == Stream::ConnectedState) {
-		thisInstance->inputBuffer.currentMessageSize = 0;
+		inputBuffer.currentMessageSize = 0;
 
 		TS_CC_EVENT eventMsg;
 		TS_MESSAGE::initMessage<TS_CC_EVENT>(&eventMsg);
 		eventMsg.event = TS_CC_EVENT::CE_ServerConnected;
-		thisInstance->dispatchPacket(&eventMsg);
+		dispatchPacket(&eventMsg);
 	} else if(newState == Stream::UnconnectedState) {
 		TS_CC_EVENT eventMsg;
 		TS_MESSAGE::initMessage<TS_CC_EVENT>(&eventMsg);
 		eventMsg.event = TS_CC_EVENT::CE_ServerDisconnected;
 
-		thisInstance->dispatchPacket(&eventMsg);
+		dispatchPacket(&eventMsg);
 	}
 }
 

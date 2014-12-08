@@ -25,6 +25,7 @@ public:
 
 	virtual void onDataReceived() {}
 	virtual void onConnected() {}
+	virtual void onStateChanged(Stream::State oldState, Stream::State newState) {}
 
 
 protected:

@@ -30,6 +30,7 @@ public:
 	virtual void assignStream(Stream* stream);
 
 	virtual void onPacketReceived(const TS_MESSAGE* packet) {}
+	virtual void onStateChanged(Stream::State oldState, Stream::State newState);
 
 
 	void sendPacket(const TS_MESSAGE* data);
