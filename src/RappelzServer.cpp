@@ -91,28 +91,13 @@ void RappelzServerCommon::onNewConnection() {
 			sockets.push_back(lastWaitingStreamInstance);
 
 			SocketSession* session = createSession();
-			session->assignStream(lastWaitingStreamInstance);
 			session->setServer(this, --sockets.end());
-			lastWaitingStreamInstance->addEventListener(session, &onSocketStateChanged);
+			session->assignStream(lastWaitingStreamInstance);
 			session->onConnected();
 		}
 		CONFIG_GET()->stats.connectionCount++;
 
 		lastWaitingStreamInstance = nullptr;
-	}
-}
-
-void RappelzServerCommon::onSocketStateChanged(IListener* instance, Stream*, Stream::State oldState, Stream::State newState) {
-	SocketSession* thisInstance = static_cast<SocketSession*>(instance);
-
-	thisInstance->onStateChanged(oldState, newState);
-
-	if(newState == Stream::UnconnectedState) {
-		CONFIG_GET()->stats.disconnectionCount++;
-		RappelzServerCommon* server = thisInstance->getServer();
-		if(server)
-			server->socketClosed(thisInstance->getSocketIterator());
-		delete thisInstance;
 	}
 }
 

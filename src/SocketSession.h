@@ -38,7 +38,9 @@ protected:
 	friend class RappelzServerCommon;
 
 private:
-	static void onDataReceived(IListener* instance, Stream *stream);
+	static void onDataReceivedStatic(IListener* instance, Stream *stream);
+	static void onSocketStateChanged(IListener* instance, Stream*, Stream::State oldState, Stream::State newState);
+
 	template<class T> Stream* createStreate(bool logPackets);
 
 private:

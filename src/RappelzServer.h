@@ -31,8 +31,6 @@ protected:
 	static void onNewConnectionStatic(IListener* instance, Stream *serverSocket);
 	void onNewConnection();
 
-
-	static void onSocketStateChanged(IListener* instance, Stream*, Stream::State, Stream::State newState);
 	static void onCheckIdleSockets(uv_timer_t* timer);
 
 	virtual SocketSession* createSession() = 0;
