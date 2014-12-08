@@ -112,3 +112,4 @@ void Socket::updateObjectName() {
 	int nameSize = getClassNameSize() + strlen(localhostStr) + strlen(remotehostStr) + 19;
 	setObjectName(nameSize, "%s[%s:%u <> %s:%u]", getClassName(), localhostStr, localPort, remotehostStr, remotePort);
 }
+
