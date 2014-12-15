@@ -39,28 +39,12 @@ bool RappelzServerCommon::startServer(const std::string &interfaceIp, uint16_t p
 	}
 
 	std::string target;
-	int dummy;
-	Stream::StreamType type = Stream::parseConnectionUrl(interfaceIp.c_str(), target, dummy);
+	bool streamChanged;
+	Stream::StreamType type = Stream::parseConnectionUrl(interfaceIp.c_str(), &target);
+	serverSocket = Stream::getStream(type, serverSocket, &streamChanged);
 
-	switch(type) {
-		case Stream::ST_Socket:
-			if(!serverSocket || serverSocket->getTrueClassHash() != Socket::getClassHash()) {
-				if(serverSocket)
-					serverSocket->deleteLater();
-				serverSocket = new Socket(EventLoop::getLoop(), false);
-				serverSocket->addConnectionListener(this, &onNewConnectionStatic);
-			}
-			break;
-
-		case Stream::ST_Pipe:
-			if(!serverSocket || serverSocket->getTrueClassHash() != Pipe::getClassHash()) {
-				if(serverSocket)
-					serverSocket->deleteLater();
-				serverSocket = new Pipe(EventLoop::getLoop(), false);
-				serverSocket->addConnectionListener(this, &onNewConnectionStatic);
-			}
-			break;
-	}
+	if(streamChanged)
+		serverSocket->addConnectionListener(this, &onNewConnectionStatic);
 
 	return serverSocket->listen(target, port);
 }

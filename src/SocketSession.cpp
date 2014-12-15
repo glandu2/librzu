@@ -15,31 +15,14 @@ void SocketSession::assignStream(Stream* stream) {
 	stream->addEventListener(this, &SocketSession::onSocketStateChanged);
 }
 
-bool SocketSession::connect(const char *url) {
+bool SocketSession::connect(const char *url, int port) {
 	std::string target;
-	int port;
-	Stream::StreamType type = Stream::parseConnectionUrl(url, target, port);
-	Stream* newStream = nullptr;
+	Stream* newStream;
 
-	switch(type) {
-		case Stream::ST_Socket:
-			if(!stream || stream->getTrueClassHash() != Socket::getClassHash()) {
-				if(stream)
-					stream->deleteLater();
-				newStream = new Socket(EventLoop::getLoop(), false);
-			}
-			break;
+	Stream::StreamType type = Stream::parseConnectionUrl(url, &target);
+	newStream = Stream::getStream(type, stream);
 
-		case Stream::ST_Pipe:
-			if(!stream || stream->getTrueClassHash() != Pipe::getClassHash()) {
-				if(stream)
-					stream->deleteLater();
-				newStream = new Pipe(EventLoop::getLoop(), false);
-			}
-			break;
-	}
-
-	if(newStream)
+	if(newStream != stream)
 		assignStream(newStream);
 
 	return stream->connect(target, port);
