@@ -16,7 +16,8 @@ public:
 	SocketSession();
 	virtual void assignStream(Stream* stream);
 
-	virtual bool connect(const char* url);
+	virtual bool connect(const char* url, int port);
+	void close() { stream->close(); }
 	void abortSession() { stream->abort(); }
 
 	Stream* getStream() { return stream; }
