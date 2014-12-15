@@ -23,21 +23,11 @@ void PacketSession::assignStream(Stream* stream) {
 	stream->addErrorListener(this, &socketError);
 }
 
-void PacketSession::addPacketsToListen(int packetsIdNum, int firstPacketId, ...) {
-	va_list l;
-	va_start(l, firstPacketId);
-	reserveCallbackCount(packetsIdNum);
-	for(int i = 0; i < packetsIdNum; i++) {
-		if(i != 0)
-			addPacketListener(va_arg(l, int), this, &onPacketReceivedStatic);
-		else
-			addPacketListener(firstPacketId, this, &onPacketReceivedStatic);
-	}
-	va_end(l);
-}
+void PacketSession::sendPacket(const TS_MESSAGE* data) {
+	write(data, data->size);
 
-void PacketSession::onPacketReceivedStatic(IListener* instance, PacketSession*, const TS_MESSAGE* packet) {
-	static_cast<PacketSession*>(instance)->onPacketReceived(packet);
+	//Log after for better latency
+	logPacket(true, data);
 }
 
 void PacketSession::onStateChanged(Stream::State oldState, Stream::State newState) {
@@ -68,28 +58,11 @@ void PacketSession::socketError(IListener *instance, Stream*, int errnoValue) {
 	}
 }
 
-void PacketSession::sendPacket(const TS_MESSAGE* data) {
-	write(data, data->size);
-
-	//Log after for better latency
-	logPacket(true, data);
-}
-
 void PacketSession::dispatchPacket(const TS_MESSAGE* packetData) {
-	int callcount;
-
 	//Log before to avoid having logging a packet send after having received this packet before logging this packet
 	logPacket(false, packetData);
 
-	//! onPacketReceived(packetData);
-
-	if(packetData->id != TS_SC_RESULT::packetID)
-		DELEGATE_HASH_CALL_GETNUM(callcount, packetListeners, packetData->id, this, packetData);
-	else
-		DELEGATE_HASH_CALL_GETNUM(callcount, packetListeners, reinterpret_cast<const TS_SC_RESULT*>(packetData)->request_msg_id, this, packetData);
-
-//	if(callcount == 0)
-//		CALLBACK_CALL(defaultPacketListener, this, packetData);
+	onPacketReceived(packetData);
 }
 
 void PacketSession::logPacket(bool outgoing, const TS_MESSAGE* msg) {
@@ -134,12 +107,4 @@ void PacketSession::onDataReceived() {
 			buffer->currentMessageSize = 0;
 		}
 	} while((buffer->currentMessageSize == 0 && inputStream->getAvailableBytes() >= 4) || (buffer->currentMessageSize != 0 && inputStream->getAvailableBytes() >= (buffer->currentMessageSize - 4)));
-}
-
-void PacketSession::addPacketListener(uint16_t packetId, IListener* instance, CallbackFunction onPacketReceivedCallback) {
-	packetListeners.add(packetId, instance, onPacketReceivedCallback);
-}
-
-void PacketSession::removePacketListener(uint16_t packetId, IListener* instance) {
-	packetListeners.del(packetId, instance);
 }

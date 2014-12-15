@@ -30,6 +30,9 @@ DECLARE_CLASSCOUNT_STATIC(DbConnection)
 #include "DbQueryJob.h"
 DECLARE_CLASSCOUNT_STATIC(DbQueryBinding)
 
+#include "DelegatedPacketSession.h"
+DECLARE_CLASSCOUNT_STATIC(DelegatedPacketSession)
+
 #include "EventLoop.h"
 DECLARE_CLASSCOUNT_STATIC(EventLoop)
 
