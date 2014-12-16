@@ -57,7 +57,8 @@ public:
 public:
 	virtual ~Stream();
 
-	static StreamType parseConnectionUrl(const char *url, std::string &target, int &port);
+	static StreamType parseConnectionUrl(const char *url, std::string *target);
+	static Stream* getStream(StreamType type, Stream* existingStream = nullptr, bool *changed = nullptr);
 
 	bool connect(const std::string& hostName, uint16_t port);
 	bool listen(const std::string& interfaceIp, uint16_t port);
@@ -68,7 +69,7 @@ public:
 	size_t discard(size_t size); //read but does not store read data
 	size_t write(WriteRequest* writeRequest); //take writeRequest's ownership
 	size_t write(const void *buffer, size_t size);
-	bool accept(Stream *clientSocket);
+	bool accept(Stream **clientSocket);
 
 	void close();
 	void abort();
@@ -115,7 +116,7 @@ protected:
 protected:
 	virtual int connect_impl(uv_connect_t* connectRequest, const std::string & hostName, uint16_t port) = 0;
 	virtual int bind_impl(const std::string& interfaceIp, uint16_t port) = 0;
-	virtual void createStream_impl() = 0;
+	virtual Stream* createStream_impl() = 0;
 	virtual void retrieveSocketBoundsInfo() {}
 
 	virtual void onStateChanged(State oldState, State newState) {}
@@ -147,7 +148,6 @@ private:
 	Log* packetLogger;
 
 	bool packetTransferedSinceLastCheck; //when checking idle pipes, if this flag is false, then the pipe is closed (idle)
-	bool streamInitialized; //used for accept
 };
 
 #endif // STREAM_H

@@ -25,7 +25,7 @@ public:
 protected:
 	virtual int connect_impl(uv_connect_t* connectRequest, const std::string & hostName, uint16_t port);
 	virtual int bind_impl(const std::string& interfaceIp, uint16_t port);
-	virtual void createStream_impl();
+	virtual Stream* createStream_impl();
 
 private:
 	uv_pipe_t pipe;

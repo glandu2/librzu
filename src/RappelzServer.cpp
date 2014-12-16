@@ -4,16 +4,17 @@
 #include "BanManager.h"
 #include "RappelzLibConfig.h"
 #include "PrintfFormats.h"
+#include "Pipe.h"
+#include "Socket.h"
 
 RappelzServerCommon::RappelzServerCommon(cval<int>* idleTimeoutSec, Log *packetLogger)
 	: openServer(false),
-	  serverSocket(new Socket(EventLoop::getLoop())),
-	  lastWaitingInstance(nullptr),
+	  serverSocket(nullptr),
+	  lastWaitingStreamInstance(nullptr),
 	  banManager(nullptr),
 	  packetLogger(packetLogger),
 	  checkIdleSocketPeriod(idleTimeoutSec)
 {
-	serverSocket->addConnectionListener(this, &onNewConnection);
 	uv_timer_init(EventLoop::getLoop(), &checkIdleSocketTimer);
 	checkIdleSocketTimer.data = this;
 }
@@ -21,10 +22,11 @@ RappelzServerCommon::RappelzServerCommon(cval<int>* idleTimeoutSec, Log *packetL
 RappelzServerCommon::~RappelzServerCommon() {
 	stop();
 
-	if(lastWaitingInstance)
-		delete lastWaitingInstance;
+	if(lastWaitingStreamInstance)
+		delete lastWaitingStreamInstance;
 
-	serverSocket->deleteLater();
+	if(serverSocket)
+		serverSocket->deleteLater();
 }
 
 bool RappelzServerCommon::startServer(const std::string &interfaceIp, uint16_t port, BanManager *banManager) {
@@ -35,7 +37,16 @@ bool RappelzServerCommon::startServer(const std::string &interfaceIp, uint16_t p
 		uint64_t timeoutMs = uint64_t(idleTimeout)*1000;
 		uv_timer_start(&checkIdleSocketTimer, &onCheckIdleSockets, timeoutMs, timeoutMs);
 	}
-	return serverSocket->listen(interfaceIp, port);
+
+	std::string target;
+	bool streamChanged;
+	Stream::StreamType type = Stream::parseConnectionUrl(interfaceIp.c_str(), &target);
+	serverSocket = Stream::getStream(type, serverSocket, &streamChanged);
+
+	if(streamChanged)
+		serverSocket->addConnectionListener(this, &onNewConnectionStatic);
+
+	return serverSocket->listen(target, port);
 }
 
 void RappelzServerCommon::stop() {
@@ -49,43 +60,28 @@ void RappelzServerCommon::stop() {
 	}
 }
 
-void RappelzServerCommon::onNewConnection(IListener* instance, Stream* serverSocket) {
-	RappelzServerCommon* thisInstance = static_cast<RappelzServerCommon*>(instance);
-
-	if(!thisInstance->openServer)
+void RappelzServerCommon::onNewConnectionStatic(IListener* instance, Stream* serverSocket) { static_cast<RappelzServerCommon*>(instance)->onNewConnection(); }
+void RappelzServerCommon::onNewConnection() {
+	if(!openServer)
 		return;
 
-	if(thisInstance->lastWaitingInstance == nullptr) {
-		thisInstance->lastWaitingInstance = thisInstance->createSession();
-		thisInstance->lastWaitingInstance->stream->setPacketLogger(thisInstance->packetLogger);
-		thisInstance->lastWaitingInstance->stream->addEventListener(thisInstance->lastWaitingInstance, &onSocketStateChanged);
-	}
-
-	if(serverSocket->accept(thisInstance->lastWaitingInstance->getSocket())) {
-		if(thisInstance->banManager && thisInstance->banManager->isBanned(thisInstance->lastWaitingInstance->getSocket()->getRemoteHost())) {
-			thisInstance->lastWaitingInstance->getSocket()->abort();
-			thisInstance->debug("Kick banned ip %s\n", thisInstance->lastWaitingInstance->getSocket()->getRemoteHostName());
+	if(serverSocket->accept(&lastWaitingStreamInstance)) {
+		if(banManager && banManager->isBanned(lastWaitingStreamInstance->getRemoteHost())) {
+			lastWaitingStreamInstance->abort();
+			debug("Kick banned ip %s\n", lastWaitingStreamInstance->getRemoteHostName());
 		} else {
-			thisInstance->sockets.push_back(thisInstance->lastWaitingInstance->getSocket());
-			thisInstance->lastWaitingInstance->setServer(thisInstance, --thisInstance->sockets.end());
+			lastWaitingStreamInstance->setPacketLogger(packetLogger);
+
+			sockets.push_back(lastWaitingStreamInstance);
+
+			SocketSession* session = createSession();
+			session->setServer(this, --sockets.end());
+			session->assignStream(lastWaitingStreamInstance);
+			session->onConnected();
 		}
 		CONFIG_GET()->stats.connectionCount++;
 
-		thisInstance->lastWaitingInstance->onConnected();
-
-		thisInstance->lastWaitingInstance = nullptr;
-	}
-}
-
-void RappelzServerCommon::onSocketStateChanged(IListener* instance, Stream*, Stream::State, Stream::State newState) {
-	SocketSession* thisInstance = static_cast<SocketSession*>(instance);
-
-	if(newState == Stream::UnconnectedState) {
-		CONFIG_GET()->stats.disconnectionCount++;
-		RappelzServerCommon* server = thisInstance->getServer();
-		if(server)
-			server->socketClosed(thisInstance->getSocketIterator());
-		delete thisInstance;
+		lastWaitingStreamInstance = nullptr;
 	}
 }
 

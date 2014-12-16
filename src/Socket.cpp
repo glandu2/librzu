@@ -37,8 +37,11 @@ int Socket::bind_impl(const std::string& interfaceIp, uint16_t port) {
 	return uv_tcp_bind(&socket, (struct sockaddr*)&bindAddr, 0);
 }
 
-void Socket::createStream_impl() {
-	uv_tcp_init(getLoop(), &socket);
+Stream* Socket::createStream_impl() {
+	Socket* newStream = new Socket(getLoop(), logPackets);
+	uv_tcp_init(getLoop(), &newStream->socket);
+
+	return newStream;
 }
 
 void Socket::retrieveSocketBoundsInfo() {

@@ -1,10 +1,10 @@
 #include "Stream.h"
-#include "Log.h"
-#include <sstream>
-#include <iomanip>
-#include <stdarg.h>
 #include <string.h>
-#include "RappelzLibConfig.h"
+#include <stdarg.h>
+
+#include "EventLoop.h"
+#include "Socket.h"
+#include "Pipe.h"
 
 #ifndef SHUT_RDWR
 #define SHUT_RDWR 2
@@ -37,8 +37,7 @@ Stream::Stream(uv_loop_t *uvLoop, uv_stream_t* handle, bool logPackets)
 	  handle(handle),
 	  currentState(UnconnectedState),
 	  packetLogger(nullptr),
-	  packetTransferedSinceLastCheck(true),
-	  streamInitialized(false)
+	  packetTransferedSinceLastCheck(true)
 {
 	remoteHostName[0] = localHostName[0] = 0;
 	remoteHost = localHost = 0;
@@ -54,7 +53,7 @@ Stream::~Stream() {
 		uv_run(getLoop(), UV_RUN_ONCE);
 }
 
-Stream::StreamType Stream::parseConnectionUrl(const char *url, std::string &target, int &port) {
+Stream::StreamType Stream::parseConnectionUrl(const char *url, std::string *target) {
 	StreamType type = ST_Socket;
 	const char* startOfTarget = url;
 
@@ -63,16 +62,37 @@ Stream::StreamType Stream::parseConnectionUrl(const char *url, std::string &targ
 		startOfTarget = url + 5;
 	}
 
-	const char* startOfPort = strrchr(startOfTarget, ':');
-	if(startOfPort) {
-		port = atoi(startOfPort+1);
-		target.assign(startOfTarget, startOfPort);
-	} else {
-		port = 0;
-		target.assign(startOfTarget);
-	}
+	if(target)
+		target->assign(startOfTarget);
 
 	return type;
+}
+
+Stream* Stream::getStream(StreamType type, Stream* existingStream, bool *changed) {
+	Stream* newStream = existingStream;
+
+	switch(type) {
+		case ST_Socket:
+			if(!existingStream || existingStream->getTrueClassHash() != Socket::getClassHash()) {
+				if(existingStream)
+					existingStream->deleteLater();
+				newStream = new Socket(EventLoop::getLoop(), false);
+			}
+			break;
+
+		case ST_Pipe:
+			if(!existingStream || existingStream->getTrueClassHash() != Pipe::getClassHash()) {
+				if(existingStream)
+					existingStream->deleteLater();
+				newStream = new Pipe(EventLoop::getLoop(), false);
+			}
+			break;
+	}
+
+	if(changed)
+		*changed = newStream != existingStream;
+
+	return newStream;
 }
 
 bool Stream::connect(const std::string & hostName, uint16_t port) {
@@ -182,12 +202,11 @@ size_t Stream::write(const void *buffer, size_t size) {
 	}
 }
 
-bool Stream::accept(Stream* clientSocket) {
-	if(clientSocket->streamInitialized == false) {
-		clientSocket->createStream_impl();
-		clientSocket->streamInitialized = true;
+bool Stream::accept(Stream** clientSocketPtr) {
+	if(*clientSocketPtr == nullptr) {
+		*clientSocketPtr = createStream_impl();
 	}
-
+	Stream* clientSocket = *clientSocketPtr;
 	uv_stream_t *client = clientSocket->handle;
 
 	int result = uv_accept(handle, client);
