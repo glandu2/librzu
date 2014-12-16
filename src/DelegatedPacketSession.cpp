@@ -10,10 +10,8 @@ void DelegatedPacketSession::removePacketListener(uint16_t packetId, IListener* 
 }
 
 void DelegatedPacketSession::onPacketReceived(const TS_MESSAGE *packet) {
-	int callcount;
-
 	if(packet->id != TS_SC_RESULT::packetID)
-		DELEGATE_HASH_CALL_GETNUM(callcount, packetListeners, packet->id, this, packet);
+		DELEGATE_HASH_CALL(packetListeners, packet->id, this, packet);
 	else
-		DELEGATE_HASH_CALL_GETNUM(callcount, packetListeners, reinterpret_cast<const TS_SC_RESULT*>(packet)->request_msg_id, this, packet);
+		DELEGATE_HASH_CALL(packetListeners, reinterpret_cast<const TS_SC_RESULT*>(packet)->request_msg_id, this, packet);
 }

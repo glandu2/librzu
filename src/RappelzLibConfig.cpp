@@ -1,5 +1,5 @@
 #include "RappelzLibConfig.h"
-#include "RappelzLibGitVersion.h"
+#include "rzuGitVersion.h"
 
 RappelzLibConfig* RappelzLibConfig::get() {
 	static RappelzLibConfig instance;
@@ -9,7 +9,7 @@ RappelzLibConfig* RappelzLibConfig::get() {
 
 void RappelzLibConfig::init() {
 	RappelzLibConfig::get();
-	CFG_CREATE("core.version", RappelzLibVersion);
+	CFG_CREATE("core.version", rzuVersion);
 }
 
 void RappelzLibConfig::Log::updateConsoleLevel(IListener *instance) {
