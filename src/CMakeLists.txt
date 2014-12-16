@@ -10,7 +10,6 @@ if( versioncmakefound )
 endif()
 
 add_library(${TARGET_NAME} ${SOURCE_FILES})
-#add_dependencies(${TARGET_NAME} ${TARGET_NAME}_GitVersion)
 
 include_directories(${OPENSSL_INCLUDE_DIR})
 target_link_libraries(${TARGET_NAME} uv ${OPENSSL_LIBRARIES})
