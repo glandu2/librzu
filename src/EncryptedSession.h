@@ -16,7 +16,7 @@ public:
 
 	virtual ~EncryptedSession() {}
 
-	virtual bool connect(const char* url, int port);
+	virtual bool connect(const char* url, uint16_t port);
 
 protected:
 	void initRC4Cipher();
@@ -35,7 +35,7 @@ void EncryptedSession<T>::initRC4Cipher() {
 }
 
 template<class T>
-bool EncryptedSession<T>::connect(const char* url, int port) {
+bool EncryptedSession<T>::connect(const char* url, uint16_t port) {
 	initRC4Cipher();
 
 	return T::connect(url, port);

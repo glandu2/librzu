@@ -15,7 +15,7 @@ void SocketSession::assignStream(Stream* stream) {
 	stream->addEventListener(this, &SocketSession::onSocketStateChanged);
 }
 
-bool SocketSession::connect(const char *url, int port) {
+bool SocketSession::connect(const char *url, uint16_t port) {
 	std::string target;
 	Stream* newStream;
 
@@ -41,7 +41,13 @@ void SocketSession::onDataReceivedStatic(IListener* instance, Stream* stream) {
 void SocketSession::onSocketStateChanged(IListener* instance, Stream*, Stream::State oldState, Stream::State newState) {
 	SocketSession* thisInstance = static_cast<SocketSession*>(instance);
 
+	if(newState == Stream::ConnectedState)
+		thisInstance->onConnected();
+
 	thisInstance->onStateChanged(oldState, newState);
+
+	if(newState == Stream::UnconnectedState)
+		thisInstance->onDisconnected();
 
 	RappelzServerCommon* server = thisInstance->getServer();
 	if(newState == Stream::UnconnectedState && server) {
@@ -49,4 +55,10 @@ void SocketSession::onSocketStateChanged(IListener* instance, Stream*, Stream::S
 		server->socketClosed(thisInstance->getSocketIterator());
 		delete thisInstance;
 	}
+}
+
+void SocketSession::socketError(IListener *instance, Stream*, int errnoValue) {
+	SocketSession* thisInstance = static_cast<SocketSession*>(instance);
+
+	thisInstance->onError(errnoValue);
 }

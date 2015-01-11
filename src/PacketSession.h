@@ -26,22 +26,22 @@ private:
 
 public:
 	PacketSession();
-	virtual void assignStream(Stream* stream);
 
-	virtual void onPacketReceived(const TS_MESSAGE* packet) {}
-	virtual void onStateChanged(Stream::State oldState, Stream::State newState);
 
 	void sendPacket(const TS_MESSAGE* data);
 
 protected:
 	virtual ~PacketSession();
 
-	void onDataReceived();
-
-	static void socketError(IListener* instance, Stream* socket, int errnoValue);
+	virtual void onPacketReceived(const TS_MESSAGE* packet) {}
+	virtual void onStateChanged(Stream::State oldState, Stream::State newState);
+	virtual void onError(int err);
 
 	void dispatchPacket(const TS_MESSAGE* packetData);
 	void logPacket(bool outgoing, const TS_MESSAGE* msg);
+
+private:
+	void onDataReceived();
 
 private:
 	InputBuffer inputBuffer;

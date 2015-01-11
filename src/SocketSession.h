@@ -11,14 +11,14 @@ class Log;
 class RAPPELZLIB_EXTERN SocketSession : public Object, public IListener
 {
 	DECLARE_CLASS(SocketSession)
-
 public:
 	SocketSession();
 	virtual void assignStream(Stream* stream);
 
-	virtual bool connect(const char* url, int port);
+	virtual bool connect(const char* url, uint16_t port);
 	void close() { stream->close(); }
 	void abortSession() { stream->abort(); }
+	void closeSession() { stream->close(); }
 
 	Stream* getStream() { return stream; }
 	virtual size_t read(void *buffer, size_t size) { return stream->read(buffer, size); }
@@ -26,7 +26,9 @@ public:
 
 	virtual void onDataReceived() {}
 	virtual void onConnected() {}
+	virtual void onDisconnected() {}
 	virtual void onStateChanged(Stream::State oldState, Stream::State newState) {}
+	virtual void onError(int err) {}
 
 
 protected:
@@ -41,6 +43,7 @@ protected:
 private:
 	static void onDataReceivedStatic(IListener* instance, Stream *stream);
 	static void onSocketStateChanged(IListener* instance, Stream*, Stream::State oldState, Stream::State newState);
+	static void socketError(IListener* instance, Stream* socket, int errnoValue);
 
 	template<class T> Stream* createStreate(bool logPackets);
 

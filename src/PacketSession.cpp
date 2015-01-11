@@ -18,11 +18,6 @@ PacketSession::~PacketSession() {
 	delete[] inputBuffer.buffer;
 }
 
-void PacketSession::assignStream(Stream* stream) {
-	SocketSession::assignStream(stream);
-	stream->addErrorListener(this, &socketError);
-}
-
 void PacketSession::sendPacket(const TS_MESSAGE* data) {
 	write(data, data->size);
 
@@ -47,14 +42,12 @@ void PacketSession::onStateChanged(Stream::State oldState, Stream::State newStat
 	}
 }
 
-void PacketSession::socketError(IListener *instance, Stream*, int errnoValue) {
-	PacketSession* thisInstance = static_cast<PacketSession*>(instance);
-
-	if(thisInstance->getStream()->getState() == Stream::ConnectingState) {
+void PacketSession::onError(int) {
+	if(getStream()->getState() == Stream::ConnectingState) {
 		TS_CC_EVENT eventMsg;
 		TS_MESSAGE::initMessage<TS_CC_EVENT>(&eventMsg);
 		eventMsg.event = TS_CC_EVENT::CE_ServerUnreachable;
-		thisInstance->dispatchPacket(&eventMsg);
+		dispatchPacket(&eventMsg);
 	}
 }
 
