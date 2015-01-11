@@ -1,5 +1,5 @@
-#ifndef ENCRYPTEDSOCKET_H
-#define ENCRYPTEDSOCKET_H
+#ifndef ENCRYPTEDSESSION_H
+#define ENCRYPTEDSESSION_H
 
 #include "RC4Cipher.h"
 #include <stdint.h>
@@ -62,4 +62,4 @@ size_t EncryptedSession<T>::write(const void *buffer, size_t size) {
 	return ret;
 }
 
-#endif // ENCRYPTEDSOCKET_H
+#endif // ENCRYPTEDSESSION_H
