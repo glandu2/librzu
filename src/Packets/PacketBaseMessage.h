@@ -59,7 +59,6 @@ struct TS_CC_EVENT : public TS_MESSAGE {
 	enum ClientError {
 		CE_ServerConnected,
 		CE_ServerDisconnected,
-		CE_ServerConnectionLost,
 		CE_ServerUnreachable
 	} event;
 	static const uint16_t packetID = 0xFFFF;

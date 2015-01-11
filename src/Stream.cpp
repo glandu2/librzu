@@ -36,7 +36,7 @@ Stream::Stream(uv_loop_t *uvLoop, uv_stream_t* handle, bool logPackets)
 	  loop(uvLoop),
 	  handle(handle),
 	  currentState(UnconnectedState),
-	  packetLogger(nullptr),
+	  packetLogger(Log::getDefaultPacketLogger()),
 	  packetTransferedSinceLastCheck(true)
 {
 	remoteHostName[0] = localHostName[0] = 0;

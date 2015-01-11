@@ -151,7 +151,7 @@ public:
 		this->mode = mode;
 
 		if(dbBinding == nullptr) {
-			warn("DB binding was not initialized ! Canceling DB query\n");
+			error("DB binding was not initialized ! Canceling DB query\n");
 			onDone(S_Canceled);
 			return false;
 		}

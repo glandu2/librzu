@@ -18,6 +18,9 @@ DECLARE_CLASSCOUNT_STATIC(Object)
 #include "BanManager.h"
 DECLARE_CLASSCOUNT_STATIC(BanManager)
 
+#include "ClientAuthSession.h"
+DECLARE_CLASSCOUNT_STATIC(ClientAuthSession)
+
 #include "ConfigInfo.h"
 DECLARE_CLASSCOUNT_STATIC(ConfigInfo)
 
