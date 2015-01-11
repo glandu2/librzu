@@ -2,6 +2,7 @@
 #define ENCRYPTEDSOCKET_H
 
 #include "RC4Cipher.h"
+#include <stdint.h>
 
 class Stream;
 
