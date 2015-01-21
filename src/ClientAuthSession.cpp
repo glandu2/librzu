@@ -23,7 +23,7 @@ bool ClientAuthSession::connect(const std::string& ip, uint16_t port, const std:
 	this->password = password;
 	this->version = version;
 	this->cipherMethod = method;
-	this->rsaCipher = 0;
+//	this->rsaCipher = 0;
 	this->selectedServer = 0;
 	this->normalDisconnect = false;
 
@@ -109,6 +109,7 @@ void ClientAuthSession::onPacketReceived(const TS_MESSAGE* packetData) {
 
 ////////////////////////////////////////////////////////
 
+void* ClientAuthSession::rsaCipher = nullptr;
 void ClientAuthSession::onConnected() {
 	TS_CA_VERSION versionMsg;
 
@@ -146,7 +147,8 @@ void ClientAuthSession::onConnected() {
 		TS_CA_RSA_PUBLIC_KEY *keyMsg;
 		int public_key_size;
 
-		rsaCipher = RSA_generate_key(1024, 65537, NULL, NULL);
+		if(!rsaCipher)
+			rsaCipher = RSA_generate_key(1024, 65537, NULL, NULL);
 
 		BIO * b = BIO_new(BIO_s_mem());
 		PEM_write_bio_RSA_PUBKEY(b, (RSA*)rsaCipher);
@@ -180,8 +182,8 @@ void ClientAuthSession::onPacketAuthPasswordKey(const TS_AC_AES_KEY_IV* packet) 
 	int p_len = len, f_len = 0;
 
 	data_size = RSA_private_decrypt(packet->data_size, (unsigned char*)packet->rsa_encrypted_data, decrypted_data, (RSA*)rsaCipher, RSA_PKCS1_PADDING);
-	RSA_free((RSA*)rsaCipher);
-	rsaCipher = 0;
+//	RSA_free((RSA*)rsaCipher);
+//	rsaCipher = 0;
 	if(data_size != 32) {
 		warn("onPacketAuthPasswordKey: invalid decrypted data size: %d\n", data_size);
 		getStream()->close();
