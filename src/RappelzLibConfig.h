@@ -6,7 +6,7 @@
 
 #define CONFIG_FILE_KEY "configfile"
 
-struct RAPPELZLIB_EXTERN RappelzLibConfig {
+struct RAPPELZLIB_EXTERN GlobalCoreConfig {
 
 	struct App {
 		cval<std::string> &appName, &configfile;
@@ -62,12 +62,12 @@ struct RAPPELZLIB_EXTERN RappelzLibConfig {
 			disconnectionCount(CFG_STAT_CREATE("stats.disconnections", 0)) {}
 	} stats;
 
-	static RappelzLibConfig* get();
+	static GlobalCoreConfig* get();
 	static void init();
 };
 
 #ifndef CONFIG_GET
-#define CONFIG_GET() RappelzLibConfig::get()
+#define CONFIG_GET() GlobalCoreConfig::get()
 #endif
 
 #endif // RAPPELZLIBCONFIG_H
