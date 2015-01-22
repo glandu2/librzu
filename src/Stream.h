@@ -58,7 +58,7 @@ public:
 	virtual ~Stream();
 
 	static StreamType parseConnectionUrl(const char *url, std::string *target);
-	static Stream* getStream(StreamType type, Stream* existingStream = nullptr, bool *changed = nullptr);
+	static Stream* getStream(StreamType type, Stream* existingStream = nullptr, bool *changed = nullptr, bool enablePacketLogger = true);
 
 	bool connect(const std::string& hostName, uint16_t port);
 	bool listen(const std::string& interfaceIp, uint16_t port);

@@ -30,6 +30,9 @@ public:
 	virtual void onStateChanged(Stream::State oldState, Stream::State newState) {}
 	virtual void onError(int err) {}
 
+	virtual bool isEncryptedSession() { return false; } //used for packet logging
+	static bool isEncryptedSessionStatic() { return false; }
+
 
 protected:
 	virtual ~SocketSession(); //deleted when disconnected by RappelzServer

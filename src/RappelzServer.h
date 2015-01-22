@@ -34,6 +34,7 @@ protected:
 	static void onCheckIdleSockets(uv_timer_t* timer);
 
 	virtual SocketSession* createSession() = 0;
+	virtual bool isEncryptedSession() = 0;
 
 private:
 	bool openServer;
@@ -59,6 +60,9 @@ public:
 protected:
 	virtual SocketSession* createSession() {
 		return new T();
+	}
+	virtual bool isEncryptedSession() {
+		return T::isEncryptedSessionStatic();
 	}
 };
 

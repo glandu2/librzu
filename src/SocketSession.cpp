@@ -18,11 +18,12 @@ void SocketSession::assignStream(Stream* stream) {
 bool SocketSession::connect(const char *url, uint16_t port) {
 	std::string target;
 	Stream* newStream;
+	bool changed;
 
 	Stream::StreamType type = Stream::parseConnectionUrl(url, &target);
-	newStream = Stream::getStream(type, stream);
+	newStream = Stream::getStream(type, stream, &changed, !isEncryptedSession());
 
-	if(newStream != stream)
+	if(changed)
 		assignStream(newStream);
 
 	return stream->connect(target, port);

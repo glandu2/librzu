@@ -68,7 +68,7 @@ Stream::StreamType Stream::parseConnectionUrl(const char *url, std::string *targ
 	return type;
 }
 
-Stream* Stream::getStream(StreamType type, Stream* existingStream, bool *changed) {
+Stream* Stream::getStream(StreamType type, Stream* existingStream, bool *changed, bool enablePacketLogger) {
 	Stream* newStream = existingStream;
 
 	switch(type) {
@@ -76,7 +76,7 @@ Stream* Stream::getStream(StreamType type, Stream* existingStream, bool *changed
 			if(!existingStream || existingStream->getTrueClassHash() != Socket::getClassHash()) {
 				if(existingStream)
 					existingStream->deleteLater();
-				newStream = new Socket(EventLoop::getLoop(), false);
+				newStream = new Socket(EventLoop::getLoop(), enablePacketLogger);
 			}
 			break;
 
@@ -84,7 +84,7 @@ Stream* Stream::getStream(StreamType type, Stream* existingStream, bool *changed
 			if(!existingStream || existingStream->getTrueClassHash() != Pipe::getClassHash()) {
 				if(existingStream)
 					existingStream->deleteLater();
-				newStream = new Pipe(EventLoop::getLoop(), false);
+				newStream = new Pipe(EventLoop::getLoop(), enablePacketLogger);
 			}
 			break;
 	}
@@ -205,6 +205,7 @@ size_t Stream::write(const void *buffer, size_t size) {
 bool Stream::accept(Stream** clientSocketPtr) {
 	if(*clientSocketPtr == nullptr) {
 		*clientSocketPtr = createStream_impl();
+		(*clientSocketPtr)->setPacketLogger(packetLogger);
 	}
 	Stream* clientSocket = *clientSocketPtr;
 	uv_stream_t *client = clientSocket->handle;
