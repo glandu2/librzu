@@ -1,5 +1,5 @@
 #include "RappelzLibInit.h"
-#include "RappelzLibConfig.h"
+#include "GlobalCoreConfig.h"
 #include "Log.h"
 #include "CrashHandler.h"
 #include <openssl/crypto.h>

@@ -1,7 +1,7 @@
 #include "SocketSession.h"
 #include "RappelzServer.h"
 #include "EventLoop.h"
-#include "RappelzLibConfig.h"
+#include "GlobalCoreConfig.h"
 
 #include "Socket.h"
 #include "Pipe.h"

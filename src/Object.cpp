@@ -4,7 +4,7 @@
 #include <stdarg.h>
 #include "EventLoop.h"
 #include "Log.h"
-#include "RappelzLibConfig.h"
+#include "GlobalCoreConfig.h"
 
 Object::Object() {
 	objectName = nullptr;

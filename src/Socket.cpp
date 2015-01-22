@@ -5,7 +5,7 @@
 #include <iomanip>
 #include <stdarg.h>
 #include <string.h>
-#include "RappelzLibConfig.h"
+#include "GlobalCoreConfig.h"
 
 Socket::Socket(uv_loop_t *uvLoop, bool logPackets)
 	: Stream(uvLoop, (uv_stream_t*)&socket, logPackets)

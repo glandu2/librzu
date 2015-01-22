@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include "RappelzLibConfig.h"
+#include "GlobalCoreConfig.h"
 #include <map>
 
 ConfigInfo::~ConfigInfo() {

@@ -4,7 +4,7 @@
 #include <iomanip>
 #include <stdarg.h>
 #include <string.h>
-#include "RappelzLibConfig.h"
+#include "GlobalCoreConfig.h"
 #include "EventLoop.h"
 
 Pipe::Pipe(uv_loop_t *uvLoop, bool logPackets)

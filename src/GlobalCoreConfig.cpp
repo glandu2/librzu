@@ -1,4 +1,4 @@
-#include "RappelzLibConfig.h"
+#include "GlobalCoreConfig.h"
 #include "rzuGitVersion.h"
 
 GlobalCoreConfig* GlobalCoreConfig::get() {

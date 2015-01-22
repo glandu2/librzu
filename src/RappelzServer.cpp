@@ -2,7 +2,7 @@
 #include "EventLoop.h"
 #include "SocketSession.h"
 #include "BanManager.h"
-#include "RappelzLibConfig.h"
+#include "GlobalCoreConfig.h"
 #include "PrintfFormats.h"
 #include "Pipe.h"
 #include "Socket.h"
