@@ -1,6 +1,6 @@
 #include "PacketSession.h"
 #include "EventLoop.h"
-#include "RappelzServer.h"
+#include "SessionServer.h"
 #include "stdarg.h"
 
 #include "Packets/PacketBaseMessage.h"

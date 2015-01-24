@@ -8,7 +8,7 @@
 #include "ConfigParamVal.h"
 #include "ConfigStatVal.h"
 
-class RAPPELZLIB_EXTERN ConfigInfo : public Object
+class LIB_EXTERN ConfigInfo : public Object
 {
 	DECLARE_CLASS(ConfigInfo)
 

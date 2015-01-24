@@ -1,4 +1,4 @@
-#include "RappelzLibInit.h"
+#include "LibRzuInit.h"
 #include "GlobalCoreConfig.h"
 #include "Log.h"
 #include "CrashHandler.h"
@@ -23,15 +23,9 @@ struct CRYPTO_dynlock_value {
 static std::vector<uv_mutex_t> staticLocks;
 
 static void OPENSSL_staticLock(int mode, int type, const char *file, int line) {
-	Log* logger = Log::get();
-
 	if(mode & CRYPTO_LOCK) {
-		if(logger)
-			logger->log(Log::LL_Trace, "OPENSSL", 7, "Locking static lock %d\n", type);
 		uv_mutex_lock(&staticLocks[type]);
 	} else {
-		if(logger)
-			logger->log(Log::LL_Trace, "OPENSSL", 7, "Unlocking static lock %d\n", type);
 		uv_mutex_unlock(&staticLocks[type]);
 	}
 }
@@ -43,26 +37,16 @@ struct CRYPTO_dynlock_value * OPENSSL_dyn_create_function(const char *file, int 
 	file = file;
 	line = line;
 
-	Log* logger = Log::get();
-	if(logger)
-		logger->log(Log::LL_Trace, "OPENSSL", 7, "Creating dynamic lock: %p\n", lock);
-
 	return lock;
 }
 
 void OPENSSL_dyn_lock_function(int mode, struct CRYPTO_dynlock_value *l, const char *file, int line) {
-	Log* logger = Log::get();
-
 	file = file;
 	line = line;
 
 	if(mode & CRYPTO_LOCK) {
-		if(logger)
-			logger->log(Log::LL_Trace, "OPENSSL", 7, "Locking dynamic lock %p\n", l);
 		uv_mutex_lock(&l->mutex);
 	} else {
-		if(logger)
-			logger->log(Log::LL_Trace, "OPENSSL", 7, "Unlocking dynamic lock %p\n", l);
 		uv_mutex_unlock(&l->mutex);
 	}
 }
@@ -70,10 +54,6 @@ void OPENSSL_dyn_lock_function(int mode, struct CRYPTO_dynlock_value *l, const c
 void OPENSSL_dyn_destroy_function(struct CRYPTO_dynlock_value *l, const char *file, int line) {
 	file = file;
 	line = line;
-
-	Log* logger = Log::get();
-	if(logger)
-		logger->log(Log::LL_Trace, "OPENSSL", 7, "Destroying dynamic lock: %p\n", l);
 
 	uv_mutex_destroy(&l->mutex);
 	delete l;
@@ -95,7 +75,7 @@ static void initOpenssl() {
 	CRYPTO_set_dynlock_destroy_callback(&OPENSSL_dyn_destroy_function);
 }
 
-bool RappelzLibInit() {
+bool LibRzuInit() {
 	disableSigPipe();
 	CrashHandler::setProcessExceptionHandlers();
 	CrashHandler::setThreadExceptionHandlers();

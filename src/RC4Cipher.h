@@ -4,7 +4,7 @@
 #include "Object.h"
 #include <string.h>
 
-class RAPPELZLIB_EXTERN RC4Cipher : public Object
+class LIB_EXTERN RC4Cipher : public Object
 {
 	DECLARE_CLASS(RC4Cipher)
 
@@ -19,7 +19,7 @@ class RAPPELZLIB_EXTERN RC4Cipher : public Object
 		}
 
 	private:
-		void rappelz_modified_RC4_set_key(int len, const unsigned char *data);
+		void modified_RC4_set_key(int len, const unsigned char *data);
 
 #ifdef __arm__
 		struct RC4Key

@@ -1,7 +1,7 @@
 #ifndef CLASSCOUNTER_H
 #define CLASSCOUNTER_H
 
-#include "RappelzLib_global.h"
+#include "LibGlobal.h"
 #include <map>
 #include <string>
 
@@ -10,9 +10,9 @@
 //Contain class count as we instanciate them. Class which are not instanciated are not counted.
 //This provide a way to convert a class type to an integer hash.
 //this var is implemented in ClassCounter.cpp
-extern unsigned int RAPPELZLIB_EXTERN ClassCounter__internal_object_engine_class_counter;
+extern unsigned int LIB_EXTERN ClassCounter__internal_object_engine_class_counter;
 
-std::map<std::string, unsigned long*> RAPPELZLIB_EXTERN &   getObjectsCount();
+std::map<std::string, unsigned long*> LIB_EXTERN &   getObjectsCount();
 
 #define DECLARE_CLASSCOUNT_STATIC(classname) \
 	unsigned long classname::__objectCount = 0; \

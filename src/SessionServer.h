@@ -1,5 +1,5 @@
-#ifndef RAPPELZSERVER_H
-#define RAPPELZSERVER_H
+#ifndef SESSIONSERVER_H
+#define SESSIONSERVER_H
 
 #include "Object.h"
 #include "Socket.h"
@@ -10,14 +10,14 @@ class SocketSession;
 class BanManager;
 class Log;
 
-class RAPPELZLIB_EXTERN RappelzServerCommon : public Object, public IListener
+class LIB_EXTERN SessionServerCommon : public Object, public IListener
 {
-	DECLARE_CLASS(RappelzServerCommon)
+	DECLARE_CLASS(SessionServerCommon)
 
 public:
 	//Timeout idle connection (real timeout vary between idleTimeoutSec and idleTimeoutSec*2 seconds)
-	RappelzServerCommon(cval<int>* idleTimeoutSec = nullptr, Log* packetLogger = nullptr);
-	~RappelzServerCommon();
+	SessionServerCommon(cval<int>* idleTimeoutSec = nullptr, Log* packetLogger = nullptr);
+	~SessionServerCommon();
 
 	bool startServer(const std::string& interfaceIp, uint16_t port, BanManager* banManager = nullptr);
 	void stop();
@@ -48,13 +48,13 @@ private:
 };
 
 template<class T>
-class RappelzServer : public RappelzServerCommon
+class SessionServer : public SessionServerCommon
 {
 public:
-	RappelzServer(cval<int>* idleTimeoutSec = nullptr, Log* packetLogger = nullptr) : RappelzServerCommon(idleTimeoutSec, packetLogger) {}
+	SessionServer(cval<int>* idleTimeoutSec = nullptr, Log* packetLogger = nullptr) : SessionServerCommon(idleTimeoutSec, packetLogger) {}
 
 	void updateObjectName() {
-		setObjectName(15 + T::getStaticClassNameSize(), "RappelzServer<%s>", T::getStaticClassName());
+		setObjectName(15 + T::getStaticClassNameSize(), "SessionServer<%s>", T::getStaticClassName());
 	}
 
 protected:
@@ -66,4 +66,4 @@ protected:
 	}
 };
 
-#endif // RAPPELZSERVER_H
+#endif // SESSIONSERVER_H

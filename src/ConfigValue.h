@@ -4,7 +4,7 @@
 #include "Object.h"
 #include <string>
 
-class RAPPELZLIB_EXTERN ConfigValue : public Object
+class LIB_EXTERN ConfigValue : public Object
 {
 	DECLARE_CLASS(ConfigValue)
 public:

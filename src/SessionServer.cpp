@@ -1,4 +1,4 @@
-#include "RappelzServer.h"
+#include "SessionServer.h"
 #include "EventLoop.h"
 #include "SocketSession.h"
 #include "BanManager.h"
@@ -7,7 +7,7 @@
 #include "Pipe.h"
 #include "Socket.h"
 
-RappelzServerCommon::RappelzServerCommon(cval<int>* idleTimeoutSec, Log *packetLogger)
+SessionServerCommon::SessionServerCommon(cval<int>* idleTimeoutSec, Log *packetLogger)
 	: openServer(false),
 	  serverSocket(nullptr),
 	  lastWaitingStreamInstance(nullptr),
@@ -19,7 +19,7 @@ RappelzServerCommon::RappelzServerCommon(cval<int>* idleTimeoutSec, Log *packetL
 	checkIdleSocketTimer.data = this;
 }
 
-RappelzServerCommon::~RappelzServerCommon() {
+SessionServerCommon::~SessionServerCommon() {
 	stop();
 
 	if(lastWaitingStreamInstance)
@@ -29,7 +29,7 @@ RappelzServerCommon::~RappelzServerCommon() {
 		serverSocket->deleteLater();
 }
 
-bool RappelzServerCommon::startServer(const std::string &interfaceIp, uint16_t port, BanManager *banManager) {
+bool SessionServerCommon::startServer(const std::string &interfaceIp, uint16_t port, BanManager *banManager) {
 	this->banManager = banManager;
 	openServer = true;
 	int idleTimeout = checkIdleSocketPeriod? checkIdleSocketPeriod->get() : 0;
@@ -49,7 +49,7 @@ bool RappelzServerCommon::startServer(const std::string &interfaceIp, uint16_t p
 	return serverSocket->listen(target, port);
 }
 
-void RappelzServerCommon::stop() {
+void SessionServerCommon::stop() {
 	if(checkIdleSocketPeriod)
 		uv_timer_stop(&checkIdleSocketTimer);
 	serverSocket->close();
@@ -60,8 +60,8 @@ void RappelzServerCommon::stop() {
 	}
 }
 
-void RappelzServerCommon::onNewConnectionStatic(IListener* instance, Stream* serverSocket) { static_cast<RappelzServerCommon*>(instance)->onNewConnection(); }
-void RappelzServerCommon::onNewConnection() {
+void SessionServerCommon::onNewConnectionStatic(IListener* instance, Stream* serverSocket) { static_cast<SessionServerCommon*>(instance)->onNewConnection(); }
+void SessionServerCommon::onNewConnection() {
 	if(!openServer)
 		return;
 
@@ -85,8 +85,8 @@ void RappelzServerCommon::onNewConnection() {
 	}
 }
 
-void RappelzServerCommon::onCheckIdleSockets(uv_timer_t* timer) {
-	RappelzServerCommon* thisInstance = static_cast<RappelzServerCommon*>(timer->data);
+void SessionServerCommon::onCheckIdleSockets(uv_timer_t* timer) {
+	SessionServerCommon* thisInstance = static_cast<SessionServerCommon*>(timer->data);
 	int kickedConnections = 0;
 	uint64_t begin;
 	bool logTrace = Log::get() && Log::get()->wouldLog(Log::LL_Trace);

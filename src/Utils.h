@@ -1,7 +1,7 @@
 #ifndef UTILS_H
 #define UTILS_H
 
-#include "RappelzLib_global.h"
+#include "LibGlobal.h"
 #include <time.h>
 #include <string>
 #include <stdio.h>
@@ -16,7 +16,7 @@
 class IListener;
 template<typename T> class cval;
 
-class RAPPELZLIB_EXTERN Utils
+class LIB_EXTERN Utils
 {
 public:
 	static struct tm * getGmTime(time_t secs, struct tm *tm);

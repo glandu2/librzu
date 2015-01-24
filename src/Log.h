@@ -9,7 +9,7 @@
 
 struct TS_MESSAGE;
 
-class RAPPELZLIB_EXTERN Log : public Object, public IListener
+class LIB_EXTERN Log : public Object, public IListener
 {
 	DECLARE_CLASS(Log)
 public:

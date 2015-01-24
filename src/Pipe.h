@@ -12,7 +12,7 @@
 #include <string>
 #include <vector>
 
-class RAPPELZLIB_EXTERN Pipe : public Stream
+class LIB_EXTERN Pipe : public Stream
 {
 	DECLARE_CLASS(Pipe)
 

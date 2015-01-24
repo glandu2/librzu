@@ -26,13 +26,13 @@ ServersManager::~ServersManager()
 	}
 }
 
-void ServersManager::addServer(const char* name, RappelzServerCommon* server, ConfigValue& listenIp, ConfigValue& listenPort, ConfigValue& autoStart, BanManager* banManager) {
+void ServersManager::addServer(const char* name, SessionServerCommon* server, ConfigValue& listenIp, ConfigValue& listenPort, ConfigValue& autoStart, BanManager* banManager) {
 	ServerInfo* serverInfo = new ServerInfo(server, &listenIp, &listenPort, &autoStart, banManager);
 
 	servers.insert(std::pair<std::string, ServerInfo*>(std::string(name), serverInfo));
 }
 
-RappelzServerCommon* ServersManager::getServer(const std::string& name) {
+SessionServerCommon* ServersManager::getServer(const std::string& name) {
 	std::unordered_map<std::string, ServerInfo*>::iterator it = servers.find(name);
 	if(it == servers.end())
 		return nullptr;

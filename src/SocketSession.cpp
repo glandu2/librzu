@@ -1,5 +1,5 @@
 #include "SocketSession.h"
-#include "RappelzServer.h"
+#include "SessionServer.h"
 #include "EventLoop.h"
 #include "GlobalCoreConfig.h"
 
@@ -50,7 +50,7 @@ void SocketSession::onSocketStateChanged(IListener* instance, Stream*, Stream::S
 	if(newState == Stream::UnconnectedState)
 		thisInstance->onDisconnected();
 
-	RappelzServerCommon* server = thisInstance->getServer();
+	SessionServerCommon* server = thisInstance->getServer();
 	if(newState == Stream::UnconnectedState && server) {
 		CONFIG_GET()->stats.disconnectionCount++;
 		server->socketClosed(thisInstance->getSocketIterator());

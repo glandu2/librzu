@@ -5,9 +5,9 @@
 #include "Packets/PacketBaseMessage.h"
 #include "Stream.h"
 
-class RappelzServerCommon;
+class SessionServerCommon;
 
-class RAPPELZLIB_EXTERN PacketSession : public SocketSession
+class LIB_EXTERN PacketSession : public SocketSession
 {
 	DECLARE_CLASS(PacketSession)
 

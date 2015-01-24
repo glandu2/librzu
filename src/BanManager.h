@@ -6,7 +6,7 @@
 #include <string>
 #include <stdint.h>
 
-class RAPPELZLIB_EXTERN BanManager : public Object
+class LIB_EXTERN BanManager : public Object
 {
 	DECLARE_CLASS(BanManager)
 

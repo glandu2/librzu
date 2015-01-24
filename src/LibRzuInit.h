@@ -1,11 +1,11 @@
-#ifndef RAPPELZLIBINIT_H
-#define RAPPELZLIBINIT_H
+#ifndef LIBRZUINIT_H
+#define LIBRZUINIT_H
 
-#include "RappelzLib_global.h"
+#include "LibGlobal.h"
 
 typedef void (*ClientConfigInit)();
 
 //configDeclareInitCallback must bind or declare config keys to set their types (if there is no config used in client code, set to nullptr)
-bool RAPPELZLIB_EXTERN RappelzLibInit();
+bool LIB_EXTERN LibRzuInit();
 
-#endif // RAPPELZLIBINIT_H
+#endif // LIBRZUINIT_H

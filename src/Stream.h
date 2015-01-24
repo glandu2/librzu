@@ -12,7 +12,7 @@
 #include <string>
 #include <vector>
 
-class RAPPELZLIB_EXTERN Stream : public Object
+class LIB_EXTERN Stream : public Object
 {
 
 public:
@@ -128,7 +128,7 @@ protected:
 	uint16_t localPort;
 	char remoteHostName[INET_ADDRSTRLEN];
 	char localHostName[INET_ADDRSTRLEN];
-	bool logPackets; //set to false when logging is done in a derived class (ie: RappelzSocket)
+	bool logPackets; //set to false when logging is done in a derived class
 
 private:
 	uv_loop_t* loop;

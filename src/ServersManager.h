@@ -3,14 +3,14 @@
 
 #include "Object.h"
 #include <unordered_map>
-#include "RappelzServer.h"
+#include "SessionServer.h"
 #include <string>
 
 class BanManager;
 
 class ConfigValue;
 
-class RAPPELZLIB_EXTERN ServersManager : public Object
+class LIB_EXTERN ServersManager : public Object
 {
 	DECLARE_CLASSNAME(ServersManager, 0)
 public:
@@ -23,17 +23,17 @@ public:
 	bool start(const std::string& name);
 	bool stop(const std::string& name);
 
-	RappelzServerCommon* getServer(const std::string& name);
-	void addServer(const char* name, RappelzServerCommon* server, ConfigValue& listenIp, ConfigValue& listenPort, ConfigValue& autoStart, BanManager* banManager = nullptr);
+	SessionServerCommon* getServer(const std::string& name);
+	void addServer(const char* name, SessionServerCommon* server, ConfigValue& listenIp, ConfigValue& listenPort, ConfigValue& autoStart, BanManager* banManager = nullptr);
 
 	static ServersManager* getInstance() { return instance; }
 
 private:
 	struct ServerInfo {
-		ServerInfo(RappelzServerCommon* server, ConfigValue* listenIp, ConfigValue* listenPort, ConfigValue* autoStart, BanManager* banManager = nullptr) :
+		ServerInfo(SessionServerCommon* server, ConfigValue* listenIp, ConfigValue* listenPort, ConfigValue* autoStart, BanManager* banManager = nullptr) :
 			server(server), listenIp(listenIp), listenPort(listenPort), autoStart(autoStart), banManager(banManager) {}
 
-		RappelzServerCommon* server;
+		SessionServerCommon* server;
 		ConfigValue* listenIp;
 		ConfigValue* listenPort;
 		ConfigValue* autoStart;

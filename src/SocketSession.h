@@ -5,10 +5,10 @@
 #include "Socket.h"
 #include <list>
 
-class RappelzServerCommon;
+class SessionServerCommon;
 class Log;
 
-class RAPPELZLIB_EXTERN SocketSession : public Object, public IListener
+class LIB_EXTERN SocketSession : public Object, public IListener
 {
 	DECLARE_CLASS(SocketSession)
 public:
@@ -35,13 +35,13 @@ public:
 
 
 protected:
-	virtual ~SocketSession(); //deleted when disconnected by RappelzServer
+	virtual ~SocketSession(); //deleted when disconnected by SessionServer
 
-	RappelzServerCommon* getServer() { return server; }
+	SessionServerCommon* getServer() { return server; }
 
-	void setServer(RappelzServerCommon* server, std::list<Stream*>::iterator socketIterator) { this->server = server; this->socketIterator = socketIterator; }
+	void setServer(SessionServerCommon* server, std::list<Stream*>::iterator socketIterator) { this->server = server; this->socketIterator = socketIterator; }
 	std::list<Stream*>::iterator getSocketIterator() { return socketIterator; }
-	friend class RappelzServerCommon;
+	friend class SessionServerCommon;
 
 private:
 	static void onDataReceivedStatic(IListener* instance, Stream *stream);
@@ -52,7 +52,7 @@ private:
 
 private:
 	Stream* stream;
-	RappelzServerCommon* server;
+	SessionServerCommon* server;
 	std::list<Stream*>::iterator socketIterator;
 };
 

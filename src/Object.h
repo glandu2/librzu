@@ -3,7 +3,7 @@
 
 #include <string>
 
-#include "RappelzLib_global.h"
+#include "LibGlobal.h"
 
 //used to count objects, "c" stand for class type, WARNING: declare public block
 //getTrueClassHash: for variable used like this: Object *obj = new Actor();, obj.getTrueClassHash() return hash of class Actor.
@@ -31,7 +31,7 @@
 	virtual unsigned long getObjectNum() { return count; }
 
 
-class RAPPELZLIB_EXTERN Object
+class LIB_EXTERN Object
 {
 	DECLARE_CLASS(Object)
 

@@ -4,7 +4,7 @@
 #include "PacketSession.h"
 #include "IDelegate.h"
 
-class RAPPELZLIB_EXTERN DelegatedPacketSession : public PacketSession
+class LIB_EXTERN DelegatedPacketSession : public PacketSession
 {
 	DECLARE_CLASS(DelegatedPacketSession)
 public:

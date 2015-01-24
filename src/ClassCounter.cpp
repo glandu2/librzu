@@ -45,8 +45,8 @@ DECLARE_CLASSCOUNT_STATIC(Log)
 #include "Pipe.h"
 DECLARE_CLASSCOUNT_STATIC(Pipe)
 
-#include "RappelzServer.h"
-DECLARE_CLASSCOUNT_STATIC(RappelzServerCommon)
+#include "SessionServer.h"
+DECLARE_CLASSCOUNT_STATIC(SessionServerCommon)
 
 #include "PacketSession.h"
 DECLARE_CLASSCOUNT_STATIC(PacketSession)

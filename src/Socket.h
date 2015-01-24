@@ -16,7 +16,7 @@
 #include <string>
 #include <vector>
 
-class RAPPELZLIB_EXTERN Socket : public Stream
+class LIB_EXTERN Socket : public Stream
 {
 	DECLARE_CLASS(Socket)
 public:
