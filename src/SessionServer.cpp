@@ -41,7 +41,7 @@ bool SessionServerCommon::startServer(const std::string &interfaceIp, uint16_t p
 	std::string target;
 	bool streamChanged;
 	Stream::StreamType type = Stream::parseConnectionUrl(interfaceIp.c_str(), &target);
-	serverSocket = Stream::getStream(type, serverSocket, &streamChanged, !isEncryptedSession());
+	serverSocket = Stream::getStream(type, serverSocket, &streamChanged, !hasCustomPacketLogger());
 
 	if(streamChanged)
 		serverSocket->addConnectionListener(this, &onNewConnectionStatic);

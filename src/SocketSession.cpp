@@ -21,7 +21,7 @@ bool SocketSession::connect(const char *url, uint16_t port) {
 	bool changed;
 
 	Stream::StreamType type = Stream::parseConnectionUrl(url, &target);
-	newStream = Stream::getStream(type, stream, &changed, !isEncryptedSession());
+	newStream = Stream::getStream(type, stream, &changed, !hasCustomPacketLogger());
 
 	if(changed)
 		assignStream(newStream);

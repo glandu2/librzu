@@ -30,8 +30,8 @@ public:
 	virtual void onStateChanged(Stream::State oldState, Stream::State newState) {}
 	virtual void onError(int err) {}
 
-	virtual bool isEncryptedSession() { return false; } //used for packet logging
-	static bool isEncryptedSessionStatic() { return false; }
+	virtual bool hasCustomPacketLogger() { return false; } //used for packet logging
+	static bool hasCustomPacketLoggerStatic() { return false; }
 
 
 protected:

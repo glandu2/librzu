@@ -19,9 +19,6 @@ public:
 
 	virtual bool connect(const char* url, uint16_t port);
 
-	virtual bool isEncryptedSession() { return true; }
-	static bool isEncryptedSessionStatic() { return true; }
-
 protected:
 	void initRC4Cipher();
 

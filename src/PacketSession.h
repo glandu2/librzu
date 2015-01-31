@@ -27,8 +27,10 @@ private:
 public:
 	PacketSession();
 
-
 	void sendPacket(const TS_MESSAGE* data);
+
+	virtual bool hasCustomPacketLogger() { return true; }
+	static bool hasCustomPacketLoggerStatic() { return true; }
 
 protected:
 	virtual ~PacketSession();

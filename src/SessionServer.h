@@ -34,7 +34,7 @@ protected:
 	static void onCheckIdleSockets(uv_timer_t* timer);
 
 	virtual SocketSession* createSession() = 0;
-	virtual bool isEncryptedSession() = 0;
+	virtual bool hasCustomPacketLogger() = 0;
 
 private:
 	bool openServer;
@@ -61,8 +61,8 @@ protected:
 	virtual SocketSession* createSession() {
 		return new T();
 	}
-	virtual bool isEncryptedSession() {
-		return T::isEncryptedSessionStatic();
+	virtual bool hasCustomPacketLogger() {
+		return T::hasCustomPacketLoggerStatic();
 	}
 };
 
