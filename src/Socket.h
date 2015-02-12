@@ -23,8 +23,8 @@ public:
 	Socket(uv_loop_t* uvLoop, bool logPackets = true);
 	virtual ~Socket();
 
-	const char* getRemoteHostName();
-	const char* getLocalHostName();
+	const char* getRemoteIpStr();
+	const char* getLocalIpStr();
 
 
 protected:

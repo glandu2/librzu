@@ -39,8 +39,8 @@ Stream::Stream(uv_loop_t *uvLoop, uv_stream_t* handle, bool logPackets)
 	  packetLogger(Log::getDefaultPacketLogger()),
 	  packetTransferedSinceLastCheck(true)
 {
-	remoteHostName[0] = localHostName[0] = 0;
-	remoteHost = localHost = 0;
+	remoteIpStr[0] = localIpStr[0] = 0;
+	remoteIp = localIp = 0;
 	remotePort = localPort = 0;
 	connectRequest.data = this;
 	handle->data = this;
@@ -101,7 +101,7 @@ bool Stream::connect(const std::string & hostName, uint16_t port) {
 		return false;
 	}
 
-	strncpy(remoteHostName, hostName.c_str(), sizeof(remoteHostName));
+	strncpy(remoteIpStr, hostName.c_str(), sizeof(remoteIpStr));
 	remotePort = port;
 	setState(ConnectingState);
 
@@ -121,7 +121,7 @@ bool Stream::listen(const std::string& interfaceIp, uint16_t port) {
 		return false;
 	}
 
-	strncpy(localHostName, interfaceIp.c_str(), sizeof(localHostName));
+	strncpy(localIpStr, interfaceIp.c_str(), sizeof(localIpStr));
 	localPort = port;
 	setState(BindingState);
 
@@ -251,12 +251,12 @@ void Stream::abort() {
 	uv_close((uv_handle_t*)handle, &onConnectionClosed);
 }
 
-const char* Stream::getRemoteHostName() {
-	return remoteHostName;
+const char* Stream::getRemoteIpStr() {
+	return remoteIpStr;
 }
 
-const char* Stream::getLocalHostName() {
-	return localHostName;
+const char* Stream::getLocalIpStr() {
+	return localIpStr;
 }
 
 void Stream::setState(State state) {
@@ -278,11 +278,11 @@ void Stream::setState(State state) {
 	DELEGATE_CALL(eventListeners, this, oldState, state);
 
 	if(state == UnconnectedState) {
-		remoteHostName[0] = 0;
-		remoteHost = 0;
+		remoteIpStr[0] = 0;
+		remoteIp = 0;
 		remotePort = 0;
-		localHostName[0] = 0;
-		localHost = 0;
+		localIpStr[0] = 0;
+		localIp = 0;
 		localPort = 0;
 
 		setDirtyObjectName();

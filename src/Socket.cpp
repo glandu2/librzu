@@ -49,46 +49,46 @@ void Socket::retrieveSocketBoundsInfo() {
 	struct sockaddr_in sockInfo;
 	int sockAddrLen = sizeof(sockaddr_in);
 	if(uv_tcp_getpeername(&socket, (struct sockaddr*)&sockInfo, &sockAddrLen) >= 0) {
-		if(remoteHost != sockInfo.sin_addr.s_addr) {
-			remoteHost = sockInfo.sin_addr.s_addr;
-			remoteHostName[0] = 0;
+		if(remoteIp != sockInfo.sin_addr.s_addr) {
+			remoteIp = sockInfo.sin_addr.s_addr;
+			remoteIpStr[0] = 0;
 		}
 		remotePort = ntohs(sockInfo.sin_port);
 	} else {
-		remoteHostName[0] = 0;
-		remoteHost = 0;
+		remoteIpStr[0] = 0;
+		remoteIp = 0;
 		remotePort = 0;
 	}
 
 	// Retrieve local bound infos
 	sockAddrLen = sizeof(sockaddr_in);
 	if(uv_tcp_getsockname(&socket, (struct sockaddr*)&sockInfo, &sockAddrLen) >= 0) {
-		if(localHost != sockInfo.sin_addr.s_addr) {
-			localHost = sockInfo.sin_addr.s_addr;
-			localHostName[0] = 0;
+		if(localIp != sockInfo.sin_addr.s_addr) {
+			localIp = sockInfo.sin_addr.s_addr;
+			localIpStr[0] = 0;
 		}
 		localPort = ntohs(sockInfo.sin_port);
 	} else {
-		localHostName[0] = 0;
-		localHost = 0;
+		localIpStr[0] = 0;
+		localIp = 0;
 		localPort = 0;
 	}
 
 	setDirtyObjectName();
 }
 
-const char* Socket::getRemoteHostName() {
-	if(remoteHostName[0] == '\0' && remoteHost)
-		uv_inet_ntop(AF_INET, &remoteHost, remoteHostName, sizeof(remoteHostName));
+const char* Socket::getRemoteIpStr() {
+	if(remoteIpStr[0] == '\0' && remoteIp)
+		uv_inet_ntop(AF_INET, &remoteIp, remoteIpStr, sizeof(remoteIpStr));
 
-	return remoteHostName;
+	return remoteIpStr;
 }
 
-const char* Socket::getLocalHostName() {
-	if(localHostName[0] == '\0' && localHost)
-		uv_inet_ntop(AF_INET, &localHost, localHostName, sizeof(localHostName));
+const char* Socket::getLocalIpStr() {
+	if(localIpStr[0] == '\0' && localIp)
+		uv_inet_ntop(AF_INET, &localIp, localIpStr, sizeof(localIpStr));
 
-	return localHostName;
+	return localIpStr;
 }
 
 void Socket::onStateChanged(State oldState, State newState) {
@@ -110,8 +110,8 @@ void Socket::updateObjectName() {
 //	nameSize += 1; // ":"
 //	nameSize += 5; // remotePort
 //	nameSize += 2; // "]\0"
-	const char* localhostStr = getLocalHostName();
-	const char* remotehostStr = getRemoteHostName();
+	const char* localhostStr = getLocalIpStr();
+	const char* remotehostStr = getRemoteIpStr();
 	int nameSize = getClassNameSize() + strlen(localhostStr) + strlen(remotehostStr) + 19;
 	setObjectName(nameSize, "%s[%s:%u <> %s:%u]", getClassName(), localhostStr, localPort, remotehostStr, remotePort);
 }

@@ -75,11 +75,11 @@ public:
 	void abort();
 
 	State getState() { return currentState; }
-	virtual const char* getRemoteHostName();
-	uint32_t getRemoteHost() { return remoteHost; }
+	virtual const char* getRemoteIpStr();
+	uint32_t getRemoteIp() { return remoteIp; }
 	uint16_t getRemotePort() { return remotePort; }
-	virtual const char* getLocalHostName();
-	uint32_t getLocalHost() { return localHost; }
+	virtual const char* getLocalIpStr();
+	uint32_t getLocalIp() { return localIp; }
 	uint16_t getLocalPort() { return localPort; }
 
 	void addDataListener(IListener* instance, CallbackOnDataReady listener);
@@ -122,12 +122,12 @@ protected:
 	virtual void onStateChanged(State oldState, State newState) {}
 
 protected:
-	uint32_t remoteHost;
-	uint32_t localHost;
+	uint32_t remoteIp;
+	uint32_t localIp;
 	uint16_t remotePort;
 	uint16_t localPort;
-	char remoteHostName[INET_ADDRSTRLEN];
-	char localHostName[INET_ADDRSTRLEN];
+	char remoteIpStr[INET_ADDRSTRLEN];
+	char localIpStr[INET_ADDRSTRLEN];
 	bool logPackets; //set to false when logging is done in a derived class
 
 private:

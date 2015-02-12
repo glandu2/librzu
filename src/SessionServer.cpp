@@ -84,9 +84,9 @@ void SessionServerCommon::onNewConnection() {
 		return;
 
 	if(serverSocket->accept(&lastWaitingStreamInstance)) {
-		if(banManager && banManager->isBanned(lastWaitingStreamInstance->getRemoteHost())) {
+		if(banManager && banManager->isBanned(lastWaitingStreamInstance->getRemoteIp())) {
 			lastWaitingStreamInstance->abort();
-			debug("Kick banned ip %s\n", lastWaitingStreamInstance->getRemoteHostName());
+			debug("Kick banned ip %s\n", lastWaitingStreamInstance->getRemoteIpStr());
 		} else {
 			lastWaitingStreamInstance->setPacketLogger(packetLogger);
 
@@ -119,7 +119,7 @@ void SessionServerCommon::onCheckIdleSockets(uv_timer_t* timer) {
 			if(socket->isPacketTransferedSinceLastCheck() == false) {
 				socket->close();
 				kickedConnections++;
-				thisInstance->info("Kicked idle connection: %s:%d\n", socket->getRemoteHostName(), socket->getRemotePort());
+				thisInstance->info("Kicked idle connection: %s:%d\n", socket->getRemoteIpStr(), socket->getRemotePort());
 			} else {
 				socket->resetPacketTransferedFlag();
 			}
