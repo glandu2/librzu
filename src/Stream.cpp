@@ -102,6 +102,7 @@ bool Stream::connect(const std::string & hostName, uint16_t port) {
 	}
 
 	strncpy(remoteHostName, hostName.c_str(), sizeof(remoteHostName));
+	remotePort = port;
 	setState(ConnectingState);
 
 	int result = connect_impl(&connectRequest, hostName, port);
@@ -121,6 +122,7 @@ bool Stream::listen(const std::string& interfaceIp, uint16_t port) {
 	}
 
 	strncpy(localHostName, interfaceIp.c_str(), sizeof(localHostName));
+	localPort = port;
 	setState(BindingState);
 
 	int result = bind_impl(interfaceIp, port);
