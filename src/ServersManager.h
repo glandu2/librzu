@@ -3,12 +3,11 @@
 
 #include "Object.h"
 #include <unordered_map>
-#include "SessionServer.h"
+#include "StartableObject.h"
 #include <string>
+#include "ConfigParamVal.h"
 
 class BanManager;
-
-class ConfigValue;
 
 class LIB_EXTERN ServersManager : public Object
 {
@@ -23,21 +22,18 @@ public:
 	bool start(const std::string& name);
 	bool stop(const std::string& name);
 
-	SessionServerCommon* getServer(const std::string& name);
-	void addServer(const char* name, SessionServerCommon* server, ConfigValue& listenIp, ConfigValue& listenPort, ConfigValue& autoStart, BanManager* banManager = nullptr);
+	StartableObject *getServer(const std::string& name);
+	void addServer(const char* name, StartableObject* server, cval<bool> &autoStart);
 
 	static ServersManager* getInstance() { return instance; }
 
 private:
 	struct ServerInfo {
-		ServerInfo(SessionServerCommon* server, ConfigValue* listenIp, ConfigValue* listenPort, ConfigValue* autoStart, BanManager* banManager = nullptr) :
-			server(server), listenIp(listenIp), listenPort(listenPort), autoStart(autoStart), banManager(banManager) {}
+		ServerInfo(StartableObject* server, cval<bool>* autoStart) :
+			server(server), autoStart(autoStart) {}
 
-		SessionServerCommon* server;
-		ConfigValue* listenIp;
-		ConfigValue* listenPort;
-		ConfigValue* autoStart;
-		BanManager* banManager;
+		StartableObject* server;
+		cval<bool>* autoStart;
 	};
 	std::unordered_map<std::string, ServerInfo*> servers;
 

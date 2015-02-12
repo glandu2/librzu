@@ -7,12 +7,14 @@
 #include "Pipe.h"
 #include "Socket.h"
 
-SessionServerCommon::SessionServerCommon(cval<int>* idleTimeoutSec, Log *packetLogger)
+SessionServerCommon::SessionServerCommon(cval<std::string>& listenIp, cval<int>& port, cval<int>* idleTimeoutSec, Log *packetLogger, BanManager* banManager)
 	: openServer(false),
 	  serverSocket(nullptr),
 	  lastWaitingStreamInstance(nullptr),
-	  banManager(nullptr),
+	  banManager(banManager),
 	  packetLogger(packetLogger),
+	  listenIp(listenIp),
+	  port(port),
 	  checkIdleSocketPeriod(idleTimeoutSec)
 {
 	uv_timer_init(EventLoop::getLoop(), &checkIdleSocketTimer);
@@ -29,10 +31,19 @@ SessionServerCommon::~SessionServerCommon() {
 		serverSocket->deleteLater();
 }
 
-bool SessionServerCommon::startServer(const std::string &interfaceIp, uint16_t port, BanManager *banManager) {
-	this->banManager = banManager;
+bool SessionServerCommon::start() {
+	if(isStarted()) {
+		info("Server %s already started\n", getName());
+		return true;
+	}
+
+	info("Starting server %s on %s:%d\n", getName(), listenIp.get().c_str(), port.get());
+
+	if(banManager)
+		banManager->loadFile();
+
 	openServer = true;
-	int idleTimeout = checkIdleSocketPeriod? checkIdleSocketPeriod->get() : 0;
+	int idleTimeout = checkIdleSocketPeriod ? checkIdleSocketPeriod->get() : 0;
 	if(idleTimeout) {
 		uint64_t timeoutMs = uint64_t(idleTimeout)*1000;
 		uv_timer_start(&checkIdleSocketTimer, &onCheckIdleSockets, timeoutMs, timeoutMs);
@@ -40,7 +51,7 @@ bool SessionServerCommon::startServer(const std::string &interfaceIp, uint16_t p
 
 	std::string target;
 	bool streamChanged;
-	Stream::StreamType type = Stream::parseConnectionUrl(interfaceIp.c_str(), &target);
+	Stream::StreamType type = Stream::parseConnectionUrl(listenIp.get().c_str(), &target);
 	serverSocket = Stream::getStream(type, serverSocket, &streamChanged, !hasCustomPacketLogger());
 
 	if(streamChanged)
@@ -50,6 +61,13 @@ bool SessionServerCommon::startServer(const std::string &interfaceIp, uint16_t p
 }
 
 void SessionServerCommon::stop() {
+	if(!serverSocket || serverSocket->getState() == Stream::UnconnectedState) {
+		debug("Server %s already stopped\n", getName());
+		return;
+	}
+
+	info("Stopping server %s\n", getName());
+
 	if(checkIdleSocketPeriod)
 		uv_timer_stop(&checkIdleSocketTimer);
 	serverSocket->close();

@@ -5,23 +5,24 @@
 #include "Socket.h"
 #include <list>
 #include "uv.h"
+#include "StartableObject.h"
 
 class SocketSession;
 class BanManager;
 class Log;
 
-class LIB_EXTERN SessionServerCommon : public Object, public IListener
+class LIB_EXTERN SessionServerCommon : public Object, public StartableObject
 {
 	DECLARE_CLASS(SessionServerCommon)
 
 public:
 	//Timeout idle connection (real timeout vary between idleTimeoutSec and idleTimeoutSec*2 seconds)
-	SessionServerCommon(cval<int>* idleTimeoutSec = nullptr, Log* packetLogger = nullptr);
+	SessionServerCommon(cval<std::string>& listenIp, cval<int>& port, cval<int>* idleTimeoutSec = nullptr, Log* packetLogger = nullptr, BanManager* banManager = nullptr);
 	~SessionServerCommon();
 
-	bool startServer(const std::string& interfaceIp, uint16_t port, BanManager* banManager = nullptr);
+	bool start();
 	void stop();
-	bool isListening() { return serverSocket && serverSocket->getState() == Stream::ListeningState; }
+	bool isStarted() { return serverSocket && serverSocket->getState() == Stream::ListeningState; }
 
 	Stream::State getState() { return serverSocket ? serverSocket->getState() : Stream::UnconnectedState; }
 
@@ -44,6 +45,8 @@ private:
 	BanManager* banManager;
 	Log* packetLogger;
 	uv_timer_t checkIdleSocketTimer;
+	cval<std::string>& listenIp;
+	cval<int>& port;
 	cval<int>* checkIdleSocketPeriod;
 };
 
@@ -51,7 +54,7 @@ template<class T>
 class SessionServer : public SessionServerCommon
 {
 public:
-	SessionServer(cval<int>* idleTimeoutSec = nullptr, Log* packetLogger = nullptr) : SessionServerCommon(idleTimeoutSec, packetLogger) {}
+	SessionServer(cval<std::string>& listenIp, cval<int>& port, cval<int>* idleTimeoutSec = nullptr, Log* packetLogger = nullptr, BanManager* banManager = nullptr) : SessionServerCommon(listenIp, port, idleTimeoutSec, packetLogger, banManager) {}
 
 	void updateObjectName() {
 		setObjectName(15 + T::getStaticClassNameSize(), "SessionServer<%s>", T::getStaticClassName());
