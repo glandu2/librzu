@@ -12,7 +12,8 @@ DesPasswordCipher ClientAuthSession::desCipher("MERONG");
 ClientAuthSession::ClientAuthSession(ClientGameSession* gameSession)
 	: gameSession(gameSession)
 {
-	gameSession->setAuthSession(this);
+	if(gameSession)
+		gameSession->setAuthSession(this);
 }
 
 ClientAuthSession::~ClientAuthSession() {
@@ -297,7 +298,8 @@ end:
 	}
 
 	const ServerConnectionInfo& selectedServerInfo = serverList.at(selectedServer);
-	gameSession->connect(selectedServerInfo.ip.c_str(), selectedServerInfo.port);
+	if(gameSession)
+		gameSession->connect(selectedServerInfo.ip.c_str(), selectedServerInfo.port);
 	normalDisconnect = true;
 	getStream()->close();
 
