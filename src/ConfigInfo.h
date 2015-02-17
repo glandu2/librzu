@@ -59,6 +59,8 @@ private:
 	ConfigInfo() {}
 	~ConfigInfo();
 
+	static bool parseLine(char* line, std::string &key, std::string &value);
+
 	std::pair<std::unordered_map<std::string, ConfigValue*>::iterator, bool> addValue(const std::string& key, ConfigValue* v);
 	std::unordered_map<std::string, ConfigValue*> config;
 };

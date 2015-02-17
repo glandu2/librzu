@@ -96,11 +96,49 @@ void ConfigInfo::parseCommandLine(int argc, char **argv, bool onlyConfigFileLoca
 	}
 }
 
+bool ConfigInfo::parseLine(char* line, std::string &keyStr, std::string &valueStr) {
+	char *p, *key, *value;
+
+	keyStr.clear();
+	valueStr.clear();
+
+	size_t len = strlen(line);
+
+	//remove leading spaces
+	p = line;
+	while(isspace(*p) && *p)
+		p++;
+
+	key = p;
+	if(key[0] == '#' || key[0] == '\0')	//a comment or end of line (nothing on the line)
+		return false;
+
+	//remove trailing spaces
+	p = line + len - 1;
+	while(isspace(*p) && p > key)
+		p--;
+	if(p == key)
+		return false;
+	*(p+1) = 0;
+
+	p = strpbrk(key, ":=");
+	if(!p)
+		return false;
+	*p = 0;
+	value = p+1;
+
+	keyStr.assign(key);
+	valueStr.assign(value);
+
+	return true;
+}
+
 bool ConfigInfo::readFile(const char* filename, int fileDepth) {
 	FILE* file;
 	char line[1024];
-	char *p, *key, *value;
 	int lineNumber = 0;
+	std::string key;
+	std::string value;
 
 	if(fileDepth > 10) {
 		error("Too many file inclusions (%d) while reading %s, continuing without going deeper\n", fileDepth, filename);
@@ -116,39 +154,29 @@ bool ConfigInfo::readFile(const char* filename, int fileDepth) {
 	info("Reading config file %s\n", filename);
 
 	while(fgets(line, 1024, file)) {
-		size_t len = strlen(line);
 		lineNumber++;
 
-		//remove leading spaces
-		p = line;
-		while(isspace(*p) && *p)
-			p++;
-
-		key = p;
-		if(key[0] == '#' || key[0] == '\0')	//a comment or end of line (nothing on the line)
+		if(!parseLine(line, key, value))
 			continue;
 
-		//remove trailing spaces
-		p = line + len - 1;
-		while(isspace(*p) && p > key)
-			p--;
-		if(p == key)
-			continue;
-		*(p+1) = 0;
-
-		p = strpbrk(key, ":=");
-		if(!p)
-			continue;
-		*p = 0;
-		value = p+1;
+		if(value.size() > 0 && value[0] == '$') {
+			std::string keyStr = value.substr(1);
+			ConfigValue* v = getValue(keyStr);
+			if(v == nullptr) {
+				warn("In %s:%d: Unknown key \"%s\", ignoring\n", filename, lineNumber, keyStr.c_str());
+			} else {
+				value = v->getString();
+			}
+		}
 
 		trace("%s:%d: Read key: %s, value: %s\n", filename, lineNumber, key, value);
 
 		if(key[0] == '%') {
 			//special command
-			trace("Config line is a command: %s\n", key+1);
+			std::string command = key.substr(1);
+			trace("Config line is a command: %s\n", command.c_str());
 
-			if(!strcmp(key+1, "include")) {
+			if(command == "include") {
 				std::string fileToInclude;
 
 				const char *p = filename + strlen(filename);
@@ -159,26 +187,10 @@ bool ConfigInfo::readFile(const char* filename, int fileDepth) {
 				}
 				fileToInclude = std::string(filename, p+1);
 
-				if(value[0] != '$') {
-					if(Utils::isAbsolute(value))
-						fileToInclude = value;
-					else
-						fileToInclude += value;
-				} else {
-					std::string keyStr(value+1);
-					ConfigValue* v = getValue(keyStr);
-					if(v == nullptr) {
-						warn("In %s:%d: Unknown key \"%s\", ignoring\n", filename, lineNumber, keyStr.c_str());
-					} else if(v->getType() == ConfigValue::String) {
-						std::string keyValue = v->getString();
-						if(Utils::isAbsolute(keyValue.c_str()))
-							fileToInclude = keyValue;
-						else
-							fileToInclude += keyValue;
-					} else {
-						warn("In %s:%d: can\'t include \"%s\", value is not a string\n", filename, lineNumber, keyStr.c_str());
-					}
-				}
+				if(Utils::isAbsolute(value.c_str()))
+					fileToInclude = value;
+				else
+					fileToInclude += value;
 
 				if(fileToInclude.empty() == false) {
 					trace("Including file %s\n", fileToInclude.c_str());
@@ -187,37 +199,30 @@ bool ConfigInfo::readFile(const char* filename, int fileDepth) {
 					trace("Not including a file, filename is empty: \"%s\"\n", fileToInclude.c_str());
 				}
 			}
+		} else if(key[0] == '!') {
+			key.erase(0, 1);
+			createValue<cval>(key.c_str(), value);
+			trace("Created config parameter: %s\n", key.c_str());
 		} else {
-			std::string keyStr;
+			trace("Config line is a config parameter: %s\n", key.c_str());
 
-			if(key[0] == '!') {
-				createValue<cval>((const char*)key+1, (const char*)value);
-				trace("Created config parameter: %s\n", key+1);
-				keyStr = key+1;
-			} else {
-				keyStr = key;
-				trace("Config line is a config parameter: %s\n", key);
-			}
-
-
-
-			ConfigValue* v = getValue(keyStr);
+			ConfigValue* v = getValue(key);
 			if(v == nullptr) {
-				warn("In %s:%d: Unknown key \"%s\", ignoring\n", filename, lineNumber, keyStr.c_str());
+				warn("In %s:%d: Unknown key \"%s\", ignoring\n", filename, lineNumber, key.c_str());
 				continue;
 			}
 
 			switch(v->getType()) {
 				case ConfigValue::Bool:
-					v->setBool(!strcmp(value, "true") || !strcmp(value, "1"));
+					v->setBool(!strcmp(value.c_str(), "true") || !strcmp(value.c_str(), "1"));
 					break;
 
 				case ConfigValue::Integer:
-					v->setInt(atoi(value));
+					v->setInt(atoi(value.c_str()));
 					break;
 
 				case ConfigValue::Float:
-					v->setFloat((float)atof(value));
+					v->setFloat((float)atof(value.c_str()));
 					break;
 
 				case ConfigValue::String:
@@ -232,16 +237,8 @@ bool ConfigInfo::readFile(const char* filename, int fileDepth) {
 	return true;
 }
 
-#ifdef _MSC_VER
-#define INT2STR(i) std::to_string((long long)(i))
-#define FLOAT2STR(i) std::to_string((long double)(i))
-#else
-#define INT2STR(i) std::to_string(i)
-#define FLOAT2STR(i) std::to_string(i)
-#endif
 void ConfigInfo::dump(bool showDefault) {
 	std::map<std::string, ConfigValue*>::const_iterator it, itEnd;
-	std::string val;
 
 	info("Config dump:\n");
 
@@ -253,25 +250,21 @@ void ConfigInfo::dump(bool showDefault) {
 		switch(v->getType()) {
 			case ConfigValue::Bool:
 				type = 'B';
-				val = v->getBool() ? "true" : "false";
 				break;
 
 			case ConfigValue::Integer:
 				type = 'N';
-				val = INT2STR(v->getInt());
 				break;
 
 			case ConfigValue::Float:
 				type = 'F';
-				val = FLOAT2STR(v->getFloat());
 				break;
 
 			case ConfigValue::String:
 				type = 'S';
-				val = v->getString();
 				break;
 		}
 		if(!v->isDefault() || showDefault)
-			info("%c%c%s:%s\n", type, v->isDefault() ? '*' : ' ', it->first.c_str(), val.c_str());
+			info("%c%c%s:%s\n", type, v->isDefault() ? '*' : ' ', it->first.c_str(), v->getString().c_str());
 	}
 }

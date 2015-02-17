@@ -1,5 +1,13 @@
 #include "ConfigValue.h"
 
+#ifdef _MSC_VER
+#define INT2STR(i) std::to_string((long long)(i))
+#define FLOAT2STR(i) std::to_string((long double)(i))
+#else
+#define INT2STR(i) std::to_string(i)
+#define FLOAT2STR(i) std::to_string(i)
+#endif
+
 ConfigValue::ConfigValue(Type type) : keyName(nullptr), type(type)
 {
 }
@@ -18,6 +26,20 @@ float ConfigValue::getFloat() {
 }
 
 std::string ConfigValue::getString() {
+	switch(getType()) {
+		case ConfigValue::Bool:
+			return getBool() ? "true" : "false";
+
+		case ConfigValue::Integer:
+			return INT2STR(getInt());
+
+		case ConfigValue::Float:
+			return FLOAT2STR(getFloat());
+
+		case ConfigValue::String:
+			return getString(nullptr);
+	}
+
 	return getString(nullptr);
 }
 
