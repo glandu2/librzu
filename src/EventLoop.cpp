@@ -52,7 +52,12 @@ void EventLoop::deleteObjects() {
 }
 
 void EventLoop::staticDeleteObjects(uv_prepare_t* handle) {
+	static bool deletingObjects = false;
 	EventLoop* thisInstance = (EventLoop*)handle->data;
 
-	thisInstance->deleteObjects();
+	if(deletingObjects == false) {
+		deletingObjects = true;
+		thisInstance->deleteObjects();
+		deletingObjects = false;
+	}
 }
