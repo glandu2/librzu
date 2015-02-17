@@ -40,7 +40,7 @@ protected:
 	virtual void onError(int err);
 
 	void dispatchPacket(const TS_MESSAGE* packetData);
-	void logPacket(bool outgoing, const TS_MESSAGE* msg);
+	virtual void logPacket(bool outgoing, const TS_MESSAGE* msg);
 
 private:
 	void onDataReceived();
