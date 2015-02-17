@@ -54,8 +54,10 @@ bool SessionServerCommon::start() {
 	Stream::StreamType type = Stream::parseConnectionUrl(listenIp.get().c_str(), &target);
 	serverSocket = Stream::getStream(type, serverSocket, &streamChanged, !hasCustomPacketLogger());
 
-	if(streamChanged)
+	if(streamChanged) {
 		serverSocket->addConnectionListener(this, &onNewConnectionStatic);
+		serverSocket->setPacketLogger(packetLogger);
+	}
 
 	return serverSocket->listen(target, port);
 }
@@ -88,8 +90,6 @@ void SessionServerCommon::onNewConnection() {
 			lastWaitingStreamInstance->abort();
 			debug("Kick banned ip %s\n", lastWaitingStreamInstance->getRemoteIpStr());
 		} else {
-			lastWaitingStreamInstance->setPacketLogger(packetLogger);
-
 			sockets.push_back(lastWaitingStreamInstance);
 
 			SocketSession* session = createSession();
