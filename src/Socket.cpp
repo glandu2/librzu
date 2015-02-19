@@ -91,6 +91,10 @@ const char* Socket::getLocalIpStr() {
 	return localIpStr;
 }
 
+void Socket::setKeepAlive(int delay) {
+	uv_tcp_keepalive(&socket, delay > 0 ? true : false, delay);
+}
+
 void Socket::onStateChanged(State oldState, State newState) {
 	if(newState == ConnectedState) {
 		if(CONFIG_GET()->app.useTcpNoDelay.get())

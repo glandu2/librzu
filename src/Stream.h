@@ -74,6 +74,8 @@ public:
 	void close(bool causedByRemote = false);
 	void abort(bool causedByRemote = false);
 
+	virtual void setKeepAlive(int delay) {}
+
 	State getState() { return currentState; }
 	virtual const char* getRemoteIpStr();
 	uint32_t getRemoteIp() { return remoteIp; }

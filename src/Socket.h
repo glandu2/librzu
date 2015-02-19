@@ -26,6 +26,7 @@ public:
 	const char* getRemoteIpStr();
 	const char* getLocalIpStr();
 
+	void setKeepAlive(int delay);
 
 protected:
 	virtual int connect_impl(uv_connect_t* connectRequest, const std::string & hostName, uint16_t port);
