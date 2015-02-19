@@ -66,7 +66,7 @@ bool ClientAuthSession::selectServer(uint16_t serverId) {
 	return true;
 }
 
-void ClientAuthSession::onDisconnected() {
+void ClientAuthSession::onDisconnected(bool causedByRemote) {
 	if(normalDisconnect == false) {
 		onAuthDisconnected();
 	} else {

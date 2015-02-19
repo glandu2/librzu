@@ -39,16 +39,16 @@ void SocketSession::onDataReceivedStatic(IListener* instance, Stream* stream) {
 	thisInstance->onDataReceived();
 }
 
-void SocketSession::onSocketStateChanged(IListener* instance, Stream*, Stream::State oldState, Stream::State newState) {
+void SocketSession::onSocketStateChanged(IListener* instance, Stream*, Stream::State oldState, Stream::State newState, bool causedByRemote) {
 	SocketSession* thisInstance = static_cast<SocketSession*>(instance);
 
 	if(newState == Stream::ConnectedState)
 		thisInstance->onConnected();
 
-	thisInstance->onStateChanged(oldState, newState);
+	thisInstance->onStateChanged(oldState, newState, causedByRemote);
 
 	if(newState == Stream::UnconnectedState)
-		thisInstance->onDisconnected();
+		thisInstance->onDisconnected(causedByRemote);
 
 	SessionServerCommon* server = thisInstance->getServer();
 	if(newState == Stream::UnconnectedState && server) {

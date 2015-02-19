@@ -37,7 +37,8 @@ Stream::Stream(uv_loop_t *uvLoop, uv_stream_t* handle, bool logPackets)
 	  handle(handle),
 	  currentState(UnconnectedState),
 	  packetLogger(Log::getDefaultPacketLogger()),
-	  packetTransferedSinceLastCheck(true)
+	  packetTransferedSinceLastCheck(true),
+	  closeCausedByRemote(false)
 {
 	remoteIpStr[0] = localIpStr[0] = 0;
 	remoteIp = localIp = 0;
@@ -108,7 +109,7 @@ bool Stream::connect(const std::string & hostName, uint16_t port) {
 	int result = connect_impl(&connectRequest, hostName, port);
 	if(result < 0) {
 		warn("Cant connect to host: %s\n", uv_strerror(result));
-		notifyReadyError(result);
+		onStreamError(result);
 		return false;
 	}
 
@@ -128,14 +129,14 @@ bool Stream::listen(const std::string& interfaceIp, uint16_t port) {
 	int result = bind_impl(interfaceIp, port);
 	if(result < 0) {
 		warn("Cant bind: %s\n", uv_strerror(result));
-		notifyReadyError(result);
+		onStreamError(result);
 		return false;
 	}
 
 	result = uv_listen(handle, 20000, &onNewConnection);
 	if(result < 0) {
 		warn("Cant listen: %s\n", uv_strerror(result));
-		notifyReadyError(result);
+		onStreamError(result);
 		return false;
 	}
 
@@ -177,7 +178,7 @@ size_t Stream::write(WriteRequest* writeRequest) {
 		if(result < 0) {
 			WriteRequest::destroy(writeRequest);
 			debug("Cant write: %s\n", uv_strerror(result));
-			notifyReadyError(result);
+			onStreamError(result);
 			return 0;
 		}
 
@@ -217,7 +218,7 @@ bool Stream::accept(Stream** clientSocketPtr) {
 		return false;
 	else if(result < 0) {
 		debug("Cant accept: %s\n", uv_strerror(result));
-		notifyReadyError(result);
+		onStreamError(result);
 		return false;
 	}
 
@@ -227,11 +228,11 @@ bool Stream::accept(Stream** clientSocketPtr) {
 	return true;
 }
 
-void Stream::close() {
+void Stream::close(bool causedByRemote) {
 	if(getState() == ClosingState || getState() == UnconnectedState)
 		return;
 
-	setState(ClosingState);
+	setState(ClosingState, causedByRemote);
 	int result = UV_ENOTCONN;
 
 	if(getState() == ConnectedState) {
@@ -243,11 +244,11 @@ void Stream::close() {
 	}
 }
 
-void Stream::abort() {
+void Stream::abort(bool causedByRemote) {
 	if(getState() == ClosingState || getState() == UnconnectedState)
 		return;
 
-	setState(ClosingState);
+	setState(ClosingState, causedByRemote);
 	uv_close((uv_handle_t*)handle, &onConnectionClosed);
 }
 
@@ -259,7 +260,7 @@ const char* Stream::getLocalIpStr() {
 	return localIpStr;
 }
 
-void Stream::setState(State state) {
+void Stream::setState(State state, bool causedByRemote) {
 	if(state == currentState)
 		return;
 
@@ -275,9 +276,11 @@ void Stream::setState(State state) {
 	trace("Stream state changed from %s to %s\n", oldStateStr, newStateStr);
 	packetLog(Log::LL_Info, nullptr, 0, "Stream state changed from %s to %s\n", oldStateStr, newStateStr);
 
-	DELEGATE_CALL(eventListeners, this, oldState, state);
+	DELEGATE_CALL(eventListeners, this, oldState, state, causedByRemote);
 
-	if(state == UnconnectedState) {
+	if(state == ClosingState) {
+		closeCausedByRemote = causedByRemote;
+	} else if(state == UnconnectedState) {
 		remoteIpStr[0] = 0;
 		remoteIp = 0;
 		remotePort = 0;
@@ -402,10 +405,10 @@ void Stream::removeListener(IListener* instance) {
 	incomingConnectionListeners.del(instance);
 }
 
-void Stream::notifyReadyError(int errorValue) {
+void Stream::onStreamError(int errorValue) {
 	DELEGATE_CALL(errorListeners, this, errorValue);
 	if(getState() != ListeningState)
-		abort();
+		abort(true);
 }
 
 void Stream::onConnected(uv_connect_t* req, int status) {
@@ -414,7 +417,7 @@ void Stream::onConnected(uv_connect_t* req, int status) {
 	if(status < 0) {
 		const char* errorString = uv_strerror(status);
 		thisInstance->error("onConnected: %s\n", errorString);
-		thisInstance->notifyReadyError(status);
+		thisInstance->onStreamError(status);
 		return;
 	}
 
@@ -427,7 +430,7 @@ void Stream::onNewConnection(uv_stream_t* req, int status) {
 	if(status < 0) {
 		const char* errorString = uv_strerror(status);
 		thisInstance->error("onNewConnection: %s\n", errorString);
-		thisInstance->notifyReadyError(status);
+		thisInstance->onStreamError(status);
 		return;
 	}
 
@@ -459,14 +462,14 @@ void Stream::onReadCompleted(uv_stream_t* stream, ssize_t nread, const uv_buf_t*
 
 	if(nread == UV_EOF) {
 		thisInstance->trace("Connection closed by peer\n");
-		thisInstance->close();
+		thisInstance->close(true);
 	} else if(nread == UV_ECONNRESET) {
 		thisInstance->trace("Connection reset by peer\n");
-		thisInstance->abort();
+		thisInstance->abort(true);
 	} else if(nread < 0) {
 		const char* errorString = uv_strerror(nread);
 		thisInstance->error("onReadCompleted: %s\n", errorString);
-		thisInstance->notifyReadyError(nread);
+		thisInstance->onStreamError(nread);
 	} else if(nread > 0) {
 		thisInstance->packetTransferedSinceLastCheck = true;
 		thisInstance->trace("Read %ld bytes\n", (long)nread);
@@ -499,7 +502,7 @@ void Stream::onWriteCompleted(uv_write_t* req, int status) {
 	if(status < 0) {
 		const char* errorString = uv_strerror(status);
 		thisInstance->error("onWriteCompleted: %s\n", errorString);
-		thisInstance->notifyReadyError(status);
+		thisInstance->onStreamError(status);
 	} else {
 		thisInstance->packetTransferedSinceLastCheck = true;
 		thisInstance->trace("Written %ld bytes\n", (long)writeRequest->buffer.len);
@@ -522,5 +525,6 @@ void Stream::onShutdownDone(uv_shutdown_t* req, int status) {
 void Stream::onConnectionClosed(uv_handle_t* handle) {
 	Stream* thisInstance = (Stream*)handle->data;
 
-	thisInstance->setState(UnconnectedState);
+	thisInstance->setState(UnconnectedState, thisInstance->closeCausedByRemote);
+	thisInstance->closeCausedByRemote = false;
 }

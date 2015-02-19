@@ -65,7 +65,7 @@ class LIB_EXTERN ClientAuthSession : protected EncryptedSession<PacketSession>
 
 	private:
 		void onConnected();
-		void onDisconnected();
+		void onDisconnected(bool causedByRemote);
 		void onPacketAuthPasswordKey(const TS_AC_AES_KEY_IV *packet);
 		void onPacketServerList(const TS_AC_SERVER_LIST* packet);
 		void onPacketSelectServerResult(const TS_AC_SELECT_SERVER* packet);

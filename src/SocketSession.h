@@ -26,8 +26,8 @@ public:
 
 	virtual void onDataReceived() {}
 	virtual void onConnected() {}
-	virtual void onDisconnected() {}
-	virtual void onStateChanged(Stream::State oldState, Stream::State newState) {}
+	virtual void onDisconnected(bool causedByRemote) {}
+	virtual void onStateChanged(Stream::State oldState, Stream::State newState, bool causedByRemote) {}
 	virtual void onError(int err) {}
 
 	virtual bool hasCustomPacketLogger() { return false; } //used for packet logging
@@ -45,7 +45,7 @@ protected:
 
 private:
 	static void onDataReceivedStatic(IListener* instance, Stream *stream);
-	static void onSocketStateChanged(IListener* instance, Stream*, Stream::State oldState, Stream::State newState);
+	static void onSocketStateChanged(IListener* instance, Stream*, Stream::State oldState, Stream::State newState, bool causedByRemote);
 	static void socketError(IListener* instance, Stream* socket, int errnoValue);
 
 	template<class T> Stream* createStreate(bool logPackets);

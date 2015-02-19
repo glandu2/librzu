@@ -65,13 +65,11 @@ bool SessionServerCommon::start() {
 void SessionServerCommon::stop() {
 	if(!serverSocket || serverSocket->getState() == Stream::UnconnectedState) {
 		debug("Server %s already stopped\n", getName());
-		return;
 	}
 
 	info("Stopping server %s\n", getName());
 
-	if(checkIdleSocketPeriod)
-		uv_timer_stop(&checkIdleSocketTimer);
+	uv_timer_stop(&checkIdleSocketTimer);
 	serverSocket->close();
 	openServer = false;
 	for(auto it = sockets.begin(); it != sockets.end();) {

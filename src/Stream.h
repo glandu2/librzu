@@ -51,7 +51,7 @@ public:
 	static const char* STATES[];
 
 	typedef void (*CallbackOnDataReady)(IListener* instance, Stream* socket);
-	typedef void (*CallbackOnStateChanged)(IListener* instance, Stream* socket, State oldState, State newState);
+	typedef void (*CallbackOnStateChanged)(IListener* instance, Stream* socket, State oldState, State newState, bool causedByRemote);
 	typedef void (*CallbackOnError)(IListener* instance, Stream* socket, int errnoValue);
 
 public:
@@ -71,8 +71,8 @@ public:
 	size_t write(const void *buffer, size_t size);
 	bool accept(Stream **clientSocket);
 
-	void close();
-	void abort();
+	void close(bool causedByRemote = false);
+	void abort(bool causedByRemote = false);
 
 	State getState() { return currentState; }
 	virtual const char* getRemoteIpStr();
@@ -88,7 +88,7 @@ public:
 	void addErrorListener(IListener* instance, CallbackOnError listener);
 	void removeListener(IListener* instance);
 
-	void notifyReadyError(int errorValue);
+	void onStreamError(int errorValue);
 
 	void setLogPackedEnable(bool enable) { this->logPackets = enable; }
 	void setPacketLogger(Log* packetLogger) { this->packetLogger = packetLogger; }
@@ -100,7 +100,7 @@ public:
 
 protected:
 	Stream(uv_loop_t *uvLoop, uv_stream_t* handle, bool logPackets = true);
-	void setState(State state);
+	void setState(State state, bool causedByRemote = true);
 	uv_loop_t* getLoop() { return loop; }
 
 	static void onConnected(uv_connect_t* req, int status);
@@ -148,6 +148,7 @@ private:
 	Log* packetLogger;
 
 	bool packetTransferedSinceLastCheck; //when checking idle pipes, if this flag is false, then the pipe is closed (idle)
+	bool closeCausedByRemote;
 };
 
 #endif // STREAM_H

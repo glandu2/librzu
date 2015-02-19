@@ -22,7 +22,7 @@ protected:
 private:
 	void onConnected();
 	void onPacketReceived(const TS_MESSAGE *packet);
-	void onDisconnected();
+	void onDisconnected(bool causedByRemote);
 
 protected:
 	ClientAuthSession* auth;

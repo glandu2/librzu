@@ -23,7 +23,7 @@ void ClientGameSession::onConnected() {
 	sendPacket(&loginInGameServerMsg);
 }
 
-void ClientGameSession::onDisconnected() {
+void ClientGameSession::onDisconnected(bool causedByRemote) {
 	onGameDisconnected();
 	auth->onGameDisconnected();
 }
