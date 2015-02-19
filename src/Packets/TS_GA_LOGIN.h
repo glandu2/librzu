@@ -14,8 +14,13 @@ struct TS_GA_LOGIN : public TS_MESSAGE
 	int32_t server_port;
 
 	static const uint16_t packetID = 20001;
-	static const uint16_t packetIDEx = 60001;
 };
+
+struct TS_GA_LOGIN_WITH_LOGOUT : public TS_GA_LOGIN
+{
+	static const uint16_t packetID = 60001;
+};
+
 #pragma pack(pop)
 
 #endif // PACKETS_TS_GA_LOGIN_H
