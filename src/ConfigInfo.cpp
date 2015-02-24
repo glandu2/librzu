@@ -169,7 +169,7 @@ bool ConfigInfo::readFile(const char* filename, int fileDepth) {
 			}
 		}
 
-		trace("%s:%d: Read key: %s, value: %s\n", filename, lineNumber, key, value);
+		trace("%s:%d: Read key: %s, value: %s\n", filename, lineNumber, key.c_str(), value.c_str());
 
 		if(key[0] == '%') {
 			//special command
