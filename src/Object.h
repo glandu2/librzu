@@ -51,6 +51,7 @@ public:
 	void fatal(const char *message, ...) PRINTFCHECK(2, 3);
 
 	virtual void deleteLater();
+	bool isScheduledForDelete() { return scheduledForDelete; }
 
 protected:
 	void setDirtyObjectName() { dirtyName = true; }
@@ -60,6 +61,7 @@ private:
 	char *objectName;
 	size_t objectNameSize;
 	bool dirtyName;
+	bool scheduledForDelete;
 };
 
 
