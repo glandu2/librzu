@@ -229,13 +229,15 @@ bool Stream::accept(Stream** clientSocketPtr) {
 }
 
 void Stream::close(bool causedByRemote) {
-	if(getState() == ClosingState || getState() == UnconnectedState)
+	State state = getState();
+
+	if(state == ClosingState || state == UnconnectedState)
 		return;
 
 	setState(ClosingState, causedByRemote);
 	int result = UV_ENOTCONN;
 
-	if(getState() == ConnectedState) {
+	if(state == ConnectedState) {
 		shutdownReq.data = this;
 		result = uv_shutdown(&shutdownReq, handle, &onShutdownDone);
 	}
