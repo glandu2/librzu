@@ -22,7 +22,9 @@ SessionServerCommon::SessionServerCommon(cval<std::string>& listenIp, cval<int>&
 }
 
 SessionServerCommon::~SessionServerCommon() {
-	stop();
+	if(serverSocket && serverSocket->getState() != Stream::UnconnectedState)
+		stop();
+	uv_timer_stop(&checkIdleSocketTimer);
 
 	if(lastWaitingStreamInstance)
 		delete lastWaitingStreamInstance;
