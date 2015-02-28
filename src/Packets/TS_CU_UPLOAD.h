@@ -1,5 +1,5 @@
-#ifndef TS_CU_UPLOAD_H
-#define TS_CU_UPLOAD_H
+#ifndef PACKETS_TS_CU_UPLOAD_H
+#define PACKETS_TS_CU_UPLOAD_H
 
 #include "Packets/PacketBaseMessage.h"
 
@@ -13,4 +13,4 @@ struct TS_CU_UPLOAD : public TS_MESSAGE
 };
 #pragma pack(pop)
 
-#endif // TS_CU_UPLOAD_H
+#endif // PACKETS_TS_CU_UPLOAD_H

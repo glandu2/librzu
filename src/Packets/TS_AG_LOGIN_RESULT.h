@@ -1,5 +1,5 @@
-#ifndef TS_AG_LOGIN_RESULT_H
-#define TS_AG_LOGIN_RESULT_H
+#ifndef PACKETS_TS_AG_LOGIN_RESULT_H
+#define PACKETS_TS_AG_LOGIN_RESULT_H
 
 #include "PacketBaseMessage.h"
 
@@ -12,4 +12,4 @@ struct TS_AG_LOGIN_RESULT : public TS_MESSAGE
 };
 #pragma pack(pop)
 
-#endif // TS_AG_LOGIN_RESULT_H
+#endif // PACKETS_TS_AG_LOGIN_RESULT_H

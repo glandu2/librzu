@@ -1,5 +1,5 @@
-#ifndef TS_CA_ACCOUNT_H
-#define TS_CA_ACCOUNT_H
+#ifndef PACKETS_TS_CA_ACCOUNT_H
+#define PACKETS_TS_CA_ACCOUNT_H
 
 #include "PacketBaseMessage.h"
 
@@ -34,7 +34,7 @@ struct TS_CA_ACCOUNT_EPIC4 : public TS_MESSAGE
 struct TS_CA_ACCOUNT_RSA : public TS_MESSAGE
 {
 		char account[61];
-		unsigned int aes_block_size;
+		unsigned int password_size;
 		unsigned char password[61];
 		unsigned int dummy[3];
 		unsigned int unknown_00000100;
@@ -48,4 +48,4 @@ struct TS_CA_ACCOUNT_RSA : public TS_MESSAGE
 };
 #pragma pack(pop)
 
-#endif // TS_CA_ACCOUNT_H
+#endif // PACKETS_TS_CA_ACCOUNT_H

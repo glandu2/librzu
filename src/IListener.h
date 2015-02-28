@@ -1,12 +1,12 @@
-#ifndef CALLBACKGUARD_H
-#define CALLBACKGUARD_H
+#ifndef ILISTENER_H
+#define ILISTENER_H
 
 #include <vector>
-#include "RappelzLib_global.h"
+#include "LibGlobal.h"
 
 typedef void** DelegateRef;
 
-class RAPPELZLIB_EXTERN IListener {
+class LIB_EXTERN IListener {
 public:
 	IListener() {}
 	virtual ~IListener() {
@@ -49,4 +49,4 @@ private:
 	std::vector<DelegateRef> callbackValidityPtrs;
 };
 
-#endif // CALLBACKGUARD_H
+#endif // ILISTENER_H

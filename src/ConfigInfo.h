@@ -8,7 +8,7 @@
 #include "ConfigParamVal.h"
 #include "ConfigStatVal.h"
 
-class RAPPELZLIB_EXTERN ConfigInfo : public Object
+class LIB_EXTERN ConfigInfo : public Object
 {
 	DECLARE_CLASS(ConfigInfo)
 
@@ -58,6 +58,8 @@ public:
 private:
 	ConfigInfo() {}
 	~ConfigInfo();
+
+	static bool parseLine(char* line, std::string &key, std::string &value);
 
 	std::pair<std::unordered_map<std::string, ConfigValue*>::iterator, bool> addValue(const std::string& key, ConfigValue* v);
 	std::unordered_map<std::string, ConfigValue*> config;

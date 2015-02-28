@@ -1,12 +1,12 @@
-#ifndef BANNEDIP_H
-#define BANNEDIP_H
+#ifndef BANMANAGER_H
+#define BANMANAGER_H
 
 #include "Object.h"
 #include <unordered_set>
 #include <string>
 #include <stdint.h>
 
-class RAPPELZLIB_EXTERN BanManager : public Object
+class LIB_EXTERN BanManager : public Object
 {
 	DECLARE_CLASS(BanManager)
 
@@ -20,4 +20,4 @@ private:
 	std::unordered_set<uint32_t> bannedIps;
 };
 
-#endif // BANNEDIP_H
+#endif // BANMANAGER_H

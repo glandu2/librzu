@@ -1,5 +1,5 @@
-#ifndef GAMESERVERSTRUCTS_H
-#define GAMESERVERSTRUCTS_H
+#ifndef PACKETS_PACKETSTRUCTS_H
+#define PACKETS_PACKETSTRUCTS_H
 
 #include "PacketBaseMessage.h"
 #include "TS_SC_RESULT.h"
@@ -2544,4 +2544,4 @@ struct TS_US_UPLOAD : public TS_MESSAGE
 
 #pragma pack(pop)
 
-#endif
+#endif // PACKETS_PACKETSTRUCTS_H

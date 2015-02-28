@@ -1,5 +1,5 @@
-#ifndef TS_GA_LOGIN_H
-#define TS_GA_LOGIN_H
+#ifndef PACKETS_TS_GA_LOGIN_H
+#define PACKETS_TS_GA_LOGIN_H
 
 #include "PacketBaseMessage.h"
 
@@ -15,6 +15,12 @@ struct TS_GA_LOGIN : public TS_MESSAGE
 
 	static const uint16_t packetID = 20001;
 };
+
+struct TS_GA_LOGIN_WITH_LOGOUT : public TS_GA_LOGIN
+{
+	static const uint16_t packetID = 60001;
+};
+
 #pragma pack(pop)
 
-#endif // TS_GA_LOGIN_H
+#endif // PACKETS_TS_GA_LOGIN_H

@@ -1,9 +1,9 @@
-#ifndef OBJECT
-#define OBJECT
+#ifndef OBJECT_H
+#define OBJECT_H
 
 #include <string>
 
-#include "RappelzLib_global.h"
+#include "LibGlobal.h"
 
 //used to count objects, "c" stand for class type, WARNING: declare public block
 //getTrueClassHash: for variable used like this: Object *obj = new Actor();, obj.getTrueClassHash() return hash of class Actor.
@@ -31,7 +31,7 @@
 	virtual unsigned long getObjectNum() { return count; }
 
 
-class RAPPELZLIB_EXTERN Object
+class LIB_EXTERN Object
 {
 	DECLARE_CLASS(Object)
 
@@ -51,6 +51,7 @@ public:
 	void fatal(const char *message, ...) PRINTFCHECK(2, 3);
 
 	virtual void deleteLater();
+	bool isScheduledForDelete() { return scheduledForDelete; }
 
 protected:
 	void setDirtyObjectName() { dirtyName = true; }
@@ -60,7 +61,8 @@ private:
 	char *objectName;
 	size_t objectNameSize;
 	bool dirtyName;
+	bool scheduledForDelete;
 };
 
 
-#endif
+#endif // OBJECT_H

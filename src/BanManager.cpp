@@ -1,6 +1,6 @@
 #include "BanManager.h"
 #include <stdio.h>
-#include "RappelzLibConfig.h"
+#include "GlobalCoreConfig.h"
 #include "uv.h"
 
 BanManager::BanManager()

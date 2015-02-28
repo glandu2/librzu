@@ -1,5 +1,5 @@
-#ifndef TS_CS_CHAT_REQUEST_H
-#define TS_CS_CHAT_REQUEST_H
+#ifndef PACKETS_TS_CS_CHAT_REQUEST_H
+#define PACKETS_TS_CS_CHAT_REQUEST_H
 
 #include "Packets/PacketBaseMessage.h"
 #include "Packets/PacketEnums.h"
@@ -53,4 +53,4 @@ struct TS_CS_CHAT_REQUEST : public TS_MESSAGE_WNA
 };
 #pragma pack(pop)
 
-#endif // TS_CS_CHAT_REQUEST_H
+#endif // PACKETS_TS_CS_CHAT_REQUEST_H

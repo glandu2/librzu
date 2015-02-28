@@ -1,5 +1,5 @@
-#ifndef TS_CS_VERSION_H
-#define TS_CS_VERSION_H
+#ifndef PACKETS_TS_CS_VERSION_H
+#define PACKETS_TS_CS_VERSION_H
 
 #include "PacketBaseMessage.h"
 
@@ -11,4 +11,4 @@ struct TS_CS_VERSION : public TS_MESSAGE
 };
 #pragma pack(pop)
 
-#endif // TS_CS_VERSION_H
+#endif // PACKETS_TS_CS_VERSION_H

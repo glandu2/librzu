@@ -26,13 +26,15 @@ ServersManager::~ServersManager()
 	}
 }
 
-void ServersManager::addServer(const char* name, RappelzServerCommon* server, ConfigValue& listenIp, ConfigValue& listenPort, ConfigValue& autoStart, BanManager* banManager) {
-	ServerInfo* serverInfo = new ServerInfo(server, &listenIp, &listenPort, &autoStart, banManager);
+void ServersManager::addServer(const char* name, StartableObject *server, cval<bool>& autoStart) {
+	ServerInfo* serverInfo = new ServerInfo(server, &autoStart);
+
+	server->setName(name);
 
 	servers.insert(std::pair<std::string, ServerInfo*>(std::string(name), serverInfo));
 }
 
-RappelzServerCommon* ServersManager::getServer(const std::string& name) {
+StartableObject* ServersManager::getServer(const std::string& name) {
 	std::unordered_map<std::string, ServerInfo*>::iterator it = servers.find(name);
 	if(it == servers.end())
 		return nullptr;
@@ -47,18 +49,7 @@ bool ServersManager::start() {
 		ServerInfo* serverInfo = it->second;
 
 		if(serverInfo->autoStart->getBool()) {
-			if(serverInfo->banManager)
-				serverInfo->banManager->loadFile();
-
-			if(serverInfo->server->isListening() == false) {
-				info("Starting server %s on %s:%d\n", it->first.c_str(), serverInfo->listenIp->getString().c_str(), serverInfo->listenPort->getInt());
-
-				serverInfo->server->startServer(serverInfo->listenIp->getString(),
-												serverInfo->listenPort->getInt(),
-												serverInfo->banManager);
-			} else {
-				info("Server %s already started\n", it->first.c_str());
-			}
+			serverInfo->server->start();
 		}
 	}
 
@@ -71,9 +62,6 @@ bool ServersManager::stop() {
 	for(it = servers.cbegin(), itEnd = servers.cend(); it != itEnd; ++it) {
 		ServerInfo* serverInfo = it->second;
 
-		if(serverInfo->server->isListening() == true)
-			info("Stopping server %s\n", it->first.c_str());
-
 		serverInfo->server->stop();
 	}
 
@@ -85,18 +73,7 @@ bool ServersManager::start(const std::string& name) {
 	if(it != servers.end()) {
 		ServerInfo* serverInfo = it->second;
 
-		if(serverInfo->banManager)
-			serverInfo->banManager->loadFile();
-
-		if(serverInfo->server->isListening() == false) {
-			info("Starting server %s on %s:%d\n", it->first.c_str(), serverInfo->listenIp->getString().c_str(), serverInfo->listenPort->getInt());
-
-			serverInfo->server->startServer(serverInfo->listenIp->getString(),
-											serverInfo->listenPort->getInt(),
-											serverInfo->banManager);
-		} else {
-			info("Server %s already started\n", it->first.c_str());
-		}
+		serverInfo->server->start();
 
 		return true;
 	}
@@ -108,9 +85,6 @@ bool ServersManager::stop(const std::string& name) {
 	std::unordered_map<std::string, ServerInfo*>::const_iterator it = servers.find(name);
 	if(it != servers.end()) {
 		ServerInfo* serverInfo = it->second;
-
-		if(serverInfo->server->isListening() == true)
-			info("Stopping server %s\n", it->first.c_str());
 
 		serverInfo->server->stop();
 

@@ -1,5 +1,5 @@
-#ifndef TS_CA_DISTRIBUTION_INFO_H
-#define TS_CA_DISTRIBUTION_INFO_H
+#ifndef PACKETS_TS_CA_DISTRIBUTION_INFO_H
+#define PACKETS_TS_CA_DISTRIBUTION_INFO_H
 
 #include "PacketBaseMessage.h"
 
@@ -10,4 +10,4 @@ struct TS_CA_DISTRIBUTION_INFO : public TS_MESSAGE
 };
 #pragma pack(pop)
 
-#endif // TS_CA_DISTRIBUTION_INFO_H
+#endif // PACKETS_TS_CA_DISTRIBUTION_INFO_H

@@ -1,5 +1,5 @@
-#ifndef TS_SC_DISCONNECT_DESC_H
-#define TS_SC_DISCONNECT_DESC_H
+#ifndef PACKETS_TS_SC_DISCONNECT_DESC_H
+#define PACKETS_TS_SC_DISCONNECT_DESC_H
 
 #include "Packets/PacketBaseMessage.h"
 #include "Packets/PacketEnums.h"
@@ -13,4 +13,4 @@ struct TS_SC_DISCONNECT_DESC : public TS_MESSAGE
 };
 #pragma pack(pop)
 
-#endif // TS_SC_DISCONNECT_DESC_H
+#endif // PACKETS_TS_SC_DISCONNECT_DESC_H

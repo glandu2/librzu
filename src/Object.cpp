@@ -4,12 +4,13 @@
 #include <stdarg.h>
 #include "EventLoop.h"
 #include "Log.h"
-#include "RappelzLibConfig.h"
+#include "GlobalCoreConfig.h"
 
 Object::Object() {
 	objectName = nullptr;
 	objectNameSize = 0;
 	dirtyName = true;
+	scheduledForDelete = false;
 }
 
 Object::~Object() {
@@ -132,5 +133,8 @@ void Object::fatal(const char *message, ...) {
 }
 
 void Object::deleteLater() {
-	EventLoop::getInstance()->addObjectToDelete(this);
+	if(scheduledForDelete == false) {
+		scheduledForDelete = true;
+		EventLoop::getInstance()->addObjectToDelete(this);
+	}
 }

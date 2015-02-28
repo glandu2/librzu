@@ -9,7 +9,7 @@
 
 struct TS_MESSAGE;
 
-class RAPPELZLIB_EXTERN Log : public Object, public IListener
+class LIB_EXTERN Log : public Object, public IListener
 {
 	DECLARE_CLASS(Log)
 public:
@@ -39,6 +39,8 @@ public:
 
 	static Log* get() { return defaultLogger; }
 	static Log* setDefaultLogger(Log* newLogger) { Log* old = defaultLogger; defaultLogger = newLogger; return old; }
+	static Log* getDefaultPacketLogger() { return defaultPacketLogger; }
+	static Log* setDefaultPacketLogger(Log* newLogger) { Log* old = defaultPacketLogger; defaultPacketLogger = newLogger; return old; }
 
 	Level getMaxLevel() { return fileMaxLevel > consoleMaxLevel ? fileMaxLevel : consoleMaxLevel; }
 
@@ -68,6 +70,7 @@ private:
 	void construct(cval<bool>& enabled, cval<std::string>& dir, cval<std::string>& fileName);
 
 	static Log* defaultLogger;
+	static Log* defaultPacketLogger;
 
 	uv_thread_t logWritterThreadId;
 #ifdef _WIN32

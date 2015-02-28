@@ -1,5 +1,5 @@
-#ifndef CONFIGVAL_H
-#define CONFIGVAL_H
+#ifndef CONFIGPARAMVAL_H
+#define CONFIGPARAMVAL_H
 
 #include "ConfigValue.h"
 #include <string>
@@ -26,6 +26,13 @@ public:
 #ifndef NOMUTEX
 		uv_mutex_init(&lock);
 		uv_mutex_init(&listenersLock);
+#endif
+	}
+
+	virtual ~cval() {
+#ifndef NOMUTEX
+		uv_mutex_destroy(&lock);
+		uv_mutex_destroy(&listenersLock);
 #endif
 	}
 
@@ -168,4 +175,4 @@ private:
 
 
 
-#endif // CONFIGVAL_H
+#endif // CONFIGPARAMVAL_H

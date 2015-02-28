@@ -12,7 +12,7 @@
 
 class DbConnectionPool;
 
-class RAPPELZLIB_EXTERN DbConnection : public Object
+class LIB_EXTERN DbConnection : public Object
 {
 	DECLARE_CLASS(DbConnection)
 public:

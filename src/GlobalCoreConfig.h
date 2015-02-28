@@ -1,19 +1,21 @@
-#ifndef RAPPELZLIBCONFIG_H
-#define RAPPELZLIBCONFIG_H
+#ifndef GLOBALCORECONFIG_H
+#define GLOBALCORECONFIG_H
 
 #include "ConfigInfo.h"
 #include "Utils.h"
 
 #define CONFIG_FILE_KEY "configfile"
 
-struct RAPPELZLIB_EXTERN RappelzLibConfig {
+struct LIB_EXTERN GlobalCoreConfig {
 
 	struct App {
 		cval<std::string> &appName, &configfile;
+		cval<bool> &useTcpNoDelay;
 
 		App() :
-			appName(CFG_CREATE("core.appname", "RappelzEmu")),
-			configfile(CFG_CREATE(CONFIG_FILE_KEY, "rappelzemu.opt"))
+			appName(CFG_CREATE("core.appname", "rzuemu")),
+			configfile(CFG_CREATE(CONFIG_FILE_KEY, "rzuemu.opt")),
+			useTcpNoDelay(CFG_CREATE("core.usetcpnodelay", false))
 		{
 			Utils::autoSetAbsoluteDir(configfile);
 		}
@@ -60,12 +62,12 @@ struct RAPPELZLIB_EXTERN RappelzLibConfig {
 			disconnectionCount(CFG_STAT_CREATE("stats.disconnections", 0)) {}
 	} stats;
 
-	static RappelzLibConfig* get();
+	static GlobalCoreConfig* get();
 	static void init();
 };
 
 #ifndef CONFIG_GET
-#define CONFIG_GET() RappelzLibConfig::get()
+#define CONFIG_GET() GlobalCoreConfig::get()
 #endif
 
-#endif // RAPPELZLIBCONFIG_H
+#endif // GLOBALCORECONFIG_H

@@ -5,7 +5,7 @@
 #include "uv.h"
 #include <list>
 
-class RAPPELZLIB_EXTERN EventLoop : public Object
+class LIB_EXTERN EventLoop : public Object
 {
 	DECLARE_CLASS(EventLoop)
 

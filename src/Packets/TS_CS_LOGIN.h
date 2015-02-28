@@ -1,5 +1,5 @@
-#ifndef TS_CS_LOGIN_H
-#define TS_CS_LOGIN_H
+#ifndef PACKETS_TS_CS_LOGIN_H
+#define PACKETS_TS_CS_LOGIN_H
 
 #include "Packets/PacketBaseMessage.h"
 #include "Packets/PacketEnums.h"
@@ -13,4 +13,4 @@ struct TS_CS_LOGIN : public TS_MESSAGE
 };
 #pragma pack(pop)
 
-#endif // TS_CS_LOGIN_H
+#endif // PACKETS_TS_CS_LOGIN_H

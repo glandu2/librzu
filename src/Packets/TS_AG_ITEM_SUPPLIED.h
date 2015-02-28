@@ -1,5 +1,5 @@
-#ifndef TS_AG_ITEM_SUPPLIED_H
-#define TS_AG_ITEM_SUPPLIED_H
+#ifndef PACKETS_TS_AG_ITEM_SUPPLIED_H
+#define PACKETS_TS_AG_ITEM_SUPPLIED_H
 
 #include "PacketBaseMessage.h"
 
@@ -12,4 +12,4 @@ struct TS_AG_ITEM_SUPPLIED : public TS_MESSAGE
 };
 #pragma pack(pop)
 
-#endif // TS_AG_ITEM_SUPPLIED_H
+#endif // PACKETS_TS_AG_ITEM_SUPPLIED_H

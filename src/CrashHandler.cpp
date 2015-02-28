@@ -265,7 +265,8 @@ void createMiniDump(EXCEPTION_POINTERS* pExcPtrs)
 	CloseHandle(hFile);
 
 	//Stop and flush log message. Do it after crash dump, this might crash ...
-	Log::get()->stopWriter();
+	if(Log::get())
+		Log::get()->stopWriter();
 }
 
 // Structured exception handler

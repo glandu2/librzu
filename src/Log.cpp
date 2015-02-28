@@ -1,5 +1,5 @@
 #include "Log.h"
-#include "RappelzLibConfig.h"
+#include "GlobalCoreConfig.h"
 #include <stdio.h>
 #include <time.h>
 #include <stdarg.h>
@@ -9,6 +9,7 @@
 static const char * const  LEVELSTRINGS[] = { "FATAL", "ERROR", "Warn", "Info", "Debug", "Trace" };
 
 Log* Log::defaultLogger = nullptr;
+Log* Log::defaultPacketLogger = nullptr;
 
 Log::Log(cval<bool>& enabled, cval<std::string>& fileMaxLevel, cval<std::string>& consoleMaxLevel, cval<std::string>& dir, cval<std::string>& fileName, cval<int>& maxQueueSize) :
 	fileMaxLevel(LL_Info),
@@ -55,6 +56,7 @@ Log::~Log() {
 	if(defaultLogger == this)
 		defaultLogger = nullptr;
 	stopWriter();
+	uv_mutex_destroy(&messageListMutex);
 }
 
 void Log::updateEnabled(IListener* instance, cval<bool>* enable) {

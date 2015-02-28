@@ -3,14 +3,13 @@
 
 #include "Object.h"
 #include <unordered_map>
-#include "RappelzServer.h"
+#include "StartableObject.h"
 #include <string>
+#include "ConfigParamVal.h"
 
 class BanManager;
 
-class ConfigValue;
-
-class RAPPELZLIB_EXTERN ServersManager : public Object
+class LIB_EXTERN ServersManager : public Object
 {
 	DECLARE_CLASSNAME(ServersManager, 0)
 public:
@@ -23,21 +22,18 @@ public:
 	bool start(const std::string& name);
 	bool stop(const std::string& name);
 
-	RappelzServerCommon* getServer(const std::string& name);
-	void addServer(const char* name, RappelzServerCommon* server, ConfigValue& listenIp, ConfigValue& listenPort, ConfigValue& autoStart, BanManager* banManager = nullptr);
+	StartableObject *getServer(const std::string& name);
+	void addServer(const char* name, StartableObject* server, cval<bool> &autoStart);
 
 	static ServersManager* getInstance() { return instance; }
 
 private:
 	struct ServerInfo {
-		ServerInfo(RappelzServerCommon* server, ConfigValue* listenIp, ConfigValue* listenPort, ConfigValue* autoStart, BanManager* banManager = nullptr) :
-			server(server), listenIp(listenIp), listenPort(listenPort), autoStart(autoStart), banManager(banManager) {}
+		ServerInfo(StartableObject* server, cval<bool>* autoStart) :
+			server(server), autoStart(autoStart) {}
 
-		RappelzServerCommon* server;
-		ConfigValue* listenIp;
-		ConfigValue* listenPort;
-		ConfigValue* autoStart;
-		BanManager* banManager;
+		StartableObject* server;
+		cval<bool>* autoStart;
 	};
 	std::unordered_map<std::string, ServerInfo*> servers;
 

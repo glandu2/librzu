@@ -1,5 +1,5 @@
-#ifndef TS_CS_UPDATE_H
-#define TS_CS_UPDATE_H
+#ifndef PACKETS_TS_CS_UPDATE_H
+#define PACKETS_TS_CS_UPDATE_H
 
 #include "Packets/PacketBaseMessage.h"
 
@@ -11,4 +11,4 @@ struct TS_CS_UPDATE : public TS_MESSAGE
 };
 #pragma pack(pop)
 
-#endif // TS_CS_UPDATE_H
+#endif // PACKETS_TS_CS_UPDATE_H

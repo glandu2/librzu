@@ -1,5 +1,5 @@
-#ifndef PACKETENUMS_H
-#define PACKETENUMS_H
+#ifndef PACKETS_PACKETENUMS_H
+#define PACKETS_PACKETENUMS_H
 
 enum TS_ResultCode
 {
@@ -80,4 +80,4 @@ enum TS_ResultCode
 	TS_RESULT_CLIENT_SIDE_ERROR = 0xFFFF //more information about the error in field "value" of type ClientError (see Server.h)
 };
 
-#endif /* PACKETENUMS_H */
+#endif // PACKETS_PACKETENUMS_H

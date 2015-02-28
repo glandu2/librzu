@@ -49,19 +49,25 @@ bool DbQueryBinding::process(IDbQueryJob* queryJob, void* instance, ExecuteMode 
 		const ParameterBinding& paramBinding = parameterBindings.at(i);
 
 		if(paramBinding.index > 0) {
+			SQLLEN* StrLen_or_Ind;
+			if(paramBinding.infoPtr)
+				StrLen_or_Ind = (SQLLEN*)((char*)instance +  paramBinding.infoPtr);
+			else
+				StrLen_or_Ind = nullptr;
+
 			if(paramBinding.isStdString) {
 				std::string* str = (std::string*) ((char*)instance + paramBinding.bufferOffset);
 				connection->bindParameter(paramBinding.index, SQL_PARAM_INPUT,
 										  paramBinding.cType,
 										  paramBinding.dbType, str->size(), paramBinding.dbPrecision,
 										  (SQLPOINTER)str->c_str(), str->size(),
-										  paramBinding.infoPtr);
+										  StrLen_or_Ind);
 			} else {
 				connection->bindParameter(paramBinding.index, SQL_PARAM_INPUT,
 										  paramBinding.cType,
 										  paramBinding.dbType, paramBinding.dbSize, paramBinding.dbPrecision,
 										  (char*)instance + paramBinding.bufferOffset, paramBinding.bufferSize,
-										  paramBinding.infoPtr);
+										  StrLen_or_Ind);
 			}
 			//TODO: print content of params buffer
 		}
@@ -114,11 +120,14 @@ bool DbQueryBinding::process(IDbQueryJob* queryJob, void* instance, ExecuteMode 
 								str->resize(StrLen_Or_Ind);
 						} else {
 							connection->getData(columnIndex, columnBinding.cType,
-												(char*)instance + columnBinding.bufferOffset, columnBinding.bufferSize, &StrLen_Or_Ind);
+												(char*)instance + columnBinding.bufferOffset, columnBinding.bufferSize,
+												&StrLen_Or_Ind);
 						}
 
-						if(columnBinding.infoPtr)
-							*columnBinding.infoPtr = StrLen_Or_Ind;
+						if(columnBinding.isNullPtr)
+							*(bool*)((char*)instance + columnBinding.isNullPtr) = StrLen_Or_Ind == SQL_NULL_DATA;
+
+						break;
 					}
 				}
 			}

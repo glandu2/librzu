@@ -1,5 +1,5 @@
-#ifndef TS_AG_CLIENT_LOGIN_H
-#define TS_AG_CLIENT_LOGIN_H
+#ifndef PACKETS_TS_AG_CLIENT_LOGIN_H
+#define PACKETS_TS_AG_CLIENT_LOGIN_H
 
 #include "PacketBaseMessage.h"
 
@@ -17,6 +17,15 @@ struct TS_AG_CLIENT_LOGIN : public TS_MESSAGE
 
 	static const uint16_t packetID = 20011;
 };
+
+struct TS_AG_CLIENT_LOGIN_EXTENDED : public TS_AG_CLIENT_LOGIN
+{
+	uint32_t ip;
+	uint32_t loginTime;
+
+	static const uint16_t packetID = 60011;
+};
+
 #pragma pack(pop)
 
-#endif // TS_AG_CLIENT_LOGIN_H
+#endif // PACKETS_TS_AG_CLIENT_LOGIN_H

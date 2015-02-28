@@ -1,16 +1,11 @@
-#ifndef PACKETBASEMESSAGE_H
-#define PACKETBASEMESSAGE_H
+#ifndef PACKETS_PACKETBASEMESSAGE_H
+#define PACKETS_PACKETBASEMESSAGE_H
 
 #include <string.h>
-
 #include "../BufferReader.h"
 #include "../BufferWriter.h"
 
-#ifdef __GNUC__
-#include <stdint-gcc.h>
-#else
 #include <stdint.h>
-#endif
 
 #ifndef __GNUC__
 #pragma warning(disable:4200)  //array [0] extension
@@ -67,7 +62,6 @@ struct TS_CC_EVENT : public TS_MESSAGE {
 	enum ClientError {
 		CE_ServerConnected,
 		CE_ServerDisconnected,
-		CE_ServerConnectionLost,
 		CE_ServerUnreachable
 	} event;
 	static const uint16_t packetID = 0xFFFF;
@@ -157,4 +151,4 @@ struct TS_MESSAGE_HEADER : TS_MESSAGE_BASE {
 
 #pragma pack(pop)
 
-#endif // PACKETBASEMESSAGE_H
+#endif // PACKETS_PACKETBASEMESSAGE_H
