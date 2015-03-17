@@ -26,6 +26,7 @@ private:
 
 public:
 	PacketSession();
+	virtual ~PacketSession();
 
 	void sendPacket(const TS_MESSAGE* data);
 
@@ -33,7 +34,6 @@ public:
 	static bool hasCustomPacketLoggerStatic() { return true; }
 
 protected:
-	virtual ~PacketSession();
 
 	virtual void onPacketReceived(const TS_MESSAGE* packet) {}
 	virtual void onStateChanged(Stream::State oldState, Stream::State newState);

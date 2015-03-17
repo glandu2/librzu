@@ -48,8 +48,6 @@ private:
 	static void onSocketStateChanged(IListener* instance, Stream*, Stream::State oldState, Stream::State newState, bool causedByRemote);
 	static void socketError(IListener* instance, Stream* socket, int errnoValue);
 
-	template<class T> Stream* createStreate(bool logPackets);
-
 private:
 	Stream* stream;
 	SessionServerCommon* server;

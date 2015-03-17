@@ -10,8 +10,8 @@
 #include <vector>
 #include "uv.h"
 #include "DesPasswordCipher.h"
-#include "DelegatedPacketSession.h"
 #include "EncryptedSession.h"
+#include "PacketSession.h"
 
 struct TS_MESSAGE;
 struct TS_AC_SERVER_LIST;
