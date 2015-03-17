@@ -76,92 +76,103 @@ struct TS_SC_SKILL : public TS_MESSAGE
 				NOT_USE = 100,
 			} type;
 
+			struct Damage  //type 1
+			{
+				uint32_t hTarget;
+				int32_t target_hp;
+				DamageType damage_type;
+				int32_t damage;
+				int32_t flag;
+				uint16_t elemental_damage[7];
+			};
+
+			struct DamageWithKnockBack
+			{
+				uint32_t hTarget;
+				int32_t target_hp;
+				DamageType damage_type;
+				int32_t damage;
+				int32_t flag;
+				uint16_t elemental_damage[7];
+				float x;
+				float y;
+				int16_t speed;
+				uint32_t knock_back_time;
+			};
+
+			struct Result
+			{
+				uint32_t hTarget;
+				bool bResult;
+				int32_t success_type;
+			};
+
+			struct AddHP  //type 0x14
+			{
+				uint32_t hTarget;
+				int32_t target_hp;
+				int32_t nIncHP;
+			};
+
+			struct AddHPMPSP
+			{
+				uint32_t hTarget;
+				int32_t target_hp;
+				int32_t nIncHP;
+				int32_t nIncMP;
+				int32_t nIncSP;
+				int16_t target_mp;
+			};
+
+			struct Rush
+			{
+				uint32_t hTarget;
+				bool bResult;
+				float x;
+				float y;
+				float face;
+				int8_t speed;
+			};
+
+			struct Rebirth
+			{
+				uint32_t hTarget;
+				int32_t target_hp;
+				int32_t nIncHP;
+				int32_t nIncMP;
+				int32_t nRecoveryEXP;
+				int16_t target_mp;
+			};
+
+			struct ChainDamage
+			{
+				uint32_t hTarget;
+				int32_t target_hp;
+				int8_t damage_type;
+				int32_t damage;
+				int32_t flag;
+				uint16_t elemental_damage[7];
+				uint32_t hFrom;
+			};
+
+			struct ChainHeal
+			{
+				uint32_t hTarget;
+				int32_t target_hp;
+				int32_t nIncHP;
+				uint32_t hFrom;
+			};
+
 			union {
-				struct Damage  //type 1
-				{
-					uint32_t hTarget;
-					int32_t target_hp;
-					DamageType damage_type;
-					int32_t damage;
-					int32_t flag;
-					uint16_t elemental_damage[7];
-				} damage;
-				struct DamageWithKnockBack
-				{
-					uint32_t hTarget;
-					int32_t target_hp;
-					DamageType damage_type;
-					int32_t damage;
-					int32_t flag;
-					uint16_t elemental_damage[7];
-					float x;
-					float y;
-					int16_t speed;
-					uint32_t knock_back_time;
-				} damageWithKnockBack;
-
-				struct Result
-				{
-					uint32_t hTarget;
-					bool bResult;
-					int32_t success_type;
-				} result;
-
-				struct AddHP  //type 0x14
-				{
-					uint32_t hTarget;
-					int32_t target_hp;
-					int32_t nIncHP;
-				} addHP;
-
-				struct AddHPMPSP
-				{
-					uint32_t hTarget;
-					int32_t target_hp;
-					int32_t nIncHP;
-					int32_t nIncMP;
-					int32_t nIncSP;
-					int16_t target_mp;
-				} addHPMPSP;
-
-				struct Rush
-				{
-					uint32_t hTarget;
-					bool bResult;
-					float x;
-					float y;
-					float face;
-					int8_t speed;
-				} rush;
-
-				struct Rebirth
-				{
-					uint32_t hTarget;
-					int32_t target_hp;
-					int32_t nIncHP;
-					int32_t nIncMP;
-					int32_t nRecoveryEXP;
-					int16_t target_mp;
-				} rebirth;
-
-				struct ChainDamage
-				{
-					uint32_t hTarget;
-					int32_t target_hp;
-					int8_t damage_type;
-					int32_t damage;
-					int32_t flag;
-					uint16_t elemental_damage[7];
-					uint32_t hFrom;
-				} chainDamage;
-
-				struct ChainHeal
-				{
-					uint32_t hTarget;
-					int32_t target_hp;
-					int32_t nIncHP;
-					uint32_t hFrom;
-				} chainHeal;
+				Damage damage;
+				DamageWithKnockBack damageWithKnockBack;
+				Result result;
+				AddHP addHP;
+				AddHPMPSP addHPMPSP;
+				Rush rush;
+				Rebirth rebirth;
+				ChainDamage chainDamage;
+				ChainHeal chainHeal;
 			};
 		} hits[];
 	};
