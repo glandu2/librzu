@@ -7,9 +7,9 @@ if(BUILD_SHARED_LIBS)
   add_definitions(-DUSING_UV_SHARED)
   add_definitions(-DBUILDING_LIBRZU)
 endif()
-include_directories("${CMAKE_CURRENT_LIST_DIR}/src")
-include_directories("${CMAKE_CURRENT_LIST_DIR}/../libuv/include")
 
-find_package(OpenSSL REQUIRED)
+set(RZU_INCLUDE "${CMAKE_CURRENT_LIST_DIR}/src" CACHE STRING "librzu include directory")
+include_directories("${CMAKE_CURRENT_LIST_DIR}/src")
+include_directories("${UV_INCLUDE}")
 
 add_subdirectory("${CMAKE_CURRENT_LIST_DIR}/src" src)
