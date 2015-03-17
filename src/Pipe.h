@@ -12,7 +12,7 @@
 #include <string>
 #include <vector>
 
-class LIB_EXTERN Pipe : public Stream
+class RZU_EXTERN Pipe : public Stream
 {
 	DECLARE_CLASS(Pipe)
 

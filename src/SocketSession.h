@@ -8,7 +8,7 @@
 class SessionServerCommon;
 class Log;
 
-class LIB_EXTERN SocketSession : public Object, public IListener
+class RZU_EXTERN SocketSession : public Object, public IListener
 {
 	DECLARE_CLASS(SocketSession)
 public:

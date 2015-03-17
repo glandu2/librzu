@@ -2,11 +2,11 @@
 #define ILISTENER_H
 
 #include <vector>
-#include "LibGlobal.h"
+#include "Extern.h"
 
 typedef void** DelegateRef;
 
-class LIB_EXTERN IListener {
+class RZU_EXTERN IListener {
 public:
 	IListener() {}
 	virtual ~IListener() {

@@ -12,7 +12,7 @@
 #include <string>
 #include <vector>
 
-class LIB_EXTERN Stream : public Object
+class RZU_EXTERN Stream : public Object
 {
 
 public:

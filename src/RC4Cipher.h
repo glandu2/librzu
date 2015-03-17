@@ -4,7 +4,7 @@
 #include "Object.h"
 #include <string.h>
 
-class LIB_EXTERN RC4Cipher : public Object
+class RZU_EXTERN RC4Cipher : public Object
 {
 	DECLARE_CLASS(RC4Cipher)
 

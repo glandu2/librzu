@@ -6,7 +6,7 @@
 
 #define CONFIG_FILE_KEY "configfile"
 
-struct LIB_EXTERN GlobalCoreConfig {
+struct RZU_EXTERN GlobalCoreConfig {
 
 	struct App {
 		cval<std::string> &appName, &configfile;

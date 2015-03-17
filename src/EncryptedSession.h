@@ -28,7 +28,7 @@ protected:
 private:
 	RC4Cipher inputEnc, outputEnc;
 };
-extern LIB_EXTERN RC4Cipher cachedCipher;
+extern RZU_EXTERN RC4Cipher cachedCipher;
 
 template<class T>
 void EncryptedSession<T>::initRC4Cipher() {

@@ -16,7 +16,7 @@
 #include <string>
 #include <vector>
 
-class LIB_EXTERN Socket : public Stream
+class RZU_EXTERN Socket : public Stream
 {
 	DECLARE_CLASS(Socket)
 public:

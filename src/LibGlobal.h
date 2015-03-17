@@ -2,21 +2,14 @@
 #define LIBGLOBAL_H
 
 #ifdef _WIN32
-  /* Windows - set up dll import/export decorators. */
-# if defined(BUILDING_LIBRZU)
-	/* Building shared library. */
-#   define LIB_EXTERN __declspec(dllexport)
-# elif defined(USING_RZU_SHARED)
-	/* Using shared library. */
-#   define LIB_EXTERN __declspec(dllimport)
-# else
-	/* Building static library. */
-#   define LIB_EXTERN /* nothing */
-# endif
+#  define SYMBOL_IMPORT __declspec(dllimport)
+#  define SYMBOL_EXPORT __declspec(dllexport)
 #elif __GNUC__ >= 4
-# define LIB_EXTERN __attribute__((visibility("default")))
+#  define SYMBOL_IMPORT __attribute__((visibility("default")))
+#  define SYMBOL_EXPORT __attribute__((visibility("default")))
 #else
-# define LIB_EXTERN /* nothing */
+#  define SYMBOL_IMPORT
+#  define SYMBOL_EXPORT
 #endif
 
 #ifdef _MSC_VER

@@ -21,7 +21,7 @@ struct TS_SC_RESULT;
 
 class ClientGameSession;
 
-class LIB_EXTERN ClientAuthSession : protected EncryptedSession<PacketSession>
+class RZU_EXTERN ClientAuthSession : protected EncryptedSession<PacketSession>
 {
 	DECLARE_CLASS(ClientAuthSession)
 	public:

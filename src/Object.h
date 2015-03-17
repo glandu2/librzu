@@ -3,7 +3,7 @@
 
 #include <string>
 
-#include "LibGlobal.h"
+#include "Extern.h"
 
 //used to count objects, "c" stand for class type, WARNING: declare public block
 //getTrueClassHash: for variable used like this: Object *obj = new Actor();, obj.getTrueClassHash() return hash of class Actor.
@@ -16,7 +16,8 @@
 	static unsigned long __objectsCreated; \
 	static unsigned long __objectCount; \
 	static const unsigned int __classTypeHash; \
-	public: virtual const char *getClassName() { return #C; } \
+	public: \
+	virtual const char *getClassName() { return #C; } \
 	static const char* getStaticClassName() { return #C; } \
 	virtual unsigned int getClassNameSize() { return sizeof(#C); } \
 	static unsigned int getStaticClassNameSize() { return sizeof(#C); } \
@@ -31,7 +32,7 @@
 	virtual unsigned long getObjectNum() { return count; }
 
 
-class LIB_EXTERN Object
+class RZU_EXTERN Object
 {
 	DECLARE_CLASS(Object)
 

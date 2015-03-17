@@ -62,7 +62,7 @@ public: //events
 	virtual void onDone(Status status) {}
 };
 
-class LIB_EXTERN DbQueryBinding : public Object
+class RZU_EXTERN DbQueryBinding : public Object
 {
 	DECLARE_CLASS(DbQueryBinding)
 public:

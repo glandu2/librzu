@@ -7,7 +7,7 @@
 
 class SessionServerCommon;
 
-class LIB_EXTERN PacketSession : public SocketSession
+class RZU_EXTERN PacketSession : public SocketSession
 {
 	DECLARE_CLASS(PacketSession)
 

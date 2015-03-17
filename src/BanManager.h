@@ -6,7 +6,7 @@
 #include <string>
 #include <stdint.h>
 
-class LIB_EXTERN BanManager : public Object
+class RZU_EXTERN BanManager : public Object
 {
 	DECLARE_CLASS(BanManager)
 

@@ -12,7 +12,7 @@
 
 class DbConnectionPool;
 
-class LIB_EXTERN DbConnection : public Object
+class RZU_EXTERN DbConnection : public Object
 {
 	DECLARE_CLASS(DbConnection)
 public:

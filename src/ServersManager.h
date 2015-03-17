@@ -9,7 +9,7 @@
 
 class BanManager;
 
-class LIB_EXTERN ServersManager : public Object
+class RZU_EXTERN ServersManager : public Object
 {
 	DECLARE_CLASSNAME(ServersManager, 0)
 public:

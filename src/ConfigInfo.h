@@ -8,7 +8,7 @@
 #include "ConfigParamVal.h"
 #include "ConfigStatVal.h"
 
-class LIB_EXTERN ConfigInfo : public Object
+class RZU_EXTERN ConfigInfo : public Object
 {
 	DECLARE_CLASS(ConfigInfo)
 
