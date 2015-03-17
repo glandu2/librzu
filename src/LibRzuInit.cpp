@@ -3,6 +3,7 @@
 #include "Log.h"
 #include "CrashHandler.h"
 #include <openssl/crypto.h>
+#include <openssl/err.h>
 #include "uv.h"
 
 #ifdef __unix
@@ -73,6 +74,8 @@ static void initOpenssl() {
 	CRYPTO_set_dynlock_create_callback(&OPENSSL_dyn_create_function);
 	CRYPTO_set_dynlock_lock_callback(&OPENSSL_dyn_lock_function);
 	CRYPTO_set_dynlock_destroy_callback(&OPENSSL_dyn_destroy_function);
+
+	ERR_load_crypto_strings();
 }
 
 bool LibRzuInit() {
