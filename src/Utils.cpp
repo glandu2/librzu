@@ -2,14 +2,18 @@
 #include <string.h>
 #include "ConfigInfo.h"
 #include <ctype.h>
+#include <algorithm>
 
 #ifdef _WIN32
 #include <direct.h>
 #include <windows.h> //for GetModuleFileName
+#undef min
+#undef max
 #else
 #include <sys/stat.h>
 #include <unistd.h>
 #endif
+
 
 // From ffmpeg http://www.ffmpeg.org/doxygen/trunk/cutils_8c-source.html
 #define ISLEAP(y) (((y) % 4 == 0) && (((y) % 100) != 0 || ((y) % 400) == 0))
@@ -113,6 +117,18 @@ bool Utils::isAbsolute(const char* dir) {
 void Utils::autoSetAbsoluteDir(cval<std::string>& value) {
 	value.addListener(nullptr, &autoSetAbsoluteDirConfigValue);
 	autoSetAbsoluteDirConfigValue(nullptr, &value);
+}
+
+std::string Utils::convertToString(const char *str, int maxSize) {
+	return std::string(str, std::find(str, str + maxSize, '\0'));
+}
+
+std::vector<unsigned char> Utils::convertToDataArray(const unsigned char *data, int maxSize, int usedSize) {
+	return std::vector<unsigned char>(data, data + std::max(0, std::min(maxSize, usedSize)));
+}
+
+std::vector<unsigned char> Utils::convertToDataArray(const unsigned char *data, int size) {
+	return std::vector<unsigned char>(data, data + size);
 }
 
 void Utils::autoSetAbsoluteDirConfigValue(IListener*, cval<std::string>* value) {

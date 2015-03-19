@@ -4,6 +4,7 @@
 #include "Extern.h"
 #include <time.h>
 #include <string>
+#include <vector>
 #include <stdio.h>
 
 #if defined(_MSC_VER)
@@ -26,6 +27,9 @@ public:
 	static bool isAbsolute(const char* dir);
 	static void* memmem(const void *haystack, size_t hlen, const void *needle, size_t nlen);
 	static void autoSetAbsoluteDir(cval<std::string>& value);
+	static std::string convertToString(const char* str, int maxSize);
+	static std::vector<unsigned char> convertToDataArray(const unsigned char *data, int maxSize, int usedSize);
+	static std::vector<unsigned char> convertToDataArray(const unsigned char* data, int size);
 
 private:
 	static void autoSetAbsoluteDirConfigValue(IListener*, cval<std::string>* value);

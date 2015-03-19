@@ -132,16 +132,16 @@ void ClientAuthSession::onConnected() {
 #endif
 		strcpy(accountMsg.account, username.c_str());
 
-		static char cachedPassword[61] = {0};
+		static unsigned char cachedPassword[sizeof(accountMsg.password)] = {0};
 		static std::string cachedPasswordStr;
 
 		if(cachedPasswordStr != password) {
-			strcpy(cachedPassword, password.c_str());
-			desCipher.encrypt(cachedPassword, 61);
+			strcpy(reinterpret_cast<char*>(cachedPassword), password.c_str());
+			desCipher.encrypt(cachedPassword, sizeof(cachedPassword));
 			cachedPasswordStr = password;
 		}
 
-		strcpy(accountMsg.password, cachedPassword);
+		memcpy(accountMsg.password, cachedPassword, sizeof(accountMsg.password));
 
 		sendPacket(&accountMsg);
 	} else if(this->cipherMethod == ACM_RSA_AES) {

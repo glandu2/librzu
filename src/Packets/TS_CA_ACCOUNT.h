@@ -14,7 +14,7 @@ enum TS_CA_ACCOUNT::AdditionalInfoType
 struct TS_CA_ACCOUNT : public TS_MESSAGE
 {
 	char account[61];
-	char password[61];
+	unsigned char password[61];
 	static const uint16_t packetID = 10010;
 
 	struct AdditionalInfo
@@ -27,7 +27,7 @@ struct TS_CA_ACCOUNT : public TS_MESSAGE
 struct TS_CA_ACCOUNT_EPIC4 : public TS_MESSAGE
 {
 	char account[19];
-	char password[32];
+	unsigned char password[32];
 	static const uint16_t packetID = 10010;
 };
 
