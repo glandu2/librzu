@@ -22,8 +22,9 @@ public:
 	ConfigValue* getValue(const std::string& key);
 
 	template<template<class> class U, typename T>
-	U<T>& createValue(const char* key, T def) {
+	U<T>& createValue(const char* key, T def, bool isHidden = false) {
 		U<T>* value = new U<T>(def);
+		value->setHidden(isHidden);
 
 		if(!addValue(std::string(key), value).second) {
 			error("Config value already exist: %s\n", key);
@@ -33,24 +34,18 @@ public:
 	}
 
 	template<template<class> class U>
-	U<std::string>& createValue(const char* key, const char* def) {
-		U<std::string>* value = new U<std::string>(std::string(def));
-
-		if(!addValue(std::string(key), value).second) {
-			error("Config value already exist: %s\n", key);
-		}
-
-		return *value;
+	U<std::string>& createValue(const char* key, const char* def, bool isHidden = false) {
+		return createValue<U, std::string>(key, std::string(def), isHidden);
 	}
 
 	template<template<class> class U, typename T>
-	U<T>& createValue(const std::string& key, T def) {
-		return createValue<U, T>(key.c_str(), def);
+	U<T>& createValue(const std::string& key, T def, bool isHidden = false) {
+		return createValue<U, T>(key.c_str(), def, isHidden);
 	}
 
 	template<template<class> class U>
-	U<std::string>& createValue(const std::string& key, const char* def) {
-		return createValue<U>(key.c_str(), def);
+	U<std::string>& createValue(const std::string& key, const char* def, bool isHidden = false) {
+		return createValue<U>(key.c_str(), def, isHidden);
 	}
 
 	static ConfigInfo* get();

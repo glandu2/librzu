@@ -9,7 +9,7 @@
 #endif
 
 ConfigValue::ConfigValue(Type type)
-	: keyName(nullptr), type(type)
+	: keyName(nullptr), type(type), hidden(false)
 {
 }
 

@@ -40,12 +40,16 @@ public:
 
 	virtual bool isDefault();
 
+	void setHidden(bool enable) { hidden = enable; }
+	bool isHidden() { return hidden; }
+
 protected:
 	void wrongType(Type expectedType);
 
 private:
 	const std::string* keyName;
 	Type type;
+	bool hidden;
 };
 
 
