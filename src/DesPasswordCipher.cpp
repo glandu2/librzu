@@ -9,6 +9,8 @@ void DesPasswordCipher::init(const char *password) {
 
 	static_assert(sizeof(DES_key_schedule) <= sizeof(DesPasswordCipher().keySchedule),
 				  "Placeholder keySchedule is not large enough to hold DES_key_schedule");
+	static_assert(sizeof(DES_key_schedule) == sizeof(DesPasswordCipher().keySchedule),
+				  "Placeholder keySchedule is the same size as DES_key_schedule");
 
 	memset(key64bit, 0, sizeof(key64bit));
 

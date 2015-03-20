@@ -13,7 +13,7 @@ class RZU_EXTERN DesPasswordCipher
 		bool decrypt(void *buf, int len);
 
 	private:
-		char keySchedule[256];
+		char keySchedule[128];
 };
 
 #endif // DESPASSWORDCIPHER_H
