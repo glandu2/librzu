@@ -1,7 +1,4 @@
 #include "DbConnection.h"
-#include "Log.h"
-#include <stdlib.h>
-#include "EventLoop.h"
 #include "DbConnectionPool.h"
 
 DbConnection::DbConnection(DbConnectionPool* conPool, void *hdbc, void *hstmt) : conPool(conPool), hdbc(hdbc), hstmt(hstmt)

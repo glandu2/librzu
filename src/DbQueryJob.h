@@ -6,15 +6,13 @@
 #include <sqlext.h>
 #include <vector>
 #include <string>
-#include "Log.h"
-#include "ConfigParamVal.h"
 #include "EventLoop.h"
-#include <stddef.h>
 
 #define OFFSETOF(C, f, type) (size_t((type*)&((C*)1)->f) - 1)
 #define TYPEOFFIELD(C, f) decltype(((C*)1)->f)
 
 class DbConnectionPool;
+template<typename T> class cval;
 
 template<typename T> struct DbTypeBinding {};
 

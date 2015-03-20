@@ -1,5 +1,6 @@
 #include "DesPasswordCipher.h"
 #include <openssl/des.h>
+#include <string.h>
 
 void DesPasswordCipher::init(const char *password) {
 	unsigned char    key64bit[8];

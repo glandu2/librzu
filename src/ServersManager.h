@@ -3,11 +3,11 @@
 
 #include "Object.h"
 #include <unordered_map>
-#include "StartableObject.h"
 #include <string>
-#include "ConfigParamVal.h"
 
 class BanManager;
+class StartableObject;
+template<typename T> class cval;
 
 class RZU_EXTERN ServersManager : public Object
 {

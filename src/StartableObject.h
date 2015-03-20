@@ -1,8 +1,6 @@
 #ifndef ISTARTABLESESSION_H
 #define ISTARTABLESESSION_H
 
-#include <stdint.h>
-#include <string>
 #include "IListener.h"
 
 class RZU_EXTERN StartableObject : public IListener

@@ -1,8 +1,8 @@
 #include "Utils.h"
-#include <string.h>
-#include "ConfigInfo.h"
+#include "ConfigParamVal.h"
 #include <ctype.h>
 #include <algorithm>
+#include <string.h>
 
 #ifdef _WIN32
 #include <direct.h>

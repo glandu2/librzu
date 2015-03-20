@@ -1,17 +1,13 @@
 #ifndef CLIENTAUTHSESSION_H
 #define CLIENTAUTHSESSION_H
 
-#include "Object.h"
-#include "IListener.h"
-#include <string>
-#include <stdint.h>
-#include <IDelegate.h>
-#include "Packets/PacketEnums.h"
-#include <vector>
-#include "uv.h"
-#include "DesPasswordCipher.h"
 #include "EncryptedSession.h"
 #include "PacketSession.h"
+#include <string>
+#include <stdint.h>
+#include "Packets/PacketEnums.h"
+#include <vector>
+#include "DesPasswordCipher.h"
 
 struct TS_MESSAGE;
 struct TS_AC_SERVER_LIST;

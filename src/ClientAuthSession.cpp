@@ -1,6 +1,5 @@
 #include "ClientAuthSession.h"
 #include "Packets/AuthPackets.h"
-#include "EventLoop.h"
 #include "DesPasswordCipher.h"
 #include <openssl/bio.h>
 #include <openssl/pem.h>

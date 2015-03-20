@@ -1,6 +1,5 @@
 #include "SocketSession.h"
 #include "SessionServer.h"
-#include "EventLoop.h"
 #include "GlobalCoreConfig.h"
 
 #include "Socket.h"

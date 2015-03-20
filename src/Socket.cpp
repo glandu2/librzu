@@ -1,11 +1,6 @@
 #include "Socket.h"
-
-#include "Log.h"
-#include <sstream>
-#include <iomanip>
-#include <stdarg.h>
-#include <string.h>
 #include "GlobalCoreConfig.h"
+#include <string.h>
 
 Socket::Socket(uv_loop_t *uvLoop, bool logPackets)
 	: Stream(uvLoop, (uv_stream_t*)&socket, logPackets)

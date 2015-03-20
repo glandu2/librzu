@@ -1,11 +1,12 @@
 #include "SessionServer.h"
 #include "EventLoop.h"
 #include "SocketSession.h"
-#include "BanManager.h"
-#include "GlobalCoreConfig.h"
 #include "PrintfFormats.h"
 #include "Pipe.h"
 #include "Socket.h"
+#include "ConfigParamVal.h"
+#include "BanManager.h"
+#include "GlobalCoreConfig.h"
 
 SessionServerCommon::SessionServerCommon(cval<std::string>& listenIp, cval<int>& port, cval<int>* idleTimeoutSec, Log *packetLogger, BanManager* banManager)
 	: openServer(false),

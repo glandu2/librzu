@@ -6,7 +6,6 @@
 #include <list>
 #include <string>
 #include <sqlext.h>
-#include "Log.h"
 
 class DbConnection;
 

@@ -2,10 +2,10 @@
 #define SESSIONSERVER_H
 
 #include "Object.h"
-#include "Socket.h"
+#include "StartableObject.h"
+#include "Stream.h"
 #include <list>
 #include "uv.h"
-#include "StartableObject.h"
 
 class SocketSession;
 class BanManager;

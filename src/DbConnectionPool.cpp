@@ -1,7 +1,5 @@
 #include "DbConnectionPool.h"
 #include "Log.h"
-#include <stdlib.h>
-#include "EventLoop.h"
 #include "DbConnection.h"
 
 static void outputError(Log::Level errorLevel, SQLHANDLE handle, SQLSMALLINT type);

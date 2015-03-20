@@ -1,7 +1,7 @@
 #ifndef OBJECT_H
 #define OBJECT_H
 
-#include <string>
+#include <stddef.h>
 
 #include "Extern.h"
 

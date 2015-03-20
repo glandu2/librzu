@@ -8,7 +8,8 @@
 #define FLOAT2STR(i) std::to_string(i)
 #endif
 
-ConfigValue::ConfigValue(Type type) : keyName(nullptr), type(type)
+ConfigValue::ConfigValue(Type type)
+	: keyName(nullptr), type(type)
 {
 }
 

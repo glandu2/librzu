@@ -3,6 +3,7 @@
 
 #include <vector>
 #include "Extern.h"
+#include <stddef.h>
 
 typedef void** DelegateRef;
 

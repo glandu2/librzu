@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include "GlobalCoreConfig.h"
 #include "uv.h"
+#include <string>
 
 BanManager::BanManager()
 {

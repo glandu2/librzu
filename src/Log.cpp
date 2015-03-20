@@ -1,10 +1,9 @@
 #include "Log.h"
-#include "GlobalCoreConfig.h"
 #include <stdio.h>
 #include <time.h>
 #include <stdarg.h>
 #include "Utils.h"
-#include "EventLoop.h"
+#include "ConfigParamVal.h"
 
 static const char * const  LEVELSTRINGS[] = { "FATAL", "ERROR", "Warn", "Info", "Debug", "Trace" };
 

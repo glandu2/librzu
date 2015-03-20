@@ -1,10 +1,9 @@
 #include "LibRzuInit.h"
-#include "GlobalCoreConfig.h"
-#include "Log.h"
 #include "CrashHandler.h"
 #include <openssl/crypto.h>
 #include <openssl/err.h>
 #include "uv.h"
+#include <vector>
 
 #ifdef __unix
 #include <signal.h>

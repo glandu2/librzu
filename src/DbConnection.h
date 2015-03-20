@@ -3,10 +3,8 @@
 
 #include "Object.h"
 #include "uv.h"
-#include <list>
 #include <string>
 #include <sqlext.h>
-#include "Log.h"
 #include <string.h>
 #include <assert.h>
 

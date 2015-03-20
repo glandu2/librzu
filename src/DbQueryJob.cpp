@@ -1,10 +1,8 @@
 #include "DbQueryJob.h"
-#include <stdarg.h>
 #include <string.h>
-#include "EventLoop.h"
-#include "Log.h"
 #include "DbConnectionPool.h"
 #include "DbConnection.h"
+#include "ConfigParamVal.h"
 
 DbQueryBinding::DbQueryBinding(DbConnectionPool* dbConnectionPool,
 					   cval<bool>& enabled,

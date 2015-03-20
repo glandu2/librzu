@@ -2,11 +2,11 @@
 #define SOCKETSESSION_H
 
 #include "Object.h"
-#include "Socket.h"
+#include "IListener.h"
+#include "Stream.h"
 #include <list>
 
 class SessionServerCommon;
-class Log;
 
 class RZU_EXTERN SocketSession : public Object, public IListener
 {

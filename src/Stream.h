@@ -4,11 +4,10 @@
 #include "Object.h"
 #include "uv.h"
 #include "IListener.h"
-#include "stdint.h"
 #include "IDelegate.h"
+#include <stdint.h>
 #include "Log.h"
 
-#include <unordered_map>
 #include <string>
 #include <vector>
 
