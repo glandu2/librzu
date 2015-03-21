@@ -61,8 +61,8 @@ private:
 };
 
 
-#define CFG_CREATE(key, defaultValue) ConfigInfo::get()->createValue<cval>(key, defaultValue)
-#define CFG_STAT_CREATE(key, defaultValue) ConfigInfo::get()->createValue<cstatval>(key, defaultValue)
+#define CFG_CREATE(...) ConfigInfo::get()->createValue<cval>(__VA_ARGS__)
+#define CFG_STAT_CREATE(...) ConfigInfo::get()->createValue<cstatval>(__VA_ARGS__)
 #define CFG_GET(key) ConfigInfo::get()->getValue(key)
 
 #endif // CONFIGINFO_H

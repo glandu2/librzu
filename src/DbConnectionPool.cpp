@@ -41,10 +41,10 @@ DbConnectionPool::~DbConnectionPool() {
 bool DbConnectionPool::checkConnection(const char* connectionString) {
 	DbConnection* dbConnection;
 
-	info("Checking connection to \"%s\"\n", connectionString);
+	info("Checking connection to database\n");
 	dbConnection = getConnection(connectionString, "");
 	if(!dbConnection) {
-		error("Could not retrieve a DB connection from pool\n");
+		error("Could not retrieve a DB connection from pool to \"%s\"\n", connectionString);
 		return false;
 	}
 	dbConnection->releaseAndClose();
