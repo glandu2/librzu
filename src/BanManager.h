@@ -15,6 +15,7 @@ public:
 	void loadFile();
 	bool isBanned(uint32_t ip);
 
+	static void registerConfig();
 private:
 	std::unordered_set<uint32_t> bannedIps;
 };

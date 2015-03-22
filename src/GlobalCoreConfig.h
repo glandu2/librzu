@@ -41,19 +41,6 @@ struct RZU_EXTERN GlobalCoreConfig {
 		static void updateConsoleLevel(IListener* instance);
 	} log;
 
-	struct Ban {
-		//DbConfig dbBan;
-		cval<std::string> &banFile;
-
-		Ban() :
-			//dbBan("ban."),
-			banFile(CFG_CREATE("ban.ipfile", "bannedip.txt"))
-		{
-			Utils::autoSetAbsoluteDir(banFile);
-		}
-	} ban;
-
-
 	struct Statistics {
 		cstatval<int>& connectionCount, &disconnectionCount;
 
