@@ -92,7 +92,7 @@ void Log::updateLevel(bool isConsole, const std::string& level) {
 		*levelToChange = LL_Fatal;
 	else if(level == "error")
 		*levelToChange = LL_Error;
-	else if(level == "warning")
+	else if(level == "warning" || level == "warn")
 		*levelToChange = LL_Warning;
 	else if(level == "info")
 		*levelToChange = LL_Info;
