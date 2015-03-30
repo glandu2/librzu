@@ -23,6 +23,7 @@ public:
 	static struct tm * getGmTime(time_t secs, struct tm *tm);
 	static int mkdir(const char* dir);
 	static const char* getApplicationPath();
+	static const char* getApplicationName();
 	static std::string getFullPath(const std::string& partialPath);
 	static bool isAbsolute(const char* dir);
 	static void* memmem(const void *haystack, size_t hlen, const void *needle, size_t nlen);
@@ -33,6 +34,11 @@ public:
 
 private:
 	static void autoSetAbsoluteDirConfigValue(IListener*, cval<std::string>* value);
+	static void getApplicationFilePath();
+
+	static char applicationPath[260];
+	static char applicationName[260];
+	static bool applicationFilePathInitialized;
 };
 
 #endif // UTILS_H

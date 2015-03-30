@@ -15,6 +15,11 @@
 #endif
 
 
+char Utils::applicationPath[260];
+char Utils::applicationName[260];
+bool Utils::applicationFilePathInitialized;
+
+
 // From ffmpeg http://www.ffmpeg.org/doxygen/trunk/cutils_8c-source.html
 #define ISLEAP(y) (((y) % 4 == 0) && (((y) % 100) != 0 || ((y) % 400) == 0))
 #define LEAPS_COUNT(y) ((y)/4 - (y)/100 + (y)/400)
@@ -63,31 +68,55 @@ int Utils::mkdir(const char* dir) {
 
 }
 
-const char* Utils::getApplicationPath() {
-	static char applicationPath[260];
-	static bool initialized = false;
+void Utils::getApplicationFilePath() {
+	if(applicationFilePathInitialized)
+		return;
 
-	if(initialized)
-		return applicationPath;
+	char applicationFilePath[260];
 
 #ifdef _WIN32
-	GetModuleFileName(NULL, applicationPath, 259);
+	GetModuleFileName(NULL, applicationFilePath, 259);
 #else
-	readlink("/proc/self/exe", applicationPath, 259);
+	readlink("/proc/self/exe", applicationFilePath, 259);
 #endif
-	applicationPath[259] = 0;
+	applicationFilePath[259] = 0;
 
 	//remove file name
-	char *p = applicationPath + strlen(applicationPath);
-	while(p >= applicationPath) {
+	size_t len = strlen(applicationFilePath);
+	char *p = applicationFilePath + len;
+	while(p >= applicationFilePath) {
 		if(*p == '/' || *p == '\\')
 			break;
 		p--;
 	}
-	if(p >= applicationPath)
+	if(p >= applicationFilePath)
 		*p = 0;
+	strcpy(applicationPath, applicationFilePath);
+	if(p < applicationFilePath + len)
+		strcpy(applicationName, p+1);
+	else
+		applicationName[0] = '\0';
+
+	for(p = applicationName; *p != 0; p++) {
+		if(*p == '.') {
+			*p = '\0';
+			break;
+		}
+	}
+
+	applicationFilePathInitialized = true;
+}
+
+const char* Utils::getApplicationPath() {
+	getApplicationFilePath();
 
 	return applicationPath;
+}
+
+const char* Utils::getApplicationName() {
+	getApplicationFilePath();
+
+	return applicationName;
 }
 
 std::string Utils::getFullPath(const std::string &partialPath) {

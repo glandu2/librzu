@@ -13,8 +13,8 @@ struct RZU_EXTERN GlobalCoreConfig {
 		cval<bool> &useTcpNoDelay;
 
 		App() :
-			appName(CFG_CREATE("core.appname", "rzuemu")),
-			configfile(CFG_CREATE(CONFIG_FILE_KEY, "rzuemu.opt")),
+			appName(CFG_CREATE("core.appname", Utils::getApplicationName())),
+			configfile(CFG_CREATE(CONFIG_FILE_KEY, std::string(Utils::getApplicationName()) + ".opt")),
 			useTcpNoDelay(CFG_CREATE("core.usetcpnodelay", false))
 		{
 			Utils::autoSetAbsoluteDir(configfile);

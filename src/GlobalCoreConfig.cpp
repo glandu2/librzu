@@ -1,5 +1,6 @@
 #include "GlobalCoreConfig.h"
 #include "rzuGitVersion.h"
+#include "Utils.h"
 
 GlobalCoreConfig* GlobalCoreConfig::get() {
 	static GlobalCoreConfig instance;
