@@ -11,7 +11,7 @@ class SocketSession;
 class BanManager;
 class Log;
 
-class RZU_EXTERN SessionServerCommon : public Object, public StartableObject
+class RZU_EXTERN SessionServerCommon : public Object, public IListener, public StartableObject
 {
 	DECLARE_CLASS(SessionServerCommon)
 

@@ -3,7 +3,7 @@
 
 #include "IListener.h"
 
-class RZU_EXTERN StartableObject : public IListener
+class RZU_EXTERN StartableObject
 {
 public:
 	StartableObject();

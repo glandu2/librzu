@@ -23,6 +23,7 @@ public:
 	Stream* getStream() { return stream; }
 	virtual size_t read(void *buffer, size_t size) { return stream->read(buffer, size); }
 	virtual size_t write(const void *buffer, size_t size) { return stream->write(buffer, size); }
+	Stream::State getState() { return stream ? stream->getState() : Stream::UnconnectedState; }
 
 	virtual void onDataReceived() {}
 	virtual void onConnected() {}
