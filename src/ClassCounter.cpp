@@ -51,9 +51,6 @@ DECLARE_CLASSCOUNT_STATIC(SessionServerCommon)
 #include "PacketSession.h"
 DECLARE_CLASSCOUNT_STATIC(PacketSession)
 
-#include "RC4Cipher.h"
-DECLARE_CLASSCOUNT_STATIC(RC4Cipher)
-
 #include "Socket.h"
 DECLARE_CLASSCOUNT_STATIC(Socket)
 

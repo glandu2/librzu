@@ -4,10 +4,8 @@
 #include "Object.h"
 #include <string.h>
 
-class RZU_EXTERN RC4Cipher : public Object
+class RZU_EXTERN RC4Cipher
 {
-	DECLARE_CLASS(RC4Cipher)
-
 	public:
 		RC4Cipher(const char *key = nullptr) { if(key) prepare(key); }
 		void prepare(const char *key);
