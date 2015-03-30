@@ -212,6 +212,8 @@ int c99vsnprintf(char* dest, int size, const char* format, va_list args) {
 		result = _vscprintf(format, argsForCount);
 #endif
 
+	va_end(argsForCount);
+
 	return result;
 }
 
@@ -224,6 +226,7 @@ void stringformat(std::string& dest, const char* message, va_list args) {
 
 	if(result < 0) {
 		dest = message;
+		va_end(argsFor2ndPass);
 		return;
 	}
 
@@ -235,6 +238,7 @@ void stringformat(std::string& dest, const char* message, va_list args) {
 		vsnprintf(&dest[0], dest.size(), message, argsFor2ndPass);
 		dest.resize(result);
 	}
+	va_end(argsFor2ndPass);
 }
 
 void Log::logv(Level level, const char *objectName, size_t objectNameSize, const char* message, va_list args) {

@@ -54,7 +54,7 @@ bool ServersManager::start() {
 		}
 	}
 
-	return servers.size() > 0;
+	return !servers.empty();
 }
 
 bool ServersManager::stop() {
@@ -66,7 +66,7 @@ bool ServersManager::stop() {
 		serverInfo->server->stop();
 	}
 
-	return servers.size() > 0;
+	return !servers.empty();
 }
 
 bool ServersManager::start(const std::string& name) {
