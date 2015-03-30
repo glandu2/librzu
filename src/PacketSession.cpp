@@ -78,23 +78,27 @@ void PacketSession::onDataReceived() {
 			return;
 		} else if(buffer->currentMessageSize == 0) {
 			read(&buffer->currentMessageSize, 4);
+			if(buffer->currentMessageSize <= 4)
+				buffer->currentMessageSize = 0;
 			buffer->discardPacket = buffer->currentMessageSize > MAX_PACKET_SIZE;
+
+			buffer->currentMessageSize -= 4;
 		}
 
 		if(buffer->currentMessageSize != 0 && buffer->discardPacket) {
 			buffer->currentMessageSize -= (uint32_t) inputStream->discard(buffer->currentMessageSize);
-		} else if(buffer->currentMessageSize != 0 && inputStream->getAvailableBytes() >= (buffer->currentMessageSize - 4)) {
-			if(buffer->currentMessageSize > buffer->bufferSize) {
+		} else if(buffer->currentMessageSize != 0 && inputStream->getAvailableBytes() >= buffer->currentMessageSize) {
+			if(buffer->currentMessageSize+4 > buffer->bufferSize) {
 				if(buffer->bufferSize)
 					delete[] buffer->buffer;
-				buffer->bufferSize = buffer->currentMessageSize;
-				buffer->buffer = new uint8_t[buffer->currentMessageSize];
+				buffer->bufferSize = buffer->currentMessageSize+4;
+				buffer->buffer = new uint8_t[buffer->currentMessageSize+4];
 			}
-			reinterpret_cast<TS_MESSAGE*>(buffer->buffer)->size = buffer->currentMessageSize;
-			read(buffer->buffer + 4, buffer->currentMessageSize - 4);
+			reinterpret_cast<TS_MESSAGE*>(buffer->buffer)->size = buffer->currentMessageSize+4;
+			read(buffer->buffer + 4, buffer->currentMessageSize);
 			dispatchPacket(reinterpret_cast<TS_MESSAGE*>(buffer->buffer));
 
 			buffer->currentMessageSize = 0;
 		}
-	} while((buffer->currentMessageSize == 0 && inputStream->getAvailableBytes() >= 4) || (buffer->currentMessageSize != 0 && inputStream->getAvailableBytes() >= (buffer->currentMessageSize - 4)));
+	} while((buffer->currentMessageSize == 0 && inputStream->getAvailableBytes() >= 4) || (buffer->currentMessageSize != 0 && inputStream->getAvailableBytes() >= buffer->currentMessageSize));
 }
