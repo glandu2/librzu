@@ -77,7 +77,11 @@ void Utils::getApplicationFilePath() {
 #ifdef _WIN32
 	GetModuleFileName(NULL, applicationFilePath, 259);
 #else
-	readlink("/proc/self/exe", applicationFilePath, 259);
+	int bytesRead = readlink("/proc/self/exe", applicationFilePath, 259);
+	if(bytesRead == -1)
+		applicationFilePath[0] = 0;
+	else
+		applicationFilePath[bytesRead] = 0;
 #endif
 	applicationFilePath[259] = 0;
 
