@@ -17,3 +17,6 @@ else()
 endif()
 
 add_lib(${TARGET_NAME} "${SOURCE_FILES}" "${LIBS}")
+if(BUILD_SHARED_LIBS)
+    install(TARGETS ${TARGET_NAME} RUNTIME DESTINATION ./)
+endif()
