@@ -73,7 +73,7 @@ bool DbQueryBinding::process(IDbQueryJob* queryJob, void* instance, ExecuteMode 
 
 	if(!connection->execute(queryStr.c_str())) {
 		connection->releaseWithError();
-		debug("DB query failed: %s\n", queryStr.c_str());
+		warn("DB query failed: %s\n", queryStr.c_str());
 		errorCount++;
 		if(errorCount > 10) {
 			enabled.setBool(false);
