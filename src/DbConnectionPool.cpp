@@ -91,7 +91,7 @@ DbConnection* DbConnectionPool::addConnection(const char* connectionString, bool
 	SQLHDBC hdbc = nullptr;
 	SQLHSTMT hstmt = nullptr;
 
-	debug("Connecting to %s\n", connectionString);
+	debug("Connecting to database\n");
 
 	result = checkSqlResult(SQLAllocHandle(SQL_HANDLE_DBC, henv, &hdbc),
 							"SQLAllocHandle",
