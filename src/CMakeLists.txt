@@ -9,7 +9,7 @@ endif()
 
 find_package(OpenSSL REQUIRED)
 include_directories(${OPENSSL_INCLUDE_DIR})
-set(LIBS uv ${OPENSSL_LIBRARIES})
+set(LIBS uv ${OPENSSL_LIBRARIES} z)
 if(WIN32)
     list(APPEND LIBS odbc32 dbghelp)
 else()

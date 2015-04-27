@@ -164,6 +164,49 @@ std::vector<unsigned char> Utils::convertToDataArray(const unsigned char *data, 
 	return std::vector<unsigned char>(data, data + size);
 }
 
+void Utils::convertDataToHex(const void *data, int size, char *outHex) {
+	static const char hexMapping[16] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f' };
+	int i;
+	for(i = 0; i < size; i++) {
+		outHex[i*2] = hexMapping[static_cast<const char*>(data)[i] >> 4];
+		outHex[i*2+1] = hexMapping[static_cast<const char*>(data)[i] & 0x0F];
+	}
+	outHex[i*2] = '\0';
+}
+
+std::vector<unsigned char> Utils::convertHexToData(const std::string &hex) {
+	int i;
+	int size = hex.size() / 2;
+	std::vector<unsigned char> result;
+
+	result.reserve(size);
+
+	for(i = 0; i < size; i++) {
+		unsigned char c = hex[i*2];
+		unsigned char val = 0;
+
+		if(c >= '0' && c <= '9')
+			val = (c - '0') << 4;
+		else if(c >= 'A' && c <= 'F')
+			val = (c - 'A') << 4;
+		else if(c >= 'a' && c <= 'f')
+			val = (c - 'a') << 4;
+
+		c = hex[i*2+1];
+
+		if(c >= '0' && c <= '9')
+			val |= (c - '0');
+		else if(c >= 'A' && c <= 'F')
+			val |= c - 'A';
+		else if(c >= 'a' && c <= 'f')
+			val |= c - 'a';
+
+		result.push_back(val);
+	}
+
+	return result;
+}
+
 void Utils::autoSetAbsoluteDirConfigValue(IListener*, cval<std::string>* value) {
 	std::string dir = value->get();
 	std::string fullPath;

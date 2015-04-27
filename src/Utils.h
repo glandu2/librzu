@@ -29,8 +29,12 @@ public:
 	static void* memmem(const void *haystack, size_t hlen, const void *needle, size_t nlen);
 	static void autoSetAbsoluteDir(cval<std::string>& value);
 	static std::string convertToString(const char* str, int maxSize);
+
 	static std::vector<unsigned char> convertToDataArray(const unsigned char *data, int maxSize, int usedSize);
 	static std::vector<unsigned char> convertToDataArray(const unsigned char* data, int size);
+
+	static void convertDataToHex(const void* data, int size, char* outHex);
+	static std::vector<unsigned char> convertHexToData(const std::string& hex);
 
 private:
 	static void autoSetAbsoluteDirConfigValue(IListener*, cval<std::string>* value);
