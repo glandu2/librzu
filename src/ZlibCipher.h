@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include "Extern.h"
+#include <stdint.h>
 
 class RZU_EXTERN ZlibCipher
 {
