@@ -188,18 +188,18 @@ std::vector<unsigned char> Utils::convertHexToData(const std::string &hex) {
 		if(c >= '0' && c <= '9')
 			val = (c - '0') << 4;
 		else if(c >= 'A' && c <= 'F')
-			val = (c - 'A') << 4;
+			val = (c - 'A' + 10) << 4;
 		else if(c >= 'a' && c <= 'f')
-			val = (c - 'a') << 4;
+			val = (c - 'a' + 10) << 4;
 
 		c = hex[i*2+1];
 
 		if(c >= '0' && c <= '9')
 			val |= (c - '0');
 		else if(c >= 'A' && c <= 'F')
-			val |= c - 'A';
+			val |= c - 'A' + 10;
 		else if(c >= 'a' && c <= 'f')
-			val |= c - 'a';
+			val |= c - 'a' + 10;
 
 		result.push_back(val);
 	}
