@@ -36,6 +36,16 @@ public:
 	static void convertDataToHex(const void* data, int size, char* outHex);
 	static std::vector<unsigned char> convertHexToData(const std::string& hex);
 
+	template<typename T>
+	static T min(T val1, T val2) {
+		return val1 < val2 ? val1 : val2;
+	}
+
+	template<typename T>
+	static T max(T val1, T val2) {
+		return val1 > val2 ? val1 : val2;
+	}
+
 private:
 	static void autoSetAbsoluteDirConfigValue(IListener*, cval<std::string>* value);
 	static void getApplicationFilePath();
