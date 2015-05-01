@@ -213,7 +213,7 @@ private:
 	void* instance;
 	ExecuteMode mode;
 	bool done;
-	bool canceled;
+	volatile bool canceled;
 };
 
 #endif // DBQUERYJOB_H
