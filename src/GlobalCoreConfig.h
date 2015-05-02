@@ -32,7 +32,7 @@ struct RZU_EXTERN GlobalCoreConfig {
 			file(CFG_CREATE("core.log.file", CFG_GET("core.appname")->getString() + ".log")),
 			level(CFG_CREATE("core.log.level", "info")),
 			consoleLevel(CFG_CREATE("core.log.consolelevel", "info")),
-			maxQueueSize(CFG_CREATE("core.log.maxqueuesize", 1000))
+			maxQueueSize(CFG_CREATE("core.log.maxqueuesize", 10000))
 		{
 			Utils::autoSetAbsoluteDir(dir);
 			level.addListener(this, &updateConsoleLevel);
