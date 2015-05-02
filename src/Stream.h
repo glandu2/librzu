@@ -93,6 +93,7 @@ public:
 
 	void setLogPackedEnable(bool enable) { this->logPackets = enable; }
 	void setPacketLogger(Log* packetLogger) { this->packetLogger = packetLogger; }
+	Log* getPacketLogger() { return this->packetLogger; }
 
 	void resetPacketTransferedFlag() { packetTransferedSinceLastCheck = false; }
 	bool isPacketTransferedSinceLastCheck() { return packetTransferedSinceLastCheck; }

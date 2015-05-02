@@ -47,6 +47,8 @@ public:
 
 	bool wouldLog(Level level) { return (level <= fileMaxLevel || level <= consoleMaxLevel) && stop == false; }
 
+	size_t getQueueUsage();
+
 protected:
 	static void updateEnabled(IListener* instance, cval<bool>* level);
 	static void updateFileLevel(IListener* instance, cval<std::string>* level);
@@ -90,6 +92,7 @@ private:
 	cval<int>& maxQueueSize;
 	bool updateFileRequested;
 	bool messageQueueFull;
+	size_t maxQueueSizeReached;
 };
 
 #endif // LOG_H

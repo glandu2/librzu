@@ -15,7 +15,8 @@ Log::Log(cval<bool>& enabled, cval<std::string>& fileMaxLevel, cval<std::string>
 	consoleMaxLevel(LL_Info),
 	dir(dir),
 	fileName(fileName),
-	maxQueueSize(maxQueueSize)
+	maxQueueSize(maxQueueSize),
+	maxQueueSizeReached(0)
 {
 	construct(enabled, dir, fileName);
 
@@ -31,7 +32,8 @@ Log::Log(cval<bool>& enabled, Level fileMaxLevel, Level consoleMaxLevel, cval<st
 	consoleMaxLevel(LL_Info),
 	dir(dir),
 	fileName(fileName),
-	maxQueueSize(maxQueueSize)
+	maxQueueSize(maxQueueSize),
+	maxQueueSizeReached(0)
 {
 	construct(enabled, dir, fileName);
 
@@ -258,8 +260,14 @@ void Log::logv(Level level, const char *objectName, size_t objectNameSize, const
 		this->messageQueue.push_back(msg);
 	else
 		this->messageQueueFull = true;
+	if(this->messageQueue.size() > maxQueueSizeReached)
+		maxQueueSizeReached = this->messageQueue.size();
 	uv_cond_signal(&this->messageListCond);
 	uv_mutex_unlock(&this->messageListMutex);
+}
+
+size_t Log::getQueueUsage() {
+	return maxQueueSizeReached;
 }
 
 /*************************************/
