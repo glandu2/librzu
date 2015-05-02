@@ -56,3 +56,6 @@ DECLARE_CLASSCOUNT_STATIC(Socket)
 
 #include "SocketSession.h"
 DECLARE_CLASSCOUNT_STATIC(SocketSession)
+
+#include "TelnetSession.h"
+DECLARE_CLASSCOUNT_STATIC(TelnetSession)
