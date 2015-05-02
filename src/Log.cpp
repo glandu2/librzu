@@ -328,8 +328,17 @@ void Log::logWritterThread() {
 	uv_once(&initMutexOnce, &initMutex);
 
 	while(endLoop == false) {
-		uv_mutex_lock(&this->messageListMutex);
+		size_t pendingMessages;
 
+		uv_mutex_lock(&this->messageListMutex);
+		pendingMessages = this->messageQueue.size();
+		uv_mutex_unlock(&this->messageListMutex);
+
+		// Flush only if we will wait
+		if(pendingMessages == 0 && logFile)
+			fflush(logFile);
+
+		uv_mutex_lock(&this->messageListMutex);
 		while(this->messageQueue.size() == 0 && this->stop == false) {
 			uv_cond_wait(&this->messageListCond, &this->messageListMutex);
 		}
@@ -371,6 +380,7 @@ void Log::logWritterThread() {
 					fprintf(logFile, "Failed to change log file to %s\n", this->fileName.get().c_str());
 				}
 				logFile = newfile;
+				setvbuf(logFile, nullptr, _IOFBF, 64*1024);
 			}
 		}
 
@@ -403,9 +413,6 @@ void Log::logWritterThread() {
 
 			delete msg;
 		}
-
-		if(logFile)
-			fflush(logFile);
 
 		messagesToWrite->clear();
 	}
