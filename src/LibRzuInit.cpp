@@ -4,6 +4,8 @@
 #include <openssl/err.h>
 #include "uv.h"
 #include <vector>
+#include <stdlib.h>
+#include <time.h>
 
 #ifdef __unix
 #include <signal.h>
@@ -78,6 +80,8 @@ static void initOpenssl() {
 }
 
 bool LibRzuInit() {
+	srand((unsigned int)time(NULL));
+
 	disableSigPipe();
 	CrashHandler::setProcessExceptionHandlers();
 	CrashHandler::setThreadExceptionHandlers();

@@ -9,6 +9,8 @@
 #include <windows.h> //for GetModuleFileName
 #undef min
 #undef max
+#elif defined(__APPLE__)
+#include <mach-o/dyld.h>
 #else
 #include <sys/stat.h>
 #include <unistd.h>
@@ -76,14 +78,24 @@ void Utils::getApplicationFilePath() {
 
 #ifdef _WIN32
 	GetModuleFileName(NULL, applicationFilePath, 259);
+#elif defined(__APPLE__)
+	uint32_t size = sizeof(applicationFilePath);
+	_NSGetExecutablePath(applicationFilePath, &size)
+#elif defined(__sun)
+	strncpy(applicationFilePath, getexecname(), sizeof(applicationFilePath));
 #else
-	int bytesRead = readlink("/proc/self/exe", applicationFilePath, 259);
+	char exePath[128];
+	sprintf(exePath, "/proc/%d/exe", getpid());
+	int bytesRead = readlink(exePath, applicationFilePath, 259);
 	if(bytesRead == -1)
 		applicationFilePath[0] = 0;
 	else
 		applicationFilePath[bytesRead] = 0;
 #endif
 	applicationFilePath[259] = 0;
+
+	if(applicationFilePath[0] == 0)
+		strcpy(applicationFilePath, ".");
 
 	//remove file name
 	size_t len = strlen(applicationFilePath);
@@ -150,6 +162,18 @@ bool Utils::isAbsolute(const char* dir) {
 void Utils::autoSetAbsoluteDir(cval<std::string>& value) {
 	value.addListener(nullptr, &autoSetAbsoluteDirConfigValue);
 	autoSetAbsoluteDirConfigValue(nullptr, &value);
+}
+
+std::string Utils::convertToString(int i) {
+	char buffer[16];
+	snprintf(buffer, sizeof(buffer), "%d", i);
+	return std::string(buffer);
+}
+
+std::string Utils::convertToString(float i) {
+	char buffer[128];
+	snprintf(buffer, sizeof(buffer), "%f", i);
+	return std::string(buffer);
 }
 
 std::string Utils::convertToString(const char *str, int maxSize) {

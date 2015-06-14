@@ -1,6 +1,7 @@
 #include "CrashHandler.h"
 #include "Log.h"
 #include "EventLoop.h"
+#include <stdlib.h>
 
 //if equal to 1, don't do a crashdump
 static long long int dumpMode = 0;

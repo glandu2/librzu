@@ -1,6 +1,7 @@
 #include "Stream.h"
 #include <stdarg.h>
 #include <string.h>
+#include <stdlib.h>
 
 #include "EventLoop.h"
 #include "Socket.h"

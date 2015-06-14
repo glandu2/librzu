@@ -5,7 +5,6 @@
 #include "uv.h"
 #include <list>
 #include <string>
-#include <sqlext.h>
 
 class DbConnection;
 
@@ -23,7 +22,7 @@ public:
 	int closeAllConnections();
 	void* getHenv() { return henv; }
 
-	static bool checkSqlResult(SQLRETURN result, const char* function, SQLHENV henv, SQLHDBC hdbc, SQLHSTMT hstmt);
+	static bool checkSqlResult(int result, const char* function, void* henv, void* hdbc, void* hstmt);
 
 	static DbConnectionPool* getInstance() { return instance; }
 

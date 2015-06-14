@@ -28,6 +28,8 @@ public:
 	static bool isAbsolute(const char* dir);
 	static void* memmem(const void *haystack, size_t hlen, const void *needle, size_t nlen);
 	static void autoSetAbsoluteDir(cval<std::string>& value);
+	static std::string convertToString(int i);
+	static std::string convertToString(float i);
 	static std::string convertToString(const char* str, int maxSize);
 
 	static std::vector<unsigned char> convertToDataArray(const unsigned char *data, int maxSize, int usedSize);

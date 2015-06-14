@@ -377,10 +377,13 @@ void Log::logWritterThread() {
 
 				FILE* newfile = openLogFile(logFile, this->dir.get(), this->fileName.get(), lastYear, lastMonth, lastDay);
 				if(newfile == logFile) {
-					fprintf(logFile, "Failed to change log file to %s\n", this->fileName.get().c_str());
+					if(logFile)
+						fprintf(logFile, "Failed to change log file to %s\n", this->fileName.get().c_str());
+					fprintf(stderr, "Failed to change log file to %s\n", this->fileName.get().c_str());
 				}
 				logFile = newfile;
-				setvbuf(logFile, nullptr, _IOFBF, 64*1024);
+				if(logFile)
+					setvbuf(logFile, nullptr, _IOFBF, 64*1024);
 			}
 		}
 
