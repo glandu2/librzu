@@ -81,11 +81,13 @@ void Utils::getApplicationFilePath() {
 #elif defined(__APPLE__)
 	uint32_t size = sizeof(applicationFilePath);
 	_NSGetExecutablePath(applicationFilePath, &size)
-#elif defined(__sun)
-	strncpy(applicationFilePath, getexecname(), sizeof(applicationFilePath));
 #else
 	char exePath[128];
+#if defined(__sun)
+	sprintf(exePath, "/proc/%d/path/a.out", getpid());
+#else
 	sprintf(exePath, "/proc/%d/exe", getpid());
+#endif
 	int bytesRead = readlink(exePath, applicationFilePath, 259);
 	if(bytesRead == -1)
 		applicationFilePath[0] = 0;
