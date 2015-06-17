@@ -11,9 +11,9 @@ inline void exchange(RC4_INT *a, RC4_INT *b) {
 
 void RC4Cipher::modified_RC4_set_key(int len, const unsigned char *data)
 {
-	register RC4_INT tmp;
-	register int j;
-	register RC4_INT *d;
+	RC4_INT tmp;
+	int j;
+	RC4_INT *d;
 	unsigned int i;
 
 	d= &(state.data[0]);

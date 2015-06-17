@@ -16,8 +16,8 @@ public:
 	virtual void onCommand(const std::vector<std::string>& args) = 0;
 
 protected:
-	virtual void write(const void* data, int size) { if(getStream()->getState() == Stream::ConnectedState) getStream()->write(data, size); }
-	virtual void close() { getStream()->abort(); }
+	virtual size_t write(const void* data, size_t size) { if(getStream()->getState() == Stream::ConnectedState) return SocketSession::write(data, size); else return 0; }
+	virtual void close() { abortSession(); }
 
 private:
 	void onDataReceived();

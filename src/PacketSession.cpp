@@ -22,7 +22,7 @@ void PacketSession::sendPacket(const TS_MESSAGE* data) {
 	logPacket(true, data);
 }
 
-void PacketSession::onStateChanged(Stream::State oldState, Stream::State newState) {
+void PacketSession::onStateChanged(Stream::State oldState, Stream::State newState, bool causedByRemote) {
 	if(newState == Stream::ConnectedState) {
 		inputBuffer.currentMessageSize = 0;
 

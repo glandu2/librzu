@@ -36,7 +36,7 @@ public:
 protected:
 
 	virtual void onPacketReceived(const TS_MESSAGE* packet) {}
-	virtual void onStateChanged(Stream::State oldState, Stream::State newState);
+	virtual void onStateChanged(Stream::State oldState, Stream::State newState, bool causedByRemote);
 	virtual void onError(int err);
 
 	void dispatchPacket(const TS_MESSAGE* packetData);

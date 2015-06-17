@@ -19,7 +19,7 @@ class RZU_EXTERN RC4Cipher
 	private:
 		void modified_RC4_set_key(int len, const unsigned char *data);
 
-#ifdef __arm__
+#if defined(__arm__) || defined(__ppc) || defined(__APPLE__)
 		struct RC4Key
 		{
 			unsigned char x,y;

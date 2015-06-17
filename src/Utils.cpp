@@ -80,7 +80,7 @@ void Utils::getApplicationFilePath() {
 	GetModuleFileName(NULL, applicationFilePath, 259);
 #elif defined(__APPLE__)
 	uint32_t size = sizeof(applicationFilePath);
-	_NSGetExecutablePath(applicationFilePath, &size)
+	_NSGetExecutablePath(applicationFilePath, &size);
 #else
 	char exePath[128];
 #if defined(__sun)
