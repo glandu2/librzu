@@ -32,20 +32,14 @@ static void OPENSSL_staticLock(int mode, int type, const char *file, int line) {
 	}
 }
 
-struct CRYPTO_dynlock_value * OPENSSL_dyn_create_function(const char *file, int line) {
+struct CRYPTO_dynlock_value * OPENSSL_dyn_create_function(const char *, int) {
 	struct CRYPTO_dynlock_value* lock = new struct CRYPTO_dynlock_value;
 	uv_mutex_init(&lock->mutex);
-
-	file = file;
-	line = line;
 
 	return lock;
 }
 
-void OPENSSL_dyn_lock_function(int mode, struct CRYPTO_dynlock_value *l, const char *file, int line) {
-	file = file;
-	line = line;
-
+void OPENSSL_dyn_lock_function(int mode, struct CRYPTO_dynlock_value *l, const char*, int) {
 	if(mode & CRYPTO_LOCK) {
 		uv_mutex_lock(&l->mutex);
 	} else {
@@ -53,10 +47,7 @@ void OPENSSL_dyn_lock_function(int mode, struct CRYPTO_dynlock_value *l, const c
 	}
 }
 
-void OPENSSL_dyn_destroy_function(struct CRYPTO_dynlock_value *l, const char *file, int line) {
-	file = file;
-	line = line;
-
+void OPENSSL_dyn_destroy_function(struct CRYPTO_dynlock_value *l, const char *, int) {
 	uv_mutex_destroy(&l->mutex);
 	delete l;
 }
