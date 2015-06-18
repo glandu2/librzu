@@ -6,6 +6,7 @@
 #include <vector>
 #include <stdlib.h>
 #include <time.h>
+#include "Utils.h"
 
 #ifdef __unix
 #include <signal.h>
@@ -53,7 +54,7 @@ void OPENSSL_dyn_destroy_function(struct CRYPTO_dynlock_value *l, const char *, 
 }
 
 static void initOpenssl() {
-	CRYPTO_set_id_callback(&uv_thread_self);
+	CRYPTO_set_id_callback(&Utils::getPid);
 
 	staticLocks.resize(CRYPTO_num_locks());
 	for(int i = 0; i < CRYPTO_num_locks(); i++) {

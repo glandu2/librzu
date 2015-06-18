@@ -38,6 +38,8 @@ public:
 	static void convertDataToHex(const void* data, int size, char* outHex);
 	static std::vector<unsigned char> convertHexToData(const std::string& hex);
 
+	static unsigned long getPid();
+
 private:
 	static void autoSetAbsoluteDirConfigValue(IListener*, cval<std::string>* value);
 	static void getApplicationFilePath();

@@ -9,8 +9,6 @@
 #include <windows.h> //for GetModuleFileName
 #undef min
 #undef max
-#elif defined(__APPLE__)
-#include <mach-o/dyld.h>
 #else
 #include <sys/stat.h>
 #include <unistd.h>
@@ -254,4 +252,12 @@ void* Utils::memmem(const void *haystack, size_t hlen, const void *needle, size_
 	}
 
 	return NULL;
+}
+
+unsigned long Utils::getPid() {
+#ifdef _WIN32
+	return GetCurrentProcessId();
+#else
+	return getpid();
+#endif
 }
