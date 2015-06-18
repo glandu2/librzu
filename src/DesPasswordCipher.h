@@ -6,14 +6,15 @@
 class RZU_EXTERN DesPasswordCipher
 {
 	public:
-		DesPasswordCipher(const char *password = nullptr) { if(password) init(password); }
+		DesPasswordCipher(const char *password = nullptr);
+		~DesPasswordCipher();
 
 		void init(const char *password);
 		bool encrypt(void *buf, int len);
 		bool decrypt(void *buf, int len);
 
 	private:
-		char keySchedule[128];
+		void* const keySchedule;
 };
 
 #endif // DESPASSWORDCIPHER_H

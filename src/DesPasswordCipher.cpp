@@ -2,15 +2,21 @@
 #include <openssl/des.h>
 #include <string.h>
 
-void DesPasswordCipher::init(const char *password) {
-	unsigned char    key64bit[8];
-	unsigned char   *key ;
-	int     i;
+DesPasswordCipher::DesPasswordCipher(const char *password)
+	: keySchedule(new DES_key_schedule)
+{
+	if(password)
+		init(password);
+}
 
-	static_assert(sizeof(DES_key_schedule) <= sizeof(DesPasswordCipher().keySchedule),
-				  "Placeholder keySchedule is not large enough to hold DES_key_schedule");
-	static_assert(sizeof(DES_key_schedule) == sizeof(DesPasswordCipher().keySchedule),
-				  "Placeholder keySchedule is the same size as DES_key_schedule");
+DesPasswordCipher::~DesPasswordCipher() {
+	delete static_cast<DES_key_schedule*>(keySchedule);
+}
+
+void DesPasswordCipher::init(const char *password) {
+	unsigned char key64bit[8];
+	unsigned char *key ;
+	int i;
 
 	memset(key64bit, 0, sizeof(key64bit));
 
