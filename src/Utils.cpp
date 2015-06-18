@@ -76,25 +76,11 @@ void Utils::getApplicationFilePath() {
 
 	char applicationFilePath[260];
 
-#ifdef _WIN32
-	GetModuleFileName(NULL, applicationFilePath, 259);
-#elif defined(__APPLE__)
-	uint32_t size = sizeof(applicationFilePath);
-	_NSGetExecutablePath(applicationFilePath, &size);
-#else
-	char exePath[128];
-#if defined(__sun)
-	sprintf(exePath, "/proc/%d/path/a.out", getpid());
-#else
-	sprintf(exePath, "/proc/%d/exe", getpid());
-#endif
-	int bytesRead = readlink(exePath, applicationFilePath, 259);
-	if(bytesRead == -1)
-		applicationFilePath[0] = 0;
+	size_t n = sizeof(applicationFilePath);
+	if(uv_exepath(applicationFilePath, &n) == 0)
+		applicationFilePath[n] = '\0';
 	else
-		applicationFilePath[bytesRead] = 0;
-#endif
-	applicationFilePath[259] = 0;
+		applicationFilePath[0] = '\0';
 
 	if(applicationFilePath[0] == 0)
 		strcpy(applicationFilePath, ".");
