@@ -22,32 +22,6 @@ void PacketSession::sendPacket(const TS_MESSAGE* data) {
 	logPacket(true, data);
 }
 
-void PacketSession::onStateChanged(Stream::State oldState, Stream::State newState, bool causedByRemote) {
-	if(newState == Stream::ConnectedState) {
-		inputBuffer.currentMessageSize = 0;
-
-		TS_CC_EVENT eventMsg;
-		TS_MESSAGE::initMessage<TS_CC_EVENT>(&eventMsg);
-		eventMsg.event = TS_CC_EVENT::CE_ServerConnected;
-		dispatchPacket(&eventMsg);
-	} else if(newState == Stream::UnconnectedState) {
-		TS_CC_EVENT eventMsg;
-		TS_MESSAGE::initMessage<TS_CC_EVENT>(&eventMsg);
-		eventMsg.event = TS_CC_EVENT::CE_ServerDisconnected;
-
-		dispatchPacket(&eventMsg);
-	}
-}
-
-void PacketSession::onError(int) {
-	if(getStream()->getState() == Stream::ConnectingState) {
-		TS_CC_EVENT eventMsg;
-		TS_MESSAGE::initMessage<TS_CC_EVENT>(&eventMsg);
-		eventMsg.event = TS_CC_EVENT::CE_ServerUnreachable;
-		dispatchPacket(&eventMsg);
-	}
-}
-
 void PacketSession::dispatchPacket(const TS_MESSAGE* packetData) {
 	//Log before to avoid having logging a packet send after having received this packet before logging this packet
 	logPacket(false, packetData);
