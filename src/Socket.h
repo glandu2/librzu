@@ -17,6 +17,7 @@ public:
 	const char* getLocalIpStr();
 
 	void setKeepAlive(int delay);
+	void setNoDelay(bool enable);
 
 protected:
 	virtual int connect_impl(uv_connect_t* connectRequest, const std::string & hostName, uint16_t port);

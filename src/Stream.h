@@ -74,6 +74,7 @@ public:
 	void abort(bool causedByRemote = false);
 
 	virtual void setKeepAlive(int delay) {}
+	virtual void setNoDelay(bool enable) {}
 
 	State getState() { return currentState; }
 	virtual const char* getRemoteIpStr();
