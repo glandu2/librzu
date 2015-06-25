@@ -1,17 +1,13 @@
 #ifndef CLIENTAUTHSESSION_H
 #define CLIENTAUTHSESSION_H
 
-#include "Object.h"
-#include "IListener.h"
+#include "EncryptedSession.h"
+#include "PacketSession.h"
 #include <string>
 #include <stdint.h>
-#include <IDelegate.h>
 #include "Packets/PacketEnums.h"
 #include <vector>
-#include "uv.h"
 #include "DesPasswordCipher.h"
-#include "DelegatedPacketSession.h"
-#include "EncryptedSession.h"
 
 struct TS_MESSAGE;
 struct TS_AC_SERVER_LIST;
@@ -21,7 +17,7 @@ struct TS_SC_RESULT;
 
 class ClientGameSession;
 
-class LIB_EXTERN ClientAuthSession : protected EncryptedSession<PacketSession>
+class RZU_EXTERN ClientAuthSession : protected EncryptedSession<PacketSession>
 {
 	DECLARE_CLASS(ClientAuthSession)
 	public:

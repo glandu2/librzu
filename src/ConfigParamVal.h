@@ -2,9 +2,7 @@
 #define CONFIGPARAMVAL_H
 
 #include "ConfigValue.h"
-#include <string>
 #include <list>
-#include <type_traits>
 #include "uv.h"
 #include "IDelegate.h"
 

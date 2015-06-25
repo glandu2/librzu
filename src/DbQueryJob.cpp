@@ -1,10 +1,8 @@
 #include "DbQueryJob.h"
-#include <stdarg.h>
 #include <string.h>
-#include "EventLoop.h"
-#include "Log.h"
 #include "DbConnectionPool.h"
 #include "DbConnection.h"
+#include "ConfigParamVal.h"
 
 DbQueryBinding::DbQueryBinding(DbConnectionPool* dbConnectionPool,
 					   cval<bool>& enabled,
@@ -75,7 +73,7 @@ bool DbQueryBinding::process(IDbQueryJob* queryJob, void* instance, ExecuteMode 
 
 	if(!connection->execute(queryStr.c_str())) {
 		connection->releaseWithError();
-		debug("DB query failed: %s\n", queryStr.c_str());
+		warn("DB query failed: %s\n", queryStr.c_str());
 		errorCount++;
 		if(errorCount > 10) {
 			enabled.setBool(false);

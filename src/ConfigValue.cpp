@@ -1,14 +1,9 @@
 #include "ConfigValue.h"
+#include "Utils.h"
+#include <stdlib.h>
 
-#ifdef _MSC_VER
-#define INT2STR(i) std::to_string((long long)(i))
-#define FLOAT2STR(i) std::to_string((long double)(i))
-#else
-#define INT2STR(i) std::to_string(i)
-#define FLOAT2STR(i) std::to_string(i)
-#endif
-
-ConfigValue::ConfigValue(Type type) : keyName(nullptr), type(type)
+ConfigValue::ConfigValue(Type type)
+	: keyName(nullptr), type(type), hidden(false)
 {
 }
 
@@ -31,10 +26,10 @@ std::string ConfigValue::getString() {
 			return getBool() ? "true" : "false";
 
 		case ConfigValue::Integer:
-			return INT2STR(getInt());
+			return Utils::convertToString(getInt());
 
 		case ConfigValue::Float:
-			return FLOAT2STR(getFloat());
+			return Utils::convertToString(getFloat());
 
 		case ConfigValue::String:
 			return getString(nullptr);

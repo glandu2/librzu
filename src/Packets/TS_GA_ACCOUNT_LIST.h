@@ -4,7 +4,7 @@
 #include "PacketBaseMessage.h"
 
 #pragma pack(push, 1)
-struct TS_GA_CLIENT_LOGGED_LIST : public TS_MESSAGE_WNA
+struct TS_GA_ACCOUNT_LIST : public TS_MESSAGE_WNA
 {
 	struct AccountInfo {
 		char account[61];

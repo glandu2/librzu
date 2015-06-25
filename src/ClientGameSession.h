@@ -7,7 +7,7 @@
 class ClientAuthSessionCommon;
 class ClientAuthSession;
 
-class LIB_EXTERN ClientGameSession : public EncryptedSession<PacketSession>
+class RZU_EXTERN ClientGameSession : public EncryptedSession<PacketSession>
 {
 public:
 	ClientGameSession();

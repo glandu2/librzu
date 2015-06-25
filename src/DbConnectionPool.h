@@ -5,12 +5,10 @@
 #include "uv.h"
 #include <list>
 #include <string>
-#include <sqlext.h>
-#include "Log.h"
 
 class DbConnection;
 
-class LIB_EXTERN DbConnectionPool : public Object
+class RZU_EXTERN DbConnectionPool : public Object
 {
 	DECLARE_CLASSNAME(DbConnectionPool, 0)
 public:
@@ -24,7 +22,7 @@ public:
 	int closeAllConnections();
 	void* getHenv() { return henv; }
 
-	static bool checkSqlResult(SQLRETURN result, const char* function, SQLHENV henv, SQLHDBC hdbc, SQLHSTMT hstmt);
+	static bool checkSqlResult(int result, const char* function, void* henv, void* hdbc, void* hstmt);
 
 	static DbConnectionPool* getInstance() { return instance; }
 

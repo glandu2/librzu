@@ -3,16 +3,14 @@
 
 #include "Object.h"
 #include "uv.h"
-#include <list>
 #include <string>
 #include <sqlext.h>
-#include "Log.h"
 #include <string.h>
 #include <assert.h>
 
 class DbConnectionPool;
 
-class LIB_EXTERN DbConnection : public Object
+class RZU_EXTERN DbConnection : public Object
 {
 	DECLARE_CLASS(DbConnection)
 public:

@@ -1,11 +1,5 @@
 #include "Pipe.h"
-#include "Log.h"
-#include <sstream>
-#include <iomanip>
-#include <stdarg.h>
 #include <string.h>
-#include "GlobalCoreConfig.h"
-#include "EventLoop.h"
 
 Pipe::Pipe(uv_loop_t *uvLoop, bool logPackets)
 	: Stream(uvLoop, (uv_stream_t*)&pipe, logPackets)

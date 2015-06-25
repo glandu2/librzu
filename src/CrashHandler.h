@@ -1,10 +1,10 @@
 #ifndef CRASHHANDLER_H
 #define CRASHHANDLER_H
 
-#include "LibGlobal.h"
+#include "Extern.h"
 #include "uv.h"
 
-class LIB_EXTERN CrashHandler
+class RZU_EXTERN CrashHandler
 {
 public:
 	typedef void (*TerminateCallback)(void* instance);

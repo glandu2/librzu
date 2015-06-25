@@ -1,6 +1,7 @@
 #include "ServersManager.h"
-#include "ConfigInfo.h"
+#include "ConfigParamVal.h"
 #include "BanManager.h"
+#include "StartableObject.h"
 
 ServersManager* ServersManager::instance = nullptr;
 
@@ -53,7 +54,7 @@ bool ServersManager::start() {
 		}
 	}
 
-	return servers.size() > 0;
+	return !servers.empty();
 }
 
 bool ServersManager::stop() {
@@ -65,7 +66,7 @@ bool ServersManager::stop() {
 		serverInfo->server->stop();
 	}
 
-	return servers.size() > 0;
+	return !servers.empty();
 }
 
 bool ServersManager::start(const std::string& name) {

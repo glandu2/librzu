@@ -4,6 +4,7 @@
 #include <stdarg.h>
 #include "EventLoop.h"
 #include "Log.h"
+#include "Utils.h"
 #include "GlobalCoreConfig.h"
 
 Object::Object() {
@@ -91,6 +92,25 @@ static void defaultLog(const char* suffix, const char* objectName, const char* m
 	vfprintf(stderr, message, args);
 }
 
+static Log::Level getCurrentLevel() {
+	std::string level = CONFIG_GET()->log.level.get();
+
+	if(level == "fatal" || level == "never")
+		return Log::LL_Fatal;
+	else if(level == "error")
+		return Log::LL_Error;
+	else if(level == "warning" || level == "warn")
+		return Log::LL_Warning;
+	else if(level == "info")
+		return Log::LL_Info;
+	else if(level == "debug")
+		return Log::LL_Debug;
+	else if(level == "trace")
+		return Log::LL_Trace;
+	else
+		return Log::LL_Info;
+}
+
 //level is Log::Level without leading Log::LL_
 #define LOG_USELOGGER(msg, level) \
 	Log* logger = Log::get(); \
@@ -99,7 +119,7 @@ static void defaultLog(const char* suffix, const char* objectName, const char* m
 	 \
 	if(logger) \
 		logger->logv(Log::LL_##level, this, message, args); \
-	else { \
+	else if(getCurrentLevel() >= Log::LL_##level) { \
 		defaultLog(#level, getObjectName(), message, args); \
 	} \
 	va_end(args);

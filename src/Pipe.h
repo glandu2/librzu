@@ -3,16 +3,10 @@
 
 #include "Stream.h"
 #include "uv.h"
-#include "IListener.h"
-#include "stdint.h"
-#include "IDelegate.h"
-#include "Log.h"
-
-#include <unordered_map>
+#include <stdint.h>
 #include <string>
-#include <vector>
 
-class LIB_EXTERN Pipe : public Stream
+class RZU_EXTERN Pipe : public Stream
 {
 	DECLARE_CLASS(Pipe)
 

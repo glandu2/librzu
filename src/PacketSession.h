@@ -7,7 +7,7 @@
 
 class SessionServerCommon;
 
-class LIB_EXTERN PacketSession : public SocketSession
+class RZU_EXTERN PacketSession : public SocketSession
 {
 	DECLARE_CLASS(PacketSession)
 
@@ -26,6 +26,7 @@ private:
 
 public:
 	PacketSession();
+	virtual ~PacketSession();
 
 	void sendPacket(const TS_MESSAGE* data);
 
@@ -33,11 +34,8 @@ public:
 	static bool hasCustomPacketLoggerStatic() { return true; }
 
 protected:
-	virtual ~PacketSession();
 
 	virtual void onPacketReceived(const TS_MESSAGE* packet) {}
-	virtual void onStateChanged(Stream::State oldState, Stream::State newState);
-	virtual void onError(int err);
 
 	void dispatchPacket(const TS_MESSAGE* packetData);
 	virtual void logPacket(bool outgoing, const TS_MESSAGE* msg);

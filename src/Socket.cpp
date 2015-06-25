@@ -1,11 +1,6 @@
 #include "Socket.h"
-
-#include "Log.h"
-#include <sstream>
-#include <iomanip>
-#include <stdarg.h>
-#include <string.h>
 #include "GlobalCoreConfig.h"
+#include <string.h>
 
 Socket::Socket(uv_loop_t *uvLoop, bool logPackets)
 	: Stream(uvLoop, (uv_stream_t*)&socket, logPackets)
@@ -93,6 +88,10 @@ const char* Socket::getLocalIpStr() {
 
 void Socket::setKeepAlive(int delay) {
 	uv_tcp_keepalive(&socket, delay > 0 ? true : false, delay);
+}
+
+void Socket::setNoDelay(bool enable) {
+	uv_tcp_nodelay(&socket, enable);
 }
 
 void Socket::onStateChanged(State oldState, State newState) {

@@ -7,14 +7,18 @@ if( versioncmakefound )
     add_git_version_info(${TARGET_NAME}_GitVersion SOURCE_FILES)
 endif()
 
-add_library(${TARGET_NAME} ${SOURCE_FILES})
-
-include_directories(${OPENSSL_INCLUDE_DIR})
-target_link_libraries(${TARGET_NAME} uv ${OPENSSL_LIBRARIES})
+find_package(OpenSSL REQUIRED)
+find_package(ODBC REQUIRED)
+include_directories(${OPENSSL_INCLUDE_DIR} ${ODBC_INCLUDE_DIR})
+set(LIBS uv ${OPENSSL_LIBRARIES} z)
+list(APPEND LIBS ${ODBC_LIBRARY})
 if(WIN32)
-    target_link_libraries(${TARGET_NAME} odbc32 dbghelp)
-else()
-    target_link_libraries(${TARGET_NAME} odbc)
+    list(APPEND LIBS dbghelp)
 endif()
 
-install(TARGETS ${TARGET_NAME} DESTINATION ./)
+add_lib(${TARGET_NAME} "${SOURCE_FILES}" "${LIBS}")
+if(BUILD_SHARED_LIBS)
+    install(TARGETS ${TARGET_NAME}
+        RUNTIME DESTINATION ./
+        LIBRARY DESTINATION ./)
+endif()

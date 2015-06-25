@@ -5,7 +5,7 @@
 #include "uv.h"
 #include <list>
 
-class LIB_EXTERN EventLoop : public Object
+class RZU_EXTERN EventLoop : public Object
 {
 	DECLARE_CLASS(EventLoop)
 

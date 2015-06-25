@@ -1,6 +1,7 @@
 #include "CrashHandler.h"
 #include "Log.h"
 #include "EventLoop.h"
+#include <stdlib.h>
 
 //if equal to 1, don't do a crashdump
 static long long int dumpMode = 0;
@@ -340,8 +341,6 @@ void __cdecl invalidParameterHandler(
 		unsigned int line,
 		uintptr_t pReserved)
 {
-	pReserved;
-
 	// Invalid parameter exception
 
 	// Retrieve exception information
@@ -357,7 +356,7 @@ void __cdecl invalidParameterHandler(
 }
 
 // CRT new operator fault handler
-int __cdecl newHandler(size_t)
+static int __cdecl newHandler(size_t)
 {
 	// 'new' operator memory allocation exception
 

@@ -247,6 +247,13 @@ void ConfigInfo::dump(bool showDefault) {
 	for(it = ordered.cbegin(), itEnd = ordered.cend(); it != itEnd; ++it) {
 		ConfigValue* v = it->second;
 		char type = 'd';
+		std::string value;
+
+		if(v->isHidden() == false)
+			value = v->getString();
+		else
+			value = "<hidden>";
+
 		switch(v->getType()) {
 			case ConfigValue::Bool:
 				type = 'B';
@@ -265,6 +272,6 @@ void ConfigInfo::dump(bool showDefault) {
 				break;
 		}
 		if(!v->isDefault() || showDefault)
-			info("%c%c%s:%s\n", type, v->isDefault() ? '*' : ' ', it->first.c_str(), v->getString().c_str());
+			info("%c%c%s:%s\n", type, v->isDefault() ? '*' : ' ', it->first.c_str(), value.c_str());
 	}
 }

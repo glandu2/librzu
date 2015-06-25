@@ -2,13 +2,31 @@
 #include <stdio.h>
 #include "GlobalCoreConfig.h"
 #include "uv.h"
+#include <string>
+#include <assert.h>
 
-BanManager::BanManager()
-{
+struct BanConfig {
+	cval<std::string> &banFile;
+
+	BanConfig() :
+		banFile(CFG_CREATE("ban.ipfile", "bannedip.txt"))
+	{
+		Utils::autoSetAbsoluteDir(banFile);
+	}
+};
+static BanConfig* config = nullptr;
+
+void BanManager::registerConfig() {
+	if(!config)
+		config = new BanConfig;
+}
+
+BanManager::BanManager() {
+	assert(config != nullptr);
 }
 
 void BanManager::loadFile() {
-	std::string banFileName = CONFIG_GET()->ban.banFile.get();
+	std::string banFileName = config->banFile.get();
 
 	FILE* file = fopen(banFileName.c_str(), "rb");
 	if(!file) {

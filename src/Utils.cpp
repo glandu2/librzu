@@ -1,15 +1,24 @@
 #include "Utils.h"
-#include <string.h>
-#include "ConfigInfo.h"
+#include "ConfigParamVal.h"
 #include <ctype.h>
+#include <algorithm>
+#include <string.h>
 
 #ifdef _WIN32
 #include <direct.h>
 #include <windows.h> //for GetModuleFileName
+#undef min
+#undef max
 #else
 #include <sys/stat.h>
 #include <unistd.h>
 #endif
+
+
+char Utils::applicationPath[260];
+char Utils::applicationName[260];
+bool Utils::applicationFilePathInitialized;
+
 
 // From ffmpeg http://www.ffmpeg.org/doxygen/trunk/cutils_8c-source.html
 #define ISLEAP(y) (((y) % 4 == 0) && (((y) % 100) != 0 || ((y) % 400) == 0))
@@ -59,31 +68,57 @@ int Utils::mkdir(const char* dir) {
 
 }
 
-const char* Utils::getApplicationPath() {
-	static char applicationPath[260];
-	static bool initialized = false;
+void Utils::getApplicationFilePath() {
+	if(applicationFilePathInitialized)
+		return;
 
-	if(initialized)
-		return applicationPath;
+	char applicationFilePath[260];
 
-#ifdef _WIN32
-	GetModuleFileName(NULL, applicationPath, 259);
-#else
-	readlink("/proc/self/exe", applicationPath, 259);
-#endif
-	applicationPath[259] = 0;
+	size_t n = sizeof(applicationFilePath);
+	if(uv_exepath(applicationFilePath, &n) == 0)
+		applicationFilePath[n] = '\0';
+	else
+		applicationFilePath[0] = '\0';
+
+	if(applicationFilePath[0] == 0)
+		strcpy(applicationFilePath, ".");
 
 	//remove file name
-	char *p = applicationPath + strlen(applicationPath);
-	while(p >= applicationPath) {
+	size_t len = strlen(applicationFilePath);
+	char *p = applicationFilePath + len;
+	while(p >= applicationFilePath) {
 		if(*p == '/' || *p == '\\')
 			break;
 		p--;
 	}
-	if(p >= applicationPath)
+	if(p >= applicationFilePath)
 		*p = 0;
+	strcpy(applicationPath, applicationFilePath);
+	if(p < applicationFilePath + len)
+		strcpy(applicationName, p+1);
+	else
+		applicationName[0] = '\0';
+
+	for(p = applicationName; *p != 0; p++) {
+		if(*p == '.') {
+			*p = '\0';
+			break;
+		}
+	}
+
+	applicationFilePathInitialized = true;
+}
+
+const char* Utils::getApplicationPath() {
+	getApplicationFilePath();
 
 	return applicationPath;
+}
+
+const char* Utils::getApplicationName() {
+	getApplicationFilePath();
+
+	return applicationName;
 }
 
 std::string Utils::getFullPath(const std::string &partialPath) {
@@ -113,6 +148,73 @@ bool Utils::isAbsolute(const char* dir) {
 void Utils::autoSetAbsoluteDir(cval<std::string>& value) {
 	value.addListener(nullptr, &autoSetAbsoluteDirConfigValue);
 	autoSetAbsoluteDirConfigValue(nullptr, &value);
+}
+
+std::string Utils::convertToString(int i) {
+	char buffer[16];
+	snprintf(buffer, sizeof(buffer), "%d", i);
+	return std::string(buffer);
+}
+
+std::string Utils::convertToString(float i) {
+	char buffer[128];
+	snprintf(buffer, sizeof(buffer), "%f", i);
+	return std::string(buffer);
+}
+
+std::string Utils::convertToString(const char *str, int maxSize) {
+	return std::string(str, std::find(str, str + maxSize, '\0'));
+}
+
+std::vector<unsigned char> Utils::convertToDataArray(const unsigned char *data, int maxSize, int usedSize) {
+	return std::vector<unsigned char>(data, data + std::max(0, std::min(maxSize, usedSize)));
+}
+
+std::vector<unsigned char> Utils::convertToDataArray(const unsigned char *data, int size) {
+	return std::vector<unsigned char>(data, data + size);
+}
+
+void Utils::convertDataToHex(const void *data, int size, char *outHex) {
+	static const char hexMapping[16] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f' };
+	int i;
+	for(i = 0; i < size; i++) {
+		outHex[i*2] = hexMapping[static_cast<const char*>(data)[i] >> 4];
+		outHex[i*2+1] = hexMapping[static_cast<const char*>(data)[i] & 0x0F];
+	}
+	outHex[i*2] = '\0';
+}
+
+std::vector<unsigned char> Utils::convertHexToData(const std::string &hex) {
+	int i;
+	int size = hex.size() / 2;
+	std::vector<unsigned char> result;
+
+	result.reserve(size);
+
+	for(i = 0; i < size; i++) {
+		unsigned char c = hex[i*2];
+		unsigned char val = 0;
+
+		if(c >= '0' && c <= '9')
+			val = (c - '0') << 4;
+		else if(c >= 'A' && c <= 'F')
+			val = (c - 'A' + 10) << 4;
+		else if(c >= 'a' && c <= 'f')
+			val = (c - 'a' + 10) << 4;
+
+		c = hex[i*2+1];
+
+		if(c >= '0' && c <= '9')
+			val |= (c - '0');
+		else if(c >= 'A' && c <= 'F')
+			val |= c - 'A' + 10;
+		else if(c >= 'a' && c <= 'f')
+			val |= c - 'a' + 10;
+
+		result.push_back(val);
+	}
+
+	return result;
 }
 
 void Utils::autoSetAbsoluteDirConfigValue(IListener*, cval<std::string>* value) {
@@ -150,4 +252,12 @@ void* Utils::memmem(const void *haystack, size_t hlen, const void *needle, size_
 	}
 
 	return NULL;
+}
+
+unsigned long Utils::getPid() {
+#ifdef _WIN32
+	return GetCurrentProcessId();
+#else
+	return getpid();
+#endif
 }

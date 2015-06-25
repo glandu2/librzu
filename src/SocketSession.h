@@ -2,13 +2,13 @@
 #define SOCKETSESSION_H
 
 #include "Object.h"
-#include "Socket.h"
+#include "IListener.h"
+#include "Stream.h"
 #include <list>
 
 class SessionServerCommon;
-class Log;
 
-class LIB_EXTERN SocketSession : public Object, public IListener
+class RZU_EXTERN SocketSession : public Object, public IListener
 {
 	DECLARE_CLASS(SocketSession)
 public:
@@ -23,6 +23,7 @@ public:
 	Stream* getStream() { return stream; }
 	virtual size_t read(void *buffer, size_t size) { return stream->read(buffer, size); }
 	virtual size_t write(const void *buffer, size_t size) { return stream->write(buffer, size); }
+	Stream::State getState() { return stream ? stream->getState() : Stream::UnconnectedState; }
 
 	virtual void onDataReceived() {}
 	virtual void onConnected() {}
@@ -47,8 +48,6 @@ private:
 	static void onDataReceivedStatic(IListener* instance, Stream *stream);
 	static void onSocketStateChanged(IListener* instance, Stream*, Stream::State oldState, Stream::State newState, bool causedByRemote);
 	static void socketError(IListener* instance, Stream* socket, int errnoValue);
-
-	template<class T> Stream* createStreate(bool logPackets);
 
 private:
 	Stream* stream;

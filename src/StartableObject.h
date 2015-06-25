@@ -1,12 +1,9 @@
 #ifndef ISTARTABLESESSION_H
 #define ISTARTABLESESSION_H
 
-#include <stdint.h>
-#include <string>
-#include "LibGlobal.h"
 #include "IListener.h"
 
-class LIB_EXTERN StartableObject : public IListener
+class RZU_EXTERN StartableObject
 {
 public:
 	StartableObject();

@@ -4,12 +4,13 @@
 #include <string>
 #include <vector>
 #include "Object.h"
+#include "IListener.h"
 #include "uv.h"
-#include "ConfigInfo.h"
 
 struct TS_MESSAGE;
+template<typename T> class cval;
 
-class LIB_EXTERN Log : public Object, public IListener
+class RZU_EXTERN Log : public Object, public IListener
 {
 	DECLARE_CLASS(Log)
 public:
@@ -45,6 +46,8 @@ public:
 	Level getMaxLevel() { return fileMaxLevel > consoleMaxLevel ? fileMaxLevel : consoleMaxLevel; }
 
 	bool wouldLog(Level level) { return (level <= fileMaxLevel || level <= consoleMaxLevel) && stop == false; }
+
+	size_t getQueueUsage();
 
 protected:
 	static void updateEnabled(IListener* instance, cval<bool>* level);
@@ -89,6 +92,7 @@ private:
 	cval<int>& maxQueueSize;
 	bool updateFileRequested;
 	bool messageQueueFull;
+	size_t maxQueueSizeReached;
 };
 
 #endif // LOG_H

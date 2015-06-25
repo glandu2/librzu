@@ -4,7 +4,7 @@
 #include "Object.h"
 #include <string>
 
-class LIB_EXTERN ConfigValue : public Object
+class RZU_EXTERN ConfigValue : public Object
 {
 	DECLARE_CLASS(ConfigValue)
 public:
@@ -40,12 +40,16 @@ public:
 
 	virtual bool isDefault();
 
+	void setHidden(bool enable) { hidden = enable; }
+	bool isHidden() { return hidden; }
+
 protected:
 	void wrongType(Type expectedType);
 
 private:
 	const std::string* keyName;
 	Type type;
+	bool hidden;
 };
 
 

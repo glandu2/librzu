@@ -4,15 +4,14 @@
 #include "Object.h"
 #include "uv.h"
 #include "IListener.h"
-#include "stdint.h"
 #include "IDelegate.h"
+#include <stdint.h>
 #include "Log.h"
 
-#include <unordered_map>
 #include <string>
 #include <vector>
 
-class LIB_EXTERN Stream : public Object
+class RZU_EXTERN Stream : public Object
 {
 
 public:
@@ -75,6 +74,7 @@ public:
 	void abort(bool causedByRemote = false);
 
 	virtual void setKeepAlive(int delay) {}
+	virtual void setNoDelay(bool enable) {}
 
 	State getState() { return currentState; }
 	virtual const char* getRemoteIpStr();
@@ -94,6 +94,7 @@ public:
 
 	void setLogPackedEnable(bool enable) { this->logPackets = enable; }
 	void setPacketLogger(Log* packetLogger) { this->packetLogger = packetLogger; }
+	Log* getPacketLogger() { return this->packetLogger; }
 
 	void resetPacketTransferedFlag() { packetTransferedSinceLastCheck = false; }
 	bool isPacketTransferedSinceLastCheck() { return packetTransferedSinceLastCheck; }

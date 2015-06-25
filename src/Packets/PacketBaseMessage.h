@@ -55,18 +55,6 @@ struct TS_MESSAGE {
 	}
 };
 
-//Special message for connection/disconnection events and other client side errors
-//This special packet is never send or received through any network.
-struct TS_CC_EVENT : public TS_MESSAGE {
-	enum ClientError {
-		CE_ServerConnected,
-		CE_ServerDisconnected,
-		CE_ServerUnreachable
-	} event;
-	static const uint16_t packetID = 0xFFFF;
-};
-
-
 //Special struct to prevent copy of server->client packet structs
 //WNA stand for WITH NESTED ARRAY but shorter
 struct TS_MESSAGE_WNA : public TS_MESSAGE {

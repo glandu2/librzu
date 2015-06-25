@@ -1,8 +1,8 @@
 #include "DbConnectionPool.h"
 #include "Log.h"
-#include <stdlib.h>
-#include "EventLoop.h"
 #include "DbConnection.h"
+#include <stdlib.h>
+#include <sqlext.h>
 
 static void outputError(Log::Level errorLevel, SQLHANDLE handle, SQLSMALLINT type);
 
@@ -43,10 +43,10 @@ DbConnectionPool::~DbConnectionPool() {
 bool DbConnectionPool::checkConnection(const char* connectionString) {
 	DbConnection* dbConnection;
 
-	info("Checking connection to \"%s\"\n", connectionString);
+	info("Checking connection to database\n");
 	dbConnection = getConnection(connectionString, "");
 	if(!dbConnection) {
-		error("Could not retrieve a DB connection from pool\n");
+		error("Could not retrieve a DB connection from pool to \"%s\"\n", connectionString);
 		return false;
 	}
 	dbConnection->releaseAndClose();
@@ -93,7 +93,7 @@ DbConnection* DbConnectionPool::addConnection(const char* connectionString, bool
 	SQLHDBC hdbc = nullptr;
 	SQLHSTMT hstmt = nullptr;
 
-	debug("Connecting to %s\n", connectionString);
+	debug("Connecting to database\n");
 
 	result = checkSqlResult(SQLAllocHandle(SQL_HANDLE_DBC, henv, &hdbc),
 							"SQLAllocHandle",
@@ -163,7 +163,7 @@ int DbConnectionPool::closeAllConnections() {
 	return connectionsToRemove.size();
 }
 
-bool DbConnectionPool::checkSqlResult(SQLRETURN result, const char* function, SQLHENV henv, SQLHDBC hdbc, SQLHSTMT hstmt) {
+bool DbConnectionPool::checkSqlResult(int result, const char* function, void* henv, void* hdbc, void* hstmt) {
 	if(result == SQL_SUCCESS_WITH_INFO) {
 		Log::get()->log(Log::LL_Info, "ODBC", 4, "%s: additional info:\n", function);
 		if(hstmt)

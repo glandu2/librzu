@@ -6,15 +6,15 @@
 
 #define CONFIG_FILE_KEY "configfile"
 
-struct LIB_EXTERN GlobalCoreConfig {
+struct RZU_EXTERN GlobalCoreConfig {
 
 	struct App {
 		cval<std::string> &appName, &configfile;
 		cval<bool> &useTcpNoDelay;
 
 		App() :
-			appName(CFG_CREATE("core.appname", "rzuemu")),
-			configfile(CFG_CREATE(CONFIG_FILE_KEY, "rzuemu.opt")),
+			appName(CFG_CREATE("core.appname", Utils::getApplicationName())),
+			configfile(CFG_CREATE(CONFIG_FILE_KEY, std::string(Utils::getApplicationName()) + ".opt")),
 			useTcpNoDelay(CFG_CREATE("core.usetcpnodelay", false))
 		{
 			Utils::autoSetAbsoluteDir(configfile);
@@ -32,7 +32,7 @@ struct LIB_EXTERN GlobalCoreConfig {
 			file(CFG_CREATE("core.log.file", CFG_GET("core.appname")->getString() + ".log")),
 			level(CFG_CREATE("core.log.level", "info")),
 			consoleLevel(CFG_CREATE("core.log.consolelevel", "info")),
-			maxQueueSize(CFG_CREATE("core.log.maxqueuesize", 1000))
+			maxQueueSize(CFG_CREATE("core.log.maxqueuesize", 10000))
 		{
 			Utils::autoSetAbsoluteDir(dir);
 			level.addListener(this, &updateConsoleLevel);
@@ -40,19 +40,6 @@ struct LIB_EXTERN GlobalCoreConfig {
 
 		static void updateConsoleLevel(IListener* instance);
 	} log;
-
-	struct Ban {
-		//DbConfig dbBan;
-		cval<std::string> &banFile;
-
-		Ban() :
-			//dbBan("ban."),
-			banFile(CFG_CREATE("ban.ipfile", "bannedip.txt"))
-		{
-			Utils::autoSetAbsoluteDir(banFile);
-		}
-	} ban;
-
 
 	struct Statistics {
 		cstatval<int>& connectionCount, &disconnectionCount;
