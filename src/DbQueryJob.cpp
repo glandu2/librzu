@@ -9,13 +9,15 @@ DbQueryBinding::DbQueryBinding(DbConnectionPool* dbConnectionPool,
 					   cval<std::string>& connectionString,
 					   cval<std::string>& query,
 					   const std::vector<ParameterBinding>& parameterBindings,
-					   const std::vector<ColumnBinding>& columnBindings)
+					   const std::vector<ColumnBinding>& columnBindings,
+					   ExecuteMode mode)
 	: dbConnectionPool(dbConnectionPool),
 	  enabled(enabled),
 	  connectionString(connectionString),
 	  query(query),
 	  parameterBindings(parameterBindings),
 	  columnBindings(columnBindings),
+	  mode(mode),
 	  errorCount(0)
 {
 }
@@ -23,7 +25,7 @@ DbQueryBinding::DbQueryBinding(DbConnectionPool* dbConnectionPool,
 DbQueryBinding::~DbQueryBinding() {
 }
 
-bool DbQueryBinding::process(IDbQueryJob* queryJob, void* instance, ExecuteMode mode) {
+bool DbQueryBinding::process(IDbQueryJob* queryJob, void* instance) {
 	DbConnection* connection;
 	bool columnCountOk;
 

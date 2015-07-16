@@ -118,13 +118,13 @@ public:
 	};
 
 public:
-	DbQueryBinding(DbConnectionPool* dbConnectionPool, cval<bool>& enabled, cval<std::string>& connectionString, cval<std::string>& query, const std::vector<ParameterBinding>& parameters, const std::vector<ColumnBinding>& columns);
+	DbQueryBinding(DbConnectionPool* dbConnectionPool, cval<bool>& enabled, cval<std::string>& connectionString, cval<std::string>& query, const std::vector<ParameterBinding>& parameters, const std::vector<ColumnBinding>& columns, ExecuteMode mode);
 	virtual ~DbQueryBinding();
 
 
 protected:
 	template<class T> friend class DbQueryJob;
-	bool process(IDbQueryJob* queryJob, void* instance, ExecuteMode mode);
+	bool process(IDbQueryJob* queryJob, void* instance);
 
 private:
 	DbConnectionPool* dbConnectionPool;
@@ -133,20 +133,18 @@ private:
 	cval<std::string>& query;
 	std::vector<ParameterBinding> parameterBindings;
 	std::vector<ColumnBinding> columnBindings;
+	ExecuteMode mode;
 	int errorCount;
 };
 
 template<class T>
 class DbQueryJob : public Object, public IDbQueryJob {
 public:
-	typedef DbQueryBinding::ExecuteMode ExecuteMode;
-public:
 	DbQueryJob() : instance(nullptr), done(false), canceled(false) {}
 
-	bool execute(ExecuteMode mode) {
+	bool execute() {
 		done = false;
 		canceled = false;
-		this->mode = mode;
 
 		if(dbBinding == nullptr) {
 			error("DB binding was not initialized ! Canceling DB query\n");
@@ -186,7 +184,7 @@ protected:
 			debug("Canceled DB query in preprocess step\n");
 			return;
 		}
-		done = binding->process(this, instance, mode);
+		done = binding->process(this, instance);
 
 		onPostProcess();
 	}
@@ -211,7 +209,6 @@ protected:
 private:
 	uv_work_t req;
 	void* instance;
-	ExecuteMode mode;
 	bool done;
 	volatile bool canceled;
 };
