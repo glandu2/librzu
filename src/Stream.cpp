@@ -191,6 +191,7 @@ size_t Stream::write(WriteRequest* writeRequest) {
 		return writeRequest->buffer.len;
 	} else {
 		error("Attempt to send data but stream not connected, current state is: %s(%d)\n", (getState() < (sizeof(STATES)/sizeof(const char*))) ? STATES[getState()] : "Unknown", getState());
+		WriteRequest::destroy(writeRequest);
 		return 0;
 	}
 }
