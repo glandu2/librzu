@@ -19,6 +19,26 @@ char Utils::applicationPath[260];
 char Utils::applicationName[260];
 bool Utils::applicationFilePathInitialized;
 
+static const uint64_t EPOCH = 116444736000000000;
+
+uint64_t Utils::getTimeInMsec() {
+#ifdef _WIN32
+	FILETIME fileTime;
+	SYSTEMTIME systemTime;
+	ULARGE_INTEGER ularge;
+
+	GetSystemTime(&systemTime);
+	SystemTimeToFileTime(&systemTime, &fileTime);
+	ularge.LowPart = fileTime.dwLowDateTime;
+	ularge.HighPart = fileTime.dwHighDateTime;
+
+	return (ularge.QuadPart - EPOCH) / 10000L;
+#else
+	struct timeval tp;
+	gettimeofday(&tp, NULL);
+	return (uint64_t)tp.tv_sec * 1000 + (uint64_t)tp.tv_usec / 1000;
+#endif
+}
 
 // From ffmpeg http://www.ffmpeg.org/doxygen/trunk/cutils_8c-source.html
 #define ISLEAP(y) (((y) % 4 == 0) && (((y) % 100) != 0 || ((y) % 400) == 0))

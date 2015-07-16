@@ -6,6 +6,7 @@
 #include <string>
 #include <vector>
 #include <stdio.h>
+#include <stdint.h>
 
 #if defined(_MSC_VER)
 	#define snprintf(buffer, size, ...) _snprintf_s(buffer, size, _TRUNCATE, __VA_ARGS__)
@@ -20,6 +21,7 @@ template<typename T> class cval;
 class RZU_EXTERN Utils
 {
 public:
+	static uint64_t getTimeInMsec();
 	static struct tm * getGmTime(time_t secs, struct tm *tm);
 	static int mkdir(const char* dir);
 	static const char* getApplicationPath();
