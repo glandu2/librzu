@@ -138,7 +138,7 @@ struct TS_AC_SERVER_LIST_EX : public TS_MESSAGE_BASE {
 						buffer->read("last_login_server_idx", last_login_server_idx);
 				else
 						last_login_server_idx = 1;
-				servers.resize(buffer->read<uint16_t>("servers.size()"));
+				servers.resize(buffer->template read<uint16_t>("servers.size()"));
 				buffer->read("servers", servers);
 				buffer->read("adata", adata);
 		}
