@@ -7,7 +7,6 @@
 #include "IListener.h"
 #include "uv.h"
 
-struct TS_MESSAGE;
 template<typename T> class cval;
 
 class RZU_EXTERN Log : public Object, public IListener
