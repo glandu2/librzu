@@ -57,9 +57,10 @@ bool DbQueryBinding::process(IDbQueryJob* queryJob, void* instance) {
 
 			if(paramBinding.isStdString) {
 				std::string* str = (std::string*) ((char*)instance + paramBinding.bufferOffset);
+				// If the string is empty, put a size of 1 else SQL server complains about invalid precision
 				connection->bindParameter(paramBinding.index, SQL_PARAM_INPUT,
 										  paramBinding.cType,
-										  paramBinding.dbType, str->size(), paramBinding.dbPrecision,
+										  paramBinding.dbType, str->size() > 0 ? str->size() : 1, paramBinding.dbPrecision,
 										  (SQLPOINTER)str->c_str(), str->size(),
 										  StrLen_or_Ind);
 			} else {
