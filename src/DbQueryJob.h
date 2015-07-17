@@ -29,7 +29,9 @@ template<> struct DbTypeBinding<SQL_TIMESTAMP_STRUCT> {enum { C_TYPE = SQL_C_TIM
 template<> struct DbTypeBinding<unsigned char> : DbTypeBinding<char> {};
 template<> struct DbTypeBinding<unsigned short> : DbTypeBinding<short> {};
 template<> struct DbTypeBinding<unsigned int> : DbTypeBinding<int> {};
+template<> struct DbTypeBinding<long> : DbTypeBinding<long long> {};
 template<> struct DbTypeBinding<unsigned long long> : DbTypeBinding<long long> {};
+template<> struct DbTypeBinding<unsigned long> : DbTypeBinding<unsigned long long> {};
 
 template<int ARRAY_SIZE> struct DbTypeBinding<char[ARRAY_SIZE]> { enum { C_TYPE = SQL_C_CHAR, SQL_TYPE = SQL_VARCHAR, SQL_SIZE = ARRAY_SIZE, SQL_PRECISION = 0 }; };
 template<> struct DbTypeBinding<std::string> { enum { C_TYPE = SQL_C_CHAR, SQL_TYPE = SQL_VARCHAR, SQL_SIZE = -1, SQL_PRECISION = 0 }; };
