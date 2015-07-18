@@ -198,6 +198,7 @@ struct TS_SC_SKILL : public TS_MESSAGE
 	int32_t mp_cost;
 	int32_t caster_hp;
 	int32_t caster_mp;
+
 	union {
 		CancelType cancel;
 		CompleteType complete;

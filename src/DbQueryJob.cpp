@@ -9,13 +9,15 @@ DbQueryBinding::DbQueryBinding(DbConnectionPool* dbConnectionPool,
 					   cval<std::string>& connectionString,
 					   cval<std::string>& query,
 					   const std::vector<ParameterBinding>& parameterBindings,
-					   const std::vector<ColumnBinding>& columnBindings)
+					   const std::vector<ColumnBinding>& columnBindings,
+					   ExecuteMode mode)
 	: dbConnectionPool(dbConnectionPool),
 	  enabled(enabled),
 	  connectionString(connectionString),
 	  query(query),
 	  parameterBindings(parameterBindings),
 	  columnBindings(columnBindings),
+	  mode(mode),
 	  errorCount(0)
 {
 }
@@ -23,7 +25,7 @@ DbQueryBinding::DbQueryBinding(DbConnectionPool* dbConnectionPool,
 DbQueryBinding::~DbQueryBinding() {
 }
 
-bool DbQueryBinding::process(IDbQueryJob* queryJob, void* instance, ExecuteMode mode) {
+bool DbQueryBinding::process(IDbQueryJob* queryJob, void* instance) {
 	DbConnection* connection;
 	bool columnCountOk;
 
@@ -55,9 +57,10 @@ bool DbQueryBinding::process(IDbQueryJob* queryJob, void* instance, ExecuteMode 
 
 			if(paramBinding.isStdString) {
 				std::string* str = (std::string*) ((char*)instance + paramBinding.bufferOffset);
+				// If the string is empty, put a size of 1 else SQL server complains about invalid precision
 				connection->bindParameter(paramBinding.index, SQL_PARAM_INPUT,
 										  paramBinding.cType,
-										  paramBinding.dbType, str->size(), paramBinding.dbPrecision,
+										  paramBinding.dbType, str->size() > 0 ? str->size() : 1, paramBinding.dbPrecision,
 										  (SQLPOINTER)str->c_str(), str->size(),
 										  StrLen_or_Ind);
 			} else {
