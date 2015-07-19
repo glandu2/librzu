@@ -4,10 +4,11 @@
 #include <string.h>
 #include <stdint.h>
 #include <vector>
-//#include "../PacketBaseMessage.h"
+#include "../PacketBaseMessage.h"
 
-#define _ARG2(_0, _1, _2, _3, _4, _5, ...) _5
-#define NARG5(...) _ARG2(__VA_ARGS__, 5, 4, 3, 2, 1, 0)
+#define _ARG5(_0, _1, _2, _3, _4, _5, ...) _5
+#define _EXPAND(x) x
+#define NARG5(...) _EXPAND(_ARG5(__VA_ARGS__, 5, 4, 3, 2, 1, 0))
 
 #define __ONE_OR_TWO_ARGS(MACRO, N, ...) MACRO ## N (__VA_ARGS__)
 #define _ONE_OR_TWO_ARGS(MACRO, N, ...) __ONE_OR_TWO_ARGS(MACRO, N, __VA_ARGS__)
@@ -143,14 +144,14 @@ inline void copyDefaultValue(char val1[], const char val2[]) {
 			body(DESERIALIZATION_F_SIMPLE, DESERIALIZATION_F_ARRAY, DESERIALIZATION_F_DYNARRAY, DESERIALIZATION_F_COUNT) \
 		} \
 	}
-
+/*
 struct TS_MESSAGE_BASE {
 	TS_MESSAGE_BASE(int id) {}
 	template<class T>
 	void serialize(T* buffer) const {}
 	template<class T>
 	void deserialize(T* buffer) {}
-};
+};*/
 
 #define CREATE_PACKET(name, body, id) \
 	struct name : public TS_MESSAGE_BASE { \

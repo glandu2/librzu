@@ -14,3 +14,4 @@ include_directories("${UV_INCLUDE}")
 include_directories("${Z_INCLUDE}")
 
 add_subdirectory("${CMAKE_CURRENT_LIST_DIR}/src" src)
+add_subdirectory("${CMAKE_CURRENT_LIST_DIR}/test" test)
