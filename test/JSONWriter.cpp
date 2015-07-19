@@ -200,5 +200,9 @@ int main() {
 	jsonWriter.version = 0;
 	packet.serialize(&jsonWriter);
 
+
+	jsonWriter.version = 100000000;
+	packet.serialize(&jsonWriter);
+
 	return 0;
 }
