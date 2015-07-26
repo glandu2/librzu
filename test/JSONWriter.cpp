@@ -18,6 +18,8 @@ public:
 	int version;
 	bool newList;
 
+	int getVersion() { return version; }
+
 	void printIdent() {
 		if(!newList)
 			std::cout << ",\n";

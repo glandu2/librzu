@@ -92,6 +92,7 @@ struct TS_MESSAGE_BASE {
 		return 7;
 	}
 
+protected:
 	template<class T>
 	void serialize(T* buffer) const {
 		uint32_t size = getSize(buffer->getVersion());

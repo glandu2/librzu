@@ -31,8 +31,7 @@ int main() {
 	int i;
 	int version = EPIC_4_1;
 	for(i = 0; i < 100000000; i++) {
-		MessageBuffer buffer(packet.getSize(version));
-		buffer.version = version;
+		MessageBuffer buffer(packet.getSize(version), version);
 		packet.serialize(&buffer);
 	}
 
