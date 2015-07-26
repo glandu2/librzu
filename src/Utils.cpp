@@ -7,8 +7,6 @@
 #ifdef _WIN32
 #include <direct.h>
 #include <windows.h> //for GetModuleFileName
-#undef min
-#undef max
 #else
 #include <sys/time.h>
 #include <sys/stat.h>
