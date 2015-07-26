@@ -2,7 +2,6 @@
 #define PACKETS_PACKETBASEMESSAGE_H
 
 #include <string.h>
-#include "../MessageBuffer.h"
 
 #include <stdint.h>
 

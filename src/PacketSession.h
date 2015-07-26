@@ -3,6 +3,7 @@
 
 #include "SocketSession.h"
 #include "Packets/PacketBaseMessage.h"
+#include "MessageBuffer.h"
 #include "Stream.h"
 
 class SessionServerCommon;
@@ -28,7 +29,23 @@ public:
 	PacketSession();
 	virtual ~PacketSession();
 
+	template<class T>
+	void sendPacket(const T& data, int version) {
+		MessageBuffer buffer(data.getSize(version));
+		buffer.version = version;
+		data.serialize(&buffer);
+		if(buffer.checkFinalSize() == false) {
+			fatal("Wrong buffer size, written %d bytes, buffer allocated size: %d, computer packet size: %d\n",
+				  uint32_t(buffer.p - buffer.buffer->buffer.base),
+				  buffer.getSize(),
+				  *reinterpret_cast<const uint32_t*>(buffer.getData()));
+		}
+
+		sendPacket(reinterpret_cast<const TS_MESSAGE*>(buffer.getData()));
+	}
+
 	void sendPacket(const TS_MESSAGE* data);
+
 
 	virtual bool hasCustomPacketLogger() { return true; }
 	static bool hasCustomPacketLoggerStatic() { return true; }
