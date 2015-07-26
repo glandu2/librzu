@@ -1,5 +1,5 @@
 #include <iostream>
-#include "Packets/Structure/TS_AC_SERVER_LIST_EX2.h"
+#include "Packets/TS_AC_SERVER_LIST.h"
 
 /* Tests:
  * TestPacketServer => Test, name
@@ -94,10 +94,6 @@ public:
 	}
 
 	//String
-	void write(const char* fieldName, const std::string& val, int size) {
-		printIdent();
-		std::cout << '\"' << fieldName << "\": \"" << val << "\"";
-	}
 	void write(const char* fieldName, const char* val, int size) {
 		printIdent();
 		std::cout << '\"' << fieldName << "\": \"" << val << "\"";
@@ -171,8 +167,8 @@ public:
 };
 
 int main() {
-	TS_AC_SERVER_LIST2 packet;
-	TS_SERVER_INFO2 serverInfo[2];
+	TS_AC_SERVER_LIST packet;
+	TS_SERVER_INFO serverInfo[2];
 	JSONWriter jsonWriter;
 
 	packet.last_login_server_idx = 5;
@@ -195,13 +191,14 @@ int main() {
 
 	packet.servers.push_back(serverInfo[0]);
 	packet.servers.push_back(serverInfo[1]);
-	packet.adata = 32;
 
+	std::cout << "Version 0 serialization :\n";
 	jsonWriter.version = 0;
 	packet.serialize(&jsonWriter);
 
-
+	std::cout << "\nVersion 100000000 serialization :\n";
 	jsonWriter.version = 100000000;
+	jsonWriter.newList = true;
 	packet.serialize(&jsonWriter);
 
 	return 0;

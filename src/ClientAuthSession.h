@@ -91,6 +91,8 @@ class RZU_EXTERN ClientAuthSession : protected EncryptedSession<PacketSession>
 		int selectedServer;
 		uint64_t oneTimePassword;
 		bool normalDisconnect;
+		int versionNumber;
+
 		static void* rsaCipher;
 
 		static DesPasswordCipher desCipher;
