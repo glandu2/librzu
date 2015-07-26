@@ -32,6 +32,11 @@
 namespace PacketDeclaration {
 
 template<typename T>
+inline void copyDefaultValue(T& val1, bool val2) {
+	val1 = val2;
+}
+
+template<typename T>
 inline void copyDefaultValue(T& val1, int val2) {
 	val1 = val2;
 }

@@ -5,11 +5,12 @@
 #include <openssl/pem.h>
 #include <openssl/rsa.h>
 #include "ClientGameSession.h"
+#include "Packets/Epics.h"
 
 DesPasswordCipher ClientAuthSession::desCipher("MERONG");
 
 ClientAuthSession::ClientAuthSession(ClientGameSession* gameSession)
-	: gameSession(gameSession), versionNumber(EPIC_9_1)
+	: gameSession(gameSession)
 {
 	if(gameSession)
 		gameSession->setAuthSession(this);
@@ -38,7 +39,9 @@ void ClientAuthSession::close() {
 
 void ClientAuthSession::retreiveServerList() {
 	TS_CA_SERVER_LIST getServerListMsg;
-	sendPacket(getServerListMsg, versionNumber);
+
+	TS_MESSAGE::initMessage<TS_CA_SERVER_LIST>(&getServerListMsg);
+	sendPacket(&getServerListMsg);
 }
 
 bool ClientAuthSession::selectServer(uint16_t serverId) {
@@ -56,8 +59,9 @@ bool ClientAuthSession::selectServer(uint16_t serverId) {
 		return false;
 	}
 
+	TS_MESSAGE::initMessage<TS_CA_SELECT_SERVER>(&selectServerMsg);
 	selectServerMsg.server_idx = serverId;
-	sendPacket(selectServerMsg, versionNumber);
+	sendPacket(&selectServerMsg);
 
 	return true;
 }
@@ -89,14 +93,16 @@ void ClientAuthSession::onPacketReceived(const TS_MESSAGE* packetData) {
 		{
 			const TS_AC_RESULT_WITH_STRING* resultMsg = reinterpret_cast<const TS_AC_RESULT_WITH_STRING*>(packetData);
 			if(resultMsg->request_msg_id == TS_CA_ACCOUNT::packetID) {
-				onAuthResult((TS_ResultCode)resultMsg->result, std::string(resultMsg->string.begin(), resultMsg->string.end()));
+				onAuthResult((TS_ResultCode)resultMsg->result, std::string(resultMsg->string, resultMsg->strSize));
 			}
 			break;
 		}
 
-		case TS_AC_SERVER_LIST::packetID:
-			onPacketServerList(reinterpret_cast<const TS_AC_SERVER_LIST*>(packetData));
+		case TS_AC_SERVER_LIST::packetID: {
+			MessageBuffer buffer(packetData, EPIC_9_1);
+			process<TS_AC_SERVER_LIST>(&buffer, &ClientAuthSession::onPacketServerList);
 			break;
+		}
 
 		case TS_AC_SELECT_SERVER::packetID:
 			onPacketSelectServerResult(reinterpret_cast<const TS_AC_SELECT_SERVER*>(packetData));
@@ -110,14 +116,17 @@ void* ClientAuthSession::rsaCipher = nullptr;
 void ClientAuthSession::onConnected() {
 	TS_CA_VERSION versionMsg;
 
+	TS_MESSAGE::initMessage<TS_CA_VERSION>(&versionMsg);
 #ifndef NDEBUG
 	memset(versionMsg.szVersion, 0, sizeof(versionMsg.szVersion));
 #endif
 	strcpy(versionMsg.szVersion, version.c_str());
-	sendPacket(versionMsg, versionNumber);
+	sendPacket(&versionMsg);
 
 	if(this->cipherMethod == ACM_DES) {
 		TS_CA_ACCOUNT accountMsg;
+
+		TS_MESSAGE::initMessage<TS_CA_ACCOUNT>(&accountMsg);
 
 #ifndef NDEBUG
 		memset(accountMsg.account, 0, sizeof(accountMsg.account));
@@ -136,9 +145,9 @@ void ClientAuthSession::onConnected() {
 
 		memcpy(accountMsg.password, cachedPassword, sizeof(accountMsg.password));
 
-		sendPacket(accountMsg, versionNumber >= EPIC_8_1_1_RSA ? EPIC_8_1 : versionNumber);
+		sendPacket(&accountMsg);
 	} else if(this->cipherMethod == ACM_RSA_AES) {
-		TS_CA_RSA_PUBLIC_KEY keyMsg;
+		TS_CA_RSA_PUBLIC_KEY *keyMsg;
 		int public_key_size;
 
 		if(!rsaCipher)
@@ -148,21 +157,25 @@ void ClientAuthSession::onConnected() {
 		PEM_write_bio_RSA_PUBKEY(b, (RSA*)rsaCipher);
 
 		public_key_size = BIO_get_mem_data(b, NULL);
+		keyMsg = TS_MESSAGE_WNA::create<TS_CA_RSA_PUBLIC_KEY, unsigned char>(public_key_size);
 
-		keyMsg.key.resize(public_key_size);
-		BIO_read(b, &keyMsg.key[0], public_key_size);
+		keyMsg->key_size = public_key_size;
+
+		BIO_read(b, keyMsg->key, public_key_size);
 		BIO_free(b);
 
-		sendPacket(keyMsg, EPIC_8_1_1_RSA);
+		sendPacket(keyMsg);
+		TS_MESSAGE_WNA::destroy(keyMsg);
 	}
 }
 
 void ClientAuthSession::onPacketAuthPasswordKey(const TS_AC_AES_KEY_IV* packet) {
-	TS_CA_ACCOUNT accountMsg;
+	TS_CA_ACCOUNT_RSA accountMsg;
 	unsigned char decrypted_data[256];
 	int data_size;
 	bool ok = false;
 
+	TS_MESSAGE::initMessage<TS_CA_ACCOUNT_RSA>(&accountMsg);
 	memset(accountMsg.account, 0, sizeof(accountMsg.account));
 
 	EVP_CIPHER_CTX e_ctx;
@@ -171,7 +184,7 @@ void ClientAuthSession::onPacketAuthPasswordKey(const TS_AC_AES_KEY_IV* packet) 
 	int len = password.size();
 	int p_len = len, f_len = 0;
 
-	data_size = RSA_private_decrypt(packet->rsa_encrypted_data.size(), &packet->rsa_encrypted_data[0], decrypted_data, (RSA*)rsaCipher, RSA_PKCS1_PADDING);
+	data_size = RSA_private_decrypt(packet->data_size, (unsigned char*)packet->rsa_encrypted_data, decrypted_data, (RSA*)rsaCipher, RSA_PKCS1_PADDING);
 //	RSA_free((RSA*)rsaCipher);
 //	rsaCipher = 0;
 	if(data_size != 32) {
@@ -212,20 +225,20 @@ end:
 	accountMsg.password_size = p_len + f_len;
 	accountMsg.dummy[0] = accountMsg.dummy[1] = accountMsg.dummy[2] = 0;
 	accountMsg.unknown_00000100 = 0x00000100;
-	sendPacket(accountMsg, EPIC_8_1_1_RSA);
+	sendPacket(&accountMsg);
 }
 
-void ClientAuthSession::onPacketServerList(const TS_AC_SERVER_LIST* packet) {
+void ClientAuthSession::onPacketServerList(TS_AC_SERVER_LIST& packet) {
 	std::vector<ServerInfo> serverList;
 	ServerInfo currentServerInfo;
 	ServerConnectionInfo serverConnectionInfo;
-	const std::vector<TS_SERVER_INFO>& packetServerList = packet->servers;
+	const std::vector<TS_SERVER_INFO>& packetServerList = packet.servers;
 
-	serverList.reserve(packetServerList.size());
+	serverList.reserve(packet.servers.size());
 	selectedServer = 0;
 	this->serverList.clear();
 
-	for(size_t i=0; i < packetServerList.size(); ++i) {
+	for(int i=0; i < packet.servers.size(); ++i) {
 		currentServerInfo.serverId = packetServerList[i].server_idx;
 		currentServerInfo.serverIp = packetServerList[i].server_ip;
 		currentServerInfo.serverPort = packetServerList[i].server_port;
@@ -240,11 +253,11 @@ void ClientAuthSession::onPacketServerList(const TS_AC_SERVER_LIST* packet) {
 		serverConnectionInfo.port = currentServerInfo.serverPort;
 		this->serverList.push_back(serverConnectionInfo);
 
-		if(packetServerList[i].server_idx == packet->last_login_server_idx)
+		if(packetServerList[i].server_idx == packet.last_login_server_idx)
 			selectedServer = i;
 	}
 
-	onServerList(serverList, packet->last_login_server_idx);
+	onServerList(serverList, packet.last_login_server_idx);
 }
 
 void ClientAuthSession::onPacketSelectServerResult(const TS_AC_SELECT_SERVER* packet) {

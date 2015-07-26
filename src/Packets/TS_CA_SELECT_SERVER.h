@@ -1,11 +1,14 @@
 #ifndef PACKETS_TS_CA_SELECT_SERVER_H
 #define PACKETS_TS_CA_SELECT_SERVER_H
 
-#include "PacketDeclaration.h"
+#include "PacketBaseMessage.h"
 
-#define TS_CA_SELECT_SERVER_DEF(simple_, array_, dynarray_, count_) \
-	simple_(uint16_t, server_idx)
-
-CREATE_PACKET(TS_CA_SELECT_SERVER, 10023);
+#pragma pack(push, 1)
+struct TS_CA_SELECT_SERVER : public TS_MESSAGE
+{
+	uint16_t server_idx;
+	static const uint16_t packetID = 10023;
+};
+#pragma pack(pop)
 
 #endif // PACKETS_TS_CA_SELECT_SERVER_H

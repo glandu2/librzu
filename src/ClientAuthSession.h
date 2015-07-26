@@ -17,7 +17,7 @@ struct TS_SC_RESULT;
 
 class ClientGameSession;
 
-class RZU_EXTERN ClientAuthSession : protected EncryptedSession<PacketSession>
+class RZU_EXTERN ClientAuthSession : public EncryptedSession<PacketSession>
 {
 	DECLARE_CLASS(ClientAuthSession)
 	public:
@@ -63,7 +63,7 @@ class RZU_EXTERN ClientAuthSession : protected EncryptedSession<PacketSession>
 		void onConnected();
 		void onDisconnected(bool causedByRemote);
 		void onPacketAuthPasswordKey(const TS_AC_AES_KEY_IV *packet);
-		void onPacketServerList(const TS_AC_SERVER_LIST* packet);
+		void onPacketServerList(TS_AC_SERVER_LIST &packet);
 		void onPacketSelectServerResult(const TS_AC_SELECT_SERVER* packet);
 		void onPacketGameAuthResult(const TS_SC_RESULT* packet);
 
@@ -91,8 +91,6 @@ class RZU_EXTERN ClientAuthSession : protected EncryptedSession<PacketSession>
 		int selectedServer;
 		uint64_t oneTimePassword;
 		bool normalDisconnect;
-		int versionNumber;
-
 		static void* rsaCipher;
 
 		static DesPasswordCipher desCipher;
