@@ -7,6 +7,11 @@ if( versioncmakefound )
     add_git_version_info(${TARGET_NAME}_GitVersion SOURCE_FILES)
 endif()
 
+if(BUILD_SHARED_LIBS)
+  add_definitions(-DUSING_UV_SHARED)
+  add_definitions(-DBUILDING_LIBRZU)
+endif()
+
 find_package(OpenSSL REQUIRED)
 find_package(ODBC REQUIRED)
 include_directories(${OPENSSL_INCLUDE_DIR} ${ODBC_INCLUDE_DIR})
