@@ -1,29 +1,17 @@
 #ifndef PACKETS_TS_AC_RESULT_WITH_STRING_H
 #define PACKETS_TS_AC_RESULT_WITH_STRING_H
 
-#include "PacketBaseMessage.h"
+#include "PacketDeclaration.h"
 
 //not in 5.2 client
 
-#pragma pack(push, 1)
-struct TS_AC_RESULT_WITH_STRING : public TS_MESSAGE_WNA
-{
-	enum LOGIN_SUCCESS_FLAG
-	{
-		LSF_EULA_ACCEPTED = 0x1,
-		LSF_ACCOUNT_BLOCK_WARNING = 0x2,
-		LSF_DISTRIBUTION_CODE_REQUIRED = 0x4
-	};
+#define TS_AC_RESULT_WITH_STRING_DEF(simple_, array_, dynarray_, count_) \
+	simple_(uint16_t, request_msg_id) \
+	simple_(uint16_t, result) \
+	simple_(LOGIN_SUCCESS_FLAG, login_flag) \
+	count_ (int32_t, strSize, string) \
+	dynarray_(char, string)
 
-	uint16_t request_msg_id;
-	uint16_t result;
-	int32_t login_flag;
-	int32_t strSize;
-
-	char string[0];
-
-	static const uint16_t packetID = 10002;
-};
-#pragma pack(pop)
+CREATE_PACKET(TS_AC_RESULT_WITH_STRING, 10002);
 
 #endif // PACKETS_TS_AC_RESULT_WITH_STRING_H

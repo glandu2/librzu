@@ -1,24 +1,21 @@
 #ifndef PACKETS_TS_AC_RESULT_H
 #define PACKETS_TS_AC_RESULT_H
 
-#include "PacketBaseMessage.h"
 #include "PacketEnums.h"
+#include "PacketDeclaration.h"
 
-#pragma pack(push, 1)
-struct TS_AC_RESULT : public TS_MESSAGE
+enum LOGIN_SUCCESS_FLAG : int32_t
 {
-	enum LOGIN_SUCCESS_FLAG
-	{
-		LSF_EULA_ACCEPTED = 0x1,
-		LSF_ACCOUNT_BLOCK_WARNING = 0x2,
-		LSF_DISTRIBUTION_CODE_REQUIRED = 0x4
-	};
-
-	uint16_t request_msg_id;
-	uint16_t result;
-	int32_t login_flag;
-	static const uint16_t packetID = 10000;
+	LSF_EULA_ACCEPTED = 0x1,
+	LSF_ACCOUNT_BLOCK_WARNING = 0x2,
+	LSF_DISTRIBUTION_CODE_REQUIRED = 0x4
 };
-#pragma pack(pop)
+
+#define TS_AC_RESULT_DEF(simple_, array_, dynarray_, count_) \
+	simple_(uint16_t, request_msg_id) \
+	simple_(uint16_t, result) \
+	simple_(int32_t, login_flag)
+
+CREATE_PACKET(TS_AC_RESULT, 10000);
 
 #endif // PACKETS_TS_AC_RESULT_H

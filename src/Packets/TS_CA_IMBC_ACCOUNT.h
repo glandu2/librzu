@@ -1,29 +1,15 @@
 #ifndef PACKETS_TS_CA_IMBC_ACCOUNT_H
 #define PACKETS_TS_CA_IMBC_ACCOUNT_H
 
-#include "PacketBaseMessage.h"
+#include "PacketDeclaration.h"
 
-#pragma pack(push, 1)
-struct TS_CA_IMBC_ACCOUNT : public TS_MESSAGE
-{
-	char account[61];
-	unsigned char password[48];
-	static const uint16_t packetID = 10012;
-};
+#define TS_CA_IMBC_ACCOUNT_DEF(simple_, array_, dynarray_, count_) \
+	array_(char, account, 61) \
+	simple_(uint32_t, password_size, version >= EPIC_8_1_1_RSA, 48) \
+	array_(def)(unsigned char, password, 64) \
+	array_(impl)(unsigned char, password, 64, version >= EPIC_8_1_1_RSA) \
+	array_(impl)(unsigned char, password, 48, version <  EPIC_8_1_1_RSA)
 
-struct TS_CA_IMBC_ACCOUNT_RSA : public TS_MESSAGE
-{
-		char account[61];
-		unsigned int password_size;
-		unsigned char password[64];
-		static const int packetID = 10012;
-
-		struct AdditionalInfo
-		{
-				char type;
-				unsigned short size;
-		};
-};
-#pragma pack(pop)
+CREATE_PACKET(TS_CA_IMBC_ACCOUNT, 10012);
 
 #endif // PACKETS_TS_CA_IMBC_ACCOUNT_H

@@ -1,14 +1,10 @@
 #ifndef PACKETS_TS_CA_SERVER_LIST_H
 #define PACKETS_TS_CA_SERVER_LIST_H
 
-#include "PacketBaseMessage.h"
+#include "PacketDeclaration.h"
 
-#pragma pack(push, 1)
-struct TS_CA_SERVER_LIST : public TS_MESSAGE
-{
-	static const uint16_t packetID = 10021;
-};
+#define TS_CA_SERVER_LIST_DEF(simple_, array_, dynarray_, count_)
 
-#pragma pack(pop)
+CREATE_PACKET(TS_CA_SERVER_LIST, 10021);
 
 #endif // PACKETS_TS_CA_SERVER_LIST_H

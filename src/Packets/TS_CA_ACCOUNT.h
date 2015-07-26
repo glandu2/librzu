@@ -1,51 +1,26 @@
 #ifndef PACKETS_TS_CA_ACCOUNT_H
 #define PACKETS_TS_CA_ACCOUNT_H
 
-#include "PacketBaseMessage.h"
+#include "PacketDeclaration.h"
 
-/*struct TS_CA_ACCOUNT;
-enum TS_CA_ACCOUNT::AdditionalInfoType
+struct TS_CA_ACCOUNT__AdditionalInfo
 {
-	BLACKBOX = 0x0,
-	MACADDRESS = 0x1,
-};*/
-
-#pragma pack(push, 1)
-struct TS_CA_ACCOUNT : public TS_MESSAGE
-{
-	char account[61];
-	unsigned char password[61];
-	static const uint16_t packetID = 10010;
-
-	struct AdditionalInfo
-	{
-		int8_t type;
-		uint16_t size;
-	};
+		char type;
+		unsigned short size;
 };
 
-struct TS_CA_ACCOUNT_EPIC4 : public TS_MESSAGE
-{
-	char account[19];
-	unsigned char password[32];
-	static const uint16_t packetID = 10010;
-};
+// if version > EPIC_8_1_1_RSA, this packet contains RSA encrypted password
+#define TS_CA_ACCOUNT_DEF(simple_, array_, dynarray_, count_) \
+	array_(def)(char, account, 61) \
+	array_(impl)(char, account, 61, version >= EPIC_5_1) \
+	array_(impl)(char, account, 19, version <  EPIC_5_1) \
+	simple_(uint32_t, password_size, version >= EPIC_8_1_1_RSA, (version >= EPIC_5_1)? 61 : 32 ) /* 61 and 32 must match password real field size (in packet) */ \
+	array_(def)(unsigned char, password, 61) \
+	array_(impl)(unsigned char, password, 61, version >= EPIC_5_1) \
+	array_(impl)(unsigned char, password, 32, version <  EPIC_5_1) \
+	array_(uint32_t, dummy, 3, version >= EPIC_8_1_1_RSA) \
+	simple_(uint32_t, unknown_00000100, version >= EPIC_8_1_1_RSA)
 
-struct TS_CA_ACCOUNT_RSA : public TS_MESSAGE
-{
-		char account[61];
-		unsigned int password_size;
-		unsigned char password[61];
-		unsigned int dummy[3];
-		unsigned int unknown_00000100;
-		static const int packetID = 10010;
-
-		struct AdditionalInfo
-		{
-				char type;
-				unsigned short size;
-		};
-};
-#pragma pack(pop)
+CREATE_PACKET(TS_CA_ACCOUNT, 10010);
 
 #endif // PACKETS_TS_CA_ACCOUNT_H

@@ -1,0 +1,11 @@
+#ifndef PACKETS_EPICS_H
+#define PACKETS_EPICS_H
+
+#define EPIC_2_1 0x020100
+#define EPIC_4_1 0x040100
+#define EPIC_5_1 0x050100
+#define EPIC_8_1 0x080100
+#define EPIC_8_1_1_RSA 0x080101
+#define EPIC_9_1 0x090100
+
+#endif // PACKETS_EPICS_H
