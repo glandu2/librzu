@@ -163,32 +163,32 @@ getSizeOf(const T& value, int version) {
 #define DESERIALIZATION_F_COUNT(...) OVERLOADED_CALL(DESERIALIZATION_F_COUNT, __VA_ARGS__)
 
 #define DESERIALIZATION_F_SIMPLE2(type, name) \
-	buffer->read<type>(#name, name);
+	buffer->template read<type>(#name, name);
 #define DESERIALIZATION_F_SIMPLE3(type, name, cond) \
-	if(cond) buffer->read<type>(#name, name);
+	if(cond) buffer->template read<type>(#name, name);
 #define DESERIALIZATION_F_SIMPLE4(type, name, cond, defaultval) \
-	if(cond) buffer->read<type>(#name, name); else PacketDeclaration::copyDefaultValue(name, defaultval);
+	if(cond) buffer->template read<type>(#name, name); else PacketDeclaration::copyDefaultValue(name, defaultval);
 
 #define DESERIALIZATION_F_ARRAY3(type, name, size) \
-	buffer->read<type>(#name, name, size);
+	buffer->template read<type>(#name, name, size);
 #define DESERIALIZATION_F_ARRAY4(type, name, size, cond) \
-	if(cond) buffer->read<type>(#name, name, size);
+	if(cond) buffer->template read<type>(#name, name, size);
 #define DESERIALIZATION_F_ARRAY5(type, name, size, cond, defaultval) \
-	if(cond) buffer->read<type>(#name, name, size); else PacketDeclaration::copyDefaultValue(name, defaultval);
+	if(cond) buffer->template read<type>(#name, name, size); else PacketDeclaration::copyDefaultValue(name, defaultval);
 
 #define DESERIALIZATION_F_DYNARRAY2(type, name) \
-	buffer->read<type>(#name, name);
+	buffer->template read<type>(#name, name);
 #define DESERIALIZATION_F_DYNARRAY3(type, name, cond) \
-	if(cond) buffer->read<type>(#name, name);
+	if(cond) buffer->template read<type>(#name, name);
 #define DESERIALIZATION_F_DYNARRAY4(type, name, cond, defaultval) \
-	if(cond) buffer->read<type>(#name, name); else PacketDeclaration::copyDefaultValue(name, defaultval);
+	if(cond) buffer->template read<type>(#name, name); else PacketDeclaration::copyDefaultValue(name, defaultval);
 
 #define DESERIALIZATION_F_COUNT3(type, name, ref) \
-	ref.resize(buffer->template read<type>(#name));
+	buffer->template readSize<type>(#name, ref);
 #define DESERIALIZATION_F_COUNT4(type, name, ref, cond) \
-	if(cond) ref.resize(buffer->template read<type>(#name));
+	if(cond) buffer->template readSize<type>(#name, ref);
 #define DESERIALIZATION_F_COUNT5(type, name, ref, cond, defaultval) \
-	if(cond) ref.resize(buffer->template read<type>(#name)); else PacketDeclaration::copyDefaultValue(name, defaultval);
+	if(cond) buffer->template readSize<type>(#name, ref); else PacketDeclaration::copyDefaultValue(name, defaultval);
 
 // def / impl mode implementation
 // needed to bypass recursion limitation
@@ -254,13 +254,15 @@ getSizeOf(const T& value, int version) {
 	\
 		template<class T> \
 		void serialize(T* buffer) const { \
-			const int version = buffer->version; \
+			const int version = buffer->getVersion(); \
+			(void)(version); \
 			name ## _DEF(SERIALIZATION_F_SIMPLE, SERIALIZATION_F_ARRAY, SERIALIZATION_F_DYNARRAY, SERIALIZATION_F_COUNT) \
 		} \
 	\
 		template<class T> \
 		void deserialize(T* buffer) { \
-			const int version = buffer->version; \
+			const int version = buffer->getVersion(); \
+			(void)(version); \
 	\
 			name ## _DEF(DESERIALIZATION_F_SIMPLE, DESERIALIZATION_F_ARRAY, DESERIALIZATION_F_DYNARRAY, DESERIALIZATION_F_COUNT) \
 		} \
@@ -282,7 +284,8 @@ getSizeOf(const T& value, int version) {
 	\
 		template<class T> \
 		void serialize(T* buffer) const { \
-			const int version = buffer->version; \
+			const int version = buffer->getVersion(); \
+			(void)(version); \
 			TS_MESSAGE_BASE::serialize(buffer); \
 	\
 			name ## _DEF(SERIALIZATION_F_SIMPLE, SERIALIZATION_F_ARRAY, SERIALIZATION_F_DYNARRAY, SERIALIZATION_F_COUNT) \
@@ -290,7 +293,8 @@ getSizeOf(const T& value, int version) {
 	\
 		template<class T> \
 		void deserialize(T* buffer) { \
-			const int version = buffer->version; \
+			const int version = buffer->getVersion(); \
+			(void)(version); \
 			TS_MESSAGE_BASE::deserialize(buffer); \
 	\
 			name ## _DEF(DESERIALIZATION_F_SIMPLE, DESERIALIZATION_F_ARRAY, DESERIALIZATION_F_DYNARRAY, DESERIALIZATION_F_COUNT) \

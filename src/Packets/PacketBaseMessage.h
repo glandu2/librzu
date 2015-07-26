@@ -94,7 +94,7 @@ struct TS_MESSAGE_BASE {
 
 	template<class T>
 	void serialize(T* buffer) const {
-		uint32_t size = getSize(buffer->version);
+		uint32_t size = getSize(buffer->getVersion());
 		buffer->write("size", size);
 		buffer->write("id", id);
 		buffer->write("msg_checksum", checkMessage(size, id));

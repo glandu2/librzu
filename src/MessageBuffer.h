@@ -8,25 +8,34 @@
 #include "Packets/PacketBaseMessage.h"
 
 class MessageBuffer {
-public:
+private:
 	Stream::WriteRequest* buffer;
 	char *p;
 	int version;
+	bool bufferOverflow;
+	std::string fieldInOverflow;
 
-	MessageBuffer(size_t size) {
+public:
+
+	MessageBuffer(size_t size, int version) {
 		buffer = Stream::WriteRequest::create(size);
 		p = buffer->buffer.base;
+		this->version = version;
+		bufferOverflow = false;
 	}
 
-	MessageBuffer(const char* data, size_t size) {
+	MessageBuffer(const char* data, size_t size, int version) {
 		buffer = Stream::WriteRequest::createFromExisting(const_cast<char*>(data), size);
 		p = buffer->buffer.base;
+		this->version = version;
+		bufferOverflow = false;
 	}
 
 	MessageBuffer(const TS_MESSAGE* packet, int version) {
 		buffer = Stream::WriteRequest::createFromExisting((char*)packet, packet->size);
 		p = buffer->buffer.base;
 		this->version = version;
+		bufferOverflow = false;
 	}
 
 	~MessageBuffer() {
@@ -35,25 +44,29 @@ public:
 		}
 	}
 
-	template<class T>
-	T deserialize() {
-		T packet;
-		packet.deserialize(this);
-		return packet;
-	}
-
 	const char* getData() const { return buffer->buffer.base; }
 	char* getData() { return buffer->buffer.base; }
 	uint32_t getSize() const { return buffer->buffer.len; }
 	uint16_t getMessageId() const  { return *reinterpret_cast<const uint16_t*>(buffer->buffer.base + 4); }
-
-	void reset() {
-		p = buffer->buffer.base;
-	}
+	std::string getFieldInOverflow() const  { return fieldInOverflow; }
+	int getVersion() const { return version; }
 
 	bool checkFinalSize() const {
 		uint32_t msgSize = *reinterpret_cast<const uint32_t*>(buffer->buffer.base);
-		return msgSize == getSize() && uint32_t(p - buffer->buffer.base) == msgSize;
+		return !bufferOverflow && msgSize == getSize() && uint32_t(p - buffer->buffer.base) == msgSize;
+	}
+
+	bool checkAvailableBuffer(const char* fieldName, size_t size) {
+		if(bufferOverflow == false) {
+			bool ok = size > 0 && size < 65536 && size_t(p + size - getData()) <= size_t(getSize());
+			if(!ok) {
+				bufferOverflow = true;
+				fieldInOverflow = fieldName;
+			}
+			return ok;
+		} else {
+			return false;
+		}
 	}
 
 	// Write functions /////////////////////////
@@ -61,24 +74,30 @@ public:
 	//Primitives
 	template<typename T>
 	typename std::enable_if<std::is_fundamental<T>::value, void>::type
-	write(const char*, T val) {
-		*reinterpret_cast<T*>(p) = val;
-		p += sizeof(T);
+	write(const char* fieldName, T val) {
+		if(checkAvailableBuffer(fieldName, sizeof(T))) {
+			*reinterpret_cast<T*>(p) = val;
+			p += sizeof(T);
+		}
 	}
 
 	//Objects
 	template<typename T>
 	typename std::enable_if<!std::is_fundamental<T>::value, void>::type
-	write(const char*, const T& val) {
-		val.serialize(this);
+	write(const char* fieldName, const T& val) {
+		if(checkAvailableBuffer(fieldName, 1)) {
+			val.serialize(this);
+		}
 	}
 
 	//Fixed array of primitive
 	template<typename T>
 	typename std::enable_if<std::is_fundamental<T>::value, void>::type
-	write(const char*, const T* val, size_t size) {
-		memcpy(p, val, sizeof(T) * size);
-		p += sizeof(T) * size;
+	write(const char* fieldName, const T* val, size_t size) {
+		if(checkAvailableBuffer(fieldName, sizeof(T) * size)) {
+			memcpy(p, val, sizeof(T) * size);
+			p += sizeof(T) * size;
+		}
 	}
 
 	//Fixed array of object
@@ -88,14 +107,6 @@ public:
 		for(size_t i = 0; i < size; i++) {
 			write(fieldName, val[i]);
 		}
-	}
-
-	//String
-	void write(const char*, const std::string& val, size_t size) {
-		size_t strSize = val.size() > size ? size : val.size();
-		memcpy(p, val.c_str(), strSize);
-		memset(p + strSize, 0, size - strSize);
-		p += size;
 	}
 
 	//Dynamic array of object
@@ -112,33 +123,30 @@ public:
 	//Primitives via arg
 	template<typename T>
 	typename std::enable_if<std::is_fundamental<T>::value, void>::type
-	read(const char*, T& val) {
-		val = *reinterpret_cast<T*>(p);
-		p += sizeof(T);
-	}
-
-	//Primitives via return type (for vector.resize())
-	template<typename T>
-	typename std::enable_if<std::is_fundamental<T>::value, T>::type
-	read(const char*) {
-		T val = *reinterpret_cast<T*>(p);
-		p += sizeof(T);
-		return val;
+	read(const char* fieldName, T& val) {
+		if(checkAvailableBuffer(fieldName, sizeof(T))) {
+			val = *reinterpret_cast<T*>(p);
+			p += sizeof(T);
+		}
 	}
 
 	//Objects
 	template<typename T>
 	typename std::enable_if<!std::is_fundamental<T>::value, void>::type
-	read(const char*, T& val) {
-		val.deserialize(this);
+	read(const char* fieldName, T& val) {
+		if(checkAvailableBuffer(fieldName, 1)) {
+			val.deserialize(this);
+		}
 	}
 
 	//Fixed array of primitive
 	template<typename T>
 	typename std::enable_if<std::is_fundamental<T>::value, void>::type
-	read(const char*, T* val, size_t size) {
-		memcpy(val, p, sizeof(T) * size);
-		p += sizeof(T) * size;
+	read(const char* fieldName, T* val, size_t size) {
+		if(checkAvailableBuffer(fieldName, sizeof(T) * size)) {
+			memcpy(val, p, sizeof(T) * size);
+			p += sizeof(T) * size;
+		}
 	}
 
 	//Fixed array of objects
@@ -150,12 +158,6 @@ public:
 		}
 	}
 
-	//String
-	void read(const char*, std::string& val, size_t size) {
-		val.assign(p);
-		p += size;
-	}
-
 	//Dynamic array of object
 	template<class U>
 	void read(const char* fieldName, std::vector<U>& val) {
@@ -165,9 +167,21 @@ public:
 			read(fieldName, *it);
 	}
 
-	//Dummy read
-	void discard(const char*, size_t size) {
-		p += size;
+	//read size for objects
+	template<typename T, class U>
+	void readSize(const char* fieldName, std::vector<U>& vec) {
+		if(checkAvailableBuffer(fieldName, sizeof(T))) {
+			size_t val = *reinterpret_cast<T*>(p);
+			p += sizeof(T);
+			if(checkAvailableBuffer(fieldName, val))
+				vec.resize(val);
+		}
+	}
+
+	void discard(const char* fieldName, size_t size) {
+		if(checkAvailableBuffer(fieldName, size)) {
+			p += size;
+		}
 	}
 };
 
