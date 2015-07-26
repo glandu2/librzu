@@ -28,6 +28,15 @@ Stream::WriteRequest* Stream::WriteRequest::create(size_t dataSize) {
 	return writeRequest;
 }
 
+Stream::WriteRequest* Stream::WriteRequest::createFromExisting(char* buffer, size_t dataSize) {
+	WriteRequest* writeRequest = reinterpret_cast<WriteRequest*>(malloc(sizeof(WriteRequest)));
+
+	writeRequest->buffer.len = dataSize;
+	writeRequest->buffer.base = buffer;
+
+	return writeRequest;
+}
+
 void Stream::WriteRequest::destroy(WriteRequest* req) {
 	free(req);
 }

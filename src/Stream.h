@@ -32,13 +32,16 @@ public:
 		ClosingState		//Client & Server
 	};
 
-	struct WriteRequest {
+	struct RZU_EXTERN WriteRequest {
 		uv_write_t writeReq;
 		uv_buf_t buffer;
-		char data[];
 
 		static WriteRequest* create(size_t dataSize);
+		static WriteRequest* createFromExisting(char* buffer, size_t dataSize);
 		static void destroy(WriteRequest* req);
+
+	private:
+		char data[];
 
 	private:
 		WriteRequest();
