@@ -5,6 +5,7 @@
 #include <openssl/pem.h>
 #include <openssl/rsa.h>
 #include "ClientGameSession.h"
+#include "Packets/Epics.h"
 
 DesPasswordCipher ClientAuthSession::desCipher("MERONG");
 
@@ -97,9 +98,11 @@ void ClientAuthSession::onPacketReceived(const TS_MESSAGE* packetData) {
 			break;
 		}
 
-		case TS_AC_SERVER_LIST::packetID:
-			onPacketServerList(reinterpret_cast<const TS_AC_SERVER_LIST*>(packetData));
+		case TS_AC_SERVER_LIST::packetID: {
+			MessageBuffer buffer(packetData, EPIC_9_1);
+			process<TS_AC_SERVER_LIST>(&buffer, &ClientAuthSession::onPacketServerList);
 			break;
+		}
 
 		case TS_AC_SELECT_SERVER::packetID:
 			onPacketSelectServerResult(reinterpret_cast<const TS_AC_SELECT_SERVER*>(packetData));
@@ -225,17 +228,17 @@ end:
 	sendPacket(&accountMsg);
 }
 
-void ClientAuthSession::onPacketServerList(const TS_AC_SERVER_LIST* packet) {
+void ClientAuthSession::onPacketServerList(TS_AC_SERVER_LIST& packet) {
 	std::vector<ServerInfo> serverList;
 	ServerInfo currentServerInfo;
 	ServerConnectionInfo serverConnectionInfo;
-	const TS_AC_SERVER_LIST::TS_SERVER_INFO* packetServerList = packet->servers;
+	const std::vector<TS_SERVER_INFO>& packetServerList = packet.servers;
 
-	serverList.reserve(packet->count);
+	serverList.reserve(packetServerList.size());
 	selectedServer = 0;
 	this->serverList.clear();
 
-	for(int i=0; i < packet->count; ++i) {
+	for(int i=0; i < packetServerList.size(); ++i) {
 		currentServerInfo.serverId = packetServerList[i].server_idx;
 		currentServerInfo.serverIp = packetServerList[i].server_ip;
 		currentServerInfo.serverPort = packetServerList[i].server_port;
@@ -250,11 +253,11 @@ void ClientAuthSession::onPacketServerList(const TS_AC_SERVER_LIST* packet) {
 		serverConnectionInfo.port = currentServerInfo.serverPort;
 		this->serverList.push_back(serverConnectionInfo);
 
-		if(packetServerList[i].server_idx == packet->last_login_server_idx)
+		if(packetServerList[i].server_idx == packet.last_login_server_idx)
 			selectedServer = i;
 	}
 
-	onServerList(serverList, packet->last_login_server_idx);
+	onServerList(serverList, packet.last_login_server_idx);
 }
 
 void ClientAuthSession::onPacketSelectServerResult(const TS_AC_SELECT_SERVER* packet) {

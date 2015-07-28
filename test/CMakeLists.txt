@@ -1,0 +1,10 @@
+cmake_minimum_required(VERSION 2.8)
+
+if(BUILD_SHARED_LIBS)
+  add_definitions(-DUSING_UV_SHARED)
+  add_definitions(-DUSING_RZU_SHARED)
+endif()
+set(LIBS rzu)
+add_exe(${TARGET_NAME}_jsontest "JSONWriter.cpp" "${LIBS}")
+
+add_exe(${TARGET_NAME}_perf_serialization "test_perf.cpp" "${LIBS}")

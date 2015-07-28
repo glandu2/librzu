@@ -2,6 +2,7 @@
 #define PACKETS_PACKETBASEMESSAGE_H
 
 #include <string.h>
+
 #include <stdint.h>
 
 #ifndef __GNUC__
@@ -77,6 +78,50 @@ struct TS_MESSAGE_WNA : public TS_MESSAGE {
 		   ~TS_MESSAGE_WNA() {}
 		   TS_MESSAGE_WNA( TS_MESSAGE_WNA const & );            // undefined
 		   TS_MESSAGE_WNA& operator=( TS_MESSAGE_WNA const & ); // undefined
+};
+
+
+// New serialization
+
+struct TS_MESSAGE_BASE {
+	uint16_t id;
+
+	TS_MESSAGE_BASE(uint16_t id) : id(id) {}
+
+	virtual uint32_t getSize(int version) const {
+		return 7;
+	}
+
+protected:
+	template<class T>
+	void serialize(T* buffer) const {
+		uint32_t size = getSize(buffer->getVersion());
+		buffer->write("size", size);
+		buffer->write("id", id);
+		buffer->write("msg_checksum", checkMessage(size, id));
+	}
+
+	template<class T>
+	void deserialize(T* buffer) {
+		buffer->discard("size", 4);
+		buffer->read("id", id);
+		buffer->discard("msg_checksum", 1);
+	}
+
+private:
+	static uint8_t checkMessage(uint32_t size, uint16_t id) {
+		uint8_t value = 0;
+
+		value += size & 0xFF;
+		value += (size >> 8) & 0xFF;
+		value += (size >> 16) & 0xFF;
+		value += (size >> 24) & 0xFF;
+
+		value += id & 0xFF;
+		value += (id >> 8) & 0xFF;
+
+		return value;
+	}
 };
 
 #pragma pack(pop)
