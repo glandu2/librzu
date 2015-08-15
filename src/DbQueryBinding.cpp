@@ -1,7 +1,8 @@
-#include "DbQueryJob.h"
+#include "DbQueryBinding.h"
 #include <string.h>
 #include "DbConnectionPool.h"
 #include "DbConnection.h"
+#include "DbQueryJob.h"
 #include "ConfigParamVal.h"
 
 DbQueryBinding::DbQueryBinding(DbConnectionPool* dbConnectionPool,
@@ -25,7 +26,7 @@ DbQueryBinding::DbQueryBinding(DbConnectionPool* dbConnectionPool,
 DbQueryBinding::~DbQueryBinding() {
 }
 
-bool DbQueryBinding::process(IDbQueryJob* queryJob, void* instance) {
+bool DbQueryBinding::process(IDbQueryJob* queryJob, void* inputInstance) {
 	DbConnection* connection;
 	bool columnCountOk;
 
@@ -51,12 +52,12 @@ bool DbQueryBinding::process(IDbQueryJob* queryJob, void* instance) {
 		if(paramBinding.index > 0) {
 			SQLLEN* StrLen_or_Ind;
 			if(paramBinding.infoPtr)
-				StrLen_or_Ind = (SQLLEN*)((char*)instance +  paramBinding.infoPtr);
+				StrLen_or_Ind = (SQLLEN*)((char*)inputInstance +  paramBinding.infoPtr);
 			else
 				StrLen_or_Ind = nullptr;
 
 			if(paramBinding.isStdString) {
-				std::string* str = (std::string*) ((char*)instance + paramBinding.bufferOffset);
+				std::string* str = (std::string*) ((char*)inputInstance + paramBinding.bufferOffset);
 				// If the string is empty, put a size of 1 else SQL server complains about invalid precision
 				connection->bindParameter(paramBinding.index, SQL_PARAM_INPUT,
 										  paramBinding.cType,
@@ -67,7 +68,7 @@ bool DbQueryBinding::process(IDbQueryJob* queryJob, void* instance) {
 				connection->bindParameter(paramBinding.index, SQL_PARAM_INPUT,
 										  paramBinding.cType,
 										  paramBinding.dbType, paramBinding.dbSize, paramBinding.dbPrecision,
-										  (char*)instance + paramBinding.bufferOffset, paramBinding.bufferSize,
+										  (char*)inputInstance + paramBinding.bufferOffset, paramBinding.bufferSize,
 										  StrLen_or_Ind);
 			}
 			//TODO: print content of params buffer
@@ -100,6 +101,8 @@ bool DbQueryBinding::process(IDbQueryJob* queryJob, void* instance) {
 				return false;
 			}
 
+			void* outputInstance = queryJob->createNextLineInstance();
+
 			char columnName[32];
 			for(int col = 0; col < columnCount; col++) {
 				const int columnIndex = col + 1;
@@ -114,19 +117,19 @@ bool DbQueryBinding::process(IDbQueryJob* queryJob, void* instance) {
 					if(!strcmp(columnName, columnBinding.name.get().c_str())) {
 						if(columnBinding.isStdString)
 						{
-							std::string* str = (std::string*) ((char*)instance + columnBinding.bufferOffset);
+							std::string* str = (std::string*) ((char*)outputInstance + columnBinding.bufferOffset);
 							connection->getData(columnIndex, columnBinding.cType,
 												&str[0], str->size(), &StrLen_Or_Ind);
 							if(StrLen_Or_Ind != SQL_NULL_DATA && StrLen_Or_Ind != SQL_NO_TOTAL && (int)str->size() > StrLen_Or_Ind)
 								str->resize(StrLen_Or_Ind);
 						} else {
 							connection->getData(columnIndex, columnBinding.cType,
-												(char*)instance + columnBinding.bufferOffset, columnBinding.bufferSize,
+												(char*)outputInstance + columnBinding.bufferOffset, columnBinding.bufferSize,
 												&StrLen_Or_Ind);
 						}
 
 						if(columnBinding.isNullPtr)
-							*(bool*)((char*)instance + columnBinding.isNullPtr) = StrLen_Or_Ind == SQL_NULL_DATA;
+							*(bool*)((char*)outputInstance + columnBinding.isNullPtr) = StrLen_Or_Ind == SQL_NULL_DATA;
 
 						break;
 					}
