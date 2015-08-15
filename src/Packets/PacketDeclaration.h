@@ -51,8 +51,9 @@ inline void copyDefaultValue(T& val1, double val2) {
 	val1 = val2;
 }
 
-inline void copyDefaultValue(char val1[], const char val2[]) {
-	strcpy(val1, val2);
+template<typename T>
+inline void copyDefaultValue(T val1[], const T val2[], size_t size) {
+	memcpy(val1, val2, size);
 }
 
 template<class T>
@@ -179,7 +180,12 @@ getSizeOf(const T& value, int version) {
 #define DESERIALIZATION_F_ARRAY4(type, name, size, cond) \
 	if(cond) buffer->template read<type>(#name, name, size);
 #define DESERIALIZATION_F_ARRAY5(type, name, size, cond, defaultval) \
-	if(cond) buffer->template read<type>(#name, name, size); else PacketDeclaration::copyDefaultValue(name, defaultval);
+	if(cond) \
+		buffer->template read<type>(#name, name, size); \
+	else { \
+		static const type defaultArray[size] = defaultval; \
+		PacketDeclaration::copyDefaultValue(name, defaultArray, size); \
+	}
 
 #define DESERIALIZATION_F_DYNARRAY2(type, name) \
 	buffer->template read<type>(#name, name);

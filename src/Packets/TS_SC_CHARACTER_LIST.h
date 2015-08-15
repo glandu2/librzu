@@ -1,52 +1,46 @@
 #ifndef PACKETS_TS_SC_CHARACTER_LIST_H
 #define PACKETS_TS_SC_CHARACTER_LIST_H
 
-#include "Packets/PacketBaseMessage.h"
-#include "Packets/PacketEnums.h"
+#include "PacketDeclaration.h"
+#include "PacketEnums.h"
 
-#pragma pack(push, 1)
-struct MODEL_INFO         //sizeof = 140
-{
-	int sex;
-	int race;
-	int model_id[5];
-	int hair_color_index;
-	unsigned int hair_color_rgb;
-	unsigned int hide_equip_flag;
-	int texture_id;
-	int wear_info[24];
-};
+#define LOBBY_CHARACTER_INFO_DEF(simple_, array_, dynarray_, count_) \
+	simple_ (uint32_t, sex) \
+	simple_ (uint32_t, race) \
+	array_  (uint32_t, model_id, 5) \
+	simple_ (uint32_t, hair_color_index, version >= EPIC_4_1, 0) \
+	simple_ (uint32_t, hair_color_rgb, version >= EPIC_4_1, 0) \
+	simple_ (uint32_t, hide_equip_flag, version >= EPIC_4_1, 0) \
+	simple_ (uint32_t, texture_id, version >= EPIC_4_1, 0) \
+	array_  (uint32_t, wear_info, 14) \
+	array_  (uint32_t, wear_info_2, 10, version >= EPIC_4_1, {0}) \
+	simple_ (uint32_t, level) \
+	simple_ (uint32_t, job) \
+	simple_ (uint32_t, job_level) \
+	simple_ (uint32_t, exp_percentage) \
+	simple_ (uint32_t, hp) \
+	simple_ (uint32_t, mp) \
+	simple_ (uint32_t, permission) \
+	simple_ (uint8_t, is_banned) \
+	array_  (char, name, 19) \
+	simple_ (uint32_t, skin_color, version >= EPIC_4_1, 0) \
+	array_  (char, szCreateTime, 30) \
+	array_  (char, szDeleteTime, 30) \
+	array_  (uint32_t, wear_item_enhance_info, 14) \
+	array_  (uint32_t, wear_item_enhance_info_2, 10, version >= EPIC_4_1, {0}) \
+	array_  (uint32_t, wear_item_level_info, 14) \
+	array_  (uint32_t, wear_item_level_info_2, 10, version >= EPIC_4_1, {0}) \
+	array_  (uint8_t, wear_item_elemental_type, 24, version >= EPIC_4_1, {0}) \
+	array_  (uint32_t, wear_appearance_code, 24, version >= EPIC_8_1, {0}) \
 
-struct LOBBY_CHARACTER_INFO
-{
-	MODEL_INFO model_info;
-	int level;
-	int job;
-	int job_level;
-	int exp_percentage;
-	int hp;
-	int mp;
-	int permission;
-	bool is_banned;
-	char name[19];
-	unsigned int skin_color;
-	char szCreateTime[30];
-	char szDeleteTime[30];
-	int wear_item_enhance_info[24];
-	int wear_item_level_info[24];
-	char wear_item_elemental_type[24];
-	int wear_appearance_code[24];
-};
+CREATE_STRUCT(LOBBY_CHARACTER_INFO); // struct is 304 bytes long in epic2
 
-struct TS_SC_CHARACTER_LIST : public TS_MESSAGE_WNA
-{
-	unsigned int current_server_time;
-	unsigned short last_login_index;
-	unsigned short count;
-	LOBBY_CHARACTER_INFO characters[0];
+#define TS_SC_CHARACTER_LIST_DEF(simple_, array_, dynarray_, count_) \
+	simple_   (uint32_t, current_server_time) \
+	simple_   (uint16_t, last_character_idx, version >= EPIC_4_1, 1) \
+	count_    (uint16_t, count, characters) \
+	dynarray_ (LOBBY_CHARACTER_INFO, characters)
 
-	static const int packetID = 2004;
-};
-#pragma pack(pop)
+CREATE_PACKET(TS_SC_CHARACTER_LIST, 2004);
 
 #endif // PACKETS_TS_SC_CHARACTER_LIST_H

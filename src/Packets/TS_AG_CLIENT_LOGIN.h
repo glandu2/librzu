@@ -7,11 +7,11 @@
 struct TS_AG_CLIENT_LOGIN : public TS_MESSAGE
 {
 	char account[61];
-	int32_t nAccountID;
+	uint32_t nAccountID;
 	uint16_t result;
 	char nPCBangUser;
-	int32_t nEventCode;
-	int32_t nAge;
+	uint32_t nEventCode;
+	uint32_t nAge;
 	uint32_t nContinuousPlayTime;
 	uint32_t nContinuousLogoutTime;
 
