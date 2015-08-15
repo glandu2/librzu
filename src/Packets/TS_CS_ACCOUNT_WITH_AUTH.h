@@ -1,16 +1,14 @@
 #ifndef PACKETS_TS_CS_ACCOUNT_WITH_AUTH_H
 #define PACKETS_TS_CS_ACCOUNT_WITH_AUTH_H
 
-#include "PacketBaseMessage.h"
+#include "PacketDeclaration.h"
 
-#pragma pack(push, 1)
-struct TS_CS_ACCOUNT_WITH_AUTH : public TS_MESSAGE
-{
-	char account[61];
-	int64_t one_time_key;
+#define TS_CS_ACCOUNT_WITH_AUTH_DEF(simple_, array_, dynarray_, count_) \
+	array_(def)(char, account, 61) \
+	array_(impl)(char, account, 61, version >= EPIC_5_1) \
+	array_(impl)(char, account, 19, version <  EPIC_5_1) \
+	simple_(uint64_t, one_time_key)
 
-	static const uint16_t packetID = 2005;
-};
-#pragma pack(pop)
+CREATE_PACKET(TS_CS_ACCOUNT_WITH_AUTH, 2005);
 
 #endif // PACKETS_TS_CS_ACCOUNT_WITH_AUTH_H

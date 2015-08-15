@@ -1,7 +1,8 @@
 #ifndef PACKETS_EPICS_H
 #define PACKETS_EPICS_H
 
-#define EPIC_2_1 0x020100
+#define EPIC_2 0x020100
+#define EPIC_3 0x030100
 #define EPIC_4_1 0x040100
 #define EPIC_5_1 0x050100
 #define EPIC_8_1 0x080100

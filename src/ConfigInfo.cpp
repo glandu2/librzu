@@ -82,7 +82,7 @@ void ConfigInfo::parseCommandLine(int argc, char **argv, bool onlyConfigFileLoca
 				break;
 
 			case ConfigValue::Integer:
-				v->setInt(atoi(value));
+				v->setInt(strtol(value, nullptr, 0));
 				break;
 
 			case ConfigValue::Float:
@@ -218,7 +218,7 @@ bool ConfigInfo::readFile(const char* filename, int fileDepth) {
 					break;
 
 				case ConfigValue::Integer:
-					v->setInt(atoi(value.c_str()));
+					v->setInt(strtol(value.c_str(), nullptr, 0));
 					break;
 
 				case ConfigValue::Float:

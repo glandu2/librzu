@@ -17,10 +17,9 @@ void ClientGameSession::onConnected() {
 	strcpy(versionMsg.szVersion, auth->getVersion().c_str());
 	sendPacket(&versionMsg);
 
-	TS_MESSAGE::initMessage<TS_CS_ACCOUNT_WITH_AUTH>(&loginInGameServerMsg);
 	strcpy(loginInGameServerMsg.account, auth->getAccountName().c_str());
 	loginInGameServerMsg.one_time_key = auth->getOnTimePassword();
-	sendPacket(&loginInGameServerMsg);
+	sendPacket(loginInGameServerMsg, EPIC_9_1);
 }
 
 void ClientGameSession::onDisconnected(bool causedByRemote) {
