@@ -1,5 +1,5 @@
 #include <iostream>
-#include "Packets/TS_AC_SERVER_LIST.h"
+#include "AuthClient/TS_AC_SERVER_LIST.h"
 
 /* Tests:
  * TestPacketServer => Test, name

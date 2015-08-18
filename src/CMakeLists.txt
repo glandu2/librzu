@@ -14,7 +14,7 @@ endif()
 
 find_package(OpenSSL REQUIRED)
 find_package(ODBC REQUIRED)
-include_directories(${OPENSSL_INCLUDE_DIR} ${ODBC_INCLUDE_DIR})
+include_directories(${OPENSSL_INCLUDE_DIR} ${ODBC_INCLUDE_DIR} ${RZU_INCLUDE})
 set(LIBS uv ${OPENSSL_LIBRARIES} z)
 list(APPEND LIBS ${ODBC_LIBRARY})
 if(WIN32)
