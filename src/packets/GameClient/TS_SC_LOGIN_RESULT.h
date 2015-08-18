@@ -1,37 +1,33 @@
 #ifndef PACKETS_TS_SC_LOGIN_RESULT_H
 #define PACKETS_TS_SC_LOGIN_RESULT_H
 
-#include "PacketBaseMessage.h"
+#include "PacketDeclaration.h"
 #include "PacketEnums.h"
 
-#pragma pack(push, 1)
-struct TS_SC_LOGIN_RESULT : public TS_MESSAGE
-{
-	unsigned short result;
-	unsigned int handle;
-	float x;
-	float y;
-	float z;
-	char layer;
-	float face_direction;
-	int region_size;
-	int hp;
-	int mp;
-	int max_hp;
-	int max_mp;
-	int havoc;
-	int max_havoc;
-	int sex;
-	int race;
-	unsigned int skin_color;
-	int faceId;
-	int hairId;
-	char szName[19];
-	int cell_size;
-	int guild_id;
+#define TS_SC_LOGIN_RESULT_DEF(simple_, array_, dynarray_, count_) \
+	simple_ (uint16_t, result) \
+	simple_ (uint32_t, handle) \
+	simple_ (float, x) \
+	simple_ (float, y) \
+	simple_ (float, z) \
+	simple_ (uint8_t, layer) \
+	simple_ (float, face_direction) \
+	simple_ (int32_t, region_size) \
+	simple_ (int32_t, hp) \
+	simple_ (int32_t, mp) \
+	simple_ (int32_t, max_hp) \
+	simple_ (int32_t, max_mp) \
+	simple_ (int32_t, havoc) \
+	simple_ (int32_t, max_havoc) \
+	simple_ (int32_t, sex) \
+	simple_ (int32_t, race) \
+	simple_ (uint32_t, skin_color) \
+	simple_ (int32_t, faceId) \
+	simple_ (int32_t, hairId) \
+	array_  (char, szName, 19) \
+	simple_ (int32_t, cell_size) \
+	simple_ (int32_t, guild_id)
 
-	static const int packetID = 4;
-};
-#pragma pack(pop)
+CREATE_PACKET(TS_SC_LOGIN_RESULT, 4);
 
 #endif // PACKETS_TS_SC_LOGIN_RESULT_H
