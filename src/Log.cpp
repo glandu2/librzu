@@ -203,7 +203,7 @@ void Log::log(Level level, const char *objectName, size_t objectNameSize, const 
 	va_end(args);
 }
 
-int c99vsnprintf(char* dest, int size, const char* format, va_list args) {
+int c99vsnprintf(char* dest, size_t size, const char* format, va_list args) {
 	va_list argsForCount;
 	va_copy(argsForCount, args);
 

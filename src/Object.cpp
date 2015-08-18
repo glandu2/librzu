@@ -38,7 +38,7 @@ void Object::setObjectName(const char *name) {
 }
 
 //maxLen without null terminator
-void Object::setObjectName(int maxLen, const char *format, ...) {
+void Object::setObjectName(size_t maxLen, const char *format, ...) {
 	va_list args;
 	const char* oldName = objectName;
 

@@ -115,7 +115,7 @@ void Socket::updateObjectName() {
 //	nameSize += 2; // "]\0"
 	const char* localhostStr = getLocalIpStr();
 	const char* remotehostStr = getRemoteIpStr();
-	int nameSize = getClassNameSize() + strlen(localhostStr) + strlen(remotehostStr) + 19;
+	size_t nameSize = getClassNameSize() + strlen(localhostStr) + strlen(remotehostStr) + 19;
 	setObjectName(nameSize, "%s[%s:%u <> %s:%u]", getClassName(), localhostStr, localPort, remotehostStr, remotePort);
 }
 

@@ -160,7 +160,7 @@ int DbConnectionPool::closeAllConnections() {
 		connection->releaseAndClose();
 	}
 
-	return connectionsToRemove.size();
+	return (int)connectionsToRemove.size();
 }
 
 bool DbConnectionPool::checkSqlResult(int result, const char* function, void* henv, void* hdbc, void* hstmt) {

@@ -22,7 +22,7 @@ const char* Stream::STATES[] = { "Unconnected", "Connecting", "Binding", "Listen
 Stream::WriteRequest* Stream::WriteRequest::create(size_t dataSize) {
 	WriteRequest* writeRequest = reinterpret_cast<WriteRequest*>(malloc(sizeof(WriteRequest) + dataSize));
 
-	writeRequest->buffer.len = dataSize;
+	writeRequest->buffer.len = (int)dataSize;
 	writeRequest->buffer.base = writeRequest->data;
 
 	return writeRequest;
@@ -31,7 +31,7 @@ Stream::WriteRequest* Stream::WriteRequest::create(size_t dataSize) {
 Stream::WriteRequest* Stream::WriteRequest::createFromExisting(char* buffer, size_t dataSize) {
 	WriteRequest* writeRequest = reinterpret_cast<WriteRequest*>(malloc(sizeof(WriteRequest)));
 
-	writeRequest->buffer.len = dataSize;
+	writeRequest->buffer.len = (int)dataSize;
 	writeRequest->buffer.base = buffer;
 
 	return writeRequest;
@@ -480,9 +480,9 @@ void Stream::onReadCompleted(uv_stream_t* stream, ssize_t nread, const uv_buf_t*
 		thisInstance->trace("Connection reset by peer\n");
 		thisInstance->abort(true);
 	} else if(nread < 0) {
-		const char* errorString = uv_strerror(nread);
+		const char* errorString = uv_strerror((int)nread);
 		thisInstance->error("onReadCompleted: %s\n", errorString);
-		thisInstance->onStreamError(nread);
+		thisInstance->onStreamError((int)nread);
 	} else if(nread > 0) {
 		thisInstance->packetTransferedSinceLastCheck = true;
 		thisInstance->trace("Read %ld bytes\n", (long)nread);

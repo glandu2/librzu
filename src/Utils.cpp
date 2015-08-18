@@ -204,8 +204,8 @@ void Utils::convertDataToHex(const void *data, int size, char *outHex) {
 }
 
 std::vector<unsigned char> Utils::convertHexToData(const std::string &hex) {
-	int i;
-	int size = hex.size() / 2;
+	size_t i;
+	size_t size = hex.size() / 2;
 	std::vector<unsigned char> result;
 
 	result.reserve(size);

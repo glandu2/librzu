@@ -47,7 +47,7 @@ void RC4Cipher::prepare(const char *key) {
 	RC4_KEY* rc4Key = static_cast<RC4_KEY*>(state);
 	RC4_INT* data = rc4Key->data;
 
-	modified_RC4_set_key(strlen(key), (const unsigned char*)key);
+	modified_RC4_set_key((int)strlen(key), (const unsigned char*)key);
 
 	//simulate transmition of 1013 bytes
 	unsigned int i;
@@ -59,5 +59,5 @@ void RC4Cipher::prepare(const char *key) {
 }
 
 void RC4Cipher::encode(const char *in, char *out, size_t size) {
-	RC4((RC4_KEY*)state, size, (const unsigned char*)in, (unsigned char*)out);
+	RC4((RC4_KEY*)state, (unsigned long)size, (const unsigned char*)in, (unsigned char*)out);
 }

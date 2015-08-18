@@ -50,7 +50,7 @@ bool ClientAuthSession::selectServer(uint16_t serverId) {
 	selectedServer = -1;
 	for(size_t i = 0; i < serverList.size(); i++) {
 		if(serverList.at(i).id == serverId) {
-			selectedServer = i;
+			selectedServer = (int)i;
 			break;
 		}
 	}
@@ -180,7 +180,7 @@ void ClientAuthSession::onPacketAuthPasswordKey(const TS_AC_AES_KEY_IV* packet) 
 	EVP_CIPHER_CTX e_ctx;
 	const unsigned char *key_data = decrypted_data;
 	const unsigned char *iv_data = decrypted_data + 16;
-	int len = password.size();
+	int len = (int)password.size();
 	int p_len = len, f_len = 0;
 
 	data_size = RSA_private_decrypt(packet->data_size, (unsigned char*)packet->rsa_encrypted_data, decrypted_data, (RSA*)rsaCipher, RSA_PKCS1_PADDING);

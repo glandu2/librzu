@@ -41,7 +41,7 @@ public:
 	virtual ~Object();
 
 	void setObjectName(const char *name);
-	void setObjectName(int maxLen, const char *format, ...) PRINTFCHECK(3, 4);
+	void setObjectName(size_t maxLen, const char *format, ...) PRINTFCHECK(3, 4);
 	const char *getObjectName(size_t *size = nullptr);
 
 	void trace(const char *message, ...) PRINTFCHECK(2, 3);

@@ -37,13 +37,13 @@ std::string ZlibCipher::decrypt(std::vector<unsigned char> encryptedData) {
 	if(encryptedData.size() < 8)
 		return std::string();
 
-	unsigned long compressedSize = encryptedData.size() - 8;
+	uint32_t compressedSize = (uint32_t)(encryptedData.size() - 8);
 	uint32_t checksum = encryptedData[compressedSize + 4] << 24 |
 				encryptedData[compressedSize + 5] << 16 |
 				encryptedData[compressedSize + 6] << 8 |
 				encryptedData[compressedSize + 7];
 
-	for(unsigned int i = 0; i < compressedSize + 4; i++) {
+	for(uint32_t i = 0; i < compressedSize + 4; i++) {
 		encryptedData[i] ^= checksum;
 	}
 
@@ -68,7 +68,7 @@ std::string ZlibCipher::decrypt(std::vector<unsigned char> encryptedData) {
 	unsigned long uncompressedSize = originalSize;
 	std::string decrypted;
 	decrypted.resize(uncompressedSize);
-	int result = uncompress((Bytef*)&decrypted[0], &uncompressedSize, &compressed[0], compressed.size());
+	int result = uncompress((Bytef*)&decrypted[0], &uncompressedSize, &compressed[0], (uLong)compressed.size());
 	if(result != Z_OK)
 		return std::string();
 
