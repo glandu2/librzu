@@ -280,14 +280,13 @@ getSizeOf(const T& value, int version) {
 	}
 
 #define CREATE_PACKET(name, id) \
-	struct name : public TS_MESSAGE_BASE { \
+	struct name { \
 		static const uint16_t packetID = id; \
-		name() : TS_MESSAGE_BASE(packetID) {} \
 	\
 		name ## _DEF(DEFINITION_F_SIMPLE, DEFINITION_F_ARRAY, DEFINITION_F_DYNARRAY, DEFINITION_F_COUNT) \
 	\
 		uint32_t getSize(int version) const { \
-			uint32_t size = TS_MESSAGE_BASE::getSize(version); \
+			uint32_t size = 7; \
 			name ## _DEF(SIZE_F_SIMPLE, SIZE_F_ARRAY, SIZE_F_DYNARRAY, SIZE_F_COUNT) \
 	\
 			return size;\
@@ -297,8 +296,11 @@ getSizeOf(const T& value, int version) {
 		void serialize(T* buffer) const { \
 			const int version = buffer->getVersion(); \
 			(void)(version); \
-			TS_MESSAGE_BASE::serialize(buffer); \
-	\
+			uint32_t size = getSize(buffer->getVersion()); \
+			buffer->write("size", size); \
+			buffer->write("id", packetID); \
+			buffer->write("msg_checksum", getMessageChecksum(size, packetID)); \
+			\
 			name ## _DEF(SERIALIZATION_F_SIMPLE, SERIALIZATION_F_ARRAY, SERIALIZATION_F_DYNARRAY, SERIALIZATION_F_COUNT) \
 		} \
 	\
@@ -306,8 +308,10 @@ getSizeOf(const T& value, int version) {
 		void deserialize(T* buffer) { \
 			const int version = buffer->getVersion(); \
 			(void)(version); \
-			TS_MESSAGE_BASE::deserialize(buffer); \
-	\
+			buffer->discard("size", 4); \
+			buffer->discard("id", 2); \
+			buffer->discard("msg_checksum", 1); \
+			\
 			name ## _DEF(DESERIALIZATION_F_SIMPLE, DESERIALIZATION_F_ARRAY, DESERIALIZATION_F_DYNARRAY, DESERIALIZATION_F_COUNT) \
 		} \
 	}
@@ -315,9 +319,8 @@ getSizeOf(const T& value, int version) {
 
 #ifdef TEST_PACKET
 struct TS_MESSAGE_BASE {
-	TS_MESSAGE_BASE(int id) {}
 	template<class T>
-	void serialize(T* buffer) const {}
+	void serialize(T* buffer, int version) const {}
 	template<class T>
 	void deserialize(T* buffer) {}
 };

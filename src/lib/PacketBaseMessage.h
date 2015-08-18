@@ -87,17 +87,13 @@ struct TS_MESSAGE_WNA : public TS_MESSAGE {
 // New serialization
 
 struct TS_MESSAGE_BASE {
-	uint16_t id;
-
-	TS_MESSAGE_BASE(uint16_t id) : id(id) {}
-
-	virtual uint32_t getSize(int version) const {
+protected:
+	uint32_t getSize(int version) const {
 		return 7;
 	}
 
-protected:
 	template<class T>
-	void serialize(T* buffer) const {
+	void serialize(T* buffer, uint16_t id) const {
 		uint32_t size = getSize(buffer->getVersion());
 		buffer->write("size", size);
 		buffer->write("id", id);
@@ -107,25 +103,24 @@ protected:
 	template<class T>
 	void deserialize(T* buffer) {
 		buffer->discard("size", 4);
-		buffer->read("id", id);
+		buffer->discard("id", 2);
 		buffer->discard("msg_checksum", 1);
 	}
-
-private:
-	static uint8_t checkMessage(uint32_t size, uint16_t id) {
-		uint8_t value = 0;
-
-		value += size & 0xFF;
-		value += (size >> 8) & 0xFF;
-		value += (size >> 16) & 0xFF;
-		value += (size >> 24) & 0xFF;
-
-		value += id & 0xFF;
-		value += (id >> 8) & 0xFF;
-
-		return value;
-	}
 };
+
+inline uint8_t getMessageChecksum(uint32_t size, uint16_t id) {
+	uint8_t value = 0;
+
+	value += size & 0xFF;
+	value += (size >> 8) & 0xFF;
+	value += (size >> 16) & 0xFF;
+	value += (size >> 24) & 0xFF;
+
+	value += id & 0xFF;
+	value += (id >> 8) & 0xFF;
+
+	return value;
+}
 
 #pragma pack(pop)
 
