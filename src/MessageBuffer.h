@@ -1,13 +1,13 @@
 #ifndef MESSAGEBUFFER_H
 #define MESSAGEBUFFER_H
 
-#include "Socket.h"
+#include "Object.h"
+#include "Stream.h"
 #include <vector>
 #include <string.h>
 #include <type_traits>
-#include "Packets/PacketBaseMessage.h"
 
-class MessageBuffer {
+class MessageBuffer : public Object {
 private:
 	Stream::WriteRequest* buffer;
 	char *p;
@@ -24,15 +24,8 @@ public:
 		bufferOverflow = false;
 	}
 
-	MessageBuffer(const char* data, size_t size, int version) {
-		buffer = Stream::WriteRequest::createFromExisting(const_cast<char*>(data), size);
-		p = buffer->buffer.base;
-		this->version = version;
-		bufferOverflow = false;
-	}
-
-	MessageBuffer(const TS_MESSAGE* packet, int version) {
-		buffer = Stream::WriteRequest::createFromExisting((char*)packet, packet->size);
+	MessageBuffer(const void* data, size_t size, int version) {
+		buffer = Stream::WriteRequest::createFromExisting(const_cast<char*>(static_cast<const char*>(data)), size);
 		p = buffer->buffer.base;
 		this->version = version;
 		bufferOverflow = false;
@@ -51,9 +44,12 @@ public:
 	std::string getFieldInOverflow() const  { return fieldInOverflow; }
 	int getVersion() const { return version; }
 
-	bool checkFinalSize() const {
+	bool checkFinalSize() {
 		uint32_t msgSize = *reinterpret_cast<const uint32_t*>(buffer->buffer.base);
-		return !bufferOverflow && msgSize == getSize() && uint32_t(p - buffer->buffer.base) == msgSize;
+		bool ok = !bufferOverflow && msgSize == getSize() && uint32_t(p - buffer->buffer.base) == msgSize;
+		if(!ok)
+			error("Packet has invalid data: id: %d, size: %d, field: %s\n", getMessageId(), getSize(), getFieldInOverflow().c_str());
+		return ok;
 	}
 
 	bool checkAvailableBuffer(const char* fieldName, size_t size) {

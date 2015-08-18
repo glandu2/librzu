@@ -99,8 +99,7 @@ void ClientAuthSession::onPacketReceived(const TS_MESSAGE* packetData) {
 		}
 
 		case TS_AC_SERVER_LIST::packetID: {
-			MessageBuffer buffer(packetData, EPIC_9_1);
-			process<TS_AC_SERVER_LIST>(&buffer, &ClientAuthSession::onPacketServerList);
+			packetData->process(this, &ClientAuthSession::onPacketServerList, EPIC_9_1);
 			break;
 		}
 
@@ -228,11 +227,11 @@ end:
 	sendPacket(&accountMsg);
 }
 
-void ClientAuthSession::onPacketServerList(TS_AC_SERVER_LIST& packet) {
+void ClientAuthSession::onPacketServerList(const TS_AC_SERVER_LIST* packet) {
 	std::vector<ServerInfo> serverList;
 	ServerInfo currentServerInfo;
 	ServerConnectionInfo serverConnectionInfo;
-	const std::vector<TS_SERVER_INFO>& packetServerList = packet.servers;
+	const std::vector<TS_SERVER_INFO>& packetServerList = packet->servers;
 
 	serverList.reserve(packetServerList.size());
 	selectedServer = 0;
@@ -253,11 +252,11 @@ void ClientAuthSession::onPacketServerList(TS_AC_SERVER_LIST& packet) {
 		serverConnectionInfo.port = currentServerInfo.serverPort;
 		this->serverList.push_back(serverConnectionInfo);
 
-		if(packetServerList[i].server_idx == packet.last_login_server_idx)
-			selectedServer = i;
+		if(packetServerList[i].server_idx == packet->last_login_server_idx)
+			selectedServer = (int)i;
 	}
 
-	onServerList(serverList, packet.last_login_server_idx);
+	onServerList(serverList, packet->last_login_server_idx);
 }
 
 void ClientAuthSession::onPacketSelectServerResult(const TS_AC_SELECT_SERVER* packet) {

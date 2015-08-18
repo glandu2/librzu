@@ -52,6 +52,9 @@ struct TS_MESSAGE {
 	static void destroy(TS_MESSAGE* msg) {
 		delete[] (char*)msg;
 	}
+
+	template<class T, class U>
+	void process(U* instance, void (U::*processFunction)(const T*), int version) const;
 };
 
 //Special struct to prevent copy of server->client packet structs
@@ -125,5 +128,19 @@ private:
 };
 
 #pragma pack(pop)
+
+#include "MessageBuffer.h"
+#include "Log.h"
+
+template<class T, class U>
+void TS_MESSAGE::process(U* instance, void (U::*processFunction)(const T*), int version) const {
+	T packet;
+	MessageBuffer buffer((void*)this, this->size, version);
+
+	packet.deserialize(&buffer);
+	if(buffer.checkFinalSize()) {
+		(instance->*processFunction)(&packet);
+	}
+}
 
 #endif // PACKETS_PACKETBASEMESSAGE_H

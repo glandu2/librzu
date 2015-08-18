@@ -43,18 +43,6 @@ public:
 
 	void sendPacket(const TS_MESSAGE* data);
 
-	template<class T, class U, class V>
-	void process(MessageBuffer* buffer, void (U::*processFunction)(V)) {
-		T packet;
-		packet.deserialize(buffer);
-		if(buffer->checkFinalSize()) {
-			(static_cast<U*>(this)->*processFunction)(packet);
-		} else {
-			error("Received packet with invalid data: id: %d, size: %d, field: %s\n", buffer->getMessageId(), buffer->getSize(), buffer->getFieldInOverflow().c_str());
-			abortSession();
-		}
-	}
-
 	virtual bool hasCustomPacketLogger() { return true; }
 	static bool hasCustomPacketLoggerStatic() { return true; }
 
