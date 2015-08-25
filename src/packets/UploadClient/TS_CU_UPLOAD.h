@@ -4,7 +4,7 @@
 #include "PacketBaseMessage.h"
 
 #pragma pack(push, 1)
-struct TS_CU_UPLOAD : public TS_MESSAGE
+struct TS_CU_UPLOAD : public TS_MESSAGE_WNA
 {
 	uint32_t file_length;
 	unsigned char file_contents[0];
