@@ -1,7 +1,7 @@
 #ifndef PACKETS_TS_AG_KICK_CLIENT_H
 #define PACKETS_TS_AG_KICK_CLIENT_H
 
-#include "PacketBaseMessage.h"
+#include "Packet/PacketBaseMessage.h"
 
 #pragma pack(push, 1)
 struct TS_AG_KICK_CLIENT : public TS_MESSAGE

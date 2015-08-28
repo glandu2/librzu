@@ -1,7 +1,7 @@
 #ifndef PACKETS_TS_AC_RESULT_WITH_STRING_H
 #define PACKETS_TS_AC_RESULT_WITH_STRING_H
 
-#include "PacketBaseMessage.h"
+#include "Packet/PacketBaseMessage.h"
 
 //not in 5.2 client
 

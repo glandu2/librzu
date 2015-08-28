@@ -1,7 +1,7 @@
 #ifndef PACKETS_TS_AC_SELECT_SERVER_H
 #define PACKETS_TS_AC_SELECT_SERVER_H
 
-#include "PacketBaseMessage.h"
+#include "Packet/PacketBaseMessage.h"
 
 #pragma pack(push, 1)
 struct TS_AC_SELECT_SERVER : public TS_MESSAGE

@@ -1,7 +1,7 @@
 #ifndef PACKETS_TS_AG_LOGIN_RESULT_H
 #define PACKETS_TS_AG_LOGIN_RESULT_H
 
-#include "PacketBaseMessage.h"
+#include "Packet/PacketBaseMessage.h"
 
 #pragma pack(push, 1)
 struct TS_AG_LOGIN_RESULT : public TS_MESSAGE

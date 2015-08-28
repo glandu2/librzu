@@ -1,7 +1,7 @@
 #ifndef PACKETS_TS_SC_CHAT_H
 #define PACKETS_TS_SC_CHAT_H
 
-#include "PacketBaseMessage.h"
+#include "Packet/PacketBaseMessage.h"
 #include "PacketEnums.h"
 
 #pragma pack(push, 1)

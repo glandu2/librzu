@@ -12,50 +12,50 @@ std::map<std::string, unsigned long*>& getObjectsCount() {
 //generated with notepad++ with this pattern: (.*) ->
 //#include "\1.h"\nDECLARE_CLASSCOUNT_STATIC\(\1\)\n
 
-#include "Object.h"
+#include "Core/Object.h"
 DECLARE_CLASSCOUNT_STATIC(Object)
 
-#include "BanManager.h"
+#include "NetSession/BanManager.h"
 DECLARE_CLASSCOUNT_STATIC(BanManager)
 
-#include "ClientAuthSession.h"
+#include "NetSession/ClientAuthSession.h"
 DECLARE_CLASSCOUNT_STATIC(ClientAuthSession)
 
-#include "ConfigInfo.h"
+#include "Config/ConfigInfo.h"
 DECLARE_CLASSCOUNT_STATIC(ConfigInfo)
 
-#include "ConfigValue.h"
+#include "Config/ConfigValue.h"
 DECLARE_CLASSCOUNT_STATIC(ConfigValue)
 
-#include "DbConnection.h"
+#include "Database/DbConnection.h"
 DECLARE_CLASSCOUNT_STATIC(DbConnection)
 
-#include "DbQueryJob.h"
+#include "Database/DbQueryJob.h"
 DECLARE_CLASSCOUNT_STATIC(DbQueryBinding)
 
-#include "DelegatedPacketSession.h"
+#include "NetSession/DelegatedPacketSession.h"
 DECLARE_CLASSCOUNT_STATIC(DelegatedPacketSession)
 
-#include "EventLoop.h"
+#include "Core/EventLoop.h"
 DECLARE_CLASSCOUNT_STATIC(EventLoop)
 
-#include "Log.h"
+#include "Core/Log.h"
 DECLARE_CLASSCOUNT_STATIC(Log)
 
-#include "Pipe.h"
+#include "Stream/Pipe.h"
 DECLARE_CLASSCOUNT_STATIC(Pipe)
 
-#include "SessionServer.h"
+#include "NetSession/SessionServer.h"
 DECLARE_CLASSCOUNT_STATIC(SessionServerCommon)
 
-#include "PacketSession.h"
+#include "NetSession/PacketSession.h"
 DECLARE_CLASSCOUNT_STATIC(PacketSession)
 
-#include "Socket.h"
+#include "Stream/Socket.h"
 DECLARE_CLASSCOUNT_STATIC(Socket)
 
-#include "SocketSession.h"
+#include "NetSession/SocketSession.h"
 DECLARE_CLASSCOUNT_STATIC(SocketSession)
 
-#include "TelnetSession.h"
+#include "NetSession/TelnetSession.h"
 DECLARE_CLASSCOUNT_STATIC(TelnetSession)

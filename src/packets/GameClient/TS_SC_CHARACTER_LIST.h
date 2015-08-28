@@ -1,7 +1,7 @@
 #ifndef PACKETS_TS_SC_CHARACTER_LIST_H
 #define PACKETS_TS_SC_CHARACTER_LIST_H
 
-#include "PacketDeclaration.h"
+#include "Packet/PacketDeclaration.h"
 #include "PacketEnums.h"
 
 #define LOBBY_CHARACTER_INFO_DEF(simple_, array_, dynarray_, count_) \

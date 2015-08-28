@@ -1,7 +1,7 @@
 #ifndef PACKETS_TS_UC_UPLOAD_H
 #define PACKETS_TS_UC_UPLOAD_H
 
-#include "PacketBaseMessage.h"
+#include "Packet/PacketBaseMessage.h"
 
 #pragma pack(push, 1)
 struct TS_UC_UPLOAD : public TS_MESSAGE

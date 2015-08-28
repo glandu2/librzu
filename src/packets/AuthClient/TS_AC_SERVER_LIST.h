@@ -1,7 +1,7 @@
 #ifndef PACKETS_TS_AC_SERVER_LIST_H
 #define PACKETS_TS_AC_SERVER_LIST_H
 
-#include "PacketDeclaration.h"
+#include "Packet/PacketDeclaration.h"
 
 #define TS_SERVER_INFO_DEF(simple_, array_, dynarray_, count_) \
 	simple_ (uint16_t, server_idx) \

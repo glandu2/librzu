@@ -1,7 +1,7 @@
 #ifndef PACKETS_TS_CA_SERVER_LIST_H
 #define PACKETS_TS_CA_SERVER_LIST_H
 
-#include "PacketBaseMessage.h"
+#include "Packet/PacketBaseMessage.h"
 
 #pragma pack(push, 1)
 struct TS_CA_SERVER_LIST : public TS_MESSAGE

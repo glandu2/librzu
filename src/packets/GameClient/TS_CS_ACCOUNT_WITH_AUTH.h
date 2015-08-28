@@ -1,7 +1,7 @@
 #ifndef PACKETS_TS_CS_ACCOUNT_WITH_AUTH_H
 #define PACKETS_TS_CS_ACCOUNT_WITH_AUTH_H
 
-#include "PacketDeclaration.h"
+#include "Packet/PacketDeclaration.h"
 
 #define TS_CS_ACCOUNT_WITH_AUTH_DEF(simple_, array_, dynarray_, count_) \
 	array_(def)(char, account, 61) \

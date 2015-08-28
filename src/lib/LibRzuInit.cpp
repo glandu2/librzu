@@ -1,12 +1,12 @@
 #include "LibRzuInit.h"
-#include "CrashHandler.h"
+#include "Core/CrashHandler.h"
 #include <openssl/crypto.h>
 #include <openssl/err.h>
 #include "uv.h"
 #include <vector>
 #include <stdlib.h>
 #include <time.h>
-#include "Utils.h"
+#include "Core/Utils.h"
 
 #ifdef __unix
 #include <signal.h>

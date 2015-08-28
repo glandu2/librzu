@@ -1,6 +1,6 @@
 #include <iostream>
 #include "AuthClient/TS_AC_SERVER_LIST.h"
-#include "MessageBuffer.h"
+#include "Packet/MessageBuffer.h"
 
 int main() {
 	TS_AC_SERVER_LIST packet;

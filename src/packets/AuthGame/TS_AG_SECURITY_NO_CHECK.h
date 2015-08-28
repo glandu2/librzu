@@ -1,7 +1,7 @@
 #ifndef PACKETS_TS_AG_SECURITY_NO_CHECK_H
 #define PACKETS_TS_AG_SECURITY_NO_CHECK_H
 
-#include "PacketBaseMessage.h"
+#include "Packet/PacketBaseMessage.h"
 
 #pragma pack(push, 1)
 //since epic 6

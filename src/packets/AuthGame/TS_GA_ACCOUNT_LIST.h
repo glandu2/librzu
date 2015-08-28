@@ -1,7 +1,7 @@
 #ifndef PACKETS_TS_GA_CLIENT_LOGGED_LIST_H
 #define PACKETS_TS_GA_CLIENT_LOGGED_LIST_H
 
-#include "PacketBaseMessage.h"
+#include "Packet/PacketBaseMessage.h"
 
 #pragma pack(push, 1)
 struct TS_GA_ACCOUNT_LIST : public TS_MESSAGE_WNA
