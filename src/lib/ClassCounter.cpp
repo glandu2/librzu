@@ -27,6 +27,9 @@ DECLARE_CLASSCOUNT_STATIC(ConfigInfo)
 #include "Config/ConfigValue.h"
 DECLARE_CLASSCOUNT_STATIC(ConfigValue)
 
+#include "Console/ConsoleSession.h"
+DECLARE_CLASSCOUNT_STATIC(ConsoleSession)
+
 #include "Database/DbConnection.h"
 DECLARE_CLASSCOUNT_STATIC(DbConnection)
 

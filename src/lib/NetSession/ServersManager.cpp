@@ -2,15 +2,25 @@
 #include "Config/ConfigParamVal.h"
 #include "BanManager.h"
 #include "StartableObject.h"
+#include "Console/ConsoleCommands.h"
 
 ServersManager* ServersManager::instance = nullptr;
 
 ServersManager::ServersManager()
 {
-	if(instance == nullptr)
+	if(instance == nullptr) {
 		instance = this;
-	else
+		ConsoleCommands::get()->addCommand("server.start", "start", 1, &commandStartServer,
+										   "Start a server (Servers names are listed when booting)",
+										   "server.start <server name> : Start <server name> server\r\n"
+										   "server.start all           : Start all servers\r\n");
+		ConsoleCommands::get()->addCommand("server.stop", "stop", 1, &commandStopServer,
+										   "Stop a server (Servers names are listed when booting)",
+										   "server.stop <server name> : Stop <server name> server\r\n"
+										   "server.stop all           : Stop all servers except console server\r\n");
+	} else {
 		error("Several ServersManager instance !\n");
+	}
 }
 
 ServersManager::~ServersManager()
@@ -93,4 +103,38 @@ bool ServersManager::stop(const std::string& name) {
 	}
 
 	return false;
+}
+
+void ServersManager::commandStartServer(IWritableConsole* console, const std::vector<std::string>& args) {
+	bool ok;
+	const std::string& name = args[0];
+
+	if(!strcmp(name.c_str(), "all"))
+		ok = ServersManager::getInstance()->start();
+	else
+		ok = ServersManager::getInstance()->start(name);
+
+	if(!ok) {
+		console->writef("Unknown server name : %s\r\n", name.c_str());
+	} else {
+		console->log("Server %s started via console session\n", name.c_str());
+		console->writef("Server %s started\r\n", name.c_str());
+	}
+}
+
+void ServersManager::commandStopServer(IWritableConsole* console, const std::vector<std::string>& args) {
+	bool ok;
+	const std::string& name = args[0];
+
+	if(!strcmp(name.c_str(), "all"))
+		ok = ServersManager::getInstance()->stop();
+	else
+		ok = ServersManager::getInstance()->stop(name);
+
+	if(!ok) {
+		console->writef("Unknown server name : %s\r\n", name.c_str());
+	} else {
+		console->log("Server %s stopped via console session\n", name.c_str());
+		console->writef("Server %s stopped\r\n", name.c_str());
+	}
 }

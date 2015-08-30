@@ -7,6 +7,7 @@
 
 class BanManager;
 class StartableObject;
+class IWritableConsole;
 template<typename T> class cval;
 
 class RZU_EXTERN ServersManager : public Object
@@ -26,6 +27,10 @@ public:
 	void addServer(const char* name, StartableObject* server, cval<bool> &autoStart, bool stopAllKeepRunning = false);
 
 	static ServersManager* getInstance() { return instance; }
+
+protected:
+	static void commandStartServer(IWritableConsole* console, const std::vector<std::string>& args);
+	static void commandStopServer(IWritableConsole* console, const std::vector<std::string>& args);
 
 private:
 	struct ServerInfo {
