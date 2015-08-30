@@ -27,8 +27,8 @@ ServersManager::~ServersManager()
 	}
 }
 
-void ServersManager::addServer(const char* name, StartableObject *server, cval<bool>& autoStart) {
-	ServerInfo* serverInfo = new ServerInfo(server, &autoStart);
+void ServersManager::addServer(const char* name, StartableObject *server, cval<bool>& autoStart, bool stopAllKeepRunning) {
+	ServerInfo* serverInfo = new ServerInfo(server, &autoStart, stopAllKeepRunning);
 
 	server->setName(name);
 
@@ -62,8 +62,8 @@ bool ServersManager::stop() {
 
 	for(it = servers.cbegin(), itEnd = servers.cend(); it != itEnd; ++it) {
 		ServerInfo* serverInfo = it->second;
-
-		serverInfo->server->stop();
+		if(serverInfo->stopAllKeepRunning == false)
+			serverInfo->server->stop();
 	}
 
 	return !servers.empty();

@@ -23,17 +23,18 @@ public:
 	bool stop(const std::string& name);
 
 	StartableObject *getServer(const std::string& name);
-	void addServer(const char* name, StartableObject* server, cval<bool> &autoStart);
+	void addServer(const char* name, StartableObject* server, cval<bool> &autoStart, bool stopAllKeepRunning = false);
 
 	static ServersManager* getInstance() { return instance; }
 
 private:
 	struct ServerInfo {
-		ServerInfo(StartableObject* server, cval<bool>* autoStart) :
-			server(server), autoStart(autoStart) {}
+		ServerInfo(StartableObject* server, cval<bool>* autoStart, bool stopAllKeepRunning) :
+			server(server), autoStart(autoStart), stopAllKeepRunning(stopAllKeepRunning) {}
 
 		StartableObject* server;
 		cval<bool>* autoStart;
+		bool stopAllKeepRunning;
 	};
 	std::unordered_map<std::string, ServerInfo*> servers;
 
