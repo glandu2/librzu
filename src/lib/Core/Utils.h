@@ -42,6 +42,8 @@ public:
 
 	static unsigned long getPid();
 
+	static void stringFormat(std::string& dest, const char* message, va_list args);
+
 private:
 	static void autoSetAbsoluteDirConfigValue(IListener*, cval<std::string>* value);
 	static void getApplicationFilePath();

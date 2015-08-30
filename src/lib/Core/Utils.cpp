@@ -280,3 +280,43 @@ unsigned long Utils::getPid() {
 	return getpid();
 #endif
 }
+
+static int c99vsnprintf(char* dest, size_t size, const char* format, va_list args) {
+	va_list argsForCount;
+	va_copy(argsForCount, args);
+
+	int result = vsnprintf(dest, size, format, args);
+
+#ifdef _WIN32
+	if(result == -1)
+		result = _vscprintf(format, argsForCount);
+#endif
+
+	va_end(argsForCount);
+
+	return result;
+}
+
+void Utils::stringFormat(std::string& dest, const char* message, va_list args) {
+	va_list argsFor2ndPass;
+	va_copy(argsFor2ndPass, args);
+
+	dest.resize(128);
+	int result = c99vsnprintf(&dest[0], dest.size(), message, args);
+
+	if(result < 0) {
+		dest = message;
+		va_end(argsFor2ndPass);
+		return;
+	}
+
+	if(result < (int)dest.size()) {
+		dest.resize(result);
+	} else if(result >= (int)dest.size()) {
+		dest.resize(result+1);
+
+		vsnprintf(&dest[0], dest.size(), message, argsFor2ndPass);
+		dest.resize(result);
+	}
+	va_end(argsFor2ndPass);
+}
