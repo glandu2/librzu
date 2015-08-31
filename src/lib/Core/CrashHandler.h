@@ -3,12 +3,17 @@
 
 #include "Extern.h"
 #include "uv.h"
+#include <vector>
+#include <string>
+
+class IWritableConsole;
 
 class RZU_EXTERN CrashHandler
 {
 public:
 	typedef void (*TerminateCallback)(void* instance);
 public:
+	static void init();
 	// Sets exception handlers that work on per-process basis
 	static void setProcessExceptionHandlers();
 
@@ -20,12 +25,14 @@ public:
 	static void setTerminateCallback(TerminateCallback callback, void* instance);
 
 	static void terminate();
+	static void commandTerminate(IWritableConsole*, const std::vector<std::string>&);
 
 private:
 	static void onTerminate(uv_async_t*);
 	static uv_async_t asyncCallback;
 	static void* callbackInstance;
 	static bool interruptAttemptInProgress;
+	static bool globalHandlersInitialized;
 };
 
 #endif // CRASHHANDLER_H

@@ -75,8 +75,7 @@ bool LibRzuInit() {
 	srand((unsigned int)time(NULL));
 
 	disableSigPipe();
-	CrashHandler::setProcessExceptionHandlers();
-	CrashHandler::setThreadExceptionHandlers();
+	CrashHandler::init();
 
 	initOpenssl();
 

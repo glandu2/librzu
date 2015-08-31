@@ -18,8 +18,9 @@ public:
 	ServersManager();
 	~ServersManager();
 
-	bool stop();
 	bool start();
+	bool stop();
+	bool forceStop(); ///< Stop all servers even those with stopAllKeepRunning set
 
 	bool start(const std::string& name);
 	bool stop(const std::string& name);

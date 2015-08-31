@@ -1,6 +1,7 @@
 #include "CrashHandler.h"
 #include "Log.h"
 #include "EventLoop.h"
+#include "Console/ConsoleCommands.h"
 #include <stdlib.h>
 
 //if equal to 1, don't do a crashdump
@@ -8,6 +9,19 @@ static long long int dumpMode = 0;
 uv_async_t CrashHandler::asyncCallback;
 void* CrashHandler::callbackInstance = nullptr;
 bool  CrashHandler::interruptAttemptInProgress = false;
+bool  CrashHandler::globalHandlersInitialized = false;
+
+void CrashHandler::init() {
+	if(globalHandlersInitialized == false) {
+		globalHandlersInitialized = true;
+		setProcessExceptionHandlers();
+
+		ConsoleCommands::get()->addCommand("terminate", 0, &commandTerminate,
+										   "Ask the server to terminate gracefuly",
+										   "terminate : terminate the server gracefuly");
+	}
+	setThreadExceptionHandlers();
+}
 
 void CrashHandler::setDumpMode(int _dumpMode) {
 	dumpMode = _dumpMode;
@@ -33,6 +47,10 @@ void CrashHandler::onTerminate(uv_async_t *) {
 		callback(callbackInstance);
 	else
 		exit(1);
+}
+
+void CrashHandler::commandTerminate(IWritableConsole*, const std::vector<std::string>&) {
+	terminate();
 }
 
 #ifdef _WIN32

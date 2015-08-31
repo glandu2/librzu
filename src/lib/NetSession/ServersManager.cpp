@@ -79,6 +79,17 @@ bool ServersManager::stop() {
 	return !servers.empty();
 }
 
+bool ServersManager::forceStop() {
+	std::unordered_map<std::string, ServerInfo*>::const_iterator it, itEnd;
+
+	for(it = servers.cbegin(), itEnd = servers.cend(); it != itEnd; ++it) {
+		ServerInfo* serverInfo = it->second;
+		serverInfo->server->stop();
+	}
+
+	return !servers.empty();
+}
+
 bool ServersManager::start(const std::string& name) {
 	std::unordered_map<std::string, ServerInfo*>::const_iterator it = servers.find(name);
 	if(it != servers.end()) {
