@@ -2,6 +2,7 @@
 #define OBJECT_H
 
 #include <stddef.h>
+#include <stdarg.h>
 
 #include "../Extern.h"
 

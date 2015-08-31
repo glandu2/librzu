@@ -25,7 +25,7 @@ void ConsoleCommands::addCommand(Command command) {
 
 	auto result = commands.insert(std::make_pair(commandRef->name, commandRef));
 	if(result.second == false) {
-		error("Can't register command, name already exists: %s\n", commandRef->name);
+		error("Can't register command, name already exists: %s\n", commandRef->name.c_str());
 		delete commandRef;
 		return;
 	}
@@ -67,7 +67,7 @@ void ConsoleCommands::addCommand(std::string name, int argNum, CommandFunction f
 void ConsoleCommands::removeCommand(std::string name) {
 	auto it = commands.find(name);
 	if(it == commands.end()) {
-		warn("Can't remove command with name or alias %s, no such name\n", name);
+		warn("Can't remove command with name or alias %s, no such name\n", name.c_str());
 		return;
 	}
 
@@ -94,9 +94,9 @@ const ConsoleCommands::Command* ConsoleCommands::getCommand(const std::string& n
 }
 
 ConsoleCommands::Command::CallStatus ConsoleCommands::Command::call(IWritableConsole* console, const std::vector<std::string>& args) const {
-	if(args.size() < minArgNum)
+	if((int)args.size() < minArgNum)
 		return CS_NotEnoughArgs;
-	else if(args.size() > maxArgNum)
+	else if((int)args.size() > maxArgNum)
 		return CS_TooMuchArgs;
 
 	(*function)(console, args);
@@ -115,7 +115,7 @@ void ConsoleCommands::commandHelp(IWritableConsole* console, const std::vector<s
 			Command* command = it->second;
 			// Remove alias to avoid duplicate help lines
 			if(it->first == command->name) {
-				if(width < command->name.size())
+				if(width < (int)command->name.size())
 					width = (int)command->name.size();
 				++it;
 			} else {

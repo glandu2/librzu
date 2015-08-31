@@ -109,7 +109,7 @@ void ServersManager::commandStartServer(IWritableConsole* console, const std::ve
 	bool ok;
 	const std::string& name = args[0];
 
-	if(!strcmp(name.c_str(), "all"))
+	if(name == "all")
 		ok = ServersManager::getInstance()->start();
 	else
 		ok = ServersManager::getInstance()->start(name);
@@ -126,7 +126,7 @@ void ServersManager::commandStopServer(IWritableConsole* console, const std::vec
 	bool ok;
 	const std::string& name = args[0];
 
-	if(!strcmp(name.c_str(), "all"))
+	if(name == "all")
 		ok = ServersManager::getInstance()->stop();
 	else
 		ok = ServersManager::getInstance()->stop(name);

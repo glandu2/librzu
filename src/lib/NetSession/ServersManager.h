@@ -4,6 +4,7 @@
 #include "Core/Object.h"
 #include <unordered_map>
 #include <string>
+#include <vector>
 
 class BanManager;
 class StartableObject;
