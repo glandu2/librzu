@@ -61,6 +61,9 @@ struct tm * Utils::getGmTime(time_t secs, struct tm *tm) {
 		y = ny;
 	}
 	if (days==365 && !ISLEAP(y)) { days=0; y++; }
+
+	tm->tm_yday = days;
+
 	md[1] = ISLEAP(y)?29:28;
 	for (m=0; days >= md[m]; m++)
 		days -= md[m];
