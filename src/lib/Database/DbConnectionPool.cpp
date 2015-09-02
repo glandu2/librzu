@@ -3,6 +3,7 @@
 #include "DbConnection.h"
 #include <stdlib.h>
 #include <sqlext.h>
+#include "Console/ConsoleCommands.h"
 
 static void outputError(Log::Level errorLevel, SQLHANDLE handle, SQLSMALLINT type);
 
@@ -11,7 +12,11 @@ DbConnectionPool *DbConnectionPool::instance = nullptr;
 DbConnectionPool::DbConnectionPool() {
 	SQLRETURN result;
 
-	instance = this;
+	if(instance == nullptr) {
+		instance = this;
+		ConsoleCommands::get()->addCommand("db.close", "closedb", 0, &commandCloseDbConnections,
+										   "Close all idle database connections (use this to bring a database offline)");
+	}
 
 	uv_mutex_init(&listLock);
 
@@ -197,4 +202,9 @@ static void outputError(Log::Level errorLevel, SQLHANDLE handle, SQLSMALLINT typ
 		if (SQL_SUCCEEDED(ret))
 			Log::get()->log(errorLevel, "ODBC", 4, "%s:%d:%ld:%s\n", state, i, (long)native, text);
 	} while(ret == SQL_SUCCESS);
+}
+
+void DbConnectionPool::commandCloseDbConnections(IWritableConsole* console, const std::vector<std::string>& args) {
+	int connectionsClosed = getInstance()->closeAllConnections();
+	console->writef("Closed %d DB connections\r\n", connectionsClosed);
 }

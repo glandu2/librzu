@@ -4,9 +4,12 @@
 #include "Core/Object.h"
 #include <unordered_map>
 #include <string>
+#include <vector>
 
 #include "ConfigParamVal.h"
 #include "ConfigStatVal.h"
+
+class IWritableConsole;
 
 class RZU_EXTERN ConfigInfo : public Object
 {
@@ -49,6 +52,10 @@ public:
 	}
 
 	static ConfigInfo* get();
+
+protected:
+	static void commandSetEnv(IWritableConsole* console, const std::vector<std::string>& args);
+	static void commandGetEnv(IWritableConsole* console, const std::vector<std::string>& args);
 
 private:
 	ConfigInfo() {}

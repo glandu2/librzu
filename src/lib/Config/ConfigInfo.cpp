@@ -4,6 +4,7 @@
 #include <string.h>
 #include "Config/GlobalCoreConfig.h"
 #include <map>
+#include "Console/ConsoleCommands.h"
 
 ConfigInfo::~ConfigInfo() {
 	for(auto it = config.begin(); it != config.end(); ++it) {
@@ -18,6 +19,16 @@ void ConfigInfo::init(int argc, char **argv) {
 	readFile(GlobalCoreConfig::get()->app.configfile.get().c_str());
 	//Set all keys given on the command line to overwrite config file values
 	parseCommandLine(argc, argv);
+
+	ConsoleCommands::get()->addCommand("config.get", "get", 1, &commandGetEnv,
+									   "Get a config value",
+									   "config.get <config> : get <config> value\r\n"
+									   "   example : config.get core.log.level\r\n");
+
+	ConsoleCommands::get()->addCommand("config.set", "set", 2, &commandSetEnv,
+									   "Set a config value",
+									   "config.set <config> <value>: set <config> to <value>\r\n"
+									   "   example : config.set core.log.level debug\r\n");
 }
 
 ConfigInfo* ConfigInfo::get() {
@@ -274,4 +285,76 @@ void ConfigInfo::dump(bool showDefault) {
 		if(!v->isDefault() || showDefault)
 			info("%c%c%s:%s\n", type, v->isDefault() ? '*' : ' ', it->first.c_str(), value.c_str());
 	}
+}
+
+
+void ConfigInfo::commandSetEnv(IWritableConsole* console, const std::vector<std::string>& args) {
+	const std::string& variableName = args[0];
+	const std::string& value = args[1];
+
+	ConfigValue* v = ConfigInfo::get()->getValue(variableName);
+
+	if(v == nullptr) {
+		console->writef("Unknown variable name: %s\r\n", variableName.c_str());
+		return;
+	}
+
+	switch(v->getType()) {
+		case ConfigValue::Bool:
+			v->setBool(!strcmp(value.c_str(), "true") || !strcmp(value.c_str(), "1"));
+			break;
+
+		case ConfigValue::Integer:
+			v->setInt(atoi(value.c_str()));
+			break;
+
+		case ConfigValue::Float:
+			v->setFloat((float)atof(value.c_str()));
+			break;
+
+		case ConfigValue::String:
+			v->setString(value);
+			break;
+	}
+
+
+	commandGetEnv(console, args);
+}
+
+void ConfigInfo::commandGetEnv(IWritableConsole* console, const std::vector<std::string>& args) {
+	const std::string& variableName = args[0];
+
+	ConfigValue* v = ConfigInfo::get()->getValue(variableName);
+
+	if(v == nullptr) {
+		console->writef("Unknown variable name: %s\r\n", variableName.c_str());
+		return;
+	}
+
+	std::string val;
+	char type = 'U';
+
+	switch(v->getType()) {
+		case ConfigValue::Bool:
+			type = 'B';
+			val = v->getBool() ? "true" : "false";
+			break;
+
+		case ConfigValue::Integer:
+			type = 'N';
+			val = Utils::convertToString(v->getInt());
+			break;
+
+		case ConfigValue::Float:
+			type = 'F';
+			val = Utils::convertToString(v->getFloat());
+			break;
+
+		case ConfigValue::String:
+			type = 'S';
+			val = v->getString();
+			break;
+	}
+
+	console->writef("%c%c%s:%s\r\n", type, v->isDefault() ? '*' : ' ', variableName.c_str(), val.c_str());
 }

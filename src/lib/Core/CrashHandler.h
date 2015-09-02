@@ -26,6 +26,7 @@ public:
 
 	static void terminate();
 	static void commandTerminate(IWritableConsole*, const std::vector<std::string>&);
+	static void commandListObjectsCount(IWritableConsole* console, const std::vector<std::string>&);
 
 private:
 	static void onTerminate(uv_async_t*);

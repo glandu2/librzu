@@ -10,12 +10,15 @@ ServersManager::ServersManager()
 {
 	if(instance == nullptr) {
 		instance = this;
+		ConsoleCommands::get()->addCommand("server.list", 0, &commandListServers,
+										   "List all available servers",
+										   "server.list : list all servers\r\n");
 		ConsoleCommands::get()->addCommand("server.start", "start", 1, &commandStartServer,
-										   "Start a server (Servers names are listed when booting)",
+										   "Start a server (use server.list to get server names)",
 										   "server.start <server name> : Start <server name> server\r\n"
 										   "server.start all           : Start all servers\r\n");
 		ConsoleCommands::get()->addCommand("server.stop", "stop", 1, &commandStopServer,
-										   "Stop a server (Servers names are listed when booting)",
+										   "Stop a server (use server.list to get server names)",
 										   "server.stop <server name> : Stop <server name> server\r\n"
 										   "server.stop all           : Stop all servers except console server\r\n");
 	} else {
@@ -114,6 +117,17 @@ bool ServersManager::stop(const std::string& name) {
 	}
 
 	return false;
+}
+
+void ServersManager::commandListServers(IWritableConsole* console, const std::vector<std::string>& args) {
+	ServersManager* instance = ServersManager::getInstance();
+
+	auto it = instance->servers.begin();
+	auto itEnd = instance->servers.end();
+	for(; it != itEnd; ++it) {
+		const std::string& name = it->first;
+		console->writef("%s\r\n", name.c_str());
+	}
 }
 
 void ServersManager::commandStartServer(IWritableConsole* console, const std::vector<std::string>& args) {

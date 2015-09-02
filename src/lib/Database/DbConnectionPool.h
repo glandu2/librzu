@@ -5,7 +5,9 @@
 #include "uv.h"
 #include <list>
 #include <string>
+#include <vector>
 
+class IWritableConsole;
 class DbConnection;
 
 class RZU_EXTERN DbConnectionPool : public Object
@@ -29,6 +31,8 @@ public:
 protected:
 	void removeConnection(DbConnection* dbConnection);
 	friend class DbConnection;
+
+	static void commandCloseDbConnections(IWritableConsole* console, const std::vector<std::string>& args);
 
 private:
 	static DbConnectionPool *instance;

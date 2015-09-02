@@ -33,6 +33,7 @@ public:
 protected:
 	static void commandStartServer(IWritableConsole* console, const std::vector<std::string>& args);
 	static void commandStopServer(IWritableConsole* console, const std::vector<std::string>& args);
+	static void commandListServers(IWritableConsole* console, const std::vector<std::string>& args);
 
 private:
 	struct ServerInfo {

@@ -3,6 +3,23 @@
 #include "EventLoop.h"
 #include "Console/ConsoleCommands.h"
 #include <stdlib.h>
+#include <map>
+#include "ClassCounter.h"
+
+#ifdef __GLIBC__
+#include <malloc.h>
+#include <unistd.h>
+#endif
+
+#ifdef _WIN32
+#include <windows.h>
+#include <dbghelp.h>
+#include <new.h>
+#include <signal.h>
+#include <exception>
+#include <crtdbg.h>
+#include <malloc.h>
+#endif
 
 //if equal to 1, don't do a crashdump
 static long long int dumpMode = 0;
@@ -16,9 +33,12 @@ void CrashHandler::init() {
 		globalHandlersInitialized = true;
 		setProcessExceptionHandlers();
 
-		ConsoleCommands::get()->addCommand("terminate", 0, &commandTerminate,
+		ConsoleCommands::get()->addCommand("terminate", "term", 0, &commandTerminate,
 										   "Ask the server to terminate gracefuly",
 										   "terminate : terminate the server gracefuly");
+
+		ConsoleCommands::get()->addCommand("mem.list", "mem", 0, &commandListObjectsCount,
+										   "List objects count");
 	}
 	setThreadExceptionHandlers();
 }
@@ -53,21 +73,64 @@ void CrashHandler::commandTerminate(IWritableConsole*, const std::vector<std::st
 	terminate();
 }
 
+
+void CrashHandler::commandListObjectsCount(IWritableConsole* console, const std::vector<std::string>&) {
+	std::map<std::string, unsigned long*>::const_iterator it, itEnd;
+
+#ifdef __GLIBC__
+	struct mallinfo memUsage = mallinfo();
+	console->writef("Memory usage:\r\n"
+					" heap size: %d\r\n"
+					" unused chunks: %d\r\n"
+					" mmap chunks: %d\r\n"
+					" mmap mem size: %d\r\n"
+					" used mem size: %d\r\n"
+					" unused mem size: %d\r\n"
+					" trailing releasable size: %d\r\n\r\n",
+					memUsage.arena,
+					memUsage.ordblks,
+					memUsage.hblks,
+					memUsage.hblkhd,
+					memUsage.uordblks,
+					memUsage.fordblks,
+					memUsage.keepcost);
+#endif
+
+#if defined(_WIN32) && defined(_DEBUG)
+	_CrtMemState memUsage;
+	size_t heapSize = 0, heapCommit = 0;
+	memset(&memUsage, 0, sizeof(memUsage));
+	_CrtMemDumpStatistics(&memUsage);
+	_heapused(&heapSize, &heapCommit);
+	console->writef("Memory usage:\r\n"
+					" heap size: %ld\r\n"
+					" commit size: %ld\r\n"
+					" normal block size: %ld\r\n"
+					" free block size: %ld\r\n"
+					" CRT block size: %ld\r\n"
+					" client block size: %ld\r\n"
+					" ignore block size: %ld\r\n"
+					" peak memory size: %ld\r\n"
+					" used memory size: %ld\r\n\r\n",
+					heapSize,
+					heapCommit,
+					memUsage.lSizes[_NORMAL_BLOCK],
+					memUsage.lSizes[_FREE_BLOCK],
+					memUsage.lSizes[_CRT_BLOCK],
+					memUsage.lSizes[_CLIENT_BLOCK],
+					memUsage.lSizes[_IGNORE_BLOCK],
+					memUsage.lHighWaterCount,
+					memUsage.lTotalCount);
+#endif
+
+	for(it = getObjectsCount().cbegin(), itEnd = getObjectsCount().cend(); it != itEnd; ++it) {
+		console->writef("%s: %ld\r\n",
+						it->first.c_str(),
+						*it->second);
+	}
+}
+
 #ifdef _WIN32
-
-#include <windows.h>
-#include <dbghelp.h>
-#include <new.h>
-#include <signal.h>
-#include <exception>
-
-//#include <stdio.h>
-//#include <conio.h>
-//#include <exception>
-//#include <sys/stat.h>
-//#include <psapi.h>
-//#include <rtcapi.h>
-//#include <Shellapi.h>
 
 // Collects current process state.
 static void getExceptionPointers(
