@@ -37,7 +37,7 @@ CREATE_STRUCT(LOBBY_CHARACTER_INFO); // struct is 304 bytes long in epic2
 
 #define TS_SC_CHARACTER_LIST_DEF(simple_, array_, dynarray_, count_) \
 	simple_   (uint32_t, current_server_time) \
-	simple_   (uint16_t, last_character_idx, version >= EPIC_4_1, 1) \
+	simple_   (uint16_t, last_character_idx, version >= EPIC_4_1, 0) \
 	count_    (uint16_t, count, characters) \
 	dynarray_ (LOBBY_CHARACTER_INFO, characters)
 
