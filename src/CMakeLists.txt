@@ -27,3 +27,10 @@ if(BUILD_SHARED_LIBS)
         RUNTIME DESTINATION ./
         LIBRARY DESTINATION ./)
 endif()
+
+if(DETECTED_OS_WIN)
+    find_file(OPENSSL_LIBEAY32_DLL "libeay32.dll" ${OPENSSL_ROOT_DIR}/bin NO_DEFAULT_PATH)
+    if(OPENSSL_LIBEAY32_DLL)
+        install(PROGRAMS ${OPENSSL_LIBEAY32_DLL} DESTINATION ./)
+    endif()
+endif()
