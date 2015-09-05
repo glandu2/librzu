@@ -11,11 +11,13 @@ struct RZU_EXTERN GlobalCoreConfig {
 	struct App {
 		cval<std::string> &appName, &configfile;
 		cval<bool> &useTcpNoDelay;
+		cval<bool> &showHiddenConfig;
 
 		App() :
 			appName(CFG_CREATE("core.appname", Utils::getApplicationName())),
 			configfile(CFG_CREATE(CONFIG_FILE_KEY, std::string(Utils::getApplicationName()) + ".opt")),
-			useTcpNoDelay(CFG_CREATE("core.usetcpnodelay", false))
+			useTcpNoDelay(CFG_CREATE("core.usetcpnodelay", false)),
+			showHiddenConfig(CFG_CREATE("core.config.showhidden", false))
 		{
 			Utils::autoSetAbsoluteDir(configfile);
 		}

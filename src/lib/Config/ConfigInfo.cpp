@@ -260,7 +260,7 @@ void ConfigInfo::dump(bool showDefault) {
 		char type = 'd';
 		std::string value;
 
-		if(v->isHidden() == false)
+		if(v->isHidden() == false || CONFIG_GET()->app.showHiddenConfig.get())
 			value = v->getString();
 		else
 			value = "<hidden>";
