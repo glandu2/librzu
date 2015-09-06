@@ -54,9 +54,9 @@ void Log::construct(cval<bool>& enabled, cval<std::string>& dir, cval<std::strin
 }
 
 Log::~Log() {
+	stopWriter();
 	if(defaultLogger == this)
 		defaultLogger = nullptr;
-	stopWriter();
 	uv_mutex_destroy(&messageListMutex);
 }
 
