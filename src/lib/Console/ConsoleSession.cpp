@@ -55,7 +55,7 @@ void ConsoleSession::writef(const char *format, ...) {
 	va_list args;
 
 	va_start(args, format);
-	Utils::stringFormat(str, format, args);
+	Utils::stringFormatv(str, format, args);
 	va_end(args);
 
 	TelnetSession::write(str.c_str(), str.size());

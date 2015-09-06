@@ -213,7 +213,7 @@ void Log::logv(Level level, const char *objectName, size_t objectNameSize, const
 	msg->writeToConsole = level <= consoleMaxLevel;
 	msg->writeToFile = level <= fileMaxLevel;
 	msg->objectName = std::string(objectName, objectName + objectNameSize);
-	Utils::stringFormat(msg->message, message, args);
+	Utils::stringFormatv(msg->message, message, args);
 
 	uv_mutex_lock(&this->messageListMutex);
 	if((int)this->messageQueue.size() < maxQueueSize.get())

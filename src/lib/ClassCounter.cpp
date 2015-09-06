@@ -12,15 +12,6 @@ std::map<std::string, unsigned long*>& getObjectsCount() {
 //generated with notepad++ with this pattern: (.*) ->
 //#include "\1.h"\nDECLARE_CLASSCOUNT_STATIC\(\1\)\n
 
-#include "Core/Object.h"
-DECLARE_CLASSCOUNT_STATIC(Object)
-
-#include "NetSession/BanManager.h"
-DECLARE_CLASSCOUNT_STATIC(BanManager)
-
-#include "NetSession/ClientAuthSession.h"
-DECLARE_CLASSCOUNT_STATIC(ClientAuthSession)
-
 #include "Config/ConfigInfo.h"
 DECLARE_CLASSCOUNT_STATIC(ConfigInfo)
 
@@ -30,14 +21,8 @@ DECLARE_CLASSCOUNT_STATIC(ConfigValue)
 #include "Console/ConsoleSession.h"
 DECLARE_CLASSCOUNT_STATIC(ConsoleSession)
 
-#include "Database/DbConnection.h"
-DECLARE_CLASSCOUNT_STATIC(DbConnection)
-
-#include "Database/DbQueryJob.h"
-DECLARE_CLASSCOUNT_STATIC(DbQueryBinding)
-
-#include "NetSession/DelegatedPacketSession.h"
-DECLARE_CLASSCOUNT_STATIC(DelegatedPacketSession)
+#include "Core/Object.h"
+DECLARE_CLASSCOUNT_STATIC(Object)
 
 #include "Core/EventLoop.h"
 DECLARE_CLASSCOUNT_STATIC(EventLoop)
@@ -45,8 +30,20 @@ DECLARE_CLASSCOUNT_STATIC(EventLoop)
 #include "Core/Log.h"
 DECLARE_CLASSCOUNT_STATIC(Log)
 
-#include "Stream/Pipe.h"
-DECLARE_CLASSCOUNT_STATIC(Pipe)
+#include "Database/DbConnection.h"
+DECLARE_CLASSCOUNT_STATIC(DbConnection)
+
+#include "Database/DbQueryJob.h"
+DECLARE_CLASSCOUNT_STATIC(DbQueryBinding)
+
+#include "NetSession/BanManager.h"
+DECLARE_CLASSCOUNT_STATIC(BanManager)
+
+#include "NetSession/ClientAuthSession.h"
+DECLARE_CLASSCOUNT_STATIC(ClientAuthSession)
+
+#include "NetSession/DelegatedPacketSession.h"
+DECLARE_CLASSCOUNT_STATIC(DelegatedPacketSession)
 
 #include "NetSession/SessionServer.h"
 DECLARE_CLASSCOUNT_STATIC(SessionServerCommon)
@@ -54,11 +51,14 @@ DECLARE_CLASSCOUNT_STATIC(SessionServerCommon)
 #include "NetSession/PacketSession.h"
 DECLARE_CLASSCOUNT_STATIC(PacketSession)
 
-#include "Stream/Socket.h"
-DECLARE_CLASSCOUNT_STATIC(Socket)
-
 #include "NetSession/SocketSession.h"
 DECLARE_CLASSCOUNT_STATIC(SocketSession)
 
 #include "NetSession/TelnetSession.h"
 DECLARE_CLASSCOUNT_STATIC(TelnetSession)
+
+#include "Stream/Pipe.h"
+DECLARE_CLASSCOUNT_STATIC(Pipe)
+
+#include "Stream/Socket.h"
+DECLARE_CLASSCOUNT_STATIC(Socket)

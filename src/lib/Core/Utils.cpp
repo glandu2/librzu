@@ -3,6 +3,7 @@
 #include <ctype.h>
 #include <algorithm>
 #include <string.h>
+#include <stdarg.h>
 
 #ifdef _WIN32
 #include <direct.h>
@@ -300,7 +301,7 @@ static int c99vsnprintf(char* dest, size_t size, const char* format, va_list arg
 	return result;
 }
 
-void Utils::stringFormat(std::string& dest, const char* message, va_list args) {
+void Utils::stringFormatv(std::string& dest, const char* message, va_list args) {
 	va_list argsFor2ndPass;
 	va_copy(argsFor2ndPass, args);
 
@@ -322,4 +323,11 @@ void Utils::stringFormat(std::string& dest, const char* message, va_list args) {
 		dest.resize(result);
 	}
 	va_end(argsFor2ndPass);
+}
+
+void Utils::stringFormat(std::string& dest, const char* message, ...) {
+	va_list args;
+	va_start(args, message);
+	stringFormatv(dest, message, args);
+	va_end(args);
 }

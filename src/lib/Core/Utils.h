@@ -42,7 +42,8 @@ public:
 
 	static unsigned long getPid();
 
-	static void stringFormat(std::string& dest, const char* message, va_list args);
+	static void stringFormatv(std::string& dest, const char* message, va_list args);
+	static void stringFormat(std::string& dest, const char* message, ...)  PRINTFCHECK(2, 3);
 
 private:
 	static void autoSetAbsoluteDirConfigValue(IListener*, cval<std::string>* value);
