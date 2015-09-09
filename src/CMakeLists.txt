@@ -22,15 +22,10 @@ if(WIN32)
 endif()
 
 add_lib(${TARGET_NAME} "${SOURCE_FILES}" "${LIBS}")
-if(BUILD_SHARED_LIBS)
-    install(TARGETS ${TARGET_NAME}
-        RUNTIME DESTINATION ./
-        LIBRARY DESTINATION ./)
-endif()
 
 if(DETECTED_OS_WIN)
     find_file(OPENSSL_LIBEAY32_DLL "libeay32.dll" ${OPENSSL_INCLUDE_DIR}/../bin NO_DEFAULT_PATH)
     if(OPENSSL_LIBEAY32_DLL)
-        install(PROGRAMS ${OPENSSL_LIBEAY32_DLL} DESTINATION ./)
+        install(PROGRAMS ${OPENSSL_LIBEAY32_DLL} DESTINATION ./ COMPONENT "binaries")
     endif()
 endif()

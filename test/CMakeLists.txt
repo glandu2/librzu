@@ -6,6 +6,5 @@ if(BUILD_SHARED_LIBS)
 endif()
 set(LIBS rzu)
 include_directories(${RZU_INCLUDE})
-add_exe(${TARGET_NAME}_jsontest "JSONWriter.cpp" "${LIBS}")
-
-add_exe(${TARGET_NAME}_perf_serialization "test_perf.cpp" "${LIBS}")
+add_rztest(${TARGET_NAME}_jsontest "JSONWriter.cpp" "${LIBS}")
+add_rztest(${TARGET_NAME}_perf_serialization "test_perf.cpp" "${LIBS}")
