@@ -13,15 +13,6 @@ class RZU_EXTERN Log : public Object, public IListener
 {
 	DECLARE_CLASS(Log)
 public:
-	enum Level {
-		LL_Fatal,
-		LL_Error,
-		LL_Warning,
-		LL_Info,
-		LL_Debug,
-		LL_Trace
-	};
-
 	Log(cval<bool>& enabled, cval<std::string>& fileMaxLevel, cval<std::string>& consoleMaxLevel, cval<std::string>& dir, cval<std::string>& fileName, cval<int>& maxQueueSize);
 	Log(cval<bool>& enabled, Level fileMaxLevel, Level consoleMaxLevel, cval<std::string>& dir, cval<std::string>& fileName, cval<int>& maxQueueSize);
 

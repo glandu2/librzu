@@ -34,7 +34,7 @@ public:
 		MessageBuffer buffer(data.getSize(version), version);
 		data.serialize(&buffer);
 		if(buffer.checkFinalSize() == false) {
-			error("Wrong packet buffer size, id: %d, size: %d, field: %s\n", buffer.getMessageId(), buffer.getSize(), buffer.getFieldInOverflow().c_str());
+			log(LL_Error, "Wrong packet buffer size, id: %d, size: %d, field: %s\n", buffer.getMessageId(), buffer.getSize(), buffer.getFieldInOverflow().c_str());
 			abortSession();
 		} else {
 			sendPacket(reinterpret_cast<const TS_MESSAGE*>(buffer.getData()));

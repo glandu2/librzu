@@ -5,7 +5,7 @@
 #include <sqlext.h>
 #include "Console/ConsoleCommands.h"
 
-static void outputError(Log::Level errorLevel, SQLHANDLE handle, SQLSMALLINT type);
+static void outputError(Object::Level errorLevel, SQLHANDLE handle, SQLSMALLINT type);
 
 DbConnectionPool *DbConnectionPool::instance = nullptr;
 
@@ -22,20 +22,20 @@ DbConnectionPool::DbConnectionPool() {
 
 	result = SQLAllocHandle(SQL_HANDLE_ENV, NULL, &henv);
 	if(!SQL_SUCCEEDED(result)) {
-		fatal("Can\t allocate ODBC ENV handle\n");
+		log(LL_Fatal, "Can\t allocate ODBC ENV handle\n");
 		abort();
 	}
 	result = checkSqlResult(SQLSetEnvAttr(henv, SQL_ATTR_ODBC_VERSION, (SQLPOINTER) SQL_OV_ODBC3, SQL_IS_INTEGER),
 							"SQLSetEnvAttr",
 							henv, nullptr, nullptr);
 	if(!result)
-		error("Can\'t use ODBC 3\n");
+		log(LL_Error, "Can\'t use ODBC 3\n");
 }
 
 DbConnectionPool::~DbConnectionPool() {
 	std::list<DbConnection*>::iterator it, itEnd;
 
-	info("Closing DB connections pool\n");
+	log(LL_Info, "Closing DB connections pool\n");
 
 	for(it = openedConnections.begin(), itEnd = openedConnections.end(); it != itEnd; ++it) {
 		DbConnection* connection = *it;
@@ -48,14 +48,14 @@ DbConnectionPool::~DbConnectionPool() {
 bool DbConnectionPool::checkConnection(const char* connectionString) {
 	DbConnection* dbConnection;
 
-	info("Checking connection to database\n");
+	log(LL_Info, "Checking connection to database\n");
 	dbConnection = getConnection(connectionString, "");
 	if(!dbConnection) {
-		error("Could not retrieve a DB connection from pool to \"%s\"\n", connectionString);
+		log(LL_Error, "Could not retrieve a DB connection from pool to \"%s\"\n", connectionString);
 		return false;
 	}
 	dbConnection->releaseAndClose();
-	info("Connection ok\n");
+	log(LL_Info, "Connection ok\n");
 	return true;
 }
 
@@ -98,7 +98,7 @@ DbConnection* DbConnectionPool::addConnection(const char* connectionString, bool
 	SQLHDBC hdbc = nullptr;
 	SQLHSTMT hstmt = nullptr;
 
-	debug("Connecting to database\n");
+	log(LL_Debug, "Connecting to database\n");
 
 	result = checkSqlResult(SQLAllocHandle(SQL_HANDLE_DBC, henv, &hdbc),
 							"SQLAllocHandle",
@@ -110,7 +110,7 @@ DbConnection* DbConnectionPool::addConnection(const char* connectionString, bool
 							"SQLDriverConnect",
 							henv, hdbc, nullptr);
 	if(!result) {
-		error("Failed to connect to %s\n", connectionString);
+		log(LL_Error, "Failed to connect to %s\n", connectionString);
 		SQLFreeHandle(SQL_HANDLE_DBC, hdbc);
 		return nullptr;
 	}
@@ -119,7 +119,7 @@ DbConnection* DbConnectionPool::addConnection(const char* connectionString, bool
 							"SQLAllocHandle",
 							henv, hdbc, nullptr);
 	if(!result) {
-		error("Failed to alloc a resultset for %s\n", connectionString);
+		log(LL_Error, "Failed to alloc a resultset for %s\n", connectionString);
 		SQLFreeHandle(SQL_HANDLE_DBC, hdbc);
 		return nullptr;
 	}
@@ -170,27 +170,27 @@ int DbConnectionPool::closeAllConnections() {
 
 bool DbConnectionPool::checkSqlResult(int result, const char* function, void* henv, void* hdbc, void* hstmt) {
 	if(result == SQL_SUCCESS_WITH_INFO) {
-		Log::get()->log(Log::LL_Info, "ODBC", 4, "%s: additional info:\n", function);
+		logStatic(LL_Info, "ODBC", "%s: additional info:\n", function);
 		if(hstmt)
-			outputError(Log::LL_Info, hstmt, SQL_HANDLE_STMT);
+			outputError(LL_Info, hstmt, SQL_HANDLE_STMT);
 		if(hdbc)
-			outputError(Log::LL_Info, hdbc, SQL_HANDLE_DBC);
+			outputError(LL_Info, hdbc, SQL_HANDLE_DBC);
 		if(henv)
-			outputError(Log::LL_Info, henv, SQL_HANDLE_ENV);
+			outputError(LL_Info, henv, SQL_HANDLE_ENV);
 	} else if(result == SQL_ERROR) {
-		Log::get()->log(Log::LL_Error, "ODBC", 4, "%s: error:\n", function);
+		logStatic(LL_Error, "ODBC", "%s: error:\n", function);
 		if(hstmt)
-			outputError(Log::LL_Error, hstmt, SQL_HANDLE_STMT);
+			outputError(LL_Error, hstmt, SQL_HANDLE_STMT);
 		if(hdbc)
-			outputError(Log::LL_Error, hdbc, SQL_HANDLE_DBC);
+			outputError(LL_Error, hdbc, SQL_HANDLE_DBC);
 		if(henv)
-			outputError(Log::LL_Error, henv, SQL_HANDLE_ENV);
+			outputError(LL_Error, henv, SQL_HANDLE_ENV);
 	}
 
 	return SQL_SUCCEEDED(result);
 }
 
-static void outputError(Log::Level errorLevel, SQLHANDLE handle, SQLSMALLINT type) {
+static void outputError(Object::Level errorLevel, SQLHANDLE handle, SQLSMALLINT type) {
 	SQLSMALLINT i = 0, len;
 	SQLINTEGER native;
 	SQLCHAR state[7];
@@ -199,8 +199,9 @@ static void outputError(Log::Level errorLevel, SQLHANDLE handle, SQLSMALLINT typ
 
 	do {
 		ret = SQLGetDiagRec(type, handle, ++i, state, &native, text, sizeof(text), &len);
-		if (SQL_SUCCEEDED(ret))
-			Log::get()->log(errorLevel, "ODBC", 4, "%s:%d:%ld:%s\n", state, i, (long)native, text);
+		if (SQL_SUCCEEDED(ret)) {
+			Object::logStatic(errorLevel, "ODBC", "%s:%d:%ld:%s\n", state, i, (long)native, text);
+		}
 	} while(ret == SQL_SUCCESS);
 }
 

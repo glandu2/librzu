@@ -67,7 +67,7 @@ bool ClientAuthSession::selectServer(uint16_t serverId) {
 		}
 	}
 	if(selectedServer == -1) {
-		error("Can\'t select server, server id is invalid or server list must be retrieved before\n");
+		log(LL_Error, "Can\'t select server, server id is invalid or server list must be retrieved before\n");
 		return false;
 	}
 
@@ -199,7 +199,7 @@ void ClientAuthSession::onPacketAuthPasswordKey(const TS_AC_AES_KEY_IV* packet) 
 //	RSA_free((RSA*)rsaCipher);
 //	rsaCipher = 0;
 	if(data_size != 32) {
-		warn("onPacketAuthPasswordKey: invalid decrypted data size: %d\n", data_size);
+		log(LL_Warning, "onPacketAuthPasswordKey: invalid decrypted data size: %d\n", data_size);
 		getStream()->close();
 		return;
 	}
@@ -224,7 +224,7 @@ end:
 	EVP_CIPHER_CTX_cleanup(&e_ctx);
 
 	if(ok == false) {
-		warn("onPacketAuthPasswordKey: could not encrypt password !\n");
+		log(LL_Warning, "onPacketAuthPasswordKey: could not encrypt password !\n");
 		getStream()->close();
 		return;
 	}
@@ -301,7 +301,7 @@ end:
 		EVP_CIPHER_CTX_cleanup(&e_ctx);
 
 		if(ok == false) {
-			warn("onPacketSelectServerResult: Could not decrypt TS_AC_SELECT_SERVER\n");
+			log(LL_Warning, "onPacketSelectServerResult: Could not decrypt TS_AC_SELECT_SERVER\n");
 			getStream()->close();
 			return;
 		}

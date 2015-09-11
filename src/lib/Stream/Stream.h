@@ -102,7 +102,7 @@ public:
 	void resetPacketTransferedFlag() { packetTransferedSinceLastCheck = false; }
 	bool isPacketTransferedSinceLastCheck() { return packetTransferedSinceLastCheck; }
 
-	void packetLog(Log::Level level, const unsigned char *rawData, int size, const char* format, ...) PRINTFCHECK(5, 6);
+	void packetLog(Object::Level level, const unsigned char *rawData, int size, const char* format, ...) PRINTFCHECK(5, 6);
 
 protected:
 	Stream(uv_loop_t *uvLoop, uv_stream_t* handle, bool logPackets = true);

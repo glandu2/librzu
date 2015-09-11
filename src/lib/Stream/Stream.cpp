@@ -108,7 +108,7 @@ Stream* Stream::getStream(StreamType type, Stream* existingStream, bool *changed
 
 bool Stream::connect(const std::string & hostName, uint16_t port) {
 	if(getState() != UnconnectedState) {
-		warn("Attempt to connect a not unconnected stream to %s\n", hostName.c_str());
+		log(LL_Warning, "Attempt to connect a not unconnected stream to %s\n", hostName.c_str());
 		return false;
 	}
 
@@ -118,7 +118,7 @@ bool Stream::connect(const std::string & hostName, uint16_t port) {
 
 	int result = connect_impl(&connectRequest, hostName, port);
 	if(result < 0) {
-		warn("Cant connect to host: %s\n", uv_strerror(result));
+		log(LL_Warning, "Cant connect to host: %s\n", uv_strerror(result));
 		onStreamError(result);
 		return false;
 	}
@@ -128,7 +128,7 @@ bool Stream::connect(const std::string & hostName, uint16_t port) {
 
 bool Stream::listen(const std::string& interfaceIp, uint16_t port) {
 	if(getState() != UnconnectedState) {
-		warn("Attempt to bind a not unconnected stream to %s\n", interfaceIp.c_str());
+		log(LL_Warning, "Attempt to bind a not unconnected stream to %s\n", interfaceIp.c_str());
 		return false;
 	}
 
@@ -138,14 +138,14 @@ bool Stream::listen(const std::string& interfaceIp, uint16_t port) {
 
 	int result = bind_impl(interfaceIp, port);
 	if(result < 0) {
-		warn("Cant bind: %s\n", uv_strerror(result));
+		log(LL_Warning, "Cant bind: %s\n", uv_strerror(result));
 		onStreamError(result);
 		return false;
 	}
 
 	result = uv_listen(handle, 20000, &onNewConnection);
 	if(result < 0) {
-		warn("Cant listen: %s\n", uv_strerror(result));
+		log(LL_Warning, "Cant listen: %s\n", uv_strerror(result));
 		onStreamError(result);
 		return false;
 	}
@@ -187,19 +187,19 @@ size_t Stream::write(WriteRequest* writeRequest) {
 		int result = uv_write(&writeRequest->writeReq, handle, &writeRequest->buffer, 1, &onWriteCompleted);
 		if(result < 0) {
 			WriteRequest::destroy(writeRequest);
-			debug("Cant write: %s\n", uv_strerror(result));
+			log(LL_Debug, "Cant write: %s\n", uv_strerror(result));
 			onStreamError(result);
 			return 0;
 		}
 
 		if(logPackets)
-			packetLog(Log::LL_Debug, reinterpret_cast<const unsigned char*>(writeRequest->buffer.base), (int)writeRequest->buffer.len,
+			packetLog(LL_Debug, reinterpret_cast<const unsigned char*>(writeRequest->buffer.base), (int)writeRequest->buffer.len,
 									"Written %d bytes\n",
 									(int)writeRequest->buffer.len);
 
 		return writeRequest->buffer.len;
 	} else {
-		error("Attempt to send data but stream not connected, current state is: %s(%d)\n", (getState() < (sizeof(STATES)/sizeof(const char*))) ? STATES[getState()] : "Unknown", getState());
+		log(LL_Error, "Attempt to send data but stream not connected, current state is: %s(%d)\n", (getState() < (sizeof(STATES)/sizeof(const char*))) ? STATES[getState()] : "Unknown", getState());
 		WriteRequest::destroy(writeRequest);
 		return 0;
 	}
@@ -211,7 +211,7 @@ size_t Stream::write(const void *buffer, size_t size) {
 		memcpy(writeRequest->buffer.base, buffer, size);
 		return write(writeRequest);
 	} else {
-		error("Attempt to send data but stream not connected, current state is: %s(%d)\n", (getState() < (sizeof(STATES)/sizeof(const char*))) ? STATES[getState()] : "Unknown", getState());
+		log(LL_Error, "Attempt to send data but stream not connected, current state is: %s(%d)\n", (getState() < (sizeof(STATES)/sizeof(const char*))) ? STATES[getState()] : "Unknown", getState());
 		return 0;
 	}
 }
@@ -228,7 +228,7 @@ bool Stream::accept(Stream** clientSocketPtr) {
 	if(result == UV_EAGAIN)
 		return false;
 	else if(result < 0) {
-		debug("Cant accept: %s\n", uv_strerror(result));
+		log(LL_Debug, "Cant accept: %s\n", uv_strerror(result));
 		onStreamError(result);
 		return false;
 	}
@@ -286,8 +286,8 @@ void Stream::setState(State state, bool causedByRemote) {
 
 	const char* oldStateStr = (oldState < (sizeof(STATES)/sizeof(const char*))) ? STATES[oldState] : "Unknown";
 	const char* newStateStr = (state < (sizeof(STATES)/sizeof(const char*))) ? STATES[state] : "Unknown";
-	trace("Stream state changed from %s to %s\n", oldStateStr, newStateStr);
-	packetLog(Log::LL_Info, nullptr, 0, "Stream state changed from %s to %s\n", oldStateStr, newStateStr);
+	log(LL_Trace, "Stream state changed from %s to %s\n", oldStateStr, newStateStr);
+	packetLog(LL_Info, nullptr, 0, "Stream state changed from %s to %s\n", oldStateStr, newStateStr);
 
 	DELEGATE_CALL(eventListeners, this, oldState, state, causedByRemote);
 
@@ -311,7 +311,7 @@ void Stream::setState(State state, bool causedByRemote) {
 }
 
 
-void Stream::packetLog(Log::Level level, const unsigned char* rawData, int size, const char* format, ...) {
+void Stream::packetLog(Object::Level level, const unsigned char* rawData, int size, const char* format, ...) {
 	static const char* char2hex[] = {
 		"00","01","02","03","04","05","06","07","08","09","0A","0B","0C","0D","0E","0F",
 		"10","11","12","13","14","15","16","17","18","19","1A","1B","1C","1D","1E","1F",
@@ -429,7 +429,7 @@ void Stream::onConnected(uv_connect_t* req, int status) {
 
 	if(status < 0) {
 		const char* errorString = uv_strerror(status);
-		thisInstance->error("onConnected: %s\n", errorString);
+		thisInstance->log(LL_Error, "onConnected: %s\n", errorString);
 		thisInstance->onStreamError(status);
 		return;
 	}
@@ -442,7 +442,7 @@ void Stream::onNewConnection(uv_stream_t* req, int status) {
 
 	if(status < 0) {
 		const char* errorString = uv_strerror(status);
-		thisInstance->error("onNewConnection: %s\n", errorString);
+		thisInstance->log(LL_Error, "onNewConnection: %s\n", errorString);
 		thisInstance->onStreamError(status);
 		return;
 	}
@@ -474,21 +474,21 @@ void Stream::onReadCompleted(uv_stream_t* stream, ssize_t nread, const uv_buf_t*
 	Stream* thisInstance = (Stream*)stream->data;
 
 	if(nread == UV_EOF) {
-		thisInstance->trace("Connection closed by peer\n");
+		thisInstance->log(LL_Trace, "Connection closed by peer\n");
 		thisInstance->close(true);
 	} else if(nread == UV_ECONNRESET) {
-		thisInstance->trace("Connection reset by peer\n");
+		thisInstance->log(LL_Trace, "Connection reset by peer\n");
 		thisInstance->abort(true);
 	} else if(nread < 0) {
 		const char* errorString = uv_strerror((int)nread);
-		thisInstance->error("onReadCompleted: %s\n", errorString);
+		thisInstance->log(LL_Error, "onReadCompleted: %s\n", errorString);
 		thisInstance->onStreamError((int)nread);
 	} else if(nread > 0) {
 		thisInstance->packetTransferedSinceLastCheck = true;
-		thisInstance->trace("Read %ld bytes\n", (long)nread);
+		thisInstance->log(LL_Trace, "Read %ld bytes\n", (long)nread);
 
 		if(thisInstance->logPackets)
-			thisInstance->packetLog(Log::LL_Debug, reinterpret_cast<const unsigned char*>(buf->base), (int)nread,
+			thisInstance->packetLog(LL_Debug, reinterpret_cast<const unsigned char*>(buf->base), (int)nread,
 									"Read    %ld bytes\n",  //large space to align with writes
 									(long)nread);
 
@@ -514,11 +514,11 @@ void Stream::onWriteCompleted(uv_write_t* req, int status) {
 
 	if(status < 0) {
 		const char* errorString = uv_strerror(status);
-		thisInstance->error("onWriteCompleted: %s\n", errorString);
+		thisInstance->log(LL_Error, "onWriteCompleted: %s\n", errorString);
 		thisInstance->onStreamError(status);
 	} else {
 		thisInstance->packetTransferedSinceLastCheck = true;
-		thisInstance->trace("Written %ld bytes\n", (long)writeRequest->buffer.len);
+		thisInstance->log(LL_Trace, "Written %ld bytes\n", (long)writeRequest->buffer.len);
 	}
 
 	WriteRequest::destroy(writeRequest);
@@ -529,7 +529,7 @@ void Stream::onShutdownDone(uv_shutdown_t* req, int status) {
 
 	if(status < 0) {
 		const char* errorString = uv_strerror(status);
-		thisInstance->error("onShutdownDone: %s\n", errorString);
+		thisInstance->log(LL_Error, "onShutdownDone: %s\n", errorString);
 	}
 
 	uv_close((uv_handle_t*)thisInstance->handle, &onConnectionClosed);

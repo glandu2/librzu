@@ -36,7 +36,15 @@
 class RZU_EXTERN Object
 {
 	DECLARE_CLASS(Object)
-
+public:
+	enum Level {
+		LL_Fatal,
+		LL_Error,
+		LL_Warning,
+		LL_Info,
+		LL_Debug,
+		LL_Trace
+	};
 public:
 	Object();
 	virtual ~Object();
@@ -45,13 +53,11 @@ public:
 	void setObjectName(size_t maxLen, const char *format, ...) PRINTFCHECK(3, 4);
 	const char *getObjectName(size_t *size = nullptr);
 
-	void trace(const char *message, ...) PRINTFCHECK(2, 3);
-	void debug(const char *message, ...) PRINTFCHECK(2, 3);
-	void info(const char *message, ...) PRINTFCHECK(2, 3);
-	void warn(const char *message, ...) PRINTFCHECK(2, 3);
-	void error(const char *message, ...) PRINTFCHECK(2, 3);
-	void fatal(const char *message, ...) PRINTFCHECK(2, 3);
-	void log(int level, const char *message, va_list args);
+	void log(Level level, const char *message, ...) PRINTFCHECK(3, 4);
+	void logv(Level level, const char *message, va_list args);
+
+	static void logStatic(Level level, const char* className, const char *message, ...) PRINTFCHECK(3, 4);
+	static void logStaticv(Level level, const char* className, const char *message, va_list args);
 
 	virtual void deleteLater();
 	bool isScheduledForDelete() { return scheduledForDelete; }

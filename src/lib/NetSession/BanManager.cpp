@@ -30,7 +30,7 @@ void BanManager::loadFile() {
 
 	FILE* file = fopen(banFileName.c_str(), "rb");
 	if(!file) {
-		debug("No ban ip file: \"%s\"\n", banFileName.c_str());
+		log(LL_Debug, "No ban ip file: \"%s\"\n", banFileName.c_str());
 		return;
 	}
 
@@ -50,7 +50,7 @@ void BanManager::loadFile() {
 			if(uv_inet_pton(AF_INET, line, &inet) >= 0) {
 				newBannedIps.insert(inet);
 				if(bannedIps.erase(inet) == 0)
-					info("Add banned ip: %s\n", line);
+					log(LL_Info, "Add banned ip: %s\n", line);
 			}
 		}
 	}
@@ -60,7 +60,7 @@ void BanManager::loadFile() {
 	for(it = bannedIps.cbegin(), itEnd = bannedIps.cend(); it != itEnd; ++it) {
 		inet = *it;
 		uv_inet_ntop(AF_INET, &inet, ipStr, INET_ADDRSTRLEN);
-		info("Removed banned ip: %s\n", ipStr);
+		log(LL_Info, "Removed banned ip: %s\n", ipStr);
 	}
 
 	bannedIps.swap(newBannedIps);

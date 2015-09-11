@@ -16,7 +16,7 @@ ConsoleCommands::ConsoleCommands() {
 
 void ConsoleCommands::addCommand(Command command) {
 	if(command.name.empty()) {
-		error("Can't register command without name, alias = %s\n", command.alias.c_str());
+		log(LL_Error, "Can't register command without name, alias = %s\n", command.alias.c_str());
 		return;
 	}
 
@@ -25,7 +25,7 @@ void ConsoleCommands::addCommand(Command command) {
 
 	auto result = commands.insert(std::make_pair(commandRef->name, commandRef));
 	if(result.second == false) {
-		error("Can't register command, name already exists: %s\n", commandRef->name.c_str());
+		log(LL_Error, "Can't register command, name already exists: %s\n", commandRef->name.c_str());
 		delete commandRef;
 		return;
 	}
@@ -33,15 +33,15 @@ void ConsoleCommands::addCommand(Command command) {
 	if(!commandRef->alias.empty()) {
 		auto result = commands.insert(std::make_pair(commandRef->alias, commandRef));
 		if(result.second == false)
-			warn("Can't register alias %s for command %s\n", commandRef->alias.c_str(), commandRef->name.c_str());
+			log(LL_Warning, "Can't register alias %s for command %s\n", commandRef->alias.c_str(), commandRef->name.c_str());
 		else
 			addedAlias = true;
 	}
 
 	if(addedAlias)
-		debug("Registered command %s with alias %s\n", commandRef->name.c_str(), commandRef->alias.c_str());
+		log(LL_Debug, "Registered command %s with alias %s\n", commandRef->name.c_str(), commandRef->alias.c_str());
 	else
-		debug("Registered command %s\n", commandRef->name.c_str());
+		log(LL_Debug, "Registered command %s\n", commandRef->name.c_str());
 }
 
 void ConsoleCommands::addCommand(std::string name, std::string alias, int minArgNum, int maxArgNum, CommandFunction function, std::string helpString, std::string usageExample) {
@@ -67,7 +67,7 @@ void ConsoleCommands::addCommand(std::string name, int argNum, CommandFunction f
 void ConsoleCommands::removeCommand(std::string name) {
 	auto it = commands.find(name);
 	if(it == commands.end()) {
-		warn("Can't remove command with name or alias %s, no such name\n", name.c_str());
+		log(LL_Warning, "Can't remove command with name or alias %s, no such name\n", name.c_str());
 		return;
 	}
 
@@ -78,9 +78,9 @@ void ConsoleCommands::removeCommand(std::string name) {
 		commands.erase(command->alias);
 
 	if(!command->alias.empty())
-		debug("Removed command %s with alias %s\n", command->name.c_str(), command->alias.c_str());
+		log(LL_Debug, "Removed command %s with alias %s\n", command->name.c_str(), command->alias.c_str());
 	else
-		debug("Removed command %s\n", command->name.c_str());
+		log(LL_Debug, "Removed command %s\n", command->name.c_str());
 
 	delete command;
 }

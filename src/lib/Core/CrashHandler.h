@@ -20,7 +20,7 @@ public:
 	// Installs C++ exception handlers that function on per-thread basis
 	static void setThreadExceptionHandlers();
 
-	static void setDumpMode(int _dumpMode);
+	static void setDumpMode();
 
 	static void setTerminateCallback(TerminateCallback callback, void* instance);
 

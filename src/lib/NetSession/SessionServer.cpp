@@ -36,11 +36,11 @@ SessionServerCommon::~SessionServerCommon() {
 
 bool SessionServerCommon::start() {
 	if(isStarted()) {
-		info("Server %s already started\n", getName());
+		log(LL_Info, "Server %s already started\n", getName());
 		return true;
 	}
 
-	info("Starting server %s on %s:%d\n", getName(), listenIp.get().c_str(), port.get());
+	log(LL_Info, "Starting server %s on %s:%d\n", getName(), listenIp.get().c_str(), port.get());
 
 	if(banManager)
 		banManager->loadFile();
@@ -67,10 +67,10 @@ bool SessionServerCommon::start() {
 
 void SessionServerCommon::stop() {
 	if(!serverSocket || serverSocket->getState() == Stream::UnconnectedState) {
-		debug("Server %s already stopped\n", getName());
+		log(LL_Debug, "Server %s already stopped\n", getName());
 	}
 
-	info("Stopping server %s\n", getName());
+	log(LL_Info, "Stopping server %s\n", getName());
 
 	uv_timer_stop(&checkIdleSocketTimer);
 	serverSocket->close();
@@ -89,7 +89,7 @@ void SessionServerCommon::onNewConnection() {
 	if(serverSocket->accept(&lastWaitingStreamInstance)) {
 		if(banManager && banManager->isBanned(lastWaitingStreamInstance->getRemoteIp())) {
 			lastWaitingStreamInstance->abort();
-			debug("Kick banned ip %s\n", lastWaitingStreamInstance->getRemoteIpStr());
+			log(LL_Debug, "Kick banned ip %s\n", lastWaitingStreamInstance->getRemoteIpStr());
 		} else {
 			sockets.push_back(lastWaitingStreamInstance);
 
@@ -108,7 +108,7 @@ void SessionServerCommon::onCheckIdleSockets(uv_timer_t* timer) {
 	SessionServerCommon* thisInstance = static_cast<SessionServerCommon*>(timer->data);
 	int kickedConnections = 0;
 	uint64_t begin;
-	bool logTrace = Log::get() && Log::get()->wouldLog(Log::LL_Trace);
+	bool logTrace = Log::get() && Log::get()->wouldLog(LL_Trace);
 
 	if(logTrace)
 		begin = uv_hrtime();
@@ -120,7 +120,7 @@ void SessionServerCommon::onCheckIdleSockets(uv_timer_t* timer) {
 			if(socket->isPacketTransferedSinceLastCheck() == false) {
 				socket->close();
 				kickedConnections++;
-				thisInstance->info("Kicked idle connection: %s:%d\n", socket->getRemoteIpStr(), socket->getRemotePort());
+				thisInstance->log(LL_Info, "Kicked idle connection: %s:%d\n", socket->getRemoteIpStr(), socket->getRemotePort());
 			} else {
 				socket->resetPacketTransferedFlag();
 			}
@@ -128,5 +128,5 @@ void SessionServerCommon::onCheckIdleSockets(uv_timer_t* timer) {
 	}
 	//check fo trace to avoid call to uv_hrtime if not needed
 	if(logTrace)
-		thisInstance->trace("Idle socket check: kicked %d sockets in %" PRIu64 " ns\n", kickedConnections, uv_hrtime() - begin);
+		thisInstance->log(LL_Trace, "Idle socket check: kicked %d sockets in %" PRIu64 " ns\n", kickedConnections, uv_hrtime() - begin);
 }

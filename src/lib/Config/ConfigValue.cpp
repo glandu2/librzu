@@ -101,7 +101,7 @@ void ConfigValue::wrongType(Type expectedType) {
 			"String"
 		};
 
-		fatal("Config value type mismatch for %s[%s], tried to get as %s. Check the config file.\n",
+		log(LL_Fatal, "Config value type mismatch for %s[%s], tried to get as %s. Check the config file.\n",
 				keyName != nullptr ? keyName->c_str() : "unknown key",
 				typeStr[type],
 				typeStr[expectedType]);

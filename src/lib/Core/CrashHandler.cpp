@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <map>
 #include "ClassCounter.h"
+#include "Config/GlobalCoreConfig.h"
 
 #ifdef __GLIBC__
 #include <malloc.h>
@@ -43,8 +44,8 @@ void CrashHandler::init() {
 	setThreadExceptionHandlers();
 }
 
-void CrashHandler::setDumpMode(int _dumpMode) {
-	dumpMode = _dumpMode;
+void CrashHandler::setDumpMode() {
+	dumpMode = CONFIG_GET()->app.dumpMode.get();
 }
 
 void CrashHandler::setTerminateCallback(TerminateCallback callback, void* instance) {

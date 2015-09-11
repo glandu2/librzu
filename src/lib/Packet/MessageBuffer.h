@@ -48,7 +48,7 @@ public:
 		uint32_t msgSize = *reinterpret_cast<const uint32_t*>(buffer->buffer.base);
 		bool ok = !bufferOverflow && msgSize == getSize() && uint32_t(p - buffer->buffer.base) == msgSize;
 		if(!ok)
-			error("Packet has invalid data: id: %d, size: %d, field: %s\n", getMessageId(), getSize(), getFieldInOverflow().c_str());
+			log(LL_Error, "Packet has invalid data: id: %d, size: %d, field: %s\n", getMessageId(), getSize(), getFieldInOverflow().c_str());
 		return ok;
 	}
 

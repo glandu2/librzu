@@ -58,7 +58,7 @@ public:
 		canceled = false;
 
 		if(dbBinding == nullptr) {
-			error("DB binding was not initialized ! Canceling DB query\n");
+			log(LL_Error, "DB binding was not initialized ! Canceling DB query\n");
 			onDone(S_Canceled);
 			return false;
 		}
@@ -96,7 +96,7 @@ protected:
 			return;
 		}
 		if(onPreProcess() == false) {
-			debug("Canceled DB query in preprocess step\n");
+			log(LL_Debug, "Canceled DB query in preprocess step\n");
 			return;
 		}
 		done = binding->process(this, &input);

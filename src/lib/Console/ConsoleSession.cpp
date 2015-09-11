@@ -9,41 +9,55 @@
 #include "Core/Utils.h"
 #include "Config/GlobalCoreConfig.h"
 #include "ConsoleCommands.h"
+#include "../NetSession/SessionServer.h"
 
 
-static const char MSG_HELP[] =
-		"Available commands:\r\n"
-		"- start <server_name>     Start the server <server_name>. Servers names are listed when starting. If <server_name> is \"all\", all server with autostart on are started.\r\n"
-		"- stop <server_name>      Same as start <server_name> but stop the server. \"stop all\" will stop all servers and exit.\r\n"
-		"- set <variable> <value>  Set config variable <variable> to <value>. Double-quotes are allowed for values with spaces. Use \"\" for a escaped double quote character.\r\n"
-		"- get <variable>          Get config variable value.\r\n"
-		"- list                    List all connected gameservers and information about them.\r\n"
-		"- mem                     List object counts.\r\n"
-		"- closedb                 Close all idle database connections (use this to bring a database offline).\r\n"
-		"\r\n";
+struct ListenerConfig {
+	cval<std::string> &listenIp;
+	cval<int> &port, &idleTimeout;
+	cval<bool> &autoStart;
 
+	ListenerConfig(const std::string& prefix, const char* defaultIp, int defaultPort, bool autoStart = true, int idleTimeout = 0) :
+		listenIp(CFG_CREATE(prefix + ".ip", defaultIp)),
+		port(CFG_CREATE(prefix + ".port", defaultPort)),
+		idleTimeout(CFG_CREATE(prefix + ".idletimeout", idleTimeout)),
+		autoStart(CFG_CREATE(prefix + ".autostart", autoStart))
+	{}
+};
 
-#ifdef __GLIBC__
-#include <malloc.h>
-#include <unistd.h>
-#endif
+struct AdminConfig {
+	ListenerConfig listener;
 
-#ifdef _WIN32
-#include <crtdbg.h>
-#include <malloc.h>
-#endif
+	AdminConfig() :
+		listener("admin.console", "127.0.0.1", 4501, true, 0)
+	{}
+};
+static AdminConfig* admin = nullptr;
 
-static const char MSG_UNKNOWN_SERVER_NAME[] = "Unknown server name\r\n";
-static const char MSG_START_OK[] = "Server started\r\n";
-static const char MSG_STOP_OK[] = "Server stopped\r\n";
-static const char MSG_UNKNOWN_VARIABLE[] = "Unknown variable name\r\n";
+void ConsoleSession::init() {
+	if(!admin)
+		admin = new AdminConfig;
+}
+
+void ConsoleSession::start(ServersManager* serverManager) {
+	if(!admin) {
+		logStatic(LL_Warning, ConsoleSession::getStaticClassName(), "init() was not called before start()\n");
+		init();
+	}
+
+	static SessionServer<ConsoleSession> adminConsoleServer(
+				admin->listener.listenIp,
+				admin->listener.port,
+				&admin->listener.idleTimeout);
+	serverManager->addServer("admin.console", &adminConsoleServer, admin->listener.autoStart, true);
+}
 
 ConsoleSession::ConsoleSession() : consoleCommands(ConsoleCommands::get()) {
-	Object::info("New console session\n");
+	Object::log(LL_Info, "New console session\n");
 }
 
 ConsoleSession::~ConsoleSession() {
-	Object::info("Console session closed\n");
+	Object::log(LL_Info, "Console session closed\n");
 }
 
 void ConsoleSession::write(const char *message) {
@@ -64,7 +78,7 @@ void ConsoleSession::writef(const char *format, ...) {
 void ConsoleSession::log(const char *message, ...) {
 	va_list args;
 	va_start(args, message);
-	Object::log(Log::LL_Info, message, args);
+	Object::logv(LL_Info, message, args);
 	va_end(args);
 }
 

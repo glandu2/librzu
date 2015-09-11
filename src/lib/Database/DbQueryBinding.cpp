@@ -39,12 +39,12 @@ bool DbQueryBinding::process(IDbQueryJob* queryJob, void* inputInstance) {
 
 	connection = dbConnectionPool->getConnection(connectionString.get().c_str(), queryStr);
 	if(!connection) {
-		warn("Could not retrieve a DB connection from pool\n");
+		log(LL_Warning, "Could not retrieve a DB connection from pool\n");
 		return false;
 	}
 
 
-	trace("Executing: %s\n", queryStr.c_str());
+	log(LL_Trace, "Executing: %s\n", queryStr.c_str());
 
 	for(size_t i = 0; i < parameterBindings.size(); i++) {
 		const ParameterBinding& paramBinding = parameterBindings.at(i);
@@ -77,11 +77,11 @@ bool DbQueryBinding::process(IDbQueryJob* queryJob, void* inputInstance) {
 
 	if(!connection->execute(queryStr.c_str())) {
 		connection->releaseWithError();
-		warn("DB query failed: %s\n", queryStr.c_str());
+		log(LL_Warning, "DB query failed: %s\n", queryStr.c_str());
 		errorCount++;
 		if(errorCount > 10) {
 			enabled.setBool(false);
-			error("Disabled query: %s, too many errors\n", queryStr.c_str());
+			log(LL_Error, "Disabled query: %s, too many errors\n", queryStr.c_str());
 
 			errorCount = 0;
 		}
@@ -93,7 +93,7 @@ bool DbQueryBinding::process(IDbQueryJob* queryJob, void* inputInstance) {
 		while(connection->fetch() && (firstRowFetched == false || mode == EM_MultiRows)) {
 			firstRowFetched = true;
 
-			trace("Fetching data\n");
+			log(LL_Trace, "Fetching data\n");
 			const int columnCount = connection->getColumnNum(&columnCountOk);
 
 			if(!columnCountOk) {

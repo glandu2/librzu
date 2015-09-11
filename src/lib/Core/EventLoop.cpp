@@ -18,7 +18,7 @@ EventLoop::EventLoop()
 
 EventLoop::~EventLoop() {
 	if(uv_loop_alive(&loop))
-		warn("Loop still used but delete requested\n");
+		log(LL_Warning, "Loop still used but delete requested\n");
 	uv_stop(&loop);
 	uv_loop_close(&loop);
 

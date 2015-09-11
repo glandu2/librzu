@@ -12,12 +12,14 @@ struct RZU_EXTERN GlobalCoreConfig {
 		cval<std::string> &appName, &configfile;
 		cval<bool> &useTcpNoDelay;
 		cval<bool> &showHiddenConfig;
+		cval<int> &dumpMode;
 
 		App() :
 			appName(CFG_CREATE("core.appname", Utils::getApplicationName())),
 			configfile(CFG_CREATE(CONFIG_FILE_KEY, std::string(Utils::getApplicationName()) + ".opt")),
 			useTcpNoDelay(CFG_CREATE("core.usetcpnodelay", false)),
-			showHiddenConfig(CFG_CREATE("core.config.showhidden", false))
+			showHiddenConfig(CFG_CREATE("core.config.showhidden", false)),
+			dumpMode(CFG_CREATE("admin.dump_mode", 0)) //1: no dump, anything else: create dump on crash
 		{
 			Utils::autoSetAbsoluteDir(configfile);
 		}

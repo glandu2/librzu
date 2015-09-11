@@ -109,14 +109,14 @@ void Log::updateLevel(bool isConsole, const std::string& level) {
 		else
 			target = "console";
 
-		error("Invalid %s level value: %s. Using warning. (valid ones are: fatal, never (alias for fatal), error, warning, info, debug and trace)\n", target, level.c_str());
+		Object::log(LL_Error, "Invalid %s level value: %s. Using warning. (valid ones are: fatal, never (alias for fatal), error, warning, info, debug and trace)\n", target, level.c_str());
 		*levelToChange = LL_Warning;
 	}
 
 	if(isConsole)
-		debug("Using console log level %s\n", LEVELSTRINGS[*levelToChange]);
+		Object::log(LL_Debug, "Using console log level %s\n", LEVELSTRINGS[*levelToChange]);
 	else
-		debug("Using file log level %s\n", LEVELSTRINGS[*levelToChange]);
+		Object::log(LL_Debug, "Using file log level %s\n", LEVELSTRINGS[*levelToChange]);
 }
 
 void Log::updateFile(IListener* instance, cval<std::string>* str) {
@@ -151,7 +151,7 @@ void Log::stopWriter(bool waitThread) {
 		return;
 	}
 
-	debug("Stopping log thread\n");
+	Object::log(LL_Debug, "Stopping log thread\n");
 	log(LL_Info, this, "Log thread stopped\n");
 
 	uv_mutex_lock(&this->messageListMutex);

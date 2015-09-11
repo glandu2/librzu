@@ -22,7 +22,7 @@ ServersManager::ServersManager()
 										   "server.stop <server name> : Stop <server name> server\r\n"
 										   "server.stop all           : Stop all servers except console server\r\n");
 	} else {
-		error("Several ServersManager instance !\n");
+		log(LL_Error, "Several ServersManager instance !\n");
 	}
 }
 

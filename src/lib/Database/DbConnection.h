@@ -63,7 +63,7 @@ public:
 			if(!result)
 				return false;
 			lastQuery = query;
-			debug("Cached DB query: %s\n", query);
+			log(LL_Debug, "Cached DB query: %s\n", query);
 		}
 		return checkResult(SQLExecute(hstmt), "SQLExecute");
 	}

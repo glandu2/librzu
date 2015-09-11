@@ -30,7 +30,7 @@ public:
 		value->setHidden(isHidden);
 
 		if(!addValue(std::string(key), value).second) {
-			error("Config value already exist: %s\n", key);
+			log(LL_Error, "Config value already exist: %s\n", key);
 		}
 
 		return *value;

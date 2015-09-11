@@ -92,102 +92,84 @@ static void defaultLog(const char* suffix, const char* objectName, const char* m
 	vfprintf(stdout, message, args);
 }
 
-static Log::Level getCurrentLevel() {
+static Object::Level getCurrentLevel() {
 	std::string level = CONFIG_GET()->log.level.get();
 
 	if(level == "fatal" || level == "never")
-		return Log::LL_Fatal;
+		return Object::LL_Fatal;
 	else if(level == "error")
-		return Log::LL_Error;
+		return Object::LL_Error;
 	else if(level == "warning" || level == "warn")
-		return Log::LL_Warning;
+		return Object::LL_Warning;
 	else if(level == "info")
-		return Log::LL_Info;
+		return Object::LL_Info;
 	else if(level == "debug")
-		return Log::LL_Debug;
+		return Object::LL_Debug;
 	else if(level == "trace")
-		return Log::LL_Trace;
+		return Object::LL_Trace;
 	else
-		return Log::LL_Info;
+		return Object::LL_Info;
 }
 
-//level is Log::Level without leading Log::LL_
-#define LOG_USELOGGER(msg, level) \
-	Log* logger = Log::get(); \
-	va_list args; \
-	va_start(args, message); \
-	 \
-	if(logger) \
-		logger->logv(Log::LL_##level, this, message, args); \
-	else if(getCurrentLevel() >= Log::LL_##level) { \
-		defaultLog(#level, getObjectName(), message, args); \
-	} \
-	va_end(args);
-
-void Object::log(int level, const char* message, va_list args) {
+void Object::logv(Level level, const char* message, va_list args) {
 	Log* logger = Log::get();
 
 	if(logger)
-		logger->logv((Log::Level)level, this, message, args);
+		logger->logv(level, this, message, args);
 	else if(getCurrentLevel() >= level) {
 		const char* levelStr = "Unknown";
 		switch(level) {
-			case Log::LL_Fatal: levelStr = "Fatal"; break;
-			case Log::LL_Error: levelStr = "Error"; break;
-			case Log::LL_Warning: levelStr = "Warning"; break;
-			case Log::LL_Info: levelStr = "Info"; break;
-			case Log::LL_Debug: levelStr = "Debug"; break;
-			case Log::LL_Trace: levelStr = "Trace"; break;
+			case LL_Fatal: levelStr = "Fatal"; break;
+			case LL_Error: levelStr = "Error"; break;
+			case LL_Warning: levelStr = "Warning"; break;
+			case LL_Info: levelStr = "Info"; break;
+			case LL_Debug: levelStr = "Debug"; break;
+			case LL_Trace: levelStr = "Trace"; break;
 		}
 
 		defaultLog(levelStr, getObjectName(), message, args);
 	}
 }
 
-void Object::trace(const char *message, ...) {
+void Object::log(Level level, const char *message, ...) {
 	//early check for performance boost if trace is not active
 	Log* logger = Log::get();
-	if(logger && logger->wouldLog(Log::LL_Trace)) {
+	if(level < LL_Trace || logger && logger->wouldLog(level)) {
 		va_list args;
 		va_start(args, message);
-		log(Log::LL_Trace, message, args);
+		logv(LL_Trace, message, args);
 		va_end(args);
 	}
 }
 
-void Object::debug(const char *message, ...) {
-	va_list args;
-	va_start(args, message);
-	log(Log::LL_Debug, message, args);
-	va_end(args);
+void Object::logStaticv(Level level, const char* className, const char* message, va_list args) {
+	Log* logger = Log::get();
+
+	if(logger)
+		logger->logv(level, className, strlen(className), message, args);
+	else if(getCurrentLevel() >= level) {
+		const char* levelStr = "Unknown";
+		switch(level) {
+			case LL_Fatal: levelStr = "Fatal"; break;
+			case LL_Error: levelStr = "Error"; break;
+			case LL_Warning: levelStr = "Warning"; break;
+			case LL_Info: levelStr = "Info"; break;
+			case LL_Debug: levelStr = "Debug"; break;
+			case LL_Trace: levelStr = "Trace"; break;
+		}
+
+		defaultLog(levelStr, className, message, args);
+	}
 }
 
-void Object::info(const char *message, ...) {
-	va_list args;
-	va_start(args, message);
-	log(Log::LL_Info, message, args);
-	va_end(args);
-}
-
-void Object::warn(const char *message, ...) {
-	va_list args;
-	va_start(args, message);
-	log(Log::LL_Warning, message, args);
-	va_end(args);
-}
-
-void Object::error(const char *message, ...) {
-	va_list args;
-	va_start(args, message);
-	log(Log::LL_Error, message, args);
-	va_end(args);
-}
-
-void Object::fatal(const char *message, ...) {
-	va_list args;
-	va_start(args, message);
-	log(Log::LL_Fatal, message, args);
-	va_end(args);
+void Object::logStatic(Level level, const char* className, const char *message, ...) {
+	Log* logger = Log::get();
+	if(level < LL_Trace || logger && logger->wouldLog(level)) {
+		va_list args;
+		va_start(args, message);
+		logStaticv(level, className, message, args);
+		va_end(args);
+	}
 }
 
 void Object::deleteLater() {
