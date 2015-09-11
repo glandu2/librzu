@@ -77,7 +77,7 @@ public:
 
 	//Fixed array
 	template<typename T>
-	void write(const char* fieldName, const T* val, int size) {
+	void writeArray(const char* fieldName, const T* val, int size) {
 		printIdent();
 		if(fieldName)
 			std::cout << '\"' << fieldName << "\": ";
@@ -96,14 +96,14 @@ public:
 	}
 
 	//String
-	void write(const char* fieldName, const char* val, int size) {
+	void writeArray(const char* fieldName, const char* val, int size) {
 		printIdent();
 		std::cout << '\"' << fieldName << "\": \"" << val << "\"";
 	}
 
 	//Dynamic array of object
 	template<class U>
-	void write(const char* fieldName, const std::vector<U>& val) {
+	void writeDynArray(const char* fieldName, const std::vector<U>& val) {
 		printIdent();
 		if(fieldName)
 			std::cout << '\"' << fieldName << "\": ";
@@ -145,22 +145,22 @@ public:
 	//Fixed array of primitive
 	template<typename T>
 	typename std::enable_if<std::is_fundamental<T>::value, void>::type
-	read(const char*, T* val, int size) {
+	readArray(const char*, T* val, int size) {
 	}
 
 	//Fixed array of objects
 	template<typename T>
 	typename std::enable_if<!std::is_fundamental<T>::value, void>::type
-	read(const char*, T* val, int size) {
+	readArray(const char*, T* val, int size) {
 	}
 
 	//String
-	void read(const char*, std::string& val, int size) {
+	void readArray(const char*, std::string& val, int size) {
 	}
 
 	//Dynamic array of object
 	template<class U>
-	void read(const char*, std::vector<U>& val) {
+	void readDynArray(const char*, std::vector<U>& val) {
 	}
 
 	//Dummy read

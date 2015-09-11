@@ -139,18 +139,18 @@ getSizeOf(const T& value, int version) {
 	if(cond) buffer->write(#name, (type)name);
 
 #define SERIALIZATION_F_ARRAY3(type, name, size) \
-	buffer->write(#name, (type*)name, size);
+	buffer->writeArray(#name, (type*)name, size);
 #define SERIALIZATION_F_ARRAY4(type, name, size, cond) \
-	if(cond) buffer->write(#name, (type*)name, size);
+	if(cond) buffer->writeArray(#name, (type*)name, size);
 #define SERIALIZATION_F_ARRAY5(type, name, size, cond, defaultval) \
-	if(cond) buffer->write(#name, (type*)name, size);
+	if(cond) buffer->writeArray(#name, (type*)name, size);
 
 #define SERIALIZATION_F_DYNARRAY2(type, name) \
-	buffer->write(#name, name);
+	buffer->template writeDynArray<type>(#name, name);
 #define SERIALIZATION_F_DYNARRAY3(type, name, cond) \
-	if(cond) buffer->write(#name, name);
+	if(cond) buffer->template writeDynArray<type>(#name, name);
 #define SERIALIZATION_F_DYNARRAY4(type, name, cond, defaultval) \
-	if(cond) buffer->write(#name, name);
+	if(cond) buffer->template writeDynArray<type>(#name, name);
 
 #define SERIALIZATION_F_COUNT3(type, name, ref) \
 	buffer->write(#name, (type)ref.size());
@@ -173,23 +173,23 @@ getSizeOf(const T& value, int version) {
 	if(cond) buffer->template read<type>(#name, name); else PacketDeclaration::copyDefaultValue(name, defaultval);
 
 #define DESERIALIZATION_F_ARRAY3(type, name, size) \
-	buffer->template read<type>(#name, name, size);
+	buffer->template readArray<type>(#name, name, size);
 #define DESERIALIZATION_F_ARRAY4(type, name, size, cond) \
-	if(cond) buffer->template read<type>(#name, name, size);
+	if(cond) buffer->template readArray<type>(#name, name, size);
 #define DESERIALIZATION_F_ARRAY5(type, name, size, cond, defaultval) \
 	if(cond) \
-		buffer->template read<type>(#name, name, size); \
+		buffer->template readArray<type>(#name, name, size); \
 	else { \
 		static const type defaultArray[size] = defaultval; \
 		PacketDeclaration::copyDefaultValue(name, defaultArray, size); \
 	}
 
 #define DESERIALIZATION_F_DYNARRAY2(type, name) \
-	buffer->template read<type>(#name, name);
+	buffer->template readDynArray<type>(#name, name);
 #define DESERIALIZATION_F_DYNARRAY3(type, name, cond) \
-	if(cond) buffer->template read<type>(#name, name);
+	if(cond) buffer->template readDynArray<type>(#name, name);
 #define DESERIALIZATION_F_DYNARRAY4(type, name, cond, defaultval) \
-	if(cond) buffer->template read<type>(#name, name); else PacketDeclaration::copyDefaultValue(name, defaultval);
+	if(cond) buffer->template readDynArray<type>(#name, name); else PacketDeclaration::copyDefaultValue(name, defaultval);
 
 #define DESERIALIZATION_F_COUNT3(type, name, ref) \
 	buffer->template readSize<type>(#name, ref);
@@ -231,22 +231,22 @@ getSizeOf(const T& value, int version) {
 
 #define DEFINITION_F_SIMPLE1(mode) DEFINITION_ ## mode (DEFINITION_F_SIMPLE_)
 #define DEFINITION_F_ARRAY1(mode) DEFINITION_ ## mode (DEFINITION_F_ARRAY_)
-//#define DEFINITION_F_DYNARRAY1(mode) DEFINITION_ ## mode (DEFINITION_F_DYNARRAY_)
+#define DEFINITION_F_DYNARRAY1(mode) DEFINITION_ ## mode (DEFINITION_F_DYNARRAY_)
 #define DEFINITION_F_COUNT1(mode) DEFINITION_ ## mode (DEFINITION_F_COUNT_)
 
 #define SIZE_F_SIMPLE1(mode) SIZE_ ## mode (SIZE_F_SIMPLE_)
 #define SIZE_F_ARRAY1(mode) SIZE_ ## mode (SIZE_F_ARRAY_)
-//#define SIZE_F_DYNARRAY1(mode) SIZE_ ## mode (SIZE_F_DYNARRAY_)
+#define SIZE_F_DYNARRAY1(mode) SIZE_ ## mode (SIZE_F_DYNARRAY_)
 #define SIZE_F_COUNT1(mode) SIZE_ ## mode (SIZE_F_COUNT_)
 
 #define SERIALIZATION_F_SIMPLE1(mode) SERIALIZATION_ ## mode (SERIALIZATION_F_SIMPLE_)
 #define SERIALIZATION_F_ARRAY1(mode) SERIALIZATION_ ## mode (SERIALIZATION_F_ARRAY_)
-//#define SERIALIZATION_F_DYNARRAY1(mode) SERIALIZATION_ ## mode (SERIALIZATION_F_DYNARRAY_)
+#define SERIALIZATION_F_DYNARRAY1(mode) SERIALIZATION_ ## mode (SERIALIZATION_F_DYNARRAY_)
 #define SERIALIZATION_F_COUNT1(mode) SERIALIZATION_ ## mode (SERIALIZATION_F_COUNT_)
 
 #define DESERIALIZATION_F_SIMPLE1(mode) DESERIALIZATION_ ## mode (DESERIALIZATION_F_SIMPLE_)
 #define DESERIALIZATION_F_ARRAY1(mode) DESERIALIZATION_ ## mode (DESERIALIZATION_F_ARRAY_)
-//#define DESERIALIZATION_F_DYNARRAY1(mode) DESERIALIZATION_ ## mode (DESERIALIZATION_F_DYNARRAY_)
+#define DESERIALIZATION_F_DYNARRAY1(mode) DESERIALIZATION_ ## mode (DESERIALIZATION_F_DYNARRAY_)
 #define DESERIALIZATION_F_COUNT1(mode) DESERIALIZATION_ ## mode (DESERIALIZATION_F_COUNT_)
 
 #define CREATE_STRUCT(name) \
