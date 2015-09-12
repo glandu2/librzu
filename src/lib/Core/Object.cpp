@@ -93,7 +93,7 @@ static void defaultLog(const char* suffix, const char* objectName, const char* m
 }
 
 static Object::Level getCurrentLevel() {
-	std::string level = CONFIG_GET()->log.level.get();
+	std::string level = GlobalCoreConfig::get()->log.level.get();
 
 	if(level == "fatal" || level == "never")
 		return Object::LL_Fatal;
@@ -134,10 +134,10 @@ void Object::logv(Level level, const char* message, va_list args) {
 void Object::log(Level level, const char *message, ...) {
 	//early check for performance boost if trace is not active
 	Log* logger = Log::get();
-	if(level < LL_Trace || logger && logger->wouldLog(level)) {
+	if(level < LL_Trace || (logger && logger->wouldLog(level))) {
 		va_list args;
 		va_start(args, message);
-		logv(LL_Trace, message, args);
+		logv(level, message, args);
 		va_end(args);
 	}
 }
@@ -164,7 +164,7 @@ void Object::logStaticv(Level level, const char* className, const char* message,
 
 void Object::logStatic(Level level, const char* className, const char *message, ...) {
 	Log* logger = Log::get();
-	if(level < LL_Trace || logger && logger->wouldLog(level)) {
+	if(level < LL_Trace || (logger && logger->wouldLog(level))) {
 		va_list args;
 		va_start(args, message);
 		logStaticv(level, className, message, args);

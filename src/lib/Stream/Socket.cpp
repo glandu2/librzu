@@ -96,7 +96,7 @@ void Socket::setNoDelay(bool enable) {
 
 void Socket::onStateChanged(State oldState, State newState) {
 	if(newState == ConnectedState) {
-		if(CONFIG_GET()->app.useTcpNoDelay.get())
+		if(GlobalCoreConfig::get()->app.useTcpNoDelay.get())
 			uv_tcp_nodelay(&socket, true);
 	}
 }

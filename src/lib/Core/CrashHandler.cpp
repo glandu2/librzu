@@ -45,7 +45,7 @@ void CrashHandler::init() {
 }
 
 void CrashHandler::setDumpMode() {
-	dumpMode = CONFIG_GET()->app.dumpMode.get();
+	dumpMode = GlobalCoreConfig::get()->admin.dumpMode.get();
 }
 
 void CrashHandler::setTerminateCallback(TerminateCallback callback, void* instance) {

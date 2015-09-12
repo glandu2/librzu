@@ -98,7 +98,7 @@ void SessionServerCommon::onNewConnection() {
 			session->assignStream(lastWaitingStreamInstance);
 			session->onConnected();
 		}
-		CONFIG_GET()->stats.connectionCount++;
+		GlobalCoreConfig::get()->stats.connectionCount++;
 
 		lastWaitingStreamInstance = nullptr;
 	}

@@ -51,7 +51,7 @@ void SocketSession::onSocketStateChanged(IListener* instance, Stream*, Stream::S
 
 	SessionServerCommon* server = thisInstance->getServer();
 	if(newState == Stream::UnconnectedState && server) {
-		CONFIG_GET()->stats.disconnectionCount++;
+		GlobalCoreConfig::get()->stats.disconnectionCount++;
 		server->socketClosed(thisInstance->getSocketIterator());
 		if(thisInstance->isScheduledForDelete() == false)
 			delete thisInstance;

@@ -6,24 +6,45 @@
 
 #define CONFIG_FILE_KEY "configfile"
 
+struct ListenerConfig {
+	cval<std::string> &listenIp;
+	cval<int> &port, &idleTimeout;
+	cval<bool> &autoStart;
+
+	ListenerConfig(const std::string& prefix, const char* defaultIp, int defaultPort, bool autoStart = true, int idleTimeout = 0) :
+		listenIp(CFG_CREATE(prefix + ".ip", defaultIp)),
+		port(CFG_CREATE(prefix + ".port", defaultPort)),
+		idleTimeout(CFG_CREATE(prefix + ".idletimeout", idleTimeout)),
+		autoStart(CFG_CREATE(prefix + ".autostart", autoStart))
+	{}
+};
+
 struct RZU_EXTERN GlobalCoreConfig {
 
 	struct App {
 		cval<std::string> &appName, &configfile;
 		cval<bool> &useTcpNoDelay;
 		cval<bool> &showHiddenConfig;
-		cval<int> &dumpMode;
 
 		App() :
 			appName(CFG_CREATE("core.appname", Utils::getApplicationName())),
 			configfile(CFG_CREATE(CONFIG_FILE_KEY, std::string(Utils::getApplicationName()) + ".opt")),
 			useTcpNoDelay(CFG_CREATE("core.usetcpnodelay", false)),
-			showHiddenConfig(CFG_CREATE("core.config.showhidden", false)),
-			dumpMode(CFG_CREATE("admin.dump_mode", 0)) //1: no dump, anything else: create dump on crash
+			showHiddenConfig(CFG_CREATE("core.config.showhidden", false))
 		{
 			Utils::autoSetAbsoluteDir(configfile);
 		}
 	} app;
+
+	struct AdminConfig {
+		ListenerConfig listener;
+		cval<int> &dumpMode;
+
+		AdminConfig() :
+			listener("admin.console", "127.0.0.1", 4501, true, 0),
+			dumpMode(CFG_CREATE("admin.dump_mode", 0)) //1: no dump, anything else: create dump on crash
+		{}
+	} admin;
 
 	struct Log : public IListener {
 		cval<bool> &enable;
@@ -56,9 +77,5 @@ struct RZU_EXTERN GlobalCoreConfig {
 	static GlobalCoreConfig* get();
 	static void init();
 };
-
-#ifndef CONFIG_GET
-#define CONFIG_GET() GlobalCoreConfig::get()
-#endif
 
 #endif // GLOBALCORECONFIG_H

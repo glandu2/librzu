@@ -10,46 +10,14 @@
 #include "Config/GlobalCoreConfig.h"
 #include "ConsoleCommands.h"
 #include "../NetSession/SessionServer.h"
-
-
-struct ListenerConfig {
-	cval<std::string> &listenIp;
-	cval<int> &port, &idleTimeout;
-	cval<bool> &autoStart;
-
-	ListenerConfig(const std::string& prefix, const char* defaultIp, int defaultPort, bool autoStart = true, int idleTimeout = 0) :
-		listenIp(CFG_CREATE(prefix + ".ip", defaultIp)),
-		port(CFG_CREATE(prefix + ".port", defaultPort)),
-		idleTimeout(CFG_CREATE(prefix + ".idletimeout", idleTimeout)),
-		autoStart(CFG_CREATE(prefix + ".autostart", autoStart))
-	{}
-};
-
-struct AdminConfig {
-	ListenerConfig listener;
-
-	AdminConfig() :
-		listener("admin.console", "127.0.0.1", 4501, true, 0)
-	{}
-};
-static AdminConfig* admin = nullptr;
-
-void ConsoleSession::init() {
-	if(!admin)
-		admin = new AdminConfig;
-}
+#include "Config/GlobalCoreConfig.h"
 
 void ConsoleSession::start(ServersManager* serverManager) {
-	if(!admin) {
-		logStatic(LL_Warning, ConsoleSession::getStaticClassName(), "init() was not called before start()\n");
-		init();
-	}
-
 	static SessionServer<ConsoleSession> adminConsoleServer(
-				admin->listener.listenIp,
-				admin->listener.port,
-				&admin->listener.idleTimeout);
-	serverManager->addServer("admin.console", &adminConsoleServer, admin->listener.autoStart, true);
+				GlobalCoreConfig::get()->admin.listener.listenIp,
+				GlobalCoreConfig::get()->admin.listener.port,
+				&GlobalCoreConfig::get()->admin.listener.idleTimeout);
+	serverManager->addServer("admin.console", &adminConsoleServer, GlobalCoreConfig::get()->admin.listener.autoStart, true);
 }
 
 ConsoleSession::ConsoleSession() : consoleCommands(ConsoleCommands::get()) {
@@ -84,7 +52,7 @@ void ConsoleSession::log(const char *message, ...) {
 
 void ConsoleSession::onConnected() {
 	writef("%s - Administration console - Type \"help\" for a list of available commands\r\n",
-		   CONFIG_GET()->app.appName.get().c_str());
+		   GlobalCoreConfig::get()->app.appName.get().c_str());
 	printPrompt();
 }
 
