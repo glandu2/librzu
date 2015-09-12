@@ -42,9 +42,11 @@ void CrashHandler::init() {
 										   "List objects count");
 	}
 	setThreadExceptionHandlers();
+	GlobalCoreConfig::get()->admin.dumpMode.addListener(nullptr, &setDumpMode);
+	setDumpMode(nullptr, &GlobalCoreConfig::get()->admin.dumpMode);
 }
 
-void CrashHandler::setDumpMode() {
+void CrashHandler::setDumpMode(IListener*, cval<int>*) {
 	dumpMode = GlobalCoreConfig::get()->admin.dumpMode.get();
 }
 

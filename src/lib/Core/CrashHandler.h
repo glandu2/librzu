@@ -7,6 +7,8 @@
 #include <string>
 
 class IWritableConsole;
+template<class T> class cval;
+class IListener;
 
 class RZU_EXTERN CrashHandler
 {
@@ -20,7 +22,7 @@ public:
 	// Installs C++ exception handlers that function on per-thread basis
 	static void setThreadExceptionHandlers();
 
-	static void setDumpMode();
+	static void setDumpMode(IListener *, cval<int> *);
 
 	static void setTerminateCallback(TerminateCallback callback, void* instance);
 
