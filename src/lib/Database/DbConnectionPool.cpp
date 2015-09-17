@@ -168,8 +168,8 @@ int DbConnectionPool::closeAllConnections() {
 	return (int)connectionsToRemove.size();
 }
 
-bool DbConnectionPool::checkSqlResult(int result, const char* function, void* henv, void* hdbc, void* hstmt) {
-	if(result == SQL_SUCCESS_WITH_INFO) {
+bool DbConnectionPool::checkSqlResult(int result, const char* function, void* henv, void* hdbc, void* hstmt, bool silentInfo) {
+	if(result == SQL_SUCCESS_WITH_INFO && silentInfo == false) {
 		logStatic(LL_Info, "ODBC", "%s: additional info:\n", function);
 		if(hstmt)
 			outputError(LL_Info, hstmt, SQL_HANDLE_STMT);

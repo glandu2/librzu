@@ -23,6 +23,6 @@ void DbConnection::releaseAndClose() {
 	delete this;
 }
 
-bool DbConnection::checkResult(SQLRETURN result, const char* function) {
-	return DbConnectionPool::checkSqlResult(result, function, conPool->getHenv(), hdbc, hstmt);
+bool DbConnection::checkResult(SQLRETURN result, const char* function, bool silentInfo) {
+	return DbConnectionPool::checkSqlResult(result, function, conPool->getHenv(), hdbc, hstmt, silentInfo);
 }

@@ -24,7 +24,7 @@ public:
 	int closeAllConnections();
 	void* getHenv() { return henv; }
 
-	static bool checkSqlResult(int result, const char* function, void* henv, void* hdbc, void* hstmt);
+	static bool checkSqlResult(int result, const char* function, void* henv, void* hdbc, void* hstmt, bool silentInfo = false);
 
 	static DbConnectionPool* getInstance() { return instance; }
 

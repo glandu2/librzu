@@ -85,13 +85,14 @@ public:
 	}
 
 	bool getData(SQLUSMALLINT ColumnNumber,
-				SQLSMALLINT TargetType,
-				SQLPOINTER TargetValue,
-				SQLLEN BufferLength,
-				SQLLEN *StrLen_or_Ind)
+				 SQLSMALLINT TargetType,
+				 SQLPOINTER TargetValue,
+				 SQLLEN BufferLength,
+				 SQLLEN *StrLen_or_Ind,
+				 bool silentInfo = false)
 	{
 		assert(isUsed);
-		return checkResult(SQLGetData(hstmt, ColumnNumber, TargetType, TargetValue, BufferLength, StrLen_or_Ind), "SQLGetData");
+		return checkResult(SQLGetData(hstmt, ColumnNumber, TargetType, TargetValue, BufferLength, StrLen_or_Ind), "SQLGetData", silentInfo);
 	}
 
 	bool getColumnName(SQLUSMALLINT ColumnNumber,
@@ -105,7 +106,7 @@ public:
 	const std::string& getCachedQuery() { return lastQuery; }
 
 protected:
-	bool checkResult(SQLRETURN result, const char* function);
+	bool checkResult(SQLRETURN result, const char* function, bool silentInfo = false);
 
 private:
 //	uv_mutex_t lock;

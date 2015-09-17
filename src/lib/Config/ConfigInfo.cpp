@@ -64,7 +64,7 @@ void ConfigInfo::parseCommandLine(int argc, char **argv, bool onlyConfigFileLoca
 			continue;
 
 		key = argv[i];
-		while(!isalpha(*key) && *key != '\0')
+		while(!Utils::isalpha(*key) && *key != '\0')
 			key++;
 
 		if(*key == '\0')
@@ -117,7 +117,7 @@ bool ConfigInfo::parseLine(char* line, std::string &keyStr, std::string &valueSt
 
 	//remove leading spaces
 	p = line;
-	while(isspace(*p) && *p)
+	while(Utils::isspace(*p) && *p)
 		p++;
 
 	key = p;
@@ -126,7 +126,7 @@ bool ConfigInfo::parseLine(char* line, std::string &keyStr, std::string &valueSt
 
 	//remove trailing spaces
 	p = line + len - 1;
-	while(isspace(*p) && p > key)
+	while(Utils::isspace(*p) && p > key)
 		p--;
 	if(p == key)
 		return false;

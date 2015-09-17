@@ -4,6 +4,8 @@
 #include "DbConnection.h"
 #include "DbQueryJob.h"
 #include "Config/ConfigParamVal.h"
+#include "Core/CharsetConverter.h"
+#include "Config/GlobalCoreConfig.h"
 
 DbQueryBinding::DbQueryBinding(DbConnectionPool* dbConnectionPool,
 					   cval<bool>& enabled,
@@ -27,8 +29,14 @@ DbQueryBinding::~DbQueryBinding() {
 }
 
 bool DbQueryBinding::process(IDbQueryJob* queryJob, void* inputInstance) {
+	struct UnicodeString {
+		std::string str;
+		SQLLEN strLen;
+	};
+
 	DbConnection* connection;
 	bool columnCountOk;
+	std::vector<UnicodeString> unicodeStrings;
 
 	if(enabled.get() == false) {
 		errorCount = 0;
@@ -58,12 +66,14 @@ bool DbQueryBinding::process(IDbQueryJob* queryJob, void* inputInstance) {
 
 			if(paramBinding.isStdString) {
 				std::string* str = (std::string*) ((char*)inputInstance + paramBinding.bufferOffset);
-				// If the string is empty, put a size of 1 else SQL server complains about invalid precision
-				connection->bindParameter(paramBinding.index, SQL_PARAM_INPUT,
-										  paramBinding.cType,
-										  paramBinding.dbType, str->size() > 0 ? str->size() : 1, paramBinding.dbPrecision,
-										  (SQLPOINTER)str->c_str(), str->size(),
-										  StrLen_or_Ind);
+				unicodeStrings.push_back(UnicodeString());
+				UnicodeString& unicodeString = unicodeStrings.back();
+
+				if(!StrLen_or_Ind)
+					StrLen_or_Ind = &unicodeString.strLen;
+
+				setString(connection, paramBinding, StrLen_or_Ind, *str, unicodeString.str);
+				unicodeString.strLen = unicodeString.str.size();
 			} else {
 				connection->bindParameter(paramBinding.index, SQL_PARAM_INPUT,
 										  paramBinding.cType,
@@ -118,10 +128,7 @@ bool DbQueryBinding::process(IDbQueryJob* queryJob, void* inputInstance) {
 						if(columnBinding.isStdString)
 						{
 							std::string* str = (std::string*) ((char*)outputInstance + columnBinding.bufferOffset);
-							connection->getData(columnIndex, columnBinding.cType,
-												&str[0], str->size(), &StrLen_Or_Ind);
-							if(StrLen_Or_Ind != SQL_NULL_DATA && StrLen_Or_Ind != SQL_NO_TOTAL && (int)str->size() > StrLen_Or_Ind)
-								str->resize(StrLen_Or_Ind);
+							*str = getString(connection, columnIndex);
 						} else {
 							connection->getData(columnIndex, columnBinding.cType,
 												(char*)outputInstance + columnBinding.bufferOffset, columnBinding.bufferSize,
@@ -144,4 +151,55 @@ bool DbQueryBinding::process(IDbQueryJob* queryJob, void* inputInstance) {
 	connection->release();
 
 	return true;
+}
+
+void DbQueryBinding::setString(DbConnection* connection, const ParameterBinding& paramBinding, SQLLEN* StrLen_or_Ind, const std::string& str, std::string &outStr) {
+	if(paramBinding.cType == SQL_C_WCHAR) {
+		CharsetConverter localToUtf16(GlobalCoreConfig::get()->app.encoding.get().c_str(), "UTF-16LE");
+		localToUtf16.convert(str, outStr, 2);
+
+		// If the string is empty, put a size of 1 else SQL server complains about invalid precision
+		connection->bindParameter(paramBinding.index, SQL_PARAM_INPUT,
+								  SQL_C_WCHAR,
+								  SQL_WVARCHAR, str.size() > 0 ? str.size() : 1, paramBinding.dbPrecision,
+								  (SQLPOINTER)outStr.data(), 0,
+								  StrLen_or_Ind);
+	} else {
+		connection->bindParameter(paramBinding.index, SQL_PARAM_INPUT,
+								  paramBinding.cType,
+								  paramBinding.dbType, str.size() > 0 ? str.size() : 1, paramBinding.dbPrecision,
+								  (SQLPOINTER)str.c_str(), 0,
+								  StrLen_or_Ind);
+	}
+}
+
+std::string DbQueryBinding::getString(DbConnection* connection, int columnIndex) {
+	std::string unicodeBuffer;
+	SQLLEN bytesRead = 0;
+	SQLLEN dataSize;
+	SQLLEN isDataNull;
+	int dummy;
+
+	connection->getData(columnIndex, SQL_C_BINARY, &dummy, 0, &dataSize, true);
+	unicodeBuffer.resize(dataSize*2 + 2);
+
+	int ret;
+	while((ret = connection->getData(columnIndex, SQL_C_WCHAR, &unicodeBuffer[bytesRead], unicodeBuffer.size() - bytesRead, &isDataNull)) == SQL_SUCCESS_WITH_INFO) {
+		if(isDataNull == SQL_NULL_DATA)
+			break;
+
+		bytesRead = unicodeBuffer.size()-2; //dont keep null terminator
+		unicodeBuffer.resize(unicodeBuffer.size()*2);
+	}
+	if(ret == SQL_SUCCESS)
+		bytesRead += isDataNull;
+
+	if(isDataNull != SQL_NULL_DATA && bytesRead != 0) {
+		CharsetConverter utf16ToLocal("UTF-16LE", GlobalCoreConfig::get()->app.encoding.get().c_str());
+		std::string result;
+		utf16ToLocal.convert(unicodeBuffer, result, 0.5);
+		return result;
+	}
+
+	return std::string();
 }

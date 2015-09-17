@@ -41,7 +41,7 @@ void BanManager::loadFile() {
 
 	while(fgets(line, 512, file)) {
 		char *p = line;
-		while(*p && (isdigit(*p) || *p == '.'))
+		while(*p && (Utils::isdigit(*p) || *p == '.'))
 			p++;
 		*p = '\0';
 

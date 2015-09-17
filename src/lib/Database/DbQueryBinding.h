@@ -9,6 +9,7 @@
 
 class DbConnectionPool;
 class IDbQueryJob;
+class DbConnection;
 template<typename T> class cval;
 
 template<typename T> struct DbTypeBinding {};
@@ -31,7 +32,7 @@ template<> struct DbTypeBinding<unsigned long long> : DbTypeBinding<long long> {
 template<> struct DbTypeBinding<unsigned long> : DbTypeBinding<unsigned long long> {};
 
 template<int ARRAY_SIZE> struct DbTypeBinding<char[ARRAY_SIZE]> { enum { C_TYPE = SQL_C_CHAR, SQL_TYPE = SQL_VARCHAR, SQL_SIZE = ARRAY_SIZE, SQL_PRECISION = 0 }; };
-template<> struct DbTypeBinding<std::string> { enum { C_TYPE = SQL_C_CHAR, SQL_TYPE = SQL_VARCHAR, SQL_SIZE = -1, SQL_PRECISION = 0 }; };
+template<> struct DbTypeBinding<std::string> { enum { C_TYPE = SQL_C_WCHAR, SQL_TYPE = SQL_WVARCHAR, SQL_SIZE = -1, SQL_PRECISION = 0 }; };
 
 template<int ARRAY_SIZE> struct DbTypeBinding<unsigned char[ARRAY_SIZE]> : DbTypeBinding<char(&)[ARRAY_SIZE]> { };
 
@@ -111,6 +112,8 @@ protected:
 	template<class T> friend class DbQueryJob;
 
 	bool process(IDbQueryJob* queryJob, void* inputInstance);
+	void setString(DbConnection* connection, const ParameterBinding& paramBinding, SQLLEN* StrLen_or_Ind, const std::string &str, std::string &outStr);
+	static std::string getString(DbConnection* connection, int columnIndex);
 
 private:
 	DbConnectionPool* dbConnectionPool;
