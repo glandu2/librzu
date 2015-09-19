@@ -9,6 +9,7 @@ endif()
 
 if(BUILD_SHARED_LIBS)
   add_definitions(-DUSING_UV_SHARED)
+  add_definitions(-DUSING_ICONV_SHARED)
   add_definitions(-DBUILDING_LIBRZU)
 endif()
 
