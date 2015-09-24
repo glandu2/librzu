@@ -17,29 +17,12 @@ public:
 	DbConnection(DbConnectionPool* conPool, void *hdbc, void *hstmt);
 	virtual ~DbConnection();
 
-	bool trylock() {
-		bool locked = false;
-		uv_mutex_lock(&usedLock);
-		if(isUsed == false) {
-			locked = isUsed = true;
-		}
-		uv_mutex_unlock(&usedLock);
-		return locked;
+	bool trylock();
 
-//		return uv_mutex_trylock(&lock) == 0;
-	}
-
-	void release() {
-		SQLFreeStmt(hstmt, SQL_CLOSE);
-		SQLFreeStmt(hstmt, SQL_RESET_PARAMS);
-		uv_mutex_lock(&usedLock);
-		isUsed = false;
-		uv_mutex_unlock(&usedLock);
-//		uv_mutex_unlock(&lock);
-	}
+	void release();
 
 	//Will delete this
-	void releaseWithError() { releaseAndClose(); }
+	void releaseWithError();
 	void releaseAndClose();
 
 	bool bindParameter(SQLUSMALLINT       ipar,
@@ -50,58 +33,23 @@ public:
 					  SQLSMALLINT        ibScale,
 					  SQLPOINTER         rgbValue,
 					  SQLLEN             cbValueMax,
-					  SQLLEN 		      *pcbValue)
-	{
-		assert(isUsed);
-		return checkResult(SQLBindParameter(hstmt, ipar, fParamType, fCType, fSqlType, cbColDef, ibScale, rgbValue, cbValueMax, pcbValue), "SQLBindParameter");
-	}
+					  SQLLEN 		      *pcbValue);
 
-	bool execute(const char* query) {
-		assert(isUsed);
-		if(strcmp(lastQuery.c_str(), query)) {
-			bool result = checkResult(SQLPrepare(hstmt, (SQLCHAR*)query, SQL_NTS), "SQLPrepare");
-			if(!result)
-				return false;
-			lastQuery = query;
-			log(LL_Debug, "Cached DB query: %s\n", query);
-		}
-		return checkResult(SQLExecute(hstmt), "SQLExecute");
-	}
-
-	bool fetch() {
-		assert(isUsed);
-		return checkResult(SQLFetch(hstmt), "SQLFetch");
-	}
-
-	int getColumnNum(bool *ok) {
-		SQLSMALLINT colCount = 0;
-		assert(isUsed);
-		bool isOk = checkResult(SQLNumResultCols(hstmt, &colCount), "SQLNumResultCols");
-
-		if(ok != nullptr)
-			*ok = isOk;
-
-		return colCount;
-	}
+	bool execute(const char* query);
+	bool fetch();
+	int getColumnNum(bool *ok);
 
 	bool getData(SQLUSMALLINT ColumnNumber,
 				 SQLSMALLINT TargetType,
 				 SQLPOINTER TargetValue,
 				 SQLLEN BufferLength,
 				 SQLLEN *StrLen_or_Ind,
-				 bool silentInfo = false)
-	{
-		assert(isUsed);
-		return checkResult(SQLGetData(hstmt, ColumnNumber, TargetType, TargetValue, BufferLength, StrLen_or_Ind), "SQLGetData", silentInfo);
-	}
+				 bool silentInfo = false,
+				 SQLRETURN* rawResultCode = nullptr);
 
 	bool getColumnName(SQLUSMALLINT ColumnNumber,
 					   char* ColumnName,
-					   SQLSMALLINT BufferLength)
-	{
-		assert(isUsed);
-		return checkResult(SQLColAttribute(hstmt, ColumnNumber, SQL_DESC_LABEL, ColumnName, BufferLength, NULL, NULL), "SQLColAttribute");
-	}
+					   SQLSMALLINT BufferLength);
 
 	const std::string& getCachedQuery() { return lastQuery; }
 

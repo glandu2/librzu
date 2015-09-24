@@ -5,7 +5,7 @@
 #include <sqlext.h>
 #include "Console/ConsoleCommands.h"
 
-static void outputError(Object::Level errorLevel, SQLHANDLE handle, SQLSMALLINT type);
+static void outputError(Object::Level errorLevel, SQLHANDLE handle, SQLSMALLINT type, bool discard);
 
 DbConnectionPool *DbConnectionPool::instance = nullptr;
 
@@ -26,7 +26,7 @@ DbConnectionPool::DbConnectionPool() {
 		abort();
 	}
 	result = checkSqlResult(SQLSetEnvAttr(henv, SQL_ATTR_ODBC_VERSION, (SQLPOINTER) SQL_OV_ODBC3, SQL_IS_INTEGER),
-							"SQLSetEnvAttr",
+							"SQLSetEnvAttrODBC3",
 							henv, nullptr, nullptr);
 	if(!result)
 		log(LL_Error, "Can\'t use ODBC 3\n");
@@ -125,8 +125,12 @@ DbConnection* DbConnectionPool::addConnection(const char* connectionString, bool
 	}
 
 	//20 sec timeout
-	SQLSetStmtAttr(hstmt, SQL_ATTR_QUERY_TIMEOUT, (SQLPOINTER)10, 0);
-	SQLSetConnectAttr(hdbc, SQL_ATTR_CONNECTION_TIMEOUT , (SQLPOINTER)10, 0);
+	checkSqlResult(SQLSetStmtAttr(hstmt, SQL_ATTR_QUERY_TIMEOUT, (SQLPOINTER)10, 0),
+				   "SQLSetStmtAttrTimeout",
+				   henv, hdbc, hstmt, true);
+	checkSqlResult(SQLSetConnectAttr(hdbc, SQL_ATTR_CONNECTION_TIMEOUT , (SQLPOINTER)10, 0),
+				   "SQLSetConnectAttrTimeout",
+				   henv, hdbc, hstmt, true);
 
 	DbConnection* dbConnection = new DbConnection(this, hdbc, hstmt);
 	if(createLocked)
@@ -169,28 +173,29 @@ int DbConnectionPool::closeAllConnections() {
 }
 
 bool DbConnectionPool::checkSqlResult(int result, const char* function, void* henv, void* hdbc, void* hstmt, bool silentInfo) {
-	if(result == SQL_SUCCESS_WITH_INFO && silentInfo == false) {
-		logStatic(LL_Info, "ODBC", "%s: additional info:\n", function);
+	if(result == SQL_SUCCESS_WITH_INFO) {
+		if(!silentInfo)
+			logStatic(LL_Info, "ODBC", "%s: additional info:\n", function);
 		if(hstmt)
-			outputError(LL_Info, hstmt, SQL_HANDLE_STMT);
+			outputError(LL_Info, hstmt, SQL_HANDLE_STMT, silentInfo);
 		if(hdbc)
-			outputError(LL_Info, hdbc, SQL_HANDLE_DBC);
+			outputError(LL_Info, hdbc, SQL_HANDLE_DBC, silentInfo);
 		if(henv)
-			outputError(LL_Info, henv, SQL_HANDLE_ENV);
+			outputError(LL_Info, henv, SQL_HANDLE_ENV, silentInfo);
 	} else if(result == SQL_ERROR) {
 		logStatic(LL_Error, "ODBC", "%s: error:\n", function);
 		if(hstmt)
-			outputError(LL_Error, hstmt, SQL_HANDLE_STMT);
+			outputError(LL_Error, hstmt, SQL_HANDLE_STMT, false);
 		if(hdbc)
-			outputError(LL_Error, hdbc, SQL_HANDLE_DBC);
+			outputError(LL_Error, hdbc, SQL_HANDLE_DBC, false);
 		if(henv)
-			outputError(LL_Error, henv, SQL_HANDLE_ENV);
+			outputError(LL_Error, henv, SQL_HANDLE_ENV, false);
 	}
 
 	return SQL_SUCCEEDED(result);
 }
 
-static void outputError(Object::Level errorLevel, SQLHANDLE handle, SQLSMALLINT type) {
+static void outputError(Object::Level errorLevel, SQLHANDLE handle, SQLSMALLINT type, bool discard) {
 	SQLSMALLINT i = 0, len;
 	SQLINTEGER native;
 	SQLCHAR state[7];
@@ -199,7 +204,7 @@ static void outputError(Object::Level errorLevel, SQLHANDLE handle, SQLSMALLINT 
 
 	do {
 		ret = SQLGetDiagRec(type, handle, ++i, state, &native, text, sizeof(text), &len);
-		if (SQL_SUCCEEDED(ret)) {
+		if (!discard && SQL_SUCCEEDED(ret)) {
 			Object::logStatic(errorLevel, "ODBC", "%s:%d:%ld:%s\n", state, i, (long)native, text);
 		}
 	} while(ret == SQL_SUCCESS);
