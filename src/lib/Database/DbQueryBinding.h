@@ -16,6 +16,7 @@ template<typename T> struct DbTypeBinding {};
 
 template<> struct DbTypeBinding<bool> { enum { C_TYPE = SQL_C_BIT, SQL_TYPE = SQL_BIT, SQL_SIZE = 1, SQL_PRECISION = 0 }; };
 template<> struct DbTypeBinding<char> { enum { C_TYPE = SQL_C_TINYINT, SQL_TYPE = SQL_TINYINT, SQL_SIZE = 3, SQL_PRECISION = 0 }; };
+template<> struct DbTypeBinding<signed char> { enum { C_TYPE = SQL_C_TINYINT, SQL_TYPE = SQL_TINYINT, SQL_SIZE = 3, SQL_PRECISION = 0 }; };
 template<> struct DbTypeBinding<short> { enum { C_TYPE = SQL_C_SHORT, SQL_TYPE = SQL_SMALLINT, SQL_SIZE = 5, SQL_PRECISION = 0 }; };
 template<> struct DbTypeBinding<int> { enum { C_TYPE = SQL_C_LONG, SQL_TYPE = SQL_INTEGER, SQL_SIZE = 10, SQL_PRECISION = 0 }; };
 template<> struct DbTypeBinding<long long> { enum { C_TYPE = SQL_C_SBIGINT, SQL_TYPE = SQL_BIGINT, SQL_SIZE = 19, SQL_PRECISION = 0 }; };
@@ -39,13 +40,6 @@ template<int ARRAY_SIZE> struct DbTypeBinding<unsigned char[ARRAY_SIZE]> : DbTyp
 template<typename T> struct IsStdString { enum { value = false }; };
 template<> struct IsStdString<std::string> { enum { value = true }; };
 
-#define OFFSETOF(C, f, type) (size_t((type*)&((C*)1)->f) - 1)
-#define TYPEOFFIELD(C, f) decltype(((C*)1)->f)
-
-#define ADD_PARAM(_mapping, _classname, _col, _size, _index) _mapping.emplace_back(DECLARE_PARAMETER(InputType, _col, _size, CFG_CREATE("sql." _classname ".param." #_col, _index)))
-#define ADD_COLUMN(_mapping, _classname, _col, _size) _mapping.emplace_back(DECLARE_COLUMN(OutputType, _col, _size, CFG_CREATE("sql." _classname ".column." #_col, #_col)))
-#define ADD_COLUMN_WITH_INFO(_mapping, _classname, _col, _size, _isNullPtr) _mapping.emplace_back(DECLARE_COLUMN_WITH_INFO(OutputType, _col, _size, CFG_CREATE("sql." _classname ".column." #_col, #_col), _isNullPtr))
-
 class RZU_EXTERN DbQueryBinding : public Object
 {
 	DECLARE_CLASS(DbQueryBinding)
@@ -64,17 +58,10 @@ public:
 		SQLSMALLINT dbPrecision;
 		bool isStdString;
 		size_t bufferOffset; //use offsetof
-		SQLLEN bufferSize;
 		size_t infoPtr;
 
-		ParameterBinding(cval<int>& index, SQLSMALLINT cType, SQLSMALLINT dbType, SQLULEN dbSize, SQLSMALLINT dbPrecision, bool isStdString, size_t bufferOffset, SQLLEN bufferSize, size_t infoPtr = 0)
-			: index(index), cType(cType), dbType(dbType), dbSize(dbSize), dbPrecision(dbPrecision), isStdString(isStdString), bufferOffset(bufferOffset), bufferSize(bufferSize), infoPtr(infoPtr) {}
-
-		#define DECLARE_PARAMETER(C, field, size, index) \
-			DbQueryBinding::ParameterBinding(index, DbTypeBinding<TYPEOFFIELD(C, field)>::C_TYPE, DbTypeBinding<TYPEOFFIELD(C, field)>::SQL_TYPE, DbTypeBinding<TYPEOFFIELD(C, field)>::SQL_SIZE, DbTypeBinding<TYPEOFFIELD(C, field)>::SQL_PRECISION, IsStdString<TYPEOFFIELD(C, field)>::value, OFFSETOF(C, field, const void), size)
-		#define DECLARE_PARAMETER_WITH_INFO(C, field, size, index, info) \
-			DbQueryBinding::ParameterBinding(index, DbTypeBinding<TYPEOFFIELD(C, field)>::C_TYPE, DbTypeBinding<TYPEOFFIELD(C, field)>::SQL_TYPE, DbTypeBinding<TYPEOFFIELD(C, field)>::SQL_SIZE, DbTypeBinding<TYPEOFFIELD(C, field)>::SQL_PRECISION, IsStdString<TYPEOFFIELD(C, field)>::value, OFFSETOF(C, field, const void), size, OFFSETOF(C, info, SQLLEN))
-
+		ParameterBinding(cval<int>& index, SQLSMALLINT cType, SQLSMALLINT dbType, SQLULEN dbSize, SQLSMALLINT dbPrecision, bool isStdString, size_t bufferOffset, size_t infoPtr)
+			: index(index), cType(cType), dbType(dbType), dbSize(dbSize), dbPrecision(dbPrecision), isStdString(isStdString), bufferOffset(bufferOffset), infoPtr(infoPtr) {}
 	};
 
 	//Output data mapping to columns
@@ -86,15 +73,8 @@ public:
 		SQLLEN bufferSize;
 		size_t isNullPtr;
 
-		ColumnBinding(cval<std::string>& name, SQLSMALLINT cType, bool isStdString, size_t bufferOffset, SQLLEN bufferSize, size_t isNullPtr = 0)
+		ColumnBinding(cval<std::string>& name, SQLSMALLINT cType, bool isStdString, size_t bufferOffset, SQLLEN bufferSize, size_t isNullPtr)
 			: name(name), cType(cType), isStdString(isStdString), bufferOffset(bufferOffset), bufferSize(bufferSize), isNullPtr(isNullPtr) {}
-
-
-		#define DECLARE_COLUMN(C, field, size, name) \
-			DbQueryBinding::ColumnBinding(name, DbTypeBinding<TYPEOFFIELD(C, field)>::C_TYPE, IsStdString<TYPEOFFIELD(C, field)>::value, OFFSETOF(C, field, void), size)
-		#define DECLARE_COLUMN_WITH_INFO(C, field, size, name, isNullPtr) \
-			DbQueryBinding::ColumnBinding(name, DbTypeBinding<TYPEOFFIELD(C, field)>::C_TYPE, IsStdString<TYPEOFFIELD(C, field)>::value, OFFSETOF(C, field, void), size, OFFSETOF(C, isNullPtr, bool))
-
 	};
 
 	enum ExecuteMode {

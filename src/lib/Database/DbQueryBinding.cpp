@@ -59,7 +59,7 @@ bool DbQueryBinding::process(IDbQueryJob* queryJob, void* inputInstance) {
 
 		if(paramBinding.index > 0) {
 			SQLLEN* StrLen_or_Ind;
-			if(paramBinding.infoPtr)
+			if(paramBinding.infoPtr != (size_t)-1)
 				StrLen_or_Ind = (SQLLEN*)((char*)inputInstance +  paramBinding.infoPtr);
 			else
 				StrLen_or_Ind = nullptr;
@@ -78,7 +78,7 @@ bool DbQueryBinding::process(IDbQueryJob* queryJob, void* inputInstance) {
 				connection->bindParameter(paramBinding.index, SQL_PARAM_INPUT,
 										  paramBinding.cType,
 										  paramBinding.dbType, paramBinding.dbSize, paramBinding.dbPrecision,
-										  (char*)inputInstance + paramBinding.bufferOffset, paramBinding.bufferSize,
+										  (char*)inputInstance + paramBinding.bufferOffset, 0,
 										  StrLen_or_Ind);
 			}
 			//TODO: print content of params buffer
@@ -135,7 +135,7 @@ bool DbQueryBinding::process(IDbQueryJob* queryJob, void* inputInstance) {
 												&StrLen_Or_Ind);
 						}
 
-						if(columnBinding.isNullPtr)
+						if(columnBinding.isNullPtr != (size_t)-1)
 							*(bool*)((char*)outputInstance + columnBinding.isNullPtr) = StrLen_Or_Ind == SQL_NULL_DATA;
 
 						break;
@@ -154,23 +154,15 @@ bool DbQueryBinding::process(IDbQueryJob* queryJob, void* inputInstance) {
 }
 
 void DbQueryBinding::setString(DbConnection* connection, const ParameterBinding& paramBinding, SQLLEN* StrLen_or_Ind, const std::string& str, std::string &outStr) {
-	if(paramBinding.cType == SQL_C_WCHAR) {
-		CharsetConverter localToUtf16(GlobalCoreConfig::get()->app.encoding.get().c_str(), "UTF-16LE");
-		localToUtf16.convert(str, outStr, 2);
+	CharsetConverter localToUtf16(GlobalCoreConfig::get()->app.encoding.get().c_str(), "UTF-16LE");
+	localToUtf16.convert(str, outStr, 2);
 
-		// If the string is empty, put a size of 1 else SQL server complains about invalid precision
-		connection->bindParameter(paramBinding.index, SQL_PARAM_INPUT,
-								  SQL_C_WCHAR,
-								  SQL_WVARCHAR, str.size() > 0 ? str.size() : 1, paramBinding.dbPrecision,
-								  (SQLPOINTER)outStr.data(), 0,
-								  StrLen_or_Ind);
-	} else {
-		connection->bindParameter(paramBinding.index, SQL_PARAM_INPUT,
-								  paramBinding.cType,
-								  paramBinding.dbType, str.size() > 0 ? str.size() : 1, paramBinding.dbPrecision,
-								  (SQLPOINTER)str.c_str(), 0,
-								  StrLen_or_Ind);
-	}
+	// If the string is empty, put a size of 1 else SQL server complains about invalid precision
+	connection->bindParameter(paramBinding.index, SQL_PARAM_INPUT,
+							  SQL_C_WCHAR,
+							  SQL_WVARCHAR, str.size() > 0 ? str.size() : 1, paramBinding.dbPrecision,
+							  (SQLPOINTER)outStr.data(), 0,
+							  StrLen_or_Ind);
 }
 
 std::string DbQueryBinding::getString(DbConnection* connection, int columnIndex) {
@@ -179,12 +171,12 @@ std::string DbQueryBinding::getString(DbConnection* connection, int columnIndex)
 	SQLLEN dataSize;
 	SQLLEN isDataNull;
 	int dummy;
+	SQLRETURN ret;
 
 	connection->getData(columnIndex, SQL_C_BINARY, &dummy, 0, &dataSize, true);
-	unicodeBuffer.resize(dataSize*2 + 2);
+	unicodeBuffer.resize(dataSize*2 + 4);
 
-	int ret;
-	while((ret = connection->getData(columnIndex, SQL_C_WCHAR, &unicodeBuffer[bytesRead], unicodeBuffer.size() - bytesRead, &isDataNull)) == SQL_SUCCESS_WITH_INFO) {
+	while(connection->getData(columnIndex, SQL_C_WCHAR, &unicodeBuffer[bytesRead], unicodeBuffer.size() - bytesRead, &isDataNull, false, &ret) && ret == SQL_SUCCESS_WITH_INFO) {
 		if(isDataNull == SQL_NULL_DATA)
 			break;
 
