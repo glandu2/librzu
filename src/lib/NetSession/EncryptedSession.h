@@ -2,6 +2,7 @@
 #define ENCRYPTEDSESSION_H
 
 #include "Cipher/RC4Cipher.h"
+#include "Stream/Stream.h"
 #include <stdint.h>
 #include <stdlib.h>
 #ifdef _WIN32
@@ -29,6 +30,7 @@ protected:
 	void initRC4Cipher();
 
 	size_t read(void *buffer, size_t size);
+	size_t write(Stream::WriteRequest* writeRequest);
 	size_t write(const void *buffer, size_t size);
 
 private:
@@ -58,21 +60,22 @@ size_t EncryptedSession<T>::read(void *buffer, size_t size) {
 }
 
 template<class T>
+size_t EncryptedSession<T>::write(Stream::WriteRequest* writeRequest) {
+	size_t ret;
+
+	outputEnc.encode((const char*)writeRequest->buffer.base, writeRequest->buffer.base, writeRequest->buffer.len);
+	ret = T::write(writeRequest);
+
+	return ret;
+}
+
+template<class T>
 size_t EncryptedSession<T>::write(const void *buffer, size_t size) {
 	size_t ret;
-	char *encbuffer;
-	bool useStackAlloc = size < 16*1024;
+	Stream::WriteRequest* writeRequest = Stream::WriteRequest::create(size);
 
-	if(useStackAlloc)
-		encbuffer = (char*)alloca(size);
-	else
-		encbuffer = (char*)malloc(size);
-
-	outputEnc.encode((const char*)buffer, encbuffer, size);
-	ret = T::write(encbuffer, size);
-
-	if(!useStackAlloc)
-		free(encbuffer);
+	outputEnc.encode((const char*)buffer, writeRequest->buffer.base, size);
+	ret = T::getStream()->write(writeRequest);
 
 	return ret;
 }
