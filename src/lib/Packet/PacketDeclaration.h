@@ -4,6 +4,7 @@
 #include <string.h>
 #include <stdint.h>
 #include <vector>
+#include <string>
 #include "PacketEpics.h"
 #include "PacketBaseMessage.h"
 
@@ -74,6 +75,7 @@ getSizeOf(const T& value, int version) {
 #define DEFINITION_F_ARRAY(...) OVERLOADED_CALL(DEFINITION_F_ARRAY, __VA_ARGS__)
 #define DEFINITION_F_DYNARRAY(...) OVERLOADED_CALL(DEFINITION_F_DYNARRAY, __VA_ARGS__)
 #define DEFINITION_F_COUNT(...) OVERLOADED_CALL(DEFINITION_F_COUNT, __VA_ARGS__)
+#define DEFINITION_F_STRING(...) OVERLOADED_CALL(DEFINITION_F_STRING, __VA_ARGS__)
 
 #define DEFINITION_F_SIMPLE2(type, name) type name;
 #define DEFINITION_F_SIMPLE3(type, name, cond) type name;
@@ -91,11 +93,16 @@ getSizeOf(const T& value, int version) {
 #define DEFINITION_F_COUNT4(type, name, ref, cond)
 #define DEFINITION_F_COUNT5(type, name, ref, cond, defaultval)
 
+#define DEFINITION_F_STRING2(name, size) std::string name;
+#define DEFINITION_F_STRING3(name, size, cond) std::string name;
+#define DEFINITION_F_STRING4(name, size, cond, defaultval) std::string name;
+
 // Size function
 #define SIZE_F_SIMPLE(...) OVERLOADED_CALL(SIZE_F_SIMPLE, __VA_ARGS__)
 #define SIZE_F_ARRAY(...) OVERLOADED_CALL(SIZE_F_ARRAY, __VA_ARGS__)
 #define SIZE_F_DYNARRAY(...) OVERLOADED_CALL(SIZE_F_DYNARRAY, __VA_ARGS__)
 #define SIZE_F_COUNT(...) OVERLOADED_CALL(SIZE_F_COUNT, __VA_ARGS__)
+#define SIZE_F_STRING(...) OVERLOADED_CALL(SIZE_F_STRING, __VA_ARGS__)
 
 #define SIZE_F_SIMPLE2(type, name) \
 	size += PacketDeclaration::getSizeOf((type)name, version);
@@ -125,11 +132,19 @@ getSizeOf(const T& value, int version) {
 #define SIZE_F_COUNT5(type, name, ref, cond, defaultval) \
 	if(cond) size += sizeof(type);
 
+#define SIZE_F_STRING2(name, _size) \
+	size += _size;
+#define SIZE_F_STRING3(name, _size, cond) \
+	if(cond) size += _size;
+#define SIZE_F_STRING4(name, _size, cond, defaultval) \
+	if(cond) size += _size;
+
 // Serialization function
 #define SERIALIZATION_F_SIMPLE(...) OVERLOADED_CALL(SERIALIZATION_F_SIMPLE, __VA_ARGS__)
 #define SERIALIZATION_F_ARRAY(...) OVERLOADED_CALL(SERIALIZATION_F_ARRAY, __VA_ARGS__)
 #define SERIALIZATION_F_DYNARRAY(...) OVERLOADED_CALL(SERIALIZATION_F_DYNARRAY, __VA_ARGS__)
 #define SERIALIZATION_F_COUNT(...) OVERLOADED_CALL(SERIALIZATION_F_COUNT, __VA_ARGS__)
+#define SERIALIZATION_F_STRING(...) OVERLOADED_CALL(SERIALIZATION_F_STRING, __VA_ARGS__)
 
 #define SERIALIZATION_F_SIMPLE2(type, name) \
 	buffer->write(#name, (type)name);
@@ -159,11 +174,19 @@ getSizeOf(const T& value, int version) {
 #define SERIALIZATION_F_COUNT5(type, name, ref, cond, defaultval) \
 	if(cond) buffer->write(#name, (type)ref.size());
 
+#define SERIALIZATION_F_STRING2(name, size) \
+	buffer->writeString(#name, name, size);
+#define SERIALIZATION_F_STRING3(name, size, cond) \
+	if(cond) buffer->writeString(#name, name, size);
+#define SERIALIZATION_F_STRING4(name, size, cond, defaultval) \
+	if(cond) buffer->writeString(#name, name, size);
+
 // Deserialization function
 #define DESERIALIZATION_F_SIMPLE(...) OVERLOADED_CALL(DESERIALIZATION_F_SIMPLE, __VA_ARGS__)
 #define DESERIALIZATION_F_ARRAY(...) OVERLOADED_CALL(DESERIALIZATION_F_ARRAY, __VA_ARGS__)
 #define DESERIALIZATION_F_DYNARRAY(...) OVERLOADED_CALL(DESERIALIZATION_F_DYNARRAY, __VA_ARGS__)
 #define DESERIALIZATION_F_COUNT(...) OVERLOADED_CALL(DESERIALIZATION_F_COUNT, __VA_ARGS__)
+#define DESERIALIZATION_F_STRING(...) OVERLOADED_CALL(DESERIALIZATION_F_STRING, __VA_ARGS__)
 
 #define DESERIALIZATION_F_SIMPLE2(type, name) \
 	buffer->template read<type>(#name, name);
@@ -198,24 +221,39 @@ getSizeOf(const T& value, int version) {
 #define DESERIALIZATION_F_COUNT5(type, name, ref, cond, defaultval) \
 	if(cond) buffer->template readSize<type>(#name, ref); else PacketDeclaration::copyDefaultValue(name, defaultval);
 
+#define DESERIALIZATION_F_STRING2(name, size) \
+	buffer->readString(#name, name, size);
+#define DESERIALIZATION_F_STRING3(name, size, cond) \
+	if(cond) buffer->readString(#name, name, size);
+#define DESERIALIZATION_F_STRING4(name, size, cond, defaultval) \
+	if(cond) \
+		buffer->readString(#name, name, size); \
+	else \
+		name = defaultval;
+
+
 // def / impl mode implementation
 // needed to bypass recursion limitation
 #define DEFINITION_F_SIMPLE_(...) OVERLOADED_CALL(DEFINITION_F_SIMPLE, __VA_ARGS__)
 #define DEFINITION_F_ARRAY_(...) OVERLOADED_CALL(DEFINITION_F_ARRAY, __VA_ARGS__)
 #define DEFINITION_F_DYNARRAY_(...) OVERLOADED_CALL(DEFINITION_F_DYNARRAY, __VA_ARGS__)
 #define DEFINITION_F_COUNT_(...) OVERLOADED_CALL(DEFINITION_F_COUNT, __VA_ARGS__)
+#define DEFINITION_F_STRING_(...) OVERLOADED_CALL(DEFINITION_F_STRING, __VA_ARGS__)
 #define SERIALIZATION_F_SIMPLE_(...) OVERLOADED_CALL(SERIALIZATION_F_SIMPLE, __VA_ARGS__)
 #define SERIALIZATION_F_ARRAY_(...) OVERLOADED_CALL(SERIALIZATION_F_ARRAY, __VA_ARGS__)
 #define SERIALIZATION_F_DYNARRAY_(...) OVERLOADED_CALL(SERIALIZATION_F_DYNARRAY, __VA_ARGS__)
 #define SERIALIZATION_F_COUNT_(...) OVERLOADED_CALL(SERIALIZATION_F_COUNT, __VA_ARGS__)
+#define SERIALIZATION_F_STRING_(...) OVERLOADED_CALL(SERIALIZATION_F_STRING, __VA_ARGS__)
 #define DESERIALIZATION_F_SIMPLE_(...) OVERLOADED_CALL(DESERIALIZATION_F_SIMPLE, __VA_ARGS__)
 #define DESERIALIZATION_F_ARRAY_(...) OVERLOADED_CALL(DESERIALIZATION_F_ARRAY, __VA_ARGS__)
 #define DESERIALIZATION_F_DYNARRAY_(...) OVERLOADED_CALL(DESERIALIZATION_F_DYNARRAY, __VA_ARGS__)
 #define DESERIALIZATION_F_COUNT_(...) OVERLOADED_CALL(DESERIALIZATION_F_COUNT, __VA_ARGS__)
+#define DESERIALIZATION_F_STRING_(...) OVERLOADED_CALL(DESERIALIZATION_F_STRING, __VA_ARGS__)
 #define SIZE_F_SIMPLE_(...) OVERLOADED_CALL(SIZE_F_SIMPLE, __VA_ARGS__)
 #define SIZE_F_ARRAY_(...) OVERLOADED_CALL(SIZE_F_ARRAY, __VA_ARGS__)
 #define SIZE_F_DYNARRAY_(...) OVERLOADED_CALL(SIZE_F_DYNARRAY, __VA_ARGS__)
 #define SIZE_F_COUNT_(...) OVERLOADED_CALL(SIZE_F_COUNT, __VA_ARGS__)
+#define SIZE_F_STRING_(...) OVERLOADED_CALL(SIZE_F_STRING, __VA_ARGS__)
 
 #define DO_NOTHING(...)
 
@@ -233,29 +271,33 @@ getSizeOf(const T& value, int version) {
 #define DEFINITION_F_ARRAY1(mode) DEFINITION_ ## mode (DEFINITION_F_ARRAY_)
 #define DEFINITION_F_DYNARRAY1(mode) DEFINITION_ ## mode (DEFINITION_F_DYNARRAY_)
 #define DEFINITION_F_COUNT1(mode) DEFINITION_ ## mode (DEFINITION_F_COUNT_)
+#define DEFINITION_F_STRING1(mode) DEFINITION_ ## mode (DEFINITION_F_STRING_)
 
 #define SIZE_F_SIMPLE1(mode) SIZE_ ## mode (SIZE_F_SIMPLE_)
 #define SIZE_F_ARRAY1(mode) SIZE_ ## mode (SIZE_F_ARRAY_)
 #define SIZE_F_DYNARRAY1(mode) SIZE_ ## mode (SIZE_F_DYNARRAY_)
 #define SIZE_F_COUNT1(mode) SIZE_ ## mode (SIZE_F_COUNT_)
+#define SIZE_F_STRING1(mode) SIZE_ ## mode (SIZE_F_STRING_)
 
 #define SERIALIZATION_F_SIMPLE1(mode) SERIALIZATION_ ## mode (SERIALIZATION_F_SIMPLE_)
 #define SERIALIZATION_F_ARRAY1(mode) SERIALIZATION_ ## mode (SERIALIZATION_F_ARRAY_)
 #define SERIALIZATION_F_DYNARRAY1(mode) SERIALIZATION_ ## mode (SERIALIZATION_F_DYNARRAY_)
 #define SERIALIZATION_F_COUNT1(mode) SERIALIZATION_ ## mode (SERIALIZATION_F_COUNT_)
+#define SERIALIZATION_F_STRING1(mode) SERIALIZATION_ ## mode (SERIALIZATION_F_STRING_)
 
 #define DESERIALIZATION_F_SIMPLE1(mode) DESERIALIZATION_ ## mode (DESERIALIZATION_F_SIMPLE_)
 #define DESERIALIZATION_F_ARRAY1(mode) DESERIALIZATION_ ## mode (DESERIALIZATION_F_ARRAY_)
 #define DESERIALIZATION_F_DYNARRAY1(mode) DESERIALIZATION_ ## mode (DESERIALIZATION_F_DYNARRAY_)
 #define DESERIALIZATION_F_COUNT1(mode) DESERIALIZATION_ ## mode (DESERIALIZATION_F_COUNT_)
+#define DESERIALIZATION_F_STRING1(mode) DESERIALIZATION_ ## mode (DESERIALIZATION_F_STRING_)
 
 #define CREATE_STRUCT(name) \
 	struct name { \
-		name ## _DEF(DEFINITION_F_SIMPLE, DEFINITION_F_ARRAY, DEFINITION_F_DYNARRAY, DEFINITION_F_COUNT) \
+		name ## _DEF(DEFINITION_F_SIMPLE, DEFINITION_F_ARRAY, DEFINITION_F_DYNARRAY, DEFINITION_F_COUNT, DEFINITION_F_STRING) \
 	\
 		uint32_t getSize(int version) const { \
 			uint32_t size = 0; \
-			name ## _DEF(SIZE_F_SIMPLE, SIZE_F_ARRAY, SIZE_F_DYNARRAY, SIZE_F_COUNT) \
+			name ## _DEF(SIZE_F_SIMPLE, SIZE_F_ARRAY, SIZE_F_DYNARRAY, SIZE_F_COUNT, SIZE_F_STRING) \
 	\
 			return size;\
 		} \
@@ -264,7 +306,7 @@ getSizeOf(const T& value, int version) {
 		void serialize(T* buffer) const { \
 			const int version = buffer->getVersion(); \
 			(void)(version); \
-			name ## _DEF(SERIALIZATION_F_SIMPLE, SERIALIZATION_F_ARRAY, SERIALIZATION_F_DYNARRAY, SERIALIZATION_F_COUNT) \
+			name ## _DEF(SERIALIZATION_F_SIMPLE, SERIALIZATION_F_ARRAY, SERIALIZATION_F_DYNARRAY, SERIALIZATION_F_COUNT, SERIALIZATION_F_STRING) \
 		} \
 	\
 		template<class T> \
@@ -272,7 +314,7 @@ getSizeOf(const T& value, int version) {
 			const int version = buffer->getVersion(); \
 			(void)(version); \
 	\
-			name ## _DEF(DESERIALIZATION_F_SIMPLE, DESERIALIZATION_F_ARRAY, DESERIALIZATION_F_DYNARRAY, DESERIALIZATION_F_COUNT) \
+			name ## _DEF(DESERIALIZATION_F_SIMPLE, DESERIALIZATION_F_ARRAY, DESERIALIZATION_F_DYNARRAY, DESERIALIZATION_F_COUNT, DESERIALIZATION_F_STRING) \
 		} \
 	}
 
@@ -280,11 +322,11 @@ getSizeOf(const T& value, int version) {
 	struct name { \
 		static const uint16_t packetID = id; \
 	\
-		name ## _DEF(DEFINITION_F_SIMPLE, DEFINITION_F_ARRAY, DEFINITION_F_DYNARRAY, DEFINITION_F_COUNT) \
+		name ## _DEF(DEFINITION_F_SIMPLE, DEFINITION_F_ARRAY, DEFINITION_F_DYNARRAY, DEFINITION_F_COUNT, DEFINITION_F_STRING) \
 	\
 		uint32_t getSize(int version) const { \
 			uint32_t size = 7; \
-			name ## _DEF(SIZE_F_SIMPLE, SIZE_F_ARRAY, SIZE_F_DYNARRAY, SIZE_F_COUNT) \
+			name ## _DEF(SIZE_F_SIMPLE, SIZE_F_ARRAY, SIZE_F_DYNARRAY, SIZE_F_COUNT, SIZE_F_STRING) \
 	\
 			return size;\
 		} \
@@ -298,7 +340,7 @@ getSizeOf(const T& value, int version) {
 			buffer->write("id", packetID); \
 			buffer->write("msg_checksum", getMessageChecksum(size, packetID)); \
 			\
-			name ## _DEF(SERIALIZATION_F_SIMPLE, SERIALIZATION_F_ARRAY, SERIALIZATION_F_DYNARRAY, SERIALIZATION_F_COUNT) \
+			name ## _DEF(SERIALIZATION_F_SIMPLE, SERIALIZATION_F_ARRAY, SERIALIZATION_F_DYNARRAY, SERIALIZATION_F_COUNT, SERIALIZATION_F_STRING) \
 		} \
 	\
 		template<class T> \
@@ -309,7 +351,7 @@ getSizeOf(const T& value, int version) {
 			buffer->discard("id", 2); \
 			buffer->discard("msg_checksum", 1); \
 			\
-			name ## _DEF(DESERIALIZATION_F_SIMPLE, DESERIALIZATION_F_ARRAY, DESERIALIZATION_F_DYNARRAY, DESERIALIZATION_F_COUNT) \
+			name ## _DEF(DESERIALIZATION_F_SIMPLE, DESERIALIZATION_F_ARRAY, DESERIALIZATION_F_DYNARRAY, DESERIALIZATION_F_COUNT, DESERIALIZATION_F_STRING) \
 		} \
 	}
 

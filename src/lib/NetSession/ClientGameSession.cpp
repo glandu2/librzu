@@ -17,7 +17,7 @@ void ClientGameSession::onConnected() {
 	strcpy(versionMsg.szVersion, auth->getVersion().c_str());
 	sendPacket(&versionMsg);
 
-	strcpy(loginInGameServerMsg.account, auth->getAccountName().c_str());
+	loginInGameServerMsg.account = auth->getAccountName();
 	loginInGameServerMsg.one_time_key = auth->getOnTimePassword();
 	sendPacket(loginInGameServerMsg, EPIC_9_1);
 }

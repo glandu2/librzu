@@ -7,7 +7,7 @@
 #include <string.h>
 #include <type_traits>
 
-class MessageBuffer : public Object {
+class RZU_EXTERN MessageBuffer : public Object {
 private:
 	Stream::WriteRequest* buffer;
 	char *p;
@@ -17,26 +17,13 @@ private:
 
 public:
 
-	MessageBuffer(size_t size, int version) {
-		buffer = Stream::WriteRequest::create(size);
-		p = buffer->buffer.base;
-		this->version = version;
-		bufferOverflow = false;
-	}
+	MessageBuffer(size_t size, int version);
 
-	MessageBuffer(const void* data, size_t size, int version) {
-		buffer = Stream::WriteRequest::createFromExisting(const_cast<char*>(static_cast<const char*>(data)), size);
-		p = buffer->buffer.base;
-		this->version = version;
-		bufferOverflow = false;
-	}
+	MessageBuffer(const void* data, size_t size, int version);
 
-	~MessageBuffer() {
-		if(buffer) {
-			Stream::WriteRequest::destroy(buffer);
-		}
-	}
+	~MessageBuffer();
 
+	Stream::WriteRequest* getWriteRequest();
 	const char* getData() const { return buffer->buffer.base; }
 	char* getData() { return buffer->buffer.base; }
 	uint32_t getSize() const { return buffer->buffer.len; }
@@ -44,13 +31,7 @@ public:
 	std::string getFieldInOverflow() const  { return fieldInOverflow; }
 	int getVersion() const { return version; }
 
-	bool checkFinalSize() {
-		uint32_t msgSize = *reinterpret_cast<const uint32_t*>(buffer->buffer.base);
-		bool ok = !bufferOverflow && msgSize == getSize() && uint32_t(p - buffer->buffer.base) == msgSize;
-		if(!ok)
-			log(LL_Error, "Packet has invalid data: id: %d, size: %d, field: %s\n", getMessageId(), getSize(), getFieldInOverflow().c_str());
-		return ok;
-	}
+	bool checkFinalSize();
 
 	bool checkAvailableBuffer(const char* fieldName, size_t size) {
 		if(bufferOverflow == false) {
@@ -85,6 +66,9 @@ public:
 			val.serialize(this);
 		}
 	}
+
+	//String
+	void writeString(const char* fieldName, const std::string& val, size_t maxSize);
 
 	//Fixed array of primitive
 	template<typename T>
@@ -134,6 +118,9 @@ public:
 			val.deserialize(this);
 		}
 	}
+
+	//String
+	void readString(const char* fieldName, std::string& val, size_t size);
 
 	//Fixed array of primitive
 	template<typename T, typename U>

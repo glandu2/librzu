@@ -1,16 +1,12 @@
 #ifndef PACKETS_TS_CS_LOGIN_H
 #define PACKETS_TS_CS_LOGIN_H
 
-#include "Packet/PacketBaseMessage.h"
-#include "PacketEnums.h"
+#include "Packet/PacketDeclaration.h"
 
-#pragma pack(push, 1)
-struct TS_CS_LOGIN : public TS_MESSAGE
-{
-	char szName[19];
-	char race;
-	static const int packetID = 1;
-};
-#pragma pack(pop)
+#define TS_CS_LOGIN_DEF(simple_, array_, dynarray_, count_, string_) \
+	string_(name, 19) \
+	simple_(uint8_t, race)
+
+CREATE_PACKET(TS_CS_LOGIN, 1);
 
 #endif // PACKETS_TS_CS_LOGIN_H
