@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 #include <unordered_map>
+#include <memory>
 #include "IWritableConsole.h"
 
 class RZU_EXTERN ConsoleCommands : public Object
@@ -48,7 +49,7 @@ protected:
 	static void commandHelp(IWritableConsole* console, const std::vector<std::string>& args);
 
 private:
-	std::unordered_map<std::string, Command*> commands;
+	std::unordered_map<std::string, std::shared_ptr<Command>> commands;
 };
 
 #endif // CONSOLECOMMANDS_H

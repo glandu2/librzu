@@ -40,8 +40,7 @@ template<class DbMappingClass>
 class DbQueryJob : public Object, public IDbQueryJob {
 protected:
 	template<typename FieldType>
-	struct IfValidFieldType
-			: public std::enable_if<std::integral_constant<bool, std::is_fundamental<FieldType>::value || std::is_same<FieldType, SQL_TIMESTAMP_STRUCT>::value || std::is_same<FieldType, std::string>::value>::value, void> { };
+	struct IfValidFieldType : public std::integral_constant<bool, std::is_fundamental<FieldType>::value || std::is_same<FieldType, SQL_TIMESTAMP_STRUCT>::value || std::is_same<FieldType, std::string>::value> {};
 
 public:
 	typedef typename DbMappingClass::Input InputType;
@@ -53,34 +52,50 @@ public:
 	DbQueryJob() : done(false), canceled(false) {}
 
 	template<typename FieldType>
-	static typename IfValidFieldType<FieldType>::type
-	addParam(std::vector<DbQueryBinding::ParameterBinding>& params, const char* columnName, FieldType InputType::*member, SQLLEN InputType::*nullIndicator = nullptr);
+	static typename std::enable_if<IfValidFieldType<FieldType>::value, void>::type
+	addParam(std::vector<DbQueryBinding::ParameterBinding>& params, const char* columnName, FieldType InputType::*member, SQLLEN InputType::*nullIndicator = nullptr) {
+		addParam<FieldType>(params, columnName, (size_t)&(((InputType*)0)->*member), nullIndicator);
+	}
 
 	template<typename FieldType, int SIZE>
-	static typename IfValidFieldType<FieldType>::type
-	addParam(std::vector<DbQueryBinding::ParameterBinding>& params, const char* columnName, FieldType (InputType::*member)[SIZE], int arrayIndex, SQLLEN InputType::*nullIndicator = nullptr);
+	static typename std::enable_if<IfValidFieldType<FieldType>::value, void>::type
+	addParam(std::vector<DbQueryBinding::ParameterBinding>& params, const char* columnName, FieldType (InputType::*member)[SIZE], int arrayIndex, SQLLEN InputType::*nullIndicator = nullptr) {
+		addParam<FieldType>(params, columnName, (size_t)&(((InputType*)0)->*member[arrayIndex]), nullIndicator);
+	}
 
 	template<typename FieldType, int N, int M>
-	static typename IfValidFieldType<FieldType>::type
-	addParam(std::vector<DbQueryBinding::ParameterBinding>& params, const char* columnName, FieldType (InputType::*member)[N][M], int arrayIndexN, int arrayIndexM, SQLLEN InputType::*nullIndicator = nullptr);
+	static typename std::enable_if<IfValidFieldType<FieldType>::value, void>::type
+	addParam(std::vector<DbQueryBinding::ParameterBinding>& params, const char* columnName, FieldType (InputType::*member)[N][M], int arrayIndexN, int arrayIndexM, SQLLEN InputType::*nullIndicator = nullptr) {
+		addParam<FieldType>(params, columnName, (size_t)&(((InputType*)0)->*member[arrayIndexN][arrayIndexM]), nullIndicator);
+	}
 
 	template<int SIZE>
-	static void addParam(std::vector<DbQueryBinding::ParameterBinding>& params, const char* columnName, char (InputType::*member)[SIZE], SQLLEN InputType::*nullIndicator = nullptr);
+	static void addParam(std::vector<DbQueryBinding::ParameterBinding>& params, const char* columnName, char (InputType::*member)[SIZE], SQLLEN InputType::*nullIndicator = nullptr) {
+		addParam<char[SIZE]>(params, columnName, (size_t)&(((InputType*)0)->*member), nullIndicator);
+	}
 
 	template<typename FieldType>
-	static typename IfValidFieldType<FieldType>::type
-	addColumn(std::vector<DbQueryBinding::ColumnBinding>& columns, const char* columnName, FieldType OutputType::*member, bool OutputType::*nullIndicator = nullptr);
+	static typename std::enable_if<IfValidFieldType<FieldType>::value, void>::type
+	addColumn(std::vector<DbQueryBinding::ColumnBinding>& columns, const char* columnName, FieldType OutputType::*member, bool OutputType::*nullIndicator = nullptr) {
+		addColumn<FieldType>(columns, columnName, (size_t)&(((OutputType*)0)->*member), 0, nullIndicator);
+	}
 
 	template<typename FieldType, int SIZE>
-	static typename IfValidFieldType<FieldType>::type
-	addColumn(std::vector<DbQueryBinding::ColumnBinding>& columns, const char* columnName, FieldType (OutputType::*member)[SIZE], int arrayIndex, bool OutputType::*nullIndicator = nullptr);
+	static typename std::enable_if<IfValidFieldType<FieldType>::value, void>::type
+	addColumn(std::vector<DbQueryBinding::ColumnBinding>& columns, const char* columnName, FieldType (OutputType::*member)[SIZE], int arrayIndex, bool OutputType::*nullIndicator = nullptr) {
+		addColumn<FieldType>(columns, columnName, (size_t)&((((OutputType*)0)->*member)[arrayIndex]), 0, nullIndicator);
+	}
 
 	template<typename FieldType, int N, int M>
-	static typename IfValidFieldType<FieldType>::type
-	addColumn(std::vector<DbQueryBinding::ColumnBinding>& columns, const char* columnName, FieldType (OutputType::*member)[N][M], int arrayIndexN, int arrayIndexM, bool OutputType::*nullIndicator = nullptr);
+	static typename std::enable_if<IfValidFieldType<FieldType>::value, void>::type
+	addColumn(std::vector<DbQueryBinding::ColumnBinding>& columns, const char* columnName, FieldType (OutputType::*member)[N][M], int arrayIndexN, int arrayIndexM, bool OutputType::*nullIndicator = nullptr) {
+		addColumn<FieldType>(columns, columnName, (size_t)&((((OutputType*)0)->*member)[arrayIndexN][arrayIndexM]), 0, nullIndicator);
+	}
 
 	template<int SIZE>
-	static void addColumn(std::vector<DbQueryBinding::ColumnBinding>& columns, const char* columnName, char (OutputType::*member)[SIZE], bool OutputType::*nullIndicator = nullptr);
+	static void addColumn(std::vector<DbQueryBinding::ColumnBinding>& columns, const char* columnName, char (OutputType::*member)[SIZE], bool OutputType::*nullIndicator = nullptr) {
+		addColumn<char[SIZE]>(columns, columnName, (size_t)&(((OutputType*)0)->*member), SIZE-1, nullIndicator);
+	}
 
 
 	static void executeNoResult(const InputType& input);
@@ -118,52 +133,6 @@ private:
 
 	static DbQueryBinding* dbBinding;
 };
-
-template<class DbMappingClass> template<typename FieldType>
-typename DbQueryJob<DbMappingClass>::template IfValidFieldType<FieldType>::type
-DbQueryJob<DbMappingClass>::addParam(std::vector<DbQueryBinding::ParameterBinding>& params, const char* columnName, FieldType InputType::*member, SQLLEN InputType::*nullIndicator) {
-	addParam<FieldType>(params, columnName, (size_t)&(((InputType*)0)->*member), nullIndicator);
-}
-
-template<class DbMappingClass> template<typename FieldType, int SIZE>
-typename DbQueryJob<DbMappingClass>::template IfValidFieldType<FieldType>::type
-DbQueryJob<DbMappingClass>::addParam(std::vector<DbQueryBinding::ParameterBinding>& params, const char* columnName, FieldType (InputType::*member)[SIZE], int arrayIndex, SQLLEN InputType::*nullIndicator) {
-	addParam<FieldType>(params, columnName, (size_t)&(((InputType*)0)->*member[arrayIndex]), nullIndicator);
-}
-
-template<class DbMappingClass> template<typename FieldType, int N, int M>
-typename DbQueryJob<DbMappingClass>::template IfValidFieldType<FieldType>::type
-DbQueryJob<DbMappingClass>::addParam(std::vector<DbQueryBinding::ParameterBinding>& params, const char* columnName, FieldType (InputType::*member)[N][M], int arrayIndexN, int arrayIndexM, SQLLEN InputType::*nullIndicator) {
-	addParam<FieldType>(params, columnName, (size_t)&(((InputType*)0)->*member[arrayIndexN][arrayIndexM]), nullIndicator);
-}
-
-template<class DbMappingClass> template<int SIZE>
-void DbQueryJob<DbMappingClass>::addParam(std::vector<DbQueryBinding::ParameterBinding>& params, const char* columnName, char (InputType::*member)[SIZE], SQLLEN InputType::*nullIndicator) {
-	addParam<char[SIZE]>(params, columnName, (size_t)&(((InputType*)0)->*member), nullIndicator);
-}
-
-template<class DbMappingClass> template<typename FieldType>
-typename DbQueryJob<DbMappingClass>::template IfValidFieldType<FieldType>::type
-DbQueryJob<DbMappingClass>::addColumn(std::vector<DbQueryBinding::ColumnBinding>& columns, const char* columnName, FieldType OutputType::*member, bool OutputType::*nullIndicator) {
-	addColumn<FieldType>(columns, columnName, (size_t)&(((OutputType*)0)->*member), 0, nullIndicator);
-}
-
-template<class DbMappingClass> template<typename FieldType, int SIZE>
-typename DbQueryJob<DbMappingClass>::template IfValidFieldType<FieldType>::type
-DbQueryJob<DbMappingClass>::addColumn(std::vector<DbQueryBinding::ColumnBinding>& columns, const char* columnName, FieldType (OutputType::*member)[SIZE], int arrayIndex, bool OutputType::*nullIndicator) {
-	addColumn<FieldType>(columns, columnName, (size_t)&((((OutputType*)0)->*member)[arrayIndex]), 0, nullIndicator);
-}
-
-template<class DbMappingClass> template<typename FieldType, int N, int M>
-typename DbQueryJob<DbMappingClass>::template IfValidFieldType<FieldType>::type
-DbQueryJob<DbMappingClass>::addColumn(std::vector<DbQueryBinding::ColumnBinding>& columns, const char* columnName, FieldType (OutputType::*member)[N][M], int arrayIndexN, int arrayIndexM, bool OutputType::*nullIndicator) {
-	addColumn<FieldType>(columns, columnName, (size_t)&((((OutputType*)0)->*member)[arrayIndexN][arrayIndexM]), 0, nullIndicator);
-}
-
-template<class DbMappingClass> template<int SIZE>
-void DbQueryJob<DbMappingClass>::addColumn(std::vector<DbQueryBinding::ColumnBinding>& columns, const char* columnName, char (OutputType::*member)[SIZE], bool OutputType::*nullIndicator) {
-	addColumn<char[SIZE]>(columns, columnName, (size_t)&(((OutputType*)0)->*member), SIZE-1, nullIndicator);
-}
 
 template<class DbMappingClass> template<typename FieldType>
 void DbQueryJob<DbMappingClass>::addParam(std::vector<DbQueryBinding::ParameterBinding>& params, const char* columnName, size_t memberOffset, SQLLEN InputType::*nullIndicator) {
@@ -204,7 +173,7 @@ void DbQueryJob<DbMappingClass>::deinit() {
 }
 
 template<class DbMappingClass>
-void DbQueryJob<DbMappingClass>::executeNoResult(const DbQueryJob::InputType &input) {
+void DbQueryJob<DbMappingClass>::executeNoResult(const InputType &input) {
 	auto query = new DbQueryJob;
 	query->execute(input);
 }

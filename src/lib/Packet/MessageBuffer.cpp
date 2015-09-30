@@ -46,7 +46,7 @@ void MessageBuffer::writeString(const char *fieldName, const std::string &val, s
 
 void MessageBuffer::readString(const char *fieldName, std::string &val, size_t maxSize) {
 	if(checkAvailableBuffer(fieldName, maxSize)) {
-		val = Utils::convertToString(p, maxSize-1);
+		val = Utils::convertToString(p, (int)maxSize-1);
 		p += maxSize;
 	}
 }

@@ -5,7 +5,7 @@
 #include "PacketEnums.h"
 
 #pragma pack(push, 1)
-struct TS_SC_CHAT : public TS_MESSAGE
+struct TS_SC_CHAT : public TS_MESSAGE_WNA
 {
 	char szSender[21];
 	unsigned short len;

@@ -20,13 +20,12 @@ void ConsoleCommands::addCommand(Command command) {
 		return;
 	}
 
-	Command* commandRef = new Command(command);
+	std::shared_ptr<Command> commandRef(new Command(command));
 	bool addedAlias = false;
 
 	auto result = commands.insert(std::make_pair(commandRef->name, commandRef));
 	if(result.second == false) {
 		log(LL_Error, "Can't register command, name already exists: %s\n", commandRef->name.c_str());
-		delete commandRef;
 		return;
 	}
 
@@ -71,7 +70,7 @@ void ConsoleCommands::removeCommand(std::string name) {
 		return;
 	}
 
-	Command* command = it->second;
+	std::shared_ptr<Command> command = it->second;
 
 	commands.erase(command->name);
 	if(!command->alias.empty())
@@ -81,14 +80,12 @@ void ConsoleCommands::removeCommand(std::string name) {
 		log(LL_Debug, "Removed command %s with alias %s\n", command->name.c_str(), command->alias.c_str());
 	else
 		log(LL_Debug, "Removed command %s\n", command->name.c_str());
-
-	delete command;
 }
 
 const ConsoleCommands::Command* ConsoleCommands::getCommand(const std::string& name) const {
 	auto it = commands.find(name);
 	if(it != commands.end())
-		return it->second;
+		return it->second.get();
 	else
 		return nullptr;
 }
@@ -106,13 +103,13 @@ ConsoleCommands::Command::CallStatus ConsoleCommands::Command::call(IWritableCon
 
 void ConsoleCommands::commandHelp(IWritableConsole* console, const std::vector<std::string>& args) {
 	if(args.empty()) {
-		std::map<std::string, Command*> orderedCommands(get()->commands.begin(), get()->commands.end());
+		std::map<std::string, std::shared_ptr<Command>> orderedCommands(get()->commands.begin(), get()->commands.end());
 		int width = 0;
 		auto itEnd = orderedCommands.end();
 
 		// Compute max name size to align help strings
 		for(auto it = orderedCommands.begin(); it != itEnd;) {
-			Command* command = it->second;
+			Command* command = it->second.get();
 			// Remove alias to avoid duplicate help lines
 			if(it->first == command->name) {
 				if(width < (int)command->name.size())
@@ -124,7 +121,7 @@ void ConsoleCommands::commandHelp(IWritableConsole* console, const std::vector<s
 		}
 
 		for(auto it = orderedCommands.begin(); it != itEnd; ++it) {
-			Command* command = it->second;
+			Command* command = it->second.get();
 			if(!command->alias.empty())
 				console->writef("%-*s : %s (alias: %s)\r\n", width, command->name.c_str(), command->helpString.c_str(), command->alias.c_str());
 			else
