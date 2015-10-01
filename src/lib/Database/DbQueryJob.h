@@ -6,6 +6,7 @@
 #include "Core/EventLoop.h"
 #include <type_traits>
 #include <memory>
+#include <assert.h>
 #include "Config/ConfigInfo.h"
 
 #include "DbQueryBinding.h"
@@ -97,6 +98,13 @@ public:
 		addColumn<char[SIZE]>(columns, columnName, (size_t)&(((OutputType*)0)->*member), SIZE-1, nullIndicator);
 	}
 
+	static void createBinding(DbConnectionPool* dbConnectionPool,
+										 cval<std::string>& connectionString,
+										 const char* query,
+										 std::vector<DbQueryBinding::ParameterBinding> params,
+										 std::vector<DbQueryBinding::ColumnBinding> cols,
+										 DbQueryBinding::ExecuteMode executeMode);
+
 
 	static void executeNoResult(const InputType& input);
 
@@ -170,6 +178,28 @@ void DbQueryJob<DbMappingClass>::deinit() {
 	DbQueryBinding* binding = dbBinding;
 	dbBinding = nullptr;
 	delete binding;
+}
+
+template<class DbMappingClass>
+void DbQueryJob<DbMappingClass>::createBinding(DbConnectionPool *dbConnectionPool,
+										  cval<std::string> &connectionString,
+										  const char *query,
+										  std::vector<DbQueryBinding::ParameterBinding> params,
+										  std::vector<DbQueryBinding::ColumnBinding> cols,
+										  DbQueryBinding::ExecuteMode executeMode)
+{
+	char enableConfigName[512];
+	char queryConfigName[512];
+	sprintf(enableConfigName, "sql.%s.enable", SQL_CONFIG_NAME);
+	sprintf(queryConfigName, "sql.%s.query", SQL_CONFIG_NAME);
+	assert(dbBinding == nullptr);
+	dbBinding = new DbQueryBinding(dbConnectionPool,
+							  ConfigInfo::get()->createValue<cval>(enableConfigName, true),
+							  connectionString,
+							  ConfigInfo::get()->createValue<cval>(queryConfigName, query),
+							  params,
+							  cols,
+							  executeMode);
 }
 
 template<class DbMappingClass>

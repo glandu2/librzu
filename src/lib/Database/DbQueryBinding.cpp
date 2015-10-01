@@ -183,8 +183,10 @@ std::string DbQueryBinding::getString(DbConnection* connection, int columnIndex)
 		bytesRead = unicodeBuffer.size()-2; //dont keep null terminator
 		unicodeBuffer.resize(unicodeBuffer.size()*2);
 	}
-	if(ret == SQL_SUCCESS)
+	if(ret == SQL_SUCCESS) {
 		bytesRead += isDataNull;
+		unicodeBuffer.resize(bytesRead);
+	}
 
 	if(isDataNull != SQL_NULL_DATA && bytesRead != 0) {
 		CharsetConverter utf16ToLocal("UTF-16LE", CharsetConverter::getEncoding().c_str());
