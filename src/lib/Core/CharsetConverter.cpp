@@ -2,6 +2,8 @@
 #include <errno.h>
 #include <stdio.h>
 #include "Log.h"
+#include "Config/GlobalCoreConfig.h"
+#include "iconv.h"
 
 CharsetConverter::CharsetConverter(const char *from, const char *to) {
 	ic = iconv_open(to, from);
@@ -44,6 +46,10 @@ void CharsetConverter::convert(const std::string& in, std::string& out, float ra
 	}
 
 	out.resize(out.size() - outRemainingBytes);
+}
+
+std::string CharsetConverter::getEncoding() {
+	return GlobalCoreConfig::get()->app.encoding.get();
 }
 
 int CharsetConverter::iconvIgnoreInvalid(const char** inBuf, int* inSize, char** outBuf, int* outSize) {
