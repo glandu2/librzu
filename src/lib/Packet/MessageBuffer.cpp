@@ -1,4 +1,5 @@
 #include "MessageBuffer.h"
+#include <algorithm>
 #include "Core/Utils.h"
 
 MessageBuffer::MessageBuffer(size_t size, int version) {
