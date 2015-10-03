@@ -11,15 +11,11 @@ DbQueryBinding::DbQueryBinding(DbConnectionPool* dbConnectionPool,
 					   cval<bool>& enabled,
 					   cval<std::string>& connectionString,
 					   cval<std::string>& query,
-					   const std::vector<ParameterBinding>& parameterBindings,
-					   const std::vector<ColumnBinding>& columnBindings,
 					   ExecuteMode mode)
 	: dbConnectionPool(dbConnectionPool),
 	  enabled(enabled),
 	  connectionString(connectionString),
 	  query(query),
-	  parameterBindings(parameterBindings),
-	  columnBindings(columnBindings),
 	  mode(mode),
 	  errorCount(0)
 {

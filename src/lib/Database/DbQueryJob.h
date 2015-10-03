@@ -37,6 +37,25 @@ private:
 	virtual void* createNextLineInstance() = 0;
 };
 
+class RZU_EXTERN DbBindingLoader {
+public:
+	typedef void (*InitBindingFunction)(DbConnectionPool*);
+
+	static DbBindingLoader* get();
+	void addBinding(InitBindingFunction initFunction);
+	void initAll(DbConnectionPool* connectionPool);
+
+private:
+	DbBindingLoader() {}
+	DbBindingLoader(const DbBindingLoader&) {}
+	std::vector<InitBindingFunction> dbQueryBindingInits;
+};
+
+#define DECLARE_DB_BINDING(classname_, configname_) \
+	template<> DbQueryBinding* DbQueryJob<classname_>::dbBinding = (DbBindingLoader::get()->addBinding(&DbQueryJob<classname_>::init), nullptr); \
+	template<> const char* DbQueryJob<classname_>::SQL_CONFIG_NAME = configname_
+
+
 template<class DbMappingClass>
 class DbQueryJob : public Object, public IDbQueryJob {
 protected:
@@ -48,61 +67,59 @@ public:
 	typedef typename DbMappingClass::Output OutputType;
 	static const char* SQL_CONFIG_NAME; // defined inside each mapping class
 
-	static bool init(DbConnectionPool* dbConnectionPool); // defined inside each mapping class
+	static void init(DbConnectionPool* dbConnectionPool); // defined inside each mapping class
 	static void deinit();
 	DbQueryJob() : done(false), canceled(false) {}
 
 	template<typename FieldType>
 	static typename std::enable_if<IfValidFieldType<FieldType>::value, void>::type
-	addParam(std::vector<DbQueryBinding::ParameterBinding>& params, const char* columnName, FieldType InputType::*member, SQLLEN InputType::*nullIndicator = nullptr) {
-		addParam<FieldType>(params, columnName, (size_t)&(((InputType*)0)->*member), nullIndicator);
+	addParam(const char* columnName, FieldType InputType::*member, SQLLEN InputType::*nullIndicator = nullptr) {
+		addParam<FieldType>(columnName, (size_t)&(((InputType*)0)->*member), nullIndicator);
 	}
 
 	template<typename FieldType, int SIZE>
 	static typename std::enable_if<IfValidFieldType<FieldType>::value, void>::type
-	addParam(std::vector<DbQueryBinding::ParameterBinding>& params, const char* columnName, FieldType (InputType::*member)[SIZE], int arrayIndex, SQLLEN InputType::*nullIndicator = nullptr) {
-		addParam<FieldType>(params, columnName, (size_t)&(((InputType*)0)->*member[arrayIndex]), nullIndicator);
+	addParam(const char* columnName, FieldType (InputType::*member)[SIZE], int arrayIndex, SQLLEN InputType::*nullIndicator = nullptr) {
+		addParam<FieldType>(columnName, (size_t)&(((InputType*)0)->*member[arrayIndex]), nullIndicator);
 	}
 
 	template<typename FieldType, int N, int M>
 	static typename std::enable_if<IfValidFieldType<FieldType>::value, void>::type
-	addParam(std::vector<DbQueryBinding::ParameterBinding>& params, const char* columnName, FieldType (InputType::*member)[N][M], int arrayIndexN, int arrayIndexM, SQLLEN InputType::*nullIndicator = nullptr) {
-		addParam<FieldType>(params, columnName, (size_t)&(((InputType*)0)->*member[arrayIndexN][arrayIndexM]), nullIndicator);
+	addParam(const char* columnName, FieldType (InputType::*member)[N][M], int arrayIndexN, int arrayIndexM, SQLLEN InputType::*nullIndicator = nullptr) {
+		addParam<FieldType>(columnName, (size_t)&(((InputType*)0)->*member[arrayIndexN][arrayIndexM]), nullIndicator);
 	}
 
 	template<int SIZE>
-	static void addParam(std::vector<DbQueryBinding::ParameterBinding>& params, const char* columnName, char (InputType::*member)[SIZE], SQLLEN InputType::*nullIndicator = nullptr) {
-		addParam<char[SIZE]>(params, columnName, (size_t)&(((InputType*)0)->*member), nullIndicator);
+	static void addParam(const char* columnName, char (InputType::*member)[SIZE], SQLLEN InputType::*nullIndicator = nullptr) {
+		addParam<char[SIZE]>(columnName, (size_t)&(((InputType*)0)->*member), nullIndicator);
 	}
 
 	template<typename FieldType>
 	static typename std::enable_if<IfValidFieldType<FieldType>::value, void>::type
-	addColumn(std::vector<DbQueryBinding::ColumnBinding>& columns, const char* columnName, FieldType OutputType::*member, bool OutputType::*nullIndicator = nullptr) {
-		addColumn<FieldType>(columns, columnName, (size_t)&(((OutputType*)0)->*member), 0, nullIndicator);
+	addColumn(const char* columnName, FieldType OutputType::*member, bool OutputType::*nullIndicator = nullptr) {
+		addColumn<FieldType>(columnName, (size_t)&(((OutputType*)0)->*member), 0, nullIndicator);
 	}
 
 	template<typename FieldType, int SIZE>
 	static typename std::enable_if<IfValidFieldType<FieldType>::value, void>::type
-	addColumn(std::vector<DbQueryBinding::ColumnBinding>& columns, const char* columnName, FieldType (OutputType::*member)[SIZE], int arrayIndex, bool OutputType::*nullIndicator = nullptr) {
-		addColumn<FieldType>(columns, columnName, (size_t)&((((OutputType*)0)->*member)[arrayIndex]), 0, nullIndicator);
+	addColumn(const char* columnName, FieldType (OutputType::*member)[SIZE], int arrayIndex, bool OutputType::*nullIndicator = nullptr) {
+		addColumn<FieldType>(columnName, (size_t)&((((OutputType*)0)->*member)[arrayIndex]), 0, nullIndicator);
 	}
 
 	template<typename FieldType, int N, int M>
 	static typename std::enable_if<IfValidFieldType<FieldType>::value, void>::type
-	addColumn(std::vector<DbQueryBinding::ColumnBinding>& columns, const char* columnName, FieldType (OutputType::*member)[N][M], int arrayIndexN, int arrayIndexM, bool OutputType::*nullIndicator = nullptr) {
-		addColumn<FieldType>(columns, columnName, (size_t)&((((OutputType*)0)->*member)[arrayIndexN][arrayIndexM]), 0, nullIndicator);
+	addColumn(const char* columnName, FieldType (OutputType::*member)[N][M], int arrayIndexN, int arrayIndexM, bool OutputType::*nullIndicator = nullptr) {
+		addColumn<FieldType>(columnName, (size_t)&((((OutputType*)0)->*member)[arrayIndexN][arrayIndexM]), 0, nullIndicator);
 	}
 
 	template<int SIZE>
-	static void addColumn(std::vector<DbQueryBinding::ColumnBinding>& columns, const char* columnName, char (OutputType::*member)[SIZE], bool OutputType::*nullIndicator = nullptr) {
-		addColumn<char[SIZE]>(columns, columnName, (size_t)&(((OutputType*)0)->*member), SIZE-1, nullIndicator);
+	static void addColumn(const char* columnName, char (OutputType::*member)[SIZE], bool OutputType::*nullIndicator = nullptr) {
+		addColumn<char[SIZE]>(columnName, (size_t)&(((OutputType*)0)->*member), SIZE-1, nullIndicator);
 	}
 
 	static void createBinding(DbConnectionPool* dbConnectionPool,
 										 cval<std::string>& connectionString,
 										 const char* query,
-										 std::vector<DbQueryBinding::ParameterBinding> params,
-										 std::vector<DbQueryBinding::ColumnBinding> cols,
 										 DbQueryBinding::ExecuteMode executeMode);
 
 
@@ -121,10 +138,10 @@ protected:
 	static void onDoneStatic(uv_work_t *req, int status);
 
 	template<typename FieldType>
-	static void addParam(std::vector<DbQueryBinding::ParameterBinding>& params, const char* columnName, size_t memberOffset, SQLLEN InputType::*nullIndicator);
+	static void addParam(const char* columnName, size_t memberOffset, SQLLEN InputType::*nullIndicator);
 
 	template<typename FieldType>
-	static void addColumn(std::vector<DbQueryBinding::ColumnBinding>& columns, const char* columnName, size_t memberOffset, SQLLEN size, bool OutputType::*nullIndicator);
+	static void addColumn(const char* columnName, size_t memberOffset, SQLLEN size, bool OutputType::*nullIndicator);
 
 protected:
 	virtual void* createNextLineInstance();
@@ -143,12 +160,12 @@ private:
 };
 
 template<class DbMappingClass> template<typename FieldType>
-void DbQueryJob<DbMappingClass>::addParam(std::vector<DbQueryBinding::ParameterBinding>& params, const char* columnName, size_t memberOffset, SQLLEN InputType::*nullIndicator) {
+void DbQueryJob<DbMappingClass>::addParam(const char* columnName, size_t memberOffset, SQLLEN InputType::*nullIndicator) {
 	typedef typename std::remove_reference<FieldType>::type ValueFieldType;
 	char configName[512];
 	sprintf(configName, "sql.%s.param.%s", SQL_CONFIG_NAME, columnName);
-	params.emplace_back(DbQueryBinding::ParameterBinding(
-							ConfigInfo::get()->createValue<cval>(configName, (int)params.size() + 1),
+	dbBinding->addParameter(DbQueryBinding::ParameterBinding(
+							ConfigInfo::get()->createValue<cval>(configName, (int)dbBinding->getParameterCount() + 1),
 							DbTypeBinding<ValueFieldType>::C_TYPE,
 							DbTypeBinding<ValueFieldType>::SQL_TYPE,
 							DbTypeBinding<ValueFieldType>::SQL_SIZE,
@@ -159,11 +176,11 @@ void DbQueryJob<DbMappingClass>::addParam(std::vector<DbQueryBinding::ParameterB
 }
 
 template<class DbMappingClass> template<typename FieldType>
-void DbQueryJob<DbMappingClass>::addColumn(std::vector<DbQueryBinding::ColumnBinding>& columns, const char* columnName, size_t memberOffset, SQLLEN size, bool OutputType::*nullIndicator) {
+void DbQueryJob<DbMappingClass>::addColumn(const char* columnName, size_t memberOffset, SQLLEN size, bool OutputType::*nullIndicator) {
 	typedef typename std::remove_reference<FieldType>::type ValueFieldType;
 	char configName[512];
 	sprintf(configName, "sql.%s.column.%s", SQL_CONFIG_NAME, columnName);
-	columns.emplace_back(DbQueryBinding::ColumnBinding(
+	dbBinding->addColumn(DbQueryBinding::ColumnBinding(
 							 ConfigInfo::get()->createValue<cval>(configName, columnName),
 							 DbTypeBinding<ValueFieldType>::C_TYPE,
 							 IsStdString<ValueFieldType>::value,
@@ -184,8 +201,6 @@ template<class DbMappingClass>
 void DbQueryJob<DbMappingClass>::createBinding(DbConnectionPool *dbConnectionPool,
 										  cval<std::string> &connectionString,
 										  const char *query,
-										  std::vector<DbQueryBinding::ParameterBinding> params,
-										  std::vector<DbQueryBinding::ColumnBinding> cols,
 										  DbQueryBinding::ExecuteMode executeMode)
 {
 	char enableConfigName[512];
@@ -197,8 +212,6 @@ void DbQueryJob<DbMappingClass>::createBinding(DbConnectionPool *dbConnectionPoo
 							  ConfigInfo::get()->createValue<cval>(enableConfigName, true),
 							  connectionString,
 							  ConfigInfo::get()->createValue<cval>(queryConfigName, query),
-							  params,
-							  cols,
 							  executeMode);
 }
 

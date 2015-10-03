@@ -84,7 +84,7 @@ public:
 	};
 
 public:
-	DbQueryBinding(DbConnectionPool* dbConnectionPool, cval<bool>& enabled, cval<std::string>& connectionString, cval<std::string>& query, const std::vector<ParameterBinding>& parameters, const std::vector<ColumnBinding>& columns, ExecuteMode mode);
+	DbQueryBinding(DbConnectionPool* dbConnectionPool, cval<bool>& enabled, cval<std::string>& connectionString, cval<std::string>& query, ExecuteMode mode);
 	virtual ~DbQueryBinding();
 
 
@@ -94,6 +94,10 @@ protected:
 	bool process(IDbQueryJob* queryJob, void* inputInstance);
 	void setString(DbConnection* connection, const ParameterBinding& paramBinding, SQLLEN* StrLen_or_Ind, const std::string &str, std::string &outStr);
 	static std::string getString(DbConnection* connection, int columnIndex);
+
+	size_t getParameterCount() { return parameterBindings.size(); }
+	void addParameter(const ParameterBinding& parameter) { parameterBindings.emplace_back(parameter); }
+	void addColumn(const ColumnBinding& column) { columnBindings.emplace_back(column); }
 
 private:
 	DbConnectionPool* dbConnectionPool;
