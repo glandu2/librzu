@@ -16,5 +16,6 @@ void DbBindingLoader::initAll(DbConnectionPool* connectionPool) {
         (*initFunction)(connectionPool);
     }
 
-    dbQueryBindingInits.swap(std::vector<InitBindingFunction>());
+	std::vector<InitBindingFunction> empty;
+	dbQueryBindingInits.swap(empty);
 }

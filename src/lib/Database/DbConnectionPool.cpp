@@ -3,6 +3,7 @@
 #include "DbConnection.h"
 #include <stdlib.h>
 #include <sqlext.h>
+#include <list>
 #include "Console/ConsoleCommands.h"
 
 static void outputError(Object::Level errorLevel, SQLHANDLE handle, SQLSMALLINT type, bool discard);
