@@ -34,29 +34,13 @@ private:
 };
 
 
-class DbQueryJobRef
+class RZU_EXTERN DbQueryJobRef
 {
 public:
 	DbQueryJobRef() : deleting(false) {}
-	DbQueryJobRef(DbQueryJobRef&& other) {
-		dbQueryJobs.swap(other.dbQueryJobs);
+	DbQueryJobRef(DbQueryJobRef&& other);
 
-		auto it = dbQueryJobs.begin();
-		auto itEnd = dbQueryJobs.end();
-		for(; it != itEnd; ++it) {
-			(*it)->setDbQueryJobRef(this);
-		}
-	}
-
-	~DbQueryJobRef() {
-		deleting = true;
-
-		auto it = dbQueryJobs.begin();
-		auto itEnd = dbQueryJobs.end();
-		for(; it != itEnd; ++it) {
-			(*it)->cancel();
-		}
-	}
+	~DbQueryJobRef();
 
 	template<class DbMappingClass, class DbJobClass, class Session>
 	void executeDbQuery(Session* session, typename DbJobClass::DbCallback callback, const typename DbMappingClass::Input& input) {
@@ -71,15 +55,12 @@ public:
 		executeDbQuery<DbMappingClass, DbQueryJobCallback<DbMappingClass, Session, DbQueryJob<DbMappingClass> >, Session>(session, callback, input);
 	}
 
-	void onQueryDone(IDbQueryJobCallback* query) {
-		if(!deleting)
-			dbQueryJobs.remove(query);
-	}
+	void onQueryDone(IDbQueryJobCallback* query);
 
 	bool inProgress() { return !dbQueryJobs.empty(); }
 
 private:
-	std::list<IDbQueryJobCallback*> dbQueryJobs;
+	std::vector<IDbQueryJobCallback*> dbQueryJobs;
 	bool deleting;
 
 	DbQueryJobRef(const DbQueryJobRef&);
@@ -98,14 +79,14 @@ void DbQueryJobCallback<DbMappingClass, Session, DbJobClass>::cancel() {
 
 template<class DbMappingClass, class Session, class DbJobClass>
 void DbQueryJobCallback<DbMappingClass, Session, DbJobClass>::onDone(IDbQueryJob::Status status) {
-	if(dbQueryJobRef)
+	if(dbQueryJobRef) {
 		dbQueryJobRef->onQueryDone(this);
 
-	if(status != IDbQueryJob::S_Canceled && dbQueryJobRef && session && callback)
-		(session->*callback)(static_cast<DbJobClass*>(this));
+		if(status != IDbQueryJob::S_Canceled && session && callback)
+			(session->*callback)(static_cast<DbJobClass*>(this));
 
-	if(dbQueryJobRef)
 		dbQueryJobRef = nullptr;
+	}
 }
 
 #endif // DBSESSIONQUERYJOB_H
