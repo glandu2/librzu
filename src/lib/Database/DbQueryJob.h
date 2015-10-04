@@ -80,18 +80,41 @@ public:
 	template<typename FieldType, int SIZE>
 	static typename std::enable_if<IfValidFieldType<FieldType>::value, void>::type
 	addParam(const char* columnName, FieldType (InputType::*member)[SIZE], int arrayIndex, SQLLEN InputType::*nullIndicator = nullptr) {
-		addParam<FieldType>(columnName, (size_t)&(((InputType*)0)->*member[arrayIndex]), nullIndicator);
+		addParam<FieldType>(columnName, (size_t)&((((InputType*)0)->*member)[arrayIndex]), nullIndicator);
 	}
 
 	template<typename FieldType, int N, int M>
 	static typename std::enable_if<IfValidFieldType<FieldType>::value, void>::type
 	addParam(const char* columnName, FieldType (InputType::*member)[N][M], int arrayIndexN, int arrayIndexM, SQLLEN InputType::*nullIndicator = nullptr) {
-		addParam<FieldType>(columnName, (size_t)&(((InputType*)0)->*member[arrayIndexN][arrayIndexM]), nullIndicator);
+		addParam<FieldType>(columnName, (size_t)&((((InputType*)0)->*member)[arrayIndexN][arrayIndexM]), nullIndicator);
 	}
 
 	template<int SIZE>
 	static void addParam(const char* columnName, char (InputType::*member)[SIZE], SQLLEN InputType::*nullIndicator = nullptr) {
 		addParam<char[SIZE]>(columnName, (size_t)&(((InputType*)0)->*member), nullIndicator);
+	}
+
+	template<typename FieldType>
+	static typename std::enable_if<IfValidFieldType<FieldType>::value, void>::type
+	addOutputParam(const char* columnName, FieldType InputType::*member, SQLLEN InputType::*nullIndicator = nullptr) {
+		addOutputParam<FieldType>(columnName, (size_t)&(((InputType*)0)->*member), nullIndicator);
+	}
+
+	template<typename FieldType, int SIZE>
+	static typename std::enable_if<IfValidFieldType<FieldType>::value, void>::type
+	addOutputParam(const char* columnName, FieldType (InputType::*member)[SIZE], int arrayIndex, SQLLEN InputType::*nullIndicator = nullptr) {
+		addOutputParam<FieldType>(columnName, (size_t)&(((InputType*)0)->*member[arrayIndex]), nullIndicator);
+	}
+
+	template<typename FieldType, int N, int M>
+	static typename std::enable_if<IfValidFieldType<FieldType>::value, void>::type
+	addOutputParam(const char* columnName, FieldType (InputType::*member)[N][M], int arrayIndexN, int arrayIndexM, SQLLEN InputType::*nullIndicator = nullptr) {
+		addOutputParam<FieldType>(columnName, (size_t)&(((InputType*)0)->*member[arrayIndexN][arrayIndexM]), nullIndicator);
+	}
+
+	template<int SIZE>
+	static void addOutputParam(const char* columnName, char (InputType::*member)[SIZE], SQLLEN InputType::*nullIndicator = nullptr) {
+		addOutputParam<char[SIZE]>(columnName, (size_t)&(((InputType*)0)->*member), nullIndicator);
 	}
 
 	template<typename FieldType>
@@ -141,6 +164,9 @@ protected:
 	static void addParam(const char* columnName, size_t memberOffset, SQLLEN InputType::*nullIndicator);
 
 	template<typename FieldType>
+	static void addOutputParam(const char* columnName, size_t memberOffset, SQLLEN InputType::*nullIndicator);
+
+	template<typename FieldType>
 	static void addColumn(const char* columnName, size_t memberOffset, SQLLEN size, bool OutputType::*nullIndicator);
 
 protected:
@@ -165,6 +191,24 @@ void DbQueryJob<DbMappingClass>::addParam(const char* columnName, size_t memberO
 	char configName[512];
 	sprintf(configName, "sql.%s.param.%s", SQL_CONFIG_NAME, columnName);
 	dbBinding->addParameter(DbQueryBinding::ParameterBinding(
+							SQL_PARAM_INPUT,
+							ConfigInfo::get()->createValue<cval>(configName, (int)dbBinding->getParameterCount() + 1),
+							DbTypeBinding<ValueFieldType>::C_TYPE,
+							DbTypeBinding<ValueFieldType>::SQL_TYPE,
+							DbTypeBinding<ValueFieldType>::SQL_SIZE,
+							DbTypeBinding<ValueFieldType>::SQL_PRECISION,
+							IsStdString<ValueFieldType>::value,
+							memberOffset,
+							nullIndicator ? (size_t)(&(((InputType*)0)->*nullIndicator)) : (size_t)-1));
+}
+
+template<class DbMappingClass> template<typename FieldType>
+void DbQueryJob<DbMappingClass>::addOutputParam(const char* columnName, size_t memberOffset, SQLLEN InputType::*nullIndicator) {
+	typedef typename std::remove_reference<FieldType>::type ValueFieldType;
+	char configName[512];
+	sprintf(configName, "sql.%s.outparam.%s", SQL_CONFIG_NAME, columnName);
+	dbBinding->addParameter(DbQueryBinding::ParameterBinding(
+							SQL_PARAM_OUTPUT,
 							ConfigInfo::get()->createValue<cval>(configName, (int)dbBinding->getParameterCount() + 1),
 							DbTypeBinding<ValueFieldType>::C_TYPE,
 							DbTypeBinding<ValueFieldType>::SQL_TYPE,
@@ -285,7 +329,7 @@ void DbQueryJob<DbMappingClass>::onDoneStatic(uv_work_t *req, int status) {
 
 template<class DbMappingClass>
 void *DbQueryJob<DbMappingClass>::createNextLineInstance() {
-	outputLines.push_back(std::unique_ptr<OutputType>(new OutputType));
+	outputLines.push_back(std::unique_ptr<OutputType>(new OutputType()));
 	return outputLines.back().get();
 }
 

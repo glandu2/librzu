@@ -51,6 +51,7 @@ public:
 			Output
 		};
 
+		SQLSMALLINT way;
 		cval<int>& index;
 		SQLSMALLINT cType; //one of SQL_C_* values
 		SQLSMALLINT dbType; //one of SQL_* values
@@ -60,8 +61,8 @@ public:
 		size_t bufferOffset; //use offsetof
 		size_t infoPtr;
 
-		ParameterBinding(cval<int>& index, SQLSMALLINT cType, SQLSMALLINT dbType, SQLULEN dbSize, SQLSMALLINT dbPrecision, bool isStdString, size_t bufferOffset, size_t infoPtr)
-			: index(index), cType(cType), dbType(dbType), dbSize(dbSize), dbPrecision(dbPrecision), isStdString(isStdString), bufferOffset(bufferOffset), infoPtr(infoPtr) {}
+		ParameterBinding(SQLSMALLINT way, cval<int>& index, SQLSMALLINT cType, SQLSMALLINT dbType, SQLULEN dbSize, SQLSMALLINT dbPrecision, bool isStdString, size_t bufferOffset, size_t infoPtr)
+			: way(way), index(index), cType(cType), dbType(dbType), dbSize(dbSize), dbPrecision(dbPrecision), isStdString(isStdString), bufferOffset(bufferOffset), infoPtr(infoPtr) {}
 	};
 
 	//Output data mapping to columns
@@ -93,7 +94,7 @@ protected:
 
 	bool process(IDbQueryJob* queryJob, void* inputInstance);
 	void setString(DbConnection* connection, const ParameterBinding& paramBinding, SQLLEN* StrLen_or_Ind, const std::string &str, std::string &outStr);
-	static std::string getString(DbConnection* connection, int columnIndex);
+	static bool getString(DbConnection* connection, int columnIndex, std::string *outString);
 
 	size_t getParameterCount() { return parameterBindings.size(); }
 	void addParameter(const ParameterBinding& parameter) { parameterBindings.emplace_back(parameter); }

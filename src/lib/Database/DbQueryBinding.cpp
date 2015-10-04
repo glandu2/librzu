@@ -71,7 +71,7 @@ bool DbQueryBinding::process(IDbQueryJob* queryJob, void* inputInstance) {
 				setString(connection, paramBinding, StrLen_or_Ind, *str, unicodeString.str);
 				unicodeString.strLen = unicodeString.str.size();
 			} else {
-				connection->bindParameter(paramBinding.index, SQL_PARAM_INPUT,
+				connection->bindParameter(paramBinding.index, paramBinding.way,
 										  paramBinding.cType,
 										  paramBinding.dbType, paramBinding.dbSize, paramBinding.dbPrecision,
 										  (char*)inputInstance + paramBinding.bufferOffset, 0,
@@ -94,6 +94,7 @@ bool DbQueryBinding::process(IDbQueryJob* queryJob, void* inputInstance) {
 		return false;
 	}
 
+	bool getDataErrorOccured = false; //if true, show query after all getData
 	if(mode != EM_NoRow) {
 		bool firstRowFetched = false;
 		while(connection->fetch() && (firstRowFetched == false || mode == EM_MultiRows)) {
@@ -121,14 +122,20 @@ bool DbQueryBinding::process(IDbQueryJob* queryJob, void* inputInstance) {
 					const ColumnBinding& columnBinding = columnBindings.at(i);
 
 					if(!strcmp(columnName, columnBinding.name.get().c_str())) {
+						bool getDataSucceded;
 						if(columnBinding.isStdString)
 						{
 							std::string* str = (std::string*) ((char*)outputInstance + columnBinding.bufferOffset);
-							*str = getString(connection, columnIndex);
+							getDataSucceded = getString(connection, columnIndex, str);
 						} else {
-							connection->getData(columnIndex, columnBinding.cType,
-												(char*)outputInstance + columnBinding.bufferOffset, columnBinding.bufferSize,
-												&StrLen_Or_Ind);
+							getDataSucceded = connection->getData(columnIndex, columnBinding.cType,
+																  (char*)outputInstance + columnBinding.bufferOffset, columnBinding.bufferSize,
+																  &StrLen_Or_Ind);
+						}
+
+						if(!getDataSucceded) {
+							log(LL_Error, "Failed to retrieve data for column %s\n", columnName);
+							getDataErrorOccured = true;
 						}
 
 						if(columnBinding.isNullPtr != (size_t)-1)
@@ -146,6 +153,10 @@ bool DbQueryBinding::process(IDbQueryJob* queryJob, void* inputInstance) {
 
 	connection->release();
 
+	if(getDataErrorOccured) {
+		log(LL_Error, "Errors occured while retrieving data for query %s\n", queryStr.c_str());
+	}
+
 	return true;
 }
 
@@ -161,7 +172,7 @@ void DbQueryBinding::setString(DbConnection* connection, const ParameterBinding&
 							  StrLen_or_Ind);
 }
 
-std::string DbQueryBinding::getString(DbConnection* connection, int columnIndex) {
+bool DbQueryBinding::getString(DbConnection* connection, int columnIndex, std::string* outString) {
 	std::string unicodeBuffer;
 	SQLLEN bytesRead = 0;
 	SQLLEN dataSize;
@@ -169,27 +180,54 @@ std::string DbQueryBinding::getString(DbConnection* connection, int columnIndex)
 	int dummy;
 	SQLRETURN ret;
 
-	connection->getData(columnIndex, SQL_C_BINARY, &dummy, 0, &dataSize, true);
+	if(!connection->getData(columnIndex, SQL_C_BINARY, &dummy, 0, &dataSize, true))
+		return false;
+
+	if(dataSize == SQL_NULL_DATA) {
+		outString->clear();
+		return true;
+	} else if(dataSize < 0) {
+		logStatic(LL_Warning, DbQueryBinding::getStaticClassName(), "getString: dataSize is negative: %d\n", dataSize);
+		return false;
+	}
+
 	unicodeBuffer.resize(dataSize*2 + 4);
 
-	while(connection->getData(columnIndex, SQL_C_WCHAR, &unicodeBuffer[bytesRead], unicodeBuffer.size() - bytesRead, &isDataNull, false, &ret) && ret == SQL_SUCCESS_WITH_INFO) {
+	while(connection->getData(columnIndex,
+							  SQL_C_WCHAR,
+							  &unicodeBuffer[bytesRead],
+							  unicodeBuffer.size() - bytesRead,
+							  &isDataNull,
+							  false,
+							  &ret) &&
+		  ret == SQL_SUCCESS_WITH_INFO)
+	{
 		if(isDataNull == SQL_NULL_DATA)
 			break;
 
 		bytesRead = unicodeBuffer.size()-2; //dont keep null terminator
 		unicodeBuffer.resize(unicodeBuffer.size()*2);
 	}
-	if(ret == SQL_SUCCESS) {
+
+	if(isDataNull == SQL_NULL_DATA) {
+		outString->clear();
+		return true;
+	} else if(isDataNull < 0) {
+		logStatic(LL_Warning, DbQueryBinding::getStaticClassName(), "getString: isDataNull is negative: %d\n", isDataNull);
+		return false;
+	} else if(ret == SQL_SUCCESS) {
 		bytesRead += isDataNull;
 		unicodeBuffer.resize(bytesRead);
+
+		if(bytesRead != 0) {
+			CharsetConverter utf16ToLocal("UTF-16LE", CharsetConverter::getEncoding().c_str());
+			utf16ToLocal.convert(unicodeBuffer, *outString, 0.5);
+		} else {
+			outString->clear();
+		}
+		return true;
 	}
 
-	if(isDataNull != SQL_NULL_DATA && bytesRead != 0) {
-		CharsetConverter utf16ToLocal("UTF-16LE", CharsetConverter::getEncoding().c_str());
-		std::string result;
-		utf16ToLocal.convert(unicodeBuffer, result, 0.5);
-		return result;
-	}
-
-	return std::string();
+	outString->clear();
+	return false;
 }

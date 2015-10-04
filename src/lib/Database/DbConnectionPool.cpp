@@ -190,13 +190,13 @@ int DbConnectionPool::closeAllConnections() {
 bool DbConnectionPool::checkSqlResult(int result, const char* function, void* henv, void* hdbc, void* hstmt, bool silentInfo) {
 	if(result == SQL_SUCCESS_WITH_INFO) {
 		if(!silentInfo)
-			logStatic(LL_Info, "ODBC", "%s: additional info:\n", function);
+			logStatic(LL_Debug, "ODBC", "%s: additional info:\n", function);
 		if(hstmt)
-			outputError(LL_Info, hstmt, SQL_HANDLE_STMT, silentInfo);
+			outputError(LL_Debug, hstmt, SQL_HANDLE_STMT, silentInfo);
 		if(hdbc)
-			outputError(LL_Info, hdbc, SQL_HANDLE_DBC, silentInfo);
+			outputError(LL_Debug, hdbc, SQL_HANDLE_DBC, silentInfo);
 		if(henv)
-			outputError(LL_Info, henv, SQL_HANDLE_ENV, silentInfo);
+			outputError(LL_Debug, henv, SQL_HANDLE_ENV, silentInfo);
 	} else if(result == SQL_ERROR) {
 		logStatic(LL_Error, "ODBC", "%s: error:\n", function);
 		if(hstmt)
