@@ -33,13 +33,13 @@ DbConnectionPool::DbConnectionPool() {
 }
 
 DbConnectionPool::~DbConnectionPool() {
-	std::list<DbConnection*>::iterator it, itEnd;
+	std::unordered_multimap<std::string, DbConnection*>::iterator it, itEnd;
 
 	log(LL_Info, "Closing DB connections pool\n");
 
 	for(it = openedConnections.begin(), itEnd = openedConnections.end(); it != itEnd; ++it) {
-		DbConnection* connection = *it;
-		delete connection;
+		const std::pair<std::string, DbConnection*>& connection = *it;
+		delete connection.second;
 	}
 	SQLFreeHandle(SQL_HANDLE_ENV, henv);
 	uv_mutex_destroy(&listLock);
@@ -61,11 +61,14 @@ bool DbConnectionPool::checkConnection(const char* connectionString) {
 
 DbConnection* DbConnectionPool::getConnection(const char* connectionString, std::string wantedQuery) {
 	DbConnection* dbConnection = nullptr;
-	std::list<DbConnection*>::iterator it, itEnd;
 
 	uv_mutex_lock(&listLock);
-	for(it = openedConnections.begin(), itEnd = openedConnections.end(); it != itEnd; ++it) {
-		DbConnection* connection = *it;
+	auto range = openedConnections.equal_range(std::string(connectionString));
+	auto it = range.first;
+	auto itEnd = range.second;
+	for(; it != itEnd; ++it) {
+		const std::pair<std::string, DbConnection*>& data = *it;
+		DbConnection* connection = data.second;
 		if(connection->trylock()) {
 			if(wantedQuery == std::string() || connection->getCachedQuery() == wantedQuery) {
 				dbConnection = connection;
@@ -77,8 +80,11 @@ DbConnection* DbConnectionPool::getConnection(const char* connectionString, std:
 	}
 	//If more than 8 connections are already opened, try to reuse one even if the cached query is not the same
 	if(dbConnection == nullptr && openedConnections.size() >= 8) {
-		for(it = openedConnections.begin(), itEnd = openedConnections.end(); it != itEnd; ++it) {
-			DbConnection* connection = *it;
+		it = range.first;
+		itEnd = range.second;
+		for(; it != itEnd; ++it) {
+			const std::pair<std::string, DbConnection*>& data = *it;
+			DbConnection* connection = data.second;
 			if(connection->trylock()) {
 				dbConnection = connection;
 				break;
@@ -137,7 +143,7 @@ DbConnection* DbConnectionPool::addConnection(const char* connectionString, bool
 		dbConnection->trylock();
 
 	uv_mutex_lock(&listLock);
-	openedConnections.push_back(dbConnection);
+	openedConnections.insert(std::make_pair(std::string(connectionString), dbConnection));
 	uv_mutex_unlock(&listLock);
 
 	return dbConnection;
@@ -145,18 +151,27 @@ DbConnection* DbConnectionPool::addConnection(const char* connectionString, bool
 
 void DbConnectionPool::removeConnection(DbConnection* dbConnection) {
 	uv_mutex_lock(&listLock);
-	openedConnections.remove(dbConnection);
+	std::unordered_multimap<std::string, DbConnection*>::iterator it, itEnd;
+	for(it = openedConnections.begin(), itEnd = openedConnections.end(); it != itEnd; ++it) {
+		const std::pair<std::string, DbConnection*>& data = *it;
+		if(data.second == dbConnection) {
+			openedConnections.erase(it);
+			break;
+		}
+	}
 	uv_mutex_unlock(&listLock);
 }
 
 int DbConnectionPool::closeAllConnections() {
 	std::list<DbConnection*> connectionsToRemove;
-	std::list<DbConnection*>::iterator it, itEnd;
+	std::list<DbConnection*>::iterator itList, itListEnd;
+	std::unordered_multimap<std::string, DbConnection*>::iterator it, itEnd;
 
 	//Retrieve and lock all idle connections
 	uv_mutex_lock(&listLock);
 	for(it = openedConnections.begin(), itEnd = openedConnections.end(); it != itEnd; ++it) {
-		DbConnection* connection = *it;
+		const std::pair<std::string, DbConnection*>& data = *it;
+		DbConnection* connection = data.second;
 		if(connection->trylock()) {
 			connectionsToRemove.push_back(connection);
 		}
@@ -164,8 +179,8 @@ int DbConnectionPool::closeAllConnections() {
 	uv_mutex_unlock(&listLock);
 
 	//Release and close them
-	for(it = connectionsToRemove.begin(), itEnd = connectionsToRemove.end(); it != itEnd; ++it) {
-		DbConnection* connection = *it;
+	for(itList = connectionsToRemove.begin(), itListEnd = connectionsToRemove.end(); itList != itListEnd; ++itList) {
+		DbConnection* connection = *itList;
 		connection->releaseAndClose();
 	}
 

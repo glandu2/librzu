@@ -3,7 +3,7 @@
 
 #include "Core/Object.h"
 #include "uv.h"
-#include <list>
+#include <unordered_map>
 #include <string>
 #include <vector>
 
@@ -36,7 +36,7 @@ protected:
 
 private:
 	static DbConnectionPool *instance;
-	std::list<DbConnection*> openedConnections;
+	std::unordered_multimap<std::string, DbConnection*> openedConnections;
 	uv_mutex_t listLock;
 	void* henv;
 };
