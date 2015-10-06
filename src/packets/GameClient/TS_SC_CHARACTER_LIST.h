@@ -4,7 +4,7 @@
 #include "Packet/PacketDeclaration.h"
 #include "PacketEnums.h"
 
-#define LOBBY_CHARACTER_INFO_DEF(simple_, array_, dynarray_, count_, string_) \
+#define LOBBY_CHARACTER_INFO_DEF(simple_, array_, dynarray_, count_, string_, dynstring_) \
 	simple_ (uint32_t, sex) \
 	simple_ (uint32_t, race) \
 	array_  (uint32_t, model_id, 5) \
@@ -38,7 +38,7 @@
 
 CREATE_STRUCT(LOBBY_CHARACTER_INFO); // struct is 304 bytes long in epic2
 
-#define TS_SC_CHARACTER_LIST_DEF(simple_, array_, dynarray_, count_, string_) \
+#define TS_SC_CHARACTER_LIST_DEF(simple_, array_, dynarray_, count_, string_, dynstring_) \
 	simple_   (uint32_t, current_server_time) \
 	simple_   (uint16_t, last_character_idx, version >= EPIC_4_1, 0) \
 	count_    (uint16_t, count, characters) \

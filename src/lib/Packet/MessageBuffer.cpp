@@ -45,9 +45,27 @@ void MessageBuffer::writeString(const char *fieldName, const std::string &val, s
 	}
 }
 
+void MessageBuffer::writeDynString(const char *fieldName, const std::string &val, bool hasNullTerminator) {
+	size_t sizeToWrite = val.size() + hasNullTerminator;
+
+	if(checkAvailableBuffer(fieldName, sizeToWrite)) {
+		memcpy(p, val.c_str(), sizeToWrite);
+		p += sizeToWrite;
+	}
+}
+
 void MessageBuffer::readString(const char *fieldName, std::string &val, size_t maxSize) {
 	if(checkAvailableBuffer(fieldName, maxSize)) {
 		val = Utils::convertToString(p, (int)maxSize-1);
 		p += maxSize;
+	}
+}
+
+void MessageBuffer::readDynString(const char *fieldName, std::string &val, bool hasNullTerminator) {
+	size_t sizeToRead = val.size() + hasNullTerminator;
+
+	if(checkAvailableBuffer(fieldName, sizeToRead)) {
+		val = Utils::convertToString(p, (int)val.size());
+		p += sizeToRead;
 	}
 }

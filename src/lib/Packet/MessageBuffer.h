@@ -69,6 +69,7 @@ public:
 
 	//String
 	void writeString(const char* fieldName, const std::string& val, size_t maxSize);
+	void writeDynString(const char* fieldName, const std::string& val, bool hasNullTerminator);
 
 	//Fixed array of primitive
 	template<typename T>
@@ -121,6 +122,7 @@ public:
 
 	//String
 	void readString(const char* fieldName, std::string& val, size_t size);
+	void readDynString(const char* fieldName, std::string& val, bool hasNullTerminator);
 
 	//Fixed array of primitive
 	template<typename T, typename U>
@@ -162,9 +164,9 @@ public:
 			read(fieldName, *it);
 	}
 
-	//read size for objects
+	//read size for objects (std:: containers)
 	template<typename T, class U>
-	void readSize(const char* fieldName, std::vector<U>& vec) {
+	void readSize(const char* fieldName, U& vec) {
 		if(checkAvailableBuffer(fieldName, sizeof(T))) {
 			size_t val = *reinterpret_cast<T*>(p);
 			p += sizeof(T);

@@ -4,7 +4,7 @@
 #include "Packet/PacketDeclaration.h"
 #include "PacketEnums.h"
 
-#define TS_SC_LOGIN_RESULT_DEF(simple_, array_, dynarray_, count_, string_) \
+#define TS_SC_LOGIN_RESULT_DEF(simple_, array_, dynarray_, count_, string_, dynstring_) \
 	simple_ (uint16_t, result) \
 	simple_ (uint32_t, handle) \
 	simple_ (float, x) \
