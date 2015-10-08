@@ -168,11 +168,11 @@ getSizeOf(const T& value, int version) {
 	if(cond) buffer->write(#name, (type)name);
 
 #define SERIALIZATION_F_ARRAY3(type, name, size) \
-	buffer->writeArray(#name, (type*)name, size);
+	buffer->template writeArray<type>(#name, name, size);
 #define SERIALIZATION_F_ARRAY4(type, name, size, cond) \
-	if(cond) buffer->writeArray(#name, (type*)name, size);
+	if(cond) buffer->template writeArray<type>(#name, name, size);
 #define SERIALIZATION_F_ARRAY5(type, name, size, cond, defaultval) \
-	if(cond) buffer->writeArray(#name, (type*)name, size);
+	if(cond) buffer->template writeArray<type>(#name, name, size);
 
 #define SERIALIZATION_F_DYNARRAY2(type, name) \
 	buffer->template writeDynArray<type>(#name, name);
@@ -323,13 +323,14 @@ getSizeOf(const T& value, int version) {
 #define DESERIALIZATION_F_COUNT1(mode) DESERIALIZATION_ ## mode (DESERIALIZATION_F_COUNT_)
 #define DESERIALIZATION_F_STRING1(mode) DESERIALIZATION_ ## mode (DESERIALIZATION_F_STRING_)
 
-#define CREATE_STRUCT(name) \
-	struct name { \
-		name ## _DEF(DEFINITION_F_SIMPLE, DEFINITION_F_ARRAY, DEFINITION_F_DYNARRAY, DEFINITION_F_COUNT, DEFINITION_F_STRING, DEFINITION_F_DYNSTRING) \
+#define CREATE_STRUCT_IMPL(name_, size_base_, definition_header_, serialization_header_, deserialization_header_) \
+	struct name_ { \
+		definition_header_ \
+		name_ ## _DEF(DEFINITION_F_SIMPLE, DEFINITION_F_ARRAY, DEFINITION_F_DYNARRAY, DEFINITION_F_COUNT, DEFINITION_F_STRING, DEFINITION_F_DYNSTRING) \
 	\
 		uint32_t getSize(int version) const { \
-			uint32_t size = 0; \
-			name ## _DEF(SIZE_F_SIMPLE, SIZE_F_ARRAY, SIZE_F_DYNARRAY, SIZE_F_COUNT, SIZE_F_STRING, SIZE_F_DYNSTRING) \
+			uint32_t size = size_base_; \
+			name_ ## _DEF(SIZE_F_SIMPLE, SIZE_F_ARRAY, SIZE_F_DYNARRAY, SIZE_F_COUNT, SIZE_F_STRING, SIZE_F_DYNSTRING) \
 	\
 			return size;\
 		} \
@@ -338,54 +339,78 @@ getSizeOf(const T& value, int version) {
 		void serialize(T* buffer) const { \
 			const int version = buffer->getVersion(); \
 			(void)(version); \
-			name ## _DEF(SERIALIZATION_F_SIMPLE, SERIALIZATION_F_ARRAY, SERIALIZATION_F_DYNARRAY, SERIALIZATION_F_COUNT, SERIALIZATION_F_STRING, SERIALIZATION_F_DYNSTRING) \
+			serialization_header_ \
+			name_ ## _DEF(SERIALIZATION_F_SIMPLE, SERIALIZATION_F_ARRAY, SERIALIZATION_F_DYNARRAY, SERIALIZATION_F_COUNT, SERIALIZATION_F_STRING, SERIALIZATION_F_DYNSTRING) \
 		} \
 	\
 		template<class T> \
 		void deserialize(T* buffer) { \
 			const int version = buffer->getVersion(); \
 			(void)(version); \
+			deserialization_header_ \
 	\
-			name ## _DEF(DESERIALIZATION_F_SIMPLE, DESERIALIZATION_F_ARRAY, DESERIALIZATION_F_DYNARRAY, DESERIALIZATION_F_COUNT, DESERIALIZATION_F_STRING, DESERIALIZATION_F_DYNSTRING) \
+			name_ ## _DEF(DESERIALIZATION_F_SIMPLE, DESERIALIZATION_F_ARRAY, DESERIALIZATION_F_DYNARRAY, DESERIALIZATION_F_COUNT, DESERIALIZATION_F_STRING, DESERIALIZATION_F_DYNSTRING) \
 		} \
 	}
 
-#define CREATE_PACKET(name, id) \
-	struct name { \
-		static const uint16_t packetID = id; \
-	\
-		name ## _DEF(DEFINITION_F_SIMPLE, DEFINITION_F_ARRAY, DEFINITION_F_DYNARRAY, DEFINITION_F_COUNT, DEFINITION_F_STRING, DEFINITION_F_DYNSTRING) \
-	\
-		uint32_t getSize(int version) const { \
-			uint32_t size = 7; \
-			name ## _DEF(SIZE_F_SIMPLE, SIZE_F_ARRAY, SIZE_F_DYNARRAY, SIZE_F_COUNT, SIZE_F_STRING, SIZE_F_DYNSTRING) \
-	\
-			return size;\
-		} \
-	\
-		template<class T> \
-		void serialize(T* buffer) const { \
-			const int version = buffer->getVersion(); \
-			(void)(version); \
-			uint32_t size = getSize(buffer->getVersion()); \
-			buffer->write("size", size); \
-			buffer->write("id", packetID); \
-			buffer->write("msg_checksum", getMessageChecksum(size, packetID)); \
-			\
-			name ## _DEF(SERIALIZATION_F_SIMPLE, SERIALIZATION_F_ARRAY, SERIALIZATION_F_DYNARRAY, SERIALIZATION_F_COUNT, SERIALIZATION_F_STRING, SERIALIZATION_F_DYNSTRING) \
-		} \
-	\
-		template<class T> \
-		void deserialize(T* buffer) { \
-			const int version = buffer->getVersion(); \
-			(void)(version); \
-			buffer->discard("size", 4); \
-			buffer->discard("id", 2); \
-			buffer->discard("msg_checksum", 1); \
-			\
-			name ## _DEF(DESERIALIZATION_F_SIMPLE, DESERIALIZATION_F_ARRAY, DESERIALIZATION_F_DYNARRAY, DESERIALIZATION_F_COUNT, DESERIALIZATION_F_STRING, DESERIALIZATION_F_DYNSTRING) \
-		} \
-	}
+#define CREATE_STRUCT(name_) \
+	CREATE_STRUCT_IMPL(name_, 0, /* empty */, /* empty */, /* empty */)
+
+
+#define CREATE_PACKET_DEFINITION_HEADER(id_) \
+	static const uint16_t packetID = id_;
+
+#define CREATE_PACKET_SERIALIZATION_HEADER \
+	uint32_t size = getSize(buffer->getVersion()); \
+	buffer->write<uint32_t>("size", size); \
+	buffer->write<uint16_t>("id", packetID); \
+	buffer->write<uint8_t>("msg_checksum", getMessageChecksum(size, packetID));
+
+#define CREATE_PACKET_DESERIALIZATION_HEADER \
+	buffer->discard("size", 4); \
+	buffer->discard("id", 2); \
+	buffer->discard("msg_checksum", 1);
+
+#define CREATE_PACKET(name_, id_) \
+	CREATE_STRUCT_IMPL(name_, 7, CREATE_PACKET_DEFINITION_HEADER(id_), CREATE_PACKET_SERIALIZATION_HEADER, CREATE_PACKET_DESERIALIZATION_HEADER)
+
+
+#define HEADER_F_ID(id_, ...) \
+	static const uint16_t packetID_##id_ = id_;
+
+#define SERIALISATION_F_ID(...) OVERLOADED_CALL(SERIALISATION_F_ID, __VA_ARGS__)
+#define SERIALISATION_F_ID1(id_) \
+	id = id_;
+#define SERIALISATION_F_ID2(id_, condition_) \
+	if(condition_) id = id_;
+
+#define CREATE_PACKET_VER_ID_HEADER_HEADER(name_) \
+	name_ ## _ID(HEADER_F_ID)
+
+#define CREATE_PACKET_VER_ID_SERIALIZATION_HEADER(name_) \
+	uint32_t size = getSize(buffer->getVersion()); \
+	uint16_t id; \
+	name_ ## _ID(SERIALISATION_F_ID) \
+	buffer->write<uint32_t>("size", size); \
+	buffer->write<uint16_t>("id", id); \
+	buffer->write<uint8_t>("msg_checksum", getMessageChecksum(size, id));
+
+#define CREATE_PACKET_VER_ID_DESERIALIZATION_HEADER \
+	buffer->discard("size", 4); \
+	buffer->discard("id", 2); \
+	buffer->discard("msg_checksum", 1);
+
+#define CREATE_PACKET_VER_ID(name_) \
+	CREATE_STRUCT_IMPL(name_, 7, CREATE_PACKET_VER_ID_HEADER_HEADER(name_), CREATE_PACKET_VER_ID_SERIALIZATION_HEADER(name_), CREATE_PACKET_VER_ID_DESERIALIZATION_HEADER)
+
+#define CREATE_PACKET_VER_ID_SWITCH_CASES_2(id_, ...) \
+	packetID_##id_:
+
+#define CREATE_PACKET_VER_ID_SWITCH_CASES(name_) \
+	case name_:: CREATE_PACKET_VER_ID_SWITCH_CASES_2
+
+#define case_packet_is(name_) \
+	name_ ## _ID(CREATE_PACKET_VER_ID_SWITCH_CASES(name_))
 
 #endif // PACKETDECLARATION_H
 

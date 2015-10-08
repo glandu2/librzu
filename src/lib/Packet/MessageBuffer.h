@@ -81,22 +81,59 @@ public:
 		}
 	}
 
+	//Fixed array of primitive with cast
+	template<typename T, typename U>
+	typename std::enable_if<std::is_fundamental<T>::value && std::is_fundamental<T>::value && !std::is_same<T, U>::value, void>::type
+	writeArray(const char* fieldName, const U* val, size_t size) {
+		if(checkAvailableBuffer(fieldName, sizeof(T) * size)) {
+			for(size_t i = 0; i < size; ++i) {
+				*reinterpret_cast<T*>(p) = val[i];
+				p += sizeof(T);
+			}
+		}
+	}
+
 	//Fixed array of object
 	template<typename T>
 	typename std::enable_if<!std::is_fundamental<T>::value, void>::type
 	writeArray(const char* fieldName, const T* val, size_t size) {
 		for(size_t i = 0; i < size; i++) {
-			write(fieldName, val[i]);
+			write<T>(fieldName, val[i]);
 		}
 	}
 
-	//Dynamic array of object
-	template<class T, class U>
-	void writeDynArray(const char* fieldName, const std::vector<U>& val) {
+	//Dynamic array of primitive
+	template<typename T>
+	typename std::enable_if<std::is_fundamental<T>::value, void>::type
+	writeDynArray(const char* fieldName, const std::vector<T>& val) {
+		size_t size = sizeof(T) * val.size();
+		if(checkAvailableBuffer(fieldName, size)) {
+			memcpy(p, &val[0], size);
+			p += size;
+		}
+	}
+
+	//Dynamic array of primitive with cast
+	template<typename T, typename U>
+	typename std::enable_if<std::is_fundamental<T>::value && std::is_fundamental<T>::value && !std::is_same<T, U>::value, void>::type
+	writeDynArray(const char* fieldName, const std::vector<U>& val) {
+		size_t size = val.size();
+		if(checkAvailableBuffer(fieldName, sizeof(T) * size)) {
+			for(size_t i = 0; i < size; ++i) {
+				*reinterpret_cast<T*>(p) = val[i];
+				p += sizeof(T);
+			}
+		}
+	}
+
+	//Dynamic array of object or primitive with cast
+	template<typename T>
+	typename std::enable_if<!std::is_fundamental<T>::value, void>::type
+	writeDynArray(const char* fieldName, const std::vector<T>& val) {
 		auto it = val.begin();
 		auto itEnd = val.end();
 		for(; it != itEnd; ++it)
-			write(fieldName, (T)*it);
+			write<T>(fieldName, *it);
 	}
 
 	// Read functions /////////////////////////
@@ -125,18 +162,6 @@ public:
 	void readDynString(const char* fieldName, std::string& val, bool hasNullTerminator);
 
 	//Fixed array of primitive
-	template<typename T, typename U>
-	typename std::enable_if<std::is_fundamental<U>::value && !std::is_same<T, U>::value, void>::type
-	readArray(const char* fieldName, U* val, size_t size) {
-		if(checkAvailableBuffer(fieldName, sizeof(T) * size)) {
-			for(size_t i = 0; i < size; i++) {
-				val[i] = (U)*reinterpret_cast<T*>(p);
-				p += sizeof(T);
-			}
-		}
-	}
-
-	//If cast not needed
 	template<typename T>
 	typename std::enable_if<std::is_fundamental<T>::value, void>::type
 	readArray(const char* fieldName, T* val, size_t size) {
@@ -146,22 +171,59 @@ public:
 		}
 	}
 
+	//Fixed array of primitive with cast
+	template<typename T, typename U>
+	typename std::enable_if<std::is_fundamental<T>::value && std::is_fundamental<U>::value && !std::is_same<T, U>::value, void>::type
+	readArray(const char* fieldName, U* val, size_t size) {
+		if(checkAvailableBuffer(fieldName, sizeof(T) * size)) {
+			for(size_t i = 0; i < size; i++) {
+				val[i] = (U)*reinterpret_cast<T*>(p);
+				p += sizeof(T);
+			}
+		}
+	}
+
 	//Fixed array of objects
 	template<typename T>
 	typename std::enable_if<!std::is_fundamental<T>::value, void>::type
 	readArray(const char* fieldName, T* val, size_t size) {
 		for(size_t i = 0; i < size; i++) {
-			read(fieldName, val[i]);
+			read<T>(fieldName, val[i]);
+		}
+	}
+
+	//Dynamic array of primitive
+	template<typename T>
+	typename std::enable_if<std::is_fundamental<T>::value, void>::type
+	readDynArray(const char* fieldName, std::vector<T>& val) {
+		size_t size = sizeof(T) * val.size();
+		if(checkAvailableBuffer(fieldName, size)) {
+			memcpy(&val[0], p, size);
+			p += size;
+		}
+	}
+
+	//Dynamic array of primitive with cast
+	template<typename T, typename U>
+	typename std::enable_if<std::is_fundamental<T>::value && std::is_fundamental<U>::value && !std::is_same<T, U>::value, void>::type
+	readDynArray(const char* fieldName, std::vector<U>& val) {
+		size_t size = val.size();
+		if(checkAvailableBuffer(fieldName, sizeof(T) * size)) {
+			for(size_t i = 0; i < size; i++) {
+					val[i] = (U)*reinterpret_cast<T*>(p);
+					p += sizeof(T);
+			}
 		}
 	}
 
 	//Dynamic array of object
-	template<class U>
-	void readDynArray(const char* fieldName, std::vector<U>& val) {
+	template<typename T>
+	typename std::enable_if<!std::is_fundamental<T>::value, void>::type
+	readDynArray(const char* fieldName, std::vector<T>& val) {
 		auto it = val.begin();
 		auto itEnd = val.end();
 		for(; it != itEnd; ++it)
-			read(fieldName, *it);
+			read<T>(fieldName, *it);
 	}
 
 	//read size for objects (std:: containers)
