@@ -19,7 +19,7 @@ void ClientGameSession::onConnected() {
 
 	loginInGameServerMsg.account = auth->getAccountName();
 	loginInGameServerMsg.one_time_key = auth->getOnTimePassword();
-	sendPacket(loginInGameServerMsg, EPIC_9_1);
+	sendPacket(loginInGameServerMsg, EPIC_LATEST);
 }
 
 void ClientGameSession::onDisconnected(bool causedByRemote) {

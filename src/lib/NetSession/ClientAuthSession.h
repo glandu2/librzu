@@ -39,7 +39,7 @@ class RZU_EXTERN ClientAuthSession : public EncryptedSession<PacketSession>
 		~ClientAuthSession();
 
 		using EncryptedSession<PacketSession>::connect;
-		bool connect(const std::string& ip, uint16_t port, const std::string& account, const std::string& password, AuthCipherMethod method = ACM_DES, const std::string& version = "200701120");
+		bool connect(const std::string& ip, uint16_t port, const std::string& account, const std::string& password, AuthCipherMethod method = ACM_DES, const std::string& version = "205001120");
 		void close();
 
 		void retreiveServerList();

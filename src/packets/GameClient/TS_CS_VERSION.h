@@ -7,8 +7,8 @@
 struct TS_CS_VERSION : public TS_MESSAGE
 {
 	char szVersion[20];
-	static const uint16_t packetID = 50;
-	static const uint16_t packetIDv2 = 51;
+	static const uint16_t packetIDv1 = 50;
+	static const uint16_t packetID = 51;
 };
 #pragma pack(pop)
 

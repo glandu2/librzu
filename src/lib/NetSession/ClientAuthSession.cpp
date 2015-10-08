@@ -111,7 +111,7 @@ void ClientAuthSession::onPacketReceived(const TS_MESSAGE* packetData) {
 		}
 
 		case TS_AC_SERVER_LIST::packetID: {
-			packetData->process(this, &ClientAuthSession::onPacketServerList, EPIC_9_1);
+			packetData->process(this, &ClientAuthSession::onPacketServerList, EPIC_LATEST);
 			break;
 		}
 
