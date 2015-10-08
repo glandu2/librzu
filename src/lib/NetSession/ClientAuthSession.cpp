@@ -251,7 +251,7 @@ void ClientAuthSession::onPacketServerList(const TS_AC_SERVER_LIST* packet) {
 
 	selectedServer = 0;
 
-	for(size_t i = 0; i < serverList.size(); ++i) {
+	for(size_t i = 0; i < packetServerList.size(); ++i) {
 		currentServerInfo.serverId = packetServerList[i].server_idx;
 		currentServerInfo.serverIp = packetServerList[i].server_ip;
 		currentServerInfo.serverPort = packetServerList[i].server_port;
