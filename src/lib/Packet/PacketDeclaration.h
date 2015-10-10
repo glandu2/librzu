@@ -362,9 +362,9 @@ getSizeOf(const T& value, int version) {
 
 #define CREATE_PACKET_SERIALIZATION_HEADER \
 	uint32_t size = getSize(buffer->getVersion()); \
-	buffer->write<uint32_t>("size", size); \
-	buffer->write<uint16_t>("id", packetID); \
-	buffer->write<uint8_t>("msg_checksum", getMessageChecksum(size, packetID));
+	buffer->template write<uint32_t>("size", size); \
+	buffer->template write<uint16_t>("id", packetID); \
+	buffer->template write<uint8_t>("msg_checksum", getMessageChecksum(size, packetID));
 
 #define CREATE_PACKET_DESERIALIZATION_HEADER \
 	buffer->discard("size", 4); \
@@ -391,9 +391,9 @@ getSizeOf(const T& value, int version) {
 	uint32_t size = getSize(buffer->getVersion()); \
 	uint16_t id; \
 	name_ ## _ID(SERIALISATION_F_ID) \
-	buffer->write<uint32_t>("size", size); \
-	buffer->write<uint16_t>("id", id); \
-	buffer->write<uint8_t>("msg_checksum", getMessageChecksum(size, id));
+	buffer->template write<uint32_t>("size", size); \
+	buffer->template write<uint16_t>("id", id); \
+	buffer->template write<uint8_t>("msg_checksum", getMessageChecksum(size, id));
 
 #define CREATE_PACKET_VER_ID_DESERIALIZATION_HEADER \
 	buffer->discard("size", 4); \

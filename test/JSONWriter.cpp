@@ -77,7 +77,7 @@ public:
 
 	//Fixed array
 	template<typename T>
-	void writeArray(const char* fieldName, const T* val, int size) {
+	void writeArray(const char* fieldName, const T* val, size_t size) {
 		printIdent();
 		if(fieldName)
 			std::cout << '\"' << fieldName << "\": ";
@@ -96,7 +96,7 @@ public:
 	}
 
 	//String
-	void writeArray(const char* fieldName, const char* val, int size) {
+	void writeArray(const char* fieldName, const char* val, size_t size) {
 		printIdent();
 		std::cout << '\"' << fieldName << "\": \"" << val << "\"";
 	}
@@ -145,17 +145,17 @@ public:
 	//Fixed array of primitive
 	template<typename T>
 	typename std::enable_if<std::is_fundamental<T>::value, void>::type
-	readArray(const char*, T* val, int size) {
+	readArray(const char*, T* val, size_t size) {
 	}
 
 	//Fixed array of objects
 	template<typename T>
 	typename std::enable_if<!std::is_fundamental<T>::value, void>::type
-	readArray(const char*, T* val, int size) {
+	readArray(const char*, T* val, size_t size) {
 	}
 
 	//String
-	void readArray(const char*, std::string& val, int size) {
+	void readArray(const char*, std::string& val, size_t size) {
 	}
 
 	//Dynamic array of object
