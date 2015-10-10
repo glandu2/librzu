@@ -1,6 +1,7 @@
 #include "ConfigValue.h"
 #include "Core/Utils.h"
 #include <stdlib.h>
+#include <string.h>
 
 ConfigValue::ConfigValue(Type type)
 	: keyName(nullptr), type(type), hidden(false)
