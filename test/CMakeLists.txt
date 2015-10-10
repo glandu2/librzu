@@ -1,10 +1,4 @@
-cmake_minimum_required(VERSION 2.8)
-
-if(BUILD_SHARED_LIBS)
-  add_definitions(-DUSING_UV_SHARED)
-  add_definitions(-DUSING_RZU_SHARED)
-endif()
-include_directories(${RZU_INCLUDE})
+cmake_minimum_required(VERSION 2.8.12)
 
 add_executable("${TARGET_NAME}_json_test" "JSONWriter.cpp")
 target_link_libraries("${TARGET_NAME}_json_test" rzu)
