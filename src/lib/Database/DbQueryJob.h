@@ -192,7 +192,7 @@ void DbQueryJob<DbMappingClass>::addParam(const char* columnName, size_t memberO
 	sprintf(configName, "sql.%s.param.%s", SQL_CONFIG_NAME, columnName);
 	dbBinding->addParameter(DbQueryBinding::ParameterBinding(
 							SQL_PARAM_INPUT,
-							ConfigInfo::get()->createValue<cval>(configName, (int)dbBinding->getParameterCount() + 1),
+							ConfigInfo::get()->createValue<cval>(configName, (int)dbBinding->getParameterCount() + 1, true),
 							DbTypeBinding<ValueFieldType>::C_TYPE,
 							DbTypeBinding<ValueFieldType>::SQL_TYPE,
 							DbTypeBinding<ValueFieldType>::SQL_SIZE,
@@ -209,7 +209,7 @@ void DbQueryJob<DbMappingClass>::addOutputParam(const char* columnName, size_t m
 	sprintf(configName, "sql.%s.outparam.%s", SQL_CONFIG_NAME, columnName);
 	dbBinding->addParameter(DbQueryBinding::ParameterBinding(
 							SQL_PARAM_OUTPUT,
-							ConfigInfo::get()->createValue<cval>(configName, (int)dbBinding->getParameterCount() + 1),
+							ConfigInfo::get()->createValue<cval>(configName, (int)dbBinding->getParameterCount() + 1, true),
 							DbTypeBinding<ValueFieldType>::C_TYPE,
 							DbTypeBinding<ValueFieldType>::SQL_TYPE,
 							DbTypeBinding<ValueFieldType>::SQL_SIZE,
@@ -225,7 +225,7 @@ void DbQueryJob<DbMappingClass>::addColumn(const char* columnName, size_t member
 	char configName[512];
 	sprintf(configName, "sql.%s.column.%s", SQL_CONFIG_NAME, columnName);
 	dbBinding->addColumn(DbQueryBinding::ColumnBinding(
-							 ConfigInfo::get()->createValue<cval>(configName, columnName),
+							 ConfigInfo::get()->createValue<cval>(configName, columnName, true),
 							 DbTypeBinding<ValueFieldType>::C_TYPE,
 							 IsStdString<ValueFieldType>::value,
 							 memberOffset,
@@ -253,9 +253,9 @@ void DbQueryJob<DbMappingClass>::createBinding(DbConnectionPool *dbConnectionPoo
 	sprintf(queryConfigName, "sql.%s.query", SQL_CONFIG_NAME);
 	assert(dbBinding == nullptr);
 	dbBinding = new DbQueryBinding(dbConnectionPool,
-							  ConfigInfo::get()->createValue<cval>(enableConfigName, true),
+							  ConfigInfo::get()->createValue<cval>(enableConfigName, true, true),
 							  connectionString,
-							  ConfigInfo::get()->createValue<cval>(queryConfigName, query),
+							  ConfigInfo::get()->createValue<cval>(queryConfigName, query, true),
 							  executeMode);
 }
 

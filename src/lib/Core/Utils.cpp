@@ -325,6 +325,96 @@ void Utils::stringFormatv(std::string& dest, const char* message, va_list args) 
 	va_end(argsFor2ndPass);
 }
 
+bool Utils::stringReplace(std::string &str, const std::string &from, const std::string &to) {
+	size_t start_pos = str.find(from);
+	if(start_pos == std::string::npos)
+		return false;
+	str.replace(start_pos, from.length(), to);
+	return true;
+}
+
+void Utils::stringReplaceAll(std::string& str, const std::string& from, const std::string& to) {
+	if(from.empty())
+		return;
+	size_t start_pos = 0;
+	while((start_pos = str.find(from, start_pos)) != std::string::npos) {
+		str.replace(start_pos, from.length(), to);
+		start_pos += to.length(); // In case 'to' contains 'from', like replacing 'x' with 'yx'
+	}
+}
+
+bool Utils::stringWildcardMatch(const char* pTameText, const char* pWildText) {
+	// http://www.drdobbs.com/architecture-and-design/matching-wildcards-an-empirical-way-to-t/240169123
+	// These two values are set when we observe a wildcard character.  They
+	// represent the locations, in the two strings, from which we start once
+	// we've observed it.
+	//
+	const char *pTameBookmark = nullptr;
+	const char *pWildBookmark = nullptr;
+
+	// Walk the text strings one character at a time.
+	while (1) {
+		// How do you match a unique text string?
+		if (*pWildText == '*') {
+			// Easy: unique up on it!
+			while (*(++pWildText) == '*') {} // "xy" matches "x**y"
+
+			if (!*pWildText)
+				return true;           // "x" matches "*"
+
+			if (*pWildText != '?') {
+				// Fast-forward to next possible match.
+				while (*pTameText != *pWildText) {
+					if (!(*(++pTameText)))
+						return false;  // "x" doesn't match "*y*"
+				}
+			}
+
+			pWildBookmark = pWildText;
+			pTameBookmark = pTameText;
+		} else if (*pTameText != *pWildText && *pWildText != '?') {
+			// Got a non-match.  If we've set our bookmarks, back up to one
+			// or both of them and retry.
+			//
+			if (pWildBookmark) {
+				if (pWildText != pWildBookmark) {
+					pWildText = pWildBookmark;
+
+					if (*pTameText != *pWildText) {
+						// Don't go this far back again.
+						pTameText = ++pTameBookmark;
+						continue;      // "xy" matches "*y"
+					} else {
+						pWildText++;
+					}
+				}
+
+				if (*pTameText) {
+					pTameText++;
+					continue;          // "mississippi" matches "*sip*"
+				}
+			}
+
+			return false;              // "xy" doesn't match "x"
+		}
+
+		pTameText++;
+		pWildText++;
+
+		// How do you match a tame text string?
+		if (!*pTameText) {
+			// The tame way: unique up on it!
+			while (*pWildText == '*')
+				pWildText++;           // "x" matches "x*"
+
+			if (!*pWildText)
+				return true;           // "x" matches "x"
+
+			return false;              // "x" doesn't match "xy"
+		}
+	}
+}
+
 void Utils::stringFormat(std::string& dest, const char* message, ...) {
 	va_list args;
 	va_start(args, message);

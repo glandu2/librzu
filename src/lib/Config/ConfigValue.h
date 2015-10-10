@@ -19,6 +19,7 @@ public:
 	virtual ~ConfigValue() {}
 
 	Type getType() { return type; }
+	char getTypeLetter();
 	void setKeyName(const std::string* keyName) { this->keyName = keyName; }
 
 	virtual bool getBool();
@@ -32,16 +33,18 @@ public:
 	virtual std::string getString(const char* def);
 	virtual std::string getString(const std::string& def);
 
-	virtual void setBool(bool def = false);
-	virtual void setInt(int def = 0);
-	virtual void setFloat(float def = 0.0);
-	virtual void setString(const char* def = nullptr);
-	virtual void setString(const std::string& def = std::string());
+	virtual void setBool(bool val);
+	virtual void setInt(int val);
+	virtual void setFloat(float val);
+	virtual void setString(const char* val);
+	virtual void setString(const std::string& val);
 
 	virtual bool isDefault();
 
 	void setHidden(bool enable) { hidden = enable; }
 	bool isHidden() { return hidden; }
+
+	void print();
 
 protected:
 	void wrongType(Type expectedType);

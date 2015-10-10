@@ -5,6 +5,7 @@
 #include "Config/GlobalCoreConfig.h"
 #include <map>
 #include "Console/ConsoleCommands.h"
+#include "Core/Utils.h"
 
 ConfigInfo::~ConfigInfo() {
 	for(auto it = config.begin(); it != config.end(); ++it) {
@@ -20,9 +21,9 @@ void ConfigInfo::init(int argc, char **argv) {
 	//Set all keys given on the command line to overwrite config file values
 	parseCommandLine(argc, argv);
 
-	ConsoleCommands::get()->addCommand("config.get", "get", 1, &commandGetEnv,
+	ConsoleCommands::get()->addCommand("config.get", "get", 0, 1, &commandGetEnv,
 									   "Get a config value",
-									   "config.get <config> : get <config> value\r\n"
+									   "config.get <config> : get <config> value. <config> can contains wildcards (* and ?)\r\n"
 									   "   example : config.get core.log.level\r\n");
 
 	ConsoleCommands::get()->addCommand("config.set", "set", 2, &commandSetEnv,
@@ -87,23 +88,7 @@ void ConfigInfo::parseCommandLine(int argc, char **argv, bool onlyConfigFileLoca
 			continue;
 		}
 
-		switch(v->getType()) {
-			case ConfigValue::Bool:
-				v->setBool(!strcmp(value, "true") || !strcmp(value, "1"));
-				break;
-
-			case ConfigValue::Integer:
-				v->setInt(strtol(value, nullptr, 0));
-				break;
-
-			case ConfigValue::Float:
-				v->setFloat((float)atof(value));
-				break;
-
-			case ConfigValue::String:
-				v->setString(value);
-				break;
-		}
+		v->setString(value);
 	}
 }
 
@@ -223,23 +208,7 @@ bool ConfigInfo::readFile(const char* filename, int fileDepth) {
 				continue;
 			}
 
-			switch(v->getType()) {
-				case ConfigValue::Bool:
-					v->setBool(!strcmp(value.c_str(), "true") || !strcmp(value.c_str(), "1"));
-					break;
-
-				case ConfigValue::Integer:
-					v->setInt(strtol(value.c_str(), nullptr, 0));
-					break;
-
-				case ConfigValue::Float:
-					v->setFloat((float)atof(value.c_str()));
-					break;
-
-				case ConfigValue::String:
-					v->setString(value);
-					break;
-			}
+			v->setString(value.c_str());
 		}
 	}
 
@@ -257,33 +226,12 @@ void ConfigInfo::dump(bool showDefault) {
 
 	for(it = ordered.cbegin(), itEnd = ordered.cend(); it != itEnd; ++it) {
 		ConfigValue* v = it->second;
-		char type = 'd';
-		std::string value;
 
-		if(v->isHidden() == false || GlobalCoreConfig::get()->app.showHiddenConfig.get())
-			value = v->getString();
-		else
-			value = "<hidden>";
+		if(v->isHidden() && !GlobalCoreConfig::get()->app.showHiddenConfig.get())
+			continue;
 
-		switch(v->getType()) {
-			case ConfigValue::Bool:
-				type = 'B';
-				break;
-
-			case ConfigValue::Integer:
-				type = 'N';
-				break;
-
-			case ConfigValue::Float:
-				type = 'F';
-				break;
-
-			case ConfigValue::String:
-				type = 'S';
-				break;
-		}
 		if(!v->isDefault() || showDefault)
-			log(LL_Info, "%c%c%s:%s\n", type, v->isDefault() ? '*' : ' ', it->first.c_str(), value.c_str());
+			log(LL_Info, "%c%c%s:%s\n", v->getTypeLetter(), v->isDefault() ? '*' : ' ', it->first.c_str(), v->getString().c_str());
 	}
 }
 
@@ -299,62 +247,32 @@ void ConfigInfo::commandSetEnv(IWritableConsole* console, const std::vector<std:
 		return;
 	}
 
-	switch(v->getType()) {
-		case ConfigValue::Bool:
-			v->setBool(!strcmp(value.c_str(), "true") || !strcmp(value.c_str(), "1"));
-			break;
-
-		case ConfigValue::Integer:
-			v->setInt(atoi(value.c_str()));
-			break;
-
-		case ConfigValue::Float:
-			v->setFloat((float)atof(value.c_str()));
-			break;
-
-		case ConfigValue::String:
-			v->setString(value);
-			break;
-	}
-
+	v->setString(value.c_str());
 
 	commandGetEnv(console, args);
 }
 
 void ConfigInfo::commandGetEnv(IWritableConsole* console, const std::vector<std::string>& args) {
-	const std::string& variableName = args[0];
+	const char* pattern = args.size() >= 1 ? args[0].c_str() : "*";
 
-	ConfigValue* v = ConfigInfo::get()->getValue(variableName);
+	std::map<std::string, ConfigValue*> ordered;
 
-	if(v == nullptr) {
-		console->writef("Unknown variable name: %s\r\n", variableName.c_str());
-		return;
+	{
+		std::unordered_map<std::string, ConfigValue*>::const_iterator it, itEnd;
+		for(it = ConfigInfo::get()->config.cbegin(), itEnd = ConfigInfo::get()->config.cend(); it != itEnd; ++it) {
+			if (Utils::stringWildcardMatch(it->first.c_str(), pattern)) {
+				ordered.insert(std::pair<std::string, ConfigValue*>(it->first, it->second));
+			}
+		}
 	}
 
-	std::string val;
-	char type = 'U';
-
-	switch(v->getType()) {
-		case ConfigValue::Bool:
-			type = 'B';
-			val = v->getBool() ? "true" : "false";
-			break;
-
-		case ConfigValue::Integer:
-			type = 'N';
-			val = Utils::convertToString(v->getInt());
-			break;
-
-		case ConfigValue::Float:
-			type = 'F';
-			val = Utils::convertToString(v->getFloat());
-			break;
-
-		case ConfigValue::String:
-			type = 'S';
-			val = v->getString();
-			break;
+	if(!ordered.empty()) {
+		std::map<std::string, ConfigValue*>::const_iterator itOrdered, itEndOrdered;
+		for(itOrdered = ordered.cbegin(), itEndOrdered = ordered.cend(); itOrdered != itEndOrdered; ++itOrdered) {
+			ConfigValue* v = itOrdered->second;
+			console->writef("%c%c%s:%s\r\n", v->getTypeLetter(), v->isDefault() ? '*' : ' ', itOrdered->first.c_str(), v->getString().c_str());
+		}
+	} else {
+		console->writef("No config matching pattern %s\n", pattern);
 	}
-
-	console->writef("%c%c%s:%s\r\n", type, v->isDefault() ? '*' : ' ', variableName.c_str(), val.c_str());
 }

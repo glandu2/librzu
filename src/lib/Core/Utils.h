@@ -44,6 +44,9 @@ public:
 
 	static void stringFormatv(std::string& dest, const char* message, va_list args);
 	static void stringFormat(std::string& dest, const char* message, ...)  PRINTFCHECK(2, 3);
+	static bool stringReplace(std::string& str, const std::string& from, const std::string& to);
+	static void stringReplaceAll(std::string &str, const std::string &from, const std::string &to);
+	static bool stringWildcardMatch(const char *input, const char *pWildText);
 
 	static bool isalpha(char c) { return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z'); }
 	static bool isdigit(char c) { return c >= '0' && c <= '9'; }

@@ -21,6 +21,7 @@ public:
 	void parseCommandLine(int argc, char **argv, bool onlyConfigFileLocation = false);
 	bool readFile(const char *filename, int fileDepth = 0);
 	void dump(bool showDefault = true);
+	void showConfig(ConfigValue* v);
 
 	ConfigValue* getValue(const std::string& key);
 
