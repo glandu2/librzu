@@ -24,7 +24,7 @@
 	simple_ (uint32_t, skin_color) \
 	simple_ (int32_t, faceId) \
 	simple_ (int32_t, hairId) \
-	array_  (char, szName, 19) \
+	string_ (name, 19) \
 	simple_ (int32_t, cell_size) \
 	simple_ (int32_t, guild_id)
 
