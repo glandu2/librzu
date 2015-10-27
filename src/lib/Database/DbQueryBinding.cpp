@@ -24,6 +24,48 @@ DbQueryBinding::DbQueryBinding(DbConnectionPool* dbConnectionPool,
 DbQueryBinding::~DbQueryBinding() {
 }
 
+bool DbQueryBinding::getColumnsMapping(DbConnection* connection, std::vector<const ColumnBinding*>* currentColumnBinding) {
+	bool columnCountOk;
+	bool getDataErrorOccured = false;
+
+	const int columnCount = connection->getColumnNum(&columnCountOk);
+	if(!columnCountOk) {
+		connection->releaseWithError();
+		return false;
+	}
+
+	std::vector<std::string> columnNames;
+	columnNames.reserve(columnCount);
+
+	for(int col = 0; col < columnCount; col++) {
+		char columnName[128];
+		connection->getColumnName(col + 1, columnName, sizeof(columnName));
+		columnNames.push_back(std::string(columnName));
+	}
+
+	currentColumnBinding->resize(columnNames.size());
+	for(size_t i = 0; i < columnBindings.size(); i++) {
+		const ColumnBinding& columnBinding = columnBindings[i];
+		std::string columnBindingName = columnBinding.name.get();
+		bool found = false;
+
+		for(size_t col = 0; col < columnNames.size(); col++) {
+			if(columnNames[col] == columnBindingName) {
+				found = true;
+				(*currentColumnBinding)[col] = &columnBinding;
+				break;
+			}
+		}
+
+		if(!found) {
+			log(LL_Warning, "Column %s not found in query result set\n", columnBindingName.c_str());
+			getDataErrorOccured = true;
+		}
+	}
+
+	return !getDataErrorOccured;
+}
+
 bool DbQueryBinding::process(IDbQueryJob* queryJob, void* inputInstance) {
 	struct UnicodeString {
 		std::string str;
@@ -31,7 +73,6 @@ bool DbQueryBinding::process(IDbQueryJob* queryJob, void* inputInstance) {
 	};
 
 	DbConnection* connection;
-	bool columnCountOk;
 	std::vector<UnicodeString> unicodeStrings;
 
 	if(enabled.get() == false) {
@@ -96,58 +137,46 @@ bool DbQueryBinding::process(IDbQueryJob* queryJob, void* inputInstance) {
 
 	bool getDataErrorOccured = false; //if true, show query after all getData
 	if(mode != EM_NoRow) {
-		bool firstRowFetched = false;
-		while(connection->fetch() && (firstRowFetched == false || mode == EM_MultiRows)) {
-			firstRowFetched = true;
+		log(LL_Trace, "Fetching data\n");
+		std::vector<const ColumnBinding*> currentColumnBinding;
+		getDataErrorOccured = !getColumnsMapping(connection, &currentColumnBinding);
 
-			log(LL_Trace, "Fetching data\n");
-			const int columnCount = connection->getColumnNum(&columnCountOk);
+		if(!currentColumnBinding.empty()) {
+			size_t rowFetched = 0;
+			while(connection->fetch() && (rowFetched == 0 || mode == EM_MultiRows)) {
+				rowFetched++;
 
-			if(!columnCountOk) {
-				connection->releaseWithError();
-				return false;
-			}
+				void* outputInstance = queryJob->createNextLineInstance();
 
-			void* outputInstance = queryJob->createNextLineInstance();
+				for(int col = 0; col < (int)currentColumnBinding.size(); col++) {
+					const int columnIndex = col + 1;
+					SQLLEN StrLen_Or_Ind;
 
-			char columnName[32];
-			for(int col = 0; col < columnCount; col++) {
-				const int columnIndex = col + 1;
-				SQLLEN StrLen_Or_Ind;
-
-				connection->getColumnName(columnIndex, columnName, sizeof(columnName));
-
-				//TODO: cache column to get indices
-				for(size_t i = 0; i < columnBindings.size(); i++) {
-					const ColumnBinding& columnBinding = columnBindings.at(i);
-
-					if(!strcmp(columnName, columnBinding.name.get().c_str())) {
+					const ColumnBinding* columnBinding = currentColumnBinding[col];
+					if(columnBinding) {
 						bool getDataSucceded;
-						if(columnBinding.isStdString)
-						{
-							std::string* str = (std::string*) ((char*)outputInstance + columnBinding.bufferOffset);
+						if(columnBinding->isStdString) {
+							std::string* str = (std::string*) ((char*)outputInstance + columnBinding->bufferOffset);
 							getDataSucceded = getString(connection, columnIndex, str);
 						} else {
-							getDataSucceded = connection->getData(columnIndex, columnBinding.cType,
-																  (char*)outputInstance + columnBinding.bufferOffset, columnBinding.bufferSize,
+							getDataSucceded = connection->getData(columnIndex, columnBinding->cType,
+																  (char*)outputInstance + columnBinding->bufferOffset, columnBinding->bufferSize,
 																  &StrLen_Or_Ind);
 						}
 
 						if(!getDataSucceded) {
-							log(LL_Error, "Failed to retrieve data for column %s\n", columnName);
+							log(LL_Error, "Failed to retrieve data for column %s(%d) for line %d\n", columnBinding->name.get().c_str(), columnIndex, (int)rowFetched);
 							getDataErrorOccured = true;
 						}
 
-						if(columnBinding.isNullPtr != (size_t)-1)
-							*(bool*)((char*)outputInstance + columnBinding.isNullPtr) = StrLen_Or_Ind == SQL_NULL_DATA;
-
-						break;
+						if(columnBinding->isNullPtr != (size_t)-1)
+							*(bool*)((char*)outputInstance + columnBinding->isNullPtr) = StrLen_Or_Ind == SQL_NULL_DATA;
 					}
 				}
-			}
 
-			if(queryJob->onRowDone() == false)
-				break;
+				if(queryJob->onRowDone() == false)
+					break;
+			}
 		}
 	}
 
@@ -183,7 +212,7 @@ bool DbQueryBinding::getString(DbConnection* connection, int columnIndex, std::s
 	if(!connection->getData(columnIndex, SQL_C_BINARY, &dummy, 0, &dataSize, true))
 		return false;
 
-	if(dataSize == SQL_NULL_DATA) {
+	if(dataSize == SQL_NULL_DATA || dataSize == 0) {
 		outString->clear();
 		return true;
 	} else if(dataSize < 0) {
@@ -209,11 +238,11 @@ bool DbQueryBinding::getString(DbConnection* connection, int columnIndex, std::s
 		unicodeBuffer.resize(unicodeBuffer.size()*2);
 	}
 
-	if(isDataNull == SQL_NULL_DATA) {
+	if(isDataNull == SQL_NULL_DATA || ret == SQL_NO_DATA) {
 		outString->clear();
 		return true;
 	} else if(isDataNull < 0) {
-		logStatic(LL_Warning, DbQueryBinding::getStaticClassName(), "getString: isDataNull is negative: %lld\n", (int64_t)isDataNull);
+		logStatic(LL_Warning, DbQueryBinding::getStaticClassName(), "getString: isDataNull is negative: %lld, status: %d\n", (int64_t)isDataNull, ret);
 		return false;
 	} else if(ret == SQL_SUCCESS) {
 		bytesRead += isDataNull;
