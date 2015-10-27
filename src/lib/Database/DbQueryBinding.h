@@ -109,6 +109,7 @@ private:
 	std::vector<ColumnBinding> columnBindings;
 	ExecuteMode mode;
 	int errorCount;
+
 };
 
 #endif // DBQUERYBINDING_H

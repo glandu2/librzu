@@ -15,6 +15,8 @@
 	#endif
 #endif
 
+#define Utils_countOf(a) (sizeof(a)/sizeof(*a))
+
 class IListener;
 template<typename T> class cval;
 
