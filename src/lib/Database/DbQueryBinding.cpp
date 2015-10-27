@@ -17,7 +17,8 @@ DbQueryBinding::DbQueryBinding(DbConnectionPool* dbConnectionPool,
 	  connectionString(connectionString),
 	  query(query),
 	  mode(mode),
-	  errorCount(0)
+	  errorCount(0),
+	  columnMappingErrorsShown(false)
 {
 }
 
@@ -27,6 +28,8 @@ DbQueryBinding::~DbQueryBinding() {
 bool DbQueryBinding::getColumnsMapping(DbConnection* connection, std::vector<const ColumnBinding*>* currentColumnBinding) {
 	bool columnCountOk;
 	bool getDataErrorOccured = false;
+	bool showErrors = columnMappingErrorsShown == false;
+	columnMappingErrorsShown = true;
 
 	const int columnCount = connection->getColumnNum(&columnCountOk);
 	if(!columnCountOk) {
@@ -57,7 +60,7 @@ bool DbQueryBinding::getColumnsMapping(DbConnection* connection, std::vector<con
 			}
 		}
 
-		if(!found) {
+		if(!found && showErrors) {
 			log(LL_Warning, "Column %s not found in query result set\n", columnBindingName.c_str());
 			getDataErrorOccured = true;
 		}
