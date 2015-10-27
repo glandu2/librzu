@@ -99,7 +99,7 @@ void ConfigValue::setString(const char* val) {
 			break;
 
 		case ConfigValue::Integer:
-			setInt(atoi(val));
+			setInt(strtol(val, nullptr, 0));
 			break;
 
 		case ConfigValue::Float:
