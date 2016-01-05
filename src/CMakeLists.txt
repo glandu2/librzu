@@ -19,6 +19,9 @@ target_include_directories(${TARGET_NAME}
   PUBLIC lib packets ${ODBC_INCLUDE_DIR}
   PRIVATE ${OPENSSL_INCLUDE_DIR}
 )
+if(CMAKE_SYSTEM_NAME MATCHES "Windows")
+	target_compile_definitions(${TARGET_NAME} PRIVATE NOMINMAX)
+endif()
 
 if(BUILD_SHARED_LIBS)
   target_compile_definitions(${TARGET_NAME}
@@ -27,7 +30,7 @@ if(BUILD_SHARED_LIBS)
   )
 endif()
 
-if(DETECTED_OS_WIN)
+if(CMAKE_SYSTEM_NAME MATCHES "Windows")
     find_file(OPENSSL_LIBEAY32_DLL "libeay32.dll" ${OPENSSL_INCLUDE_DIR}/../bin NO_DEFAULT_PATH)
     if(OPENSSL_LIBEAY32_DLL)
         install(PROGRAMS ${OPENSSL_LIBEAY32_DLL} DESTINATION ./ COMPONENT "binaries")

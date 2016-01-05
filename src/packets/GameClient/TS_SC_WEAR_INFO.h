@@ -14,7 +14,7 @@
 	array_(def)(uint32_t, wear_item_level_info, 24) \
 	array_(impl)(uint32_t, wear_item_level_info, 14, version < EPIC_4_1) \
 	array_(impl)(uint32_t, wear_item_level_info, 24, version >= EPIC_4_1) \
-	array_(uint8_t, wear_item_elemental_type, 24, version >= EPIC_4_1) \
+	array_(uint8_t, wear_item_elemental_type, 24, version >= EPIC_6_1) \
 	array_(uint32_t, wear_appearance_code, 24, version >= EPIC_8_1)
 
 CREATE_PACKET(TS_SC_WEAR_INFO, 202);

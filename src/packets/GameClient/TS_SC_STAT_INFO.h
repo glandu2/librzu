@@ -40,15 +40,15 @@ CREATE_STRUCT(TS_STAT_INFO_BASE);
   simple_(int16_t, nHPRegenPoint) \
   simple_(int16_t, nMPRegenPercentage) \
   simple_(int16_t, nMPRegenPoint) \
-  simple_(int16_t, nPerfectBlock) \
-  simple_(int16_t, nMagicalDefIgnore) \
-  simple_(int16_t, nMagicalDefIgnoreRatio) \
-  simple_(int16_t, nPhysicalDefIgnore) \
-  simple_(int16_t, nPhysicalDefIgnoreRatio) \
-  simple_(int16_t, nMagicalPenetration) \
-  simple_(int16_t, nMagicalPenetrationRatio) \
-  simple_(int16_t, nPhysicalPenetration) \
-  simple_(int16_t, nPhysicalPenetrationRatio)
+  simple_(int16_t, nPerfectBlock, version >= EPIC_7_3, 20) \
+  simple_(int16_t, nMagicalDefIgnore, version >= EPIC_7_3, 20) \
+  simple_(int16_t, nMagicalDefIgnoreRatio, version >= EPIC_7_3, 20) \
+  simple_(int16_t, nPhysicalDefIgnore, version >= EPIC_7_3, 20) \
+  simple_(int16_t, nPhysicalDefIgnoreRatio, version >= EPIC_7_3, 20) \
+  simple_(int16_t, nMagicalPenetration, version >= EPIC_7_3, 20) \
+  simple_(int16_t, nMagicalPenetrationRatio, version >= EPIC_7_3, 20) \
+  simple_(int16_t, nPhysicalPenetration, version >= EPIC_7_3, 20) \
+  simple_(int16_t, nPhysicalPenetrationRatio, version >= EPIC_7_3, 20)
 CREATE_STRUCT(TS_STAT_INFO_ATTRIB);
 
 #define TS_SC_STAT_INFO_DEF(simple_, array_, dynarray_, count_, string_, dynstring_) \

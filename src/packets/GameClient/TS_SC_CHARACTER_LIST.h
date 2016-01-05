@@ -8,10 +8,10 @@
 	simple_ (uint32_t, sex) \
 	simple_ (uint32_t, race) \
 	array_  (uint32_t, model_id, 5) \
-	simple_ (uint32_t, hair_color_index, version >= EPIC_4_1) \
-	simple_ (uint32_t, hair_color_rgb, version >= EPIC_4_1) \
-	simple_ (uint32_t, hide_equip_flag, version >= EPIC_4_1) \
-	simple_ (uint32_t, texture_id, version >= EPIC_4_1) \
+	simple_ (uint32_t, hair_color_index, version >= EPIC_7_1) \
+	simple_ (uint32_t, hair_color_rgb, version >= EPIC_7_1) \
+	simple_ (uint32_t, hide_equip_flag, version >= EPIC_7_3) \
+	simple_ (uint32_t, texture_id, version >= EPIC_7_1) \
 	array_(def)(uint32_t, wear_info, 24) \
 	array_(impl)(uint32_t, wear_info, 14, version < EPIC_4_1) \
 	array_(impl)(uint32_t, wear_info, 24, version >= EPIC_4_1) \
@@ -33,7 +33,7 @@
 	array_(def)(uint32_t, wear_item_level_info, 24) \
 	array_(impl)(uint32_t, wear_item_level_info, 14, version < EPIC_4_1) \
 	array_(impl)(uint32_t, wear_item_level_info, 24, version >= EPIC_4_1) \
-	array_  (uint8_t, wear_item_elemental_type, 24, version >= EPIC_4_1) \
+	array_  (uint8_t, wear_item_elemental_type, 24, version >= EPIC_6_1) \
 	array_  (uint32_t, wear_appearance_code, 24, version >= EPIC_8_1)
 
 CREATE_STRUCT(LOBBY_CHARACTER_INFO); // struct is 304 bytes long in epic2

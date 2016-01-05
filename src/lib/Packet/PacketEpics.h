@@ -5,6 +5,13 @@
 #define EPIC_3 0x030100
 #define EPIC_4_1 0x040100
 #define EPIC_5_1 0x050100
+#define EPIC_5_2 0x050200
+#define EPIC_6_1 0x060100
+#define EPIC_6_2 0x060200
+#define EPIC_7_1 0x070100
+#define EPIC_7_2 0x070200
+#define EPIC_7_3 0x070300
+#define EPIC_7_4 0x070400
 #define EPIC_8_1 0x080100
 #define EPIC_8_1_1_RSA 0x080101
 #define EPIC_9_1 0x090100
