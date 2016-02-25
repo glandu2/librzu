@@ -18,10 +18,10 @@ Log::Log(cval<bool>& enabled, cval<std::string>& fileMaxLevel, cval<std::string>
 	maxQueueSize(maxQueueSize),
 	maxQueueSizeReached(0)
 {
-	construct(enabled, dir, fileName);
-
 	updateFileLevel(this, &fileMaxLevel);
 	updateConsoleLevel(this, &consoleMaxLevel);
+
+	construct(enabled, dir, fileName);
 
 	fileMaxLevel.addListener(this, &updateFileLevel);
 	consoleMaxLevel.addListener(this, &updateConsoleLevel);
@@ -35,10 +35,10 @@ Log::Log(cval<bool>& enabled, Level fileMaxLevel, Level consoleMaxLevel, cval<st
 	maxQueueSize(maxQueueSize),
 	maxQueueSizeReached(0)
 {
-	construct(enabled, dir, fileName);
-
 	this->fileMaxLevel = fileMaxLevel;
 	this->consoleMaxLevel = consoleMaxLevel;
+
+	construct(enabled, dir, fileName);
 }
 
 void Log::construct(cval<bool>& enabled, cval<std::string>& dir, cval<std::string>& fileName) {
@@ -313,8 +313,16 @@ void Log::logWritterThread() {
 
 		size = messagesToWrite->size();
 
+		bool messageUseFile = false;
+		for(i = 0; i < size; i++) {
+			if((*messagesToWrite)[i]->writeToFile) {
+				messageUseFile = true;
+				break;
+			}
+		}
+
 		//Check if the date changed, if so, update the log file to us a new one (filename has timestamp)
-		if(size > 0) {
+		if(size > 0 && messageUseFile) {
 			time_t firstMsgTime = messagesToWrite->at(0)->time;
 
 			Utils::getGmTime(firstMsgTime, &localtm);
