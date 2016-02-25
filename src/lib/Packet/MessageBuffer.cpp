@@ -31,8 +31,10 @@ Stream::WriteRequest *MessageBuffer::getWriteRequest() {
 bool MessageBuffer::checkFinalSize() {
 	uint32_t msgSize = *reinterpret_cast<const uint32_t*>(buffer->buffer.base);
 	bool ok = !bufferOverflow && msgSize == getSize() && uint32_t(p - buffer->buffer.base) == msgSize;
-	if(!ok)
-		log(LL_Error, "Packet has invalid data: id: %d, size: %d, field: %s\n", getMessageId(), getSize(), getFieldInOverflow().c_str());
+	if(!ok) {
+		log(LL_Error, "Packet has invalid data: id: %d, packet size: %d, buffer size: %d, offset: %d, field: %s\n",
+			getMessageId(), msgSize, getSize(), uint32_t(p - buffer->buffer.base), bufferOverflow ? getFieldInOverflow().c_str() : "<no overflow>");
+	}
 	return ok;
 }
 
