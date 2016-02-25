@@ -52,7 +52,7 @@ public:
 		};
 
 		SQLSMALLINT way;
-		cval<int>& index;
+		cval<int>* index;
 		SQLSMALLINT cType; //one of SQL_C_* values
 		SQLSMALLINT dbType; //one of SQL_* values
 		SQLLEN dbSize;
@@ -62,12 +62,12 @@ public:
 		size_t infoPtr;
 
 		ParameterBinding(SQLSMALLINT way, cval<int>& index, SQLSMALLINT cType, SQLSMALLINT dbType, SQLULEN dbSize, SQLSMALLINT dbPrecision, bool isStdString, size_t bufferOffset, size_t infoPtr)
-			: way(way), index(index), cType(cType), dbType(dbType), dbSize(dbSize), dbPrecision(dbPrecision), isStdString(isStdString), bufferOffset(bufferOffset), infoPtr(infoPtr) {}
+			: way(way), index(&index), cType(cType), dbType(dbType), dbSize(dbSize), dbPrecision(dbPrecision), isStdString(isStdString), bufferOffset(bufferOffset), infoPtr(infoPtr) {}
 	};
 
 	//Output data mapping to columns
 	struct ColumnBinding {
-		cval<std::string>& name;
+		cval<std::string>* name;
 		SQLSMALLINT cType;
 		bool isStdString;
 		size_t bufferOffset; //use offsetof
@@ -75,7 +75,7 @@ public:
 		size_t isNullPtr;
 
 		ColumnBinding(cval<std::string>& name, SQLSMALLINT cType, bool isStdString, size_t bufferOffset, SQLLEN bufferSize, size_t isNullPtr)
-			: name(name), cType(cType), isStdString(isStdString), bufferOffset(bufferOffset), bufferSize(bufferSize), isNullPtr(isNullPtr) {}
+			: name(&name), cType(cType), isStdString(isStdString), bufferOffset(bufferOffset), bufferSize(bufferSize), isNullPtr(isNullPtr) {}
 	};
 
 	enum ExecuteMode {
@@ -98,8 +98,8 @@ protected:
 	bool getColumnsMapping(DbConnection* connection, std::vector<const ColumnBinding*>* currentColumnBinding);
 
 	size_t getParameterCount() { return parameterBindings.size(); }
-	void addParameter(const ParameterBinding& parameter) { parameterBindings.emplace_back(parameter); }
-	void addColumn(const ColumnBinding& column) { columnBindings.emplace_back(column); }
+	void addParameter(const ParameterBinding& parameter) { parameterBindings.push_back(parameter); }
+	void addColumn(const ColumnBinding& column) { columnBindings.push_back(column); }
 
 private:
 	DbConnectionPool* dbConnectionPool;

@@ -49,7 +49,7 @@ bool DbQueryBinding::getColumnsMapping(DbConnection* connection, std::vector<con
 	currentColumnBinding->resize(columnNames.size());
 	for(size_t i = 0; i < columnBindings.size(); i++) {
 		const ColumnBinding& columnBinding = columnBindings[i];
-		std::string columnBindingName = columnBinding.name.get();
+		std::string columnBindingName = columnBinding.name->get();
 		bool found = false;
 
 		for(size_t col = 0; col < columnNames.size(); col++) {
@@ -115,7 +115,7 @@ bool DbQueryBinding::process(IDbQueryJob* queryJob, void* inputInstance) {
 				setString(connection, paramBinding, StrLen_or_Ind, *str, unicodeString.str);
 				unicodeString.strLen = unicodeString.str.size();
 			} else {
-				connection->bindParameter(paramBinding.index, paramBinding.way,
+				connection->bindParameter(*paramBinding.index, paramBinding.way,
 										  paramBinding.cType,
 										  paramBinding.dbType, paramBinding.dbSize, paramBinding.dbPrecision,
 										  (char*)inputInstance + paramBinding.bufferOffset, 0,
@@ -168,7 +168,7 @@ bool DbQueryBinding::process(IDbQueryJob* queryJob, void* inputInstance) {
 						}
 
 						if(!getDataSucceded) {
-							log(LL_Error, "Failed to retrieve data for column %s(%d) for line %d\n", columnBinding->name.get().c_str(), columnIndex, (int)rowFetched);
+							log(LL_Error, "Failed to retrieve data for column %s(%d) for line %d\n", columnBinding->name->get().c_str(), columnIndex, (int)rowFetched);
 							getDataErrorOccured = true;
 						}
 
@@ -197,7 +197,7 @@ void DbQueryBinding::setString(DbConnection* connection, const ParameterBinding&
 	localToUtf16.convert(str, outStr, 2);
 
 	// If the string is empty, put a size of 1 else SQL server complains about invalid precision
-	connection->bindParameter(paramBinding.index, SQL_PARAM_INPUT,
+	connection->bindParameter(*paramBinding.index, SQL_PARAM_INPUT,
 							  SQL_C_WCHAR,
 							  SQL_WVARCHAR, str.size() > 0 ? str.size() : 1, paramBinding.dbPrecision,
 							  (SQLPOINTER)outStr.data(), 0,
