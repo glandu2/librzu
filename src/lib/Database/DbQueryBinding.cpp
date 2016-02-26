@@ -6,6 +6,7 @@
 #include "Config/ConfigParamVal.h"
 #include "Core/CharsetConverter.h"
 #include "Config/GlobalCoreConfig.h"
+#include "Core/PrintfFormats.h"
 
 DbQueryBinding::DbQueryBinding(DbConnectionPool* dbConnectionPool,
 					   cval<bool>& enabled,
@@ -219,7 +220,7 @@ bool DbQueryBinding::getString(DbConnection* connection, int columnIndex, std::s
 		outString->clear();
 		return true;
 	} else if(dataSize < 0) {
-		logStatic(LL_Warning, DbQueryBinding::getStaticClassName(), "getString: dataSize is negative: %lld\n", (int64_t)dataSize);
+		logStatic(LL_Warning, DbQueryBinding::getStaticClassName(), "getString: dataSize is negative: %" PRId64 "\n", (int64_t)dataSize);
 		return false;
 	}
 
@@ -245,7 +246,7 @@ bool DbQueryBinding::getString(DbConnection* connection, int columnIndex, std::s
 		outString->clear();
 		return true;
 	} else if(isDataNull < 0) {
-		logStatic(LL_Warning, DbQueryBinding::getStaticClassName(), "getString: isDataNull is negative: %lld, status: %d\n", (int64_t)isDataNull, ret);
+		logStatic(LL_Warning, DbQueryBinding::getStaticClassName(), "getString: isDataNull is negative: %" PRId64 ", status: %d\n", (int64_t)isDataNull, ret);
 		return false;
 	} else if(ret == SQL_SUCCESS) {
 		bytesRead += isDataNull;
