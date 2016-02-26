@@ -30,6 +30,9 @@ protected:
 	virtual void onStateChanged(State oldState, State newState);
 
 private:
+	static void enableFastPath(uv_tcp_t* socket);
+
+private:
 	uv_tcp_t socket;
 };
 

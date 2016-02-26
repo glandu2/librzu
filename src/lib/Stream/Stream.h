@@ -132,8 +132,8 @@ protected:
 	uint32_t localIp;
 	uint16_t remotePort;
 	uint16_t localPort;
-	char remoteIpStr[INET_ADDRSTRLEN];
-	char localIpStr[INET_ADDRSTRLEN];
+	char remoteIpStr[INET6_ADDRSTRLEN];
+	char localIpStr[INET6_ADDRSTRLEN];
 	bool logPackets; //set to false when logging is done in a derived class
 
 private:
