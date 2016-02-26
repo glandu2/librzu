@@ -23,8 +23,8 @@
 	simple_(def)(int32_t, max_mp) \
 	simple_(impl)(int32_t, max_mp, version >= EPIC_7_1) \
 	simple_(impl)(int16_t, max_mp, version <  EPIC_7_1) \
-	simple_ (int32_t, havoc, version >= EPIC_4_1) \
-	simple_ (int32_t, max_havoc, version >= EPIC_4_1) \
+	simple_ (int32_t, havoc, version >= EPIC_4_1 && version < EPIC_9_2) \
+	simple_ (int32_t, max_havoc, version >= EPIC_4_1 && version < EPIC_9_2) \
 	simple_ (int32_t, sex) \
 	simple_ (int32_t, race) \
 	simple_ (uint32_t, skin_color, version >= EPIC_4_1) \
@@ -32,8 +32,13 @@
 	simple_ (int32_t, hairId) \
 	string_ (name, 19) \
 	simple_ (int32_t, cell_size) \
-	simple_ (int32_t, guild_id, version >= EPIC_5_1)
+	simple_ (int32_t, guild_id, version >= EPIC_5_1) \
+	simple_ (int32_t, unknown, version >= EPIC_9_2)
 
-CREATE_PACKET(TS_SC_LOGIN_RESULT, 4);
+#define TS_SC_LOGIN_RESULT_ID(X) \
+	X(4, version < EPIC_9_2) \
+	X(64, version >= EPIC_9_2)
+
+CREATE_PACKET_VER_ID(TS_SC_LOGIN_RESULT);
 
 #endif // PACKETS_TS_SC_LOGIN_RESULT_H
