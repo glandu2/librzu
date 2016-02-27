@@ -5,13 +5,15 @@
 #include <string>
 #include <sstream>
 
-void TelnetSession::onDataReceived() {
+EventChain<SocketSession> TelnetSession::onDataReceived() {
 	std::vector<char> buffer;
 
 	if(getStream()->getAvailableBytes() > 0) {
 		getStream()->readAll(&buffer);
 		parseData(buffer);
 	}
+
+	return SocketSession::onDataReceived();
 }
 
 void TelnetSession::parseData(const std::vector<char>& data) {

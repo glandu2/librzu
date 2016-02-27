@@ -4,6 +4,7 @@
 #include "Core/Object.h"
 #include "Core/IListener.h"
 #include "Stream/Stream.h"
+#include "Core/EventChain.h"
 #include <list>
 
 class SessionServerCommon;
@@ -26,11 +27,11 @@ public:
 	virtual size_t write(const void *buffer, size_t size) { return stream->write(buffer, size); }
 	Stream::State getState() { return stream ? stream->getState() : Stream::UnconnectedState; }
 
-	virtual void onDataReceived() {}
-	virtual void onConnected() {}
-	virtual void onDisconnected(bool causedByRemote) {}
-	virtual void onStateChanged(Stream::State oldState, Stream::State newState, bool causedByRemote) {}
-	virtual void onError(int err) {}
+	virtual EventChain<SocketSession> onDataReceived() { return EventChain<SocketSession>(); }
+	virtual EventChain<SocketSession> onConnected() { return EventChain<SocketSession>(); }
+	virtual EventChain<SocketSession> onDisconnected(bool causedByRemote) { return EventChain<SocketSession>(); }
+	virtual EventChain<SocketSession> onStateChanged(Stream::State oldState, Stream::State newState, bool causedByRemote) { return EventChain<SocketSession>(); }
+	virtual EventChain<SocketSession> onError(int err) { return EventChain<SocketSession>(); }
 
 	virtual bool hasCustomPacketLogger() { return false; } //used for packet logging
 	static bool hasCustomPacketLoggerStatic() { return false; }

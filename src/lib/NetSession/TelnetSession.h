@@ -12,7 +12,6 @@ public:
 	TelnetSession() {}
 	virtual ~TelnetSession() {}
 
-	virtual void onConnected() {}
 	virtual void onCommand(const std::vector<std::string>& args) = 0;
 
 protected:
@@ -20,7 +19,7 @@ protected:
 	virtual void close() { abortSession(); }
 
 private:
-	void onDataReceived();
+	EventChain<SocketSession> onDataReceived();
 
 	void parseData(const std::vector<char>& data);
 	void parseCommand(const std::string& data);

@@ -60,8 +60,8 @@ class RZU_EXTERN ClientAuthSession : public EncryptedSession<PacketSession>
 		friend class ClientGameSession;
 
 	private:
-		void onConnected();
-		void onDisconnected(bool causedByRemote);
+		EventChain<SocketSession> onConnected();
+		EventChain<SocketSession> onDisconnected(bool causedByRemote);
 		void onPacketAuthPasswordKey(const TS_AC_AES_KEY_IV *packet);
 		void onPacketServerList(const TS_AC_SERVER_LIST *packet);
 		void onPacketSelectServerResult(const TS_AC_SELECT_SERVER* packet);
@@ -69,7 +69,7 @@ class RZU_EXTERN ClientAuthSession : public EncryptedSession<PacketSession>
 
 
 	private:
-		void onPacketReceived(const TS_MESSAGE* packetData);
+		EventChain<PacketSession> onPacketReceived(const TS_MESSAGE* packetData);
 
 	private:
 		struct ServerConnectionInfo {

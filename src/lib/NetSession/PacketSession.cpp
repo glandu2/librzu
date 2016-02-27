@@ -22,6 +22,12 @@ void PacketSession::sendPacket(const TS_MESSAGE* data) {
 	logPacket(true, data);
 }
 
+EventChain<SocketSession> PacketSession::onConnected() {
+	inputBuffer.currentMessageSize = 0;
+	inputBuffer.discardPacket = false;
+	return SocketSession::onConnected();
+}
+
 void PacketSession::dispatchPacket(const TS_MESSAGE* packetData) {
 	//Log before to avoid having logging a packet send after having received this packet before logging this packet
 	logPacket(false, packetData);
@@ -42,14 +48,14 @@ void PacketSession::logPacket(bool outgoing, const TS_MESSAGE* msg) {
 			  int(msg->size - sizeof(TS_MESSAGE)));
 }
 
-void PacketSession::onDataReceived() {
+EventChain<SocketSession> PacketSession::onDataReceived() {
 	Stream* inputStream = getStream();
 	InputBuffer* buffer = &inputBuffer;
 
 	do {
 		// if buffer->currentMessageSize == 0 => waiting for a new message
 		if(buffer->currentMessageSize == 0 && inputStream->getAvailableBytes() < 4) {
-			return;
+			break;
 		} else if(buffer->currentMessageSize == 0) {
 			read(&buffer->currentMessageSize, 4);
 			if(buffer->currentMessageSize <= 4)
@@ -75,4 +81,6 @@ void PacketSession::onDataReceived() {
 			buffer->currentMessageSize = 0;
 		}
 	} while((buffer->currentMessageSize == 0 && inputStream->getAvailableBytes() >= 4) || (buffer->currentMessageSize != 0 && inputStream->getAvailableBytes() >= buffer->currentMessageSize));
+
+	return SocketSession::onDataReceived();
 }

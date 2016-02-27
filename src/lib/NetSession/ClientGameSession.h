@@ -20,9 +20,9 @@ protected:
 	virtual void onGameDisconnected() = 0;
 
 private:
-	void onConnected();
-	void onPacketReceived(const TS_MESSAGE *packet);
-	void onDisconnected(bool causedByRemote);
+	EventChain<SocketSession> onConnected();
+	EventChain<PacketSession> onPacketReceived(const TS_MESSAGE *packet);
+	EventChain<SocketSession> onDisconnected(bool causedByRemote);
 
 protected:
 	ClientAuthSession* auth;

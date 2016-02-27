@@ -48,14 +48,15 @@ public:
 	static bool hasCustomPacketLoggerStatic() { return true; }
 
 protected:
+	EventChain<SocketSession> onConnected();
 
-	virtual void onPacketReceived(const TS_MESSAGE* packet) {}
+	virtual EventChain<PacketSession> onPacketReceived(const TS_MESSAGE* packet) { return EventChain<PacketSession>(); }
 
 	void dispatchPacket(const TS_MESSAGE* packetData);
 	virtual void logPacket(bool outgoing, const TS_MESSAGE* msg);
 
 private:
-	void onDataReceived();
+	EventChain<SocketSession> onDataReceived();
 
 private:
 	InputBuffer inputBuffer;

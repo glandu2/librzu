@@ -21,7 +21,7 @@ public:
 	virtual void writef(const char *format, ...) override;
 	virtual void log(const char *message, ...) override;
 protected:
-	void onConnected();
+	EventChain<SocketSession> onConnected();
 	void printPrompt();
 	void onCommand(const std::vector<std::string>& args);
 

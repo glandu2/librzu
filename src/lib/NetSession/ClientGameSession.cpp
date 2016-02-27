@@ -8,7 +8,7 @@ ClientGameSession::ClientGameSession()
 {
 }
 
-void ClientGameSession::onConnected() {
+EventChain<SocketSession> ClientGameSession::onConnected() {
 	TS_CS_VERSION versionMsg;
 	TS_CS_ACCOUNT_WITH_AUTH loginInGameServerMsg;
 
@@ -20,14 +20,18 @@ void ClientGameSession::onConnected() {
 	loginInGameServerMsg.account = auth->getAccountName();
 	loginInGameServerMsg.one_time_key = auth->getOnTimePassword();
 	sendPacket(loginInGameServerMsg, EPIC_LATEST);
+
+	return PacketSession::onConnected();
 }
 
-void ClientGameSession::onDisconnected(bool causedByRemote) {
+EventChain<SocketSession> ClientGameSession::onDisconnected(bool causedByRemote) {
 	onGameDisconnected();
 	auth->onGameDisconnected();
+
+	return PacketSession::onDisconnected(causedByRemote);
 }
 
-void ClientGameSession::onPacketReceived(const TS_MESSAGE *packet) {
+EventChain<PacketSession> ClientGameSession::onPacketReceived(const TS_MESSAGE *packet) {
 	switch(packet->id) {
 		case TS_SC_RESULT::packetID: {
 			const TS_SC_RESULT* resultMsg = reinterpret_cast<const TS_SC_RESULT*>(packet);
@@ -44,4 +48,6 @@ void ClientGameSession::onPacketReceived(const TS_MESSAGE *packet) {
 		default:
 			onGamePacketReceived(packet);
 	}
+
+	return PacketSession::onPacketReceived(packet);
 }

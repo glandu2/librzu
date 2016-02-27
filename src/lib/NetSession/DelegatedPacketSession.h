@@ -15,7 +15,7 @@ public:
 	void removePacketListener(uint16_t packetId, IListener* instance);
 
 protected:
-	void onPacketReceived(const TS_MESSAGE* packet);
+	EventChain<PacketSession> onPacketReceived(const TS_MESSAGE* packet);
 
 private:
 	IDelegateHash<uint16_t, CallbackFunction> packetListeners;

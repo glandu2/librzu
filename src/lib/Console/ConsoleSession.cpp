@@ -50,10 +50,12 @@ void ConsoleSession::log(const char *message, ...) {
 	va_end(args);
 }
 
-void ConsoleSession::onConnected() {
+EventChain<SocketSession> ConsoleSession::onConnected() {
 	writef("%s - Administration console - Type \"help\" for a list of available commands\r\n",
 		   GlobalCoreConfig::get()->app.appName.get().c_str());
 	printPrompt();
+
+	return TelnetSession::onConnected();
 }
 
 void ConsoleSession::printPrompt() {
