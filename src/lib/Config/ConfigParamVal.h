@@ -169,6 +169,9 @@ private:
 	uv_mutex_t listenersLock;
 #endif
 	bool _isDefault;
+
+	cval(const cval& other);
+	cval(cval&& other);
 };
 
 
