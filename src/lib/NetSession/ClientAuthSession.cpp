@@ -44,9 +44,9 @@ bool ClientAuthSession::connect(const std::string& ip, uint16_t port, const std:
 }
 
 void ClientAuthSession::close() {
-	getStream()->close();
+	closeSession();
 	if(gameSession)
-		gameSession->getStream()->close();
+		gameSession->close();
 }
 
 void ClientAuthSession::retreiveServerList() {
@@ -206,7 +206,7 @@ void ClientAuthSession::onPacketAuthPasswordKey(const TS_AC_AES_KEY_IV* packet) 
 //	rsaCipher = 0;
 	if(data_size != 32) {
 		log(LL_Warning, "onPacketAuthPasswordKey: invalid decrypted data size: %d\n", data_size);
-		getStream()->close();
+		closeSession();
 		return;
 	}
 
@@ -231,7 +231,7 @@ end:
 
 	if(ok == false) {
 		log(LL_Warning, "onPacketAuthPasswordKey: could not encrypt password !\n");
-		getStream()->close();
+		closeSession();
 		return;
 	}
 
@@ -310,7 +310,7 @@ end:
 
 		if(ok == false) {
 			log(LL_Warning, "onPacketSelectServerResult: Could not decrypt TS_AC_SELECT_SERVER\n");
-			getStream()->close();
+			closeSession();
 			return;
 		}
 
@@ -322,7 +322,7 @@ end:
 	if(gameSession)
 		gameSession->connect(selectedServerInfo.ip.c_str(), selectedServerInfo.port);
 	normalDisconnect = true;
-	getStream()->close();
+	closeSession();
 
 	std::vector<ServerConnectionInfo> empty;
 	serverList.swap(empty);
