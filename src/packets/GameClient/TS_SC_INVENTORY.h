@@ -27,8 +27,8 @@
 	simple_ (int32_t, elemental_effect_attack_point, version >= EPIC_6_1) \
 	simple_ (int32_t, elemental_effect_magic_point, version >= EPIC_6_1) \
 	simple_ (int32_t, appearance_code, version >= EPIC_8_1) \
-	array_  (int32_t, unknown1, 51, version >= EPIC_9_1) \
-	simple_ (int16_t, unknown2, version >= EPIC_9_2)
+	simple_ (int16_t, unknown2, version >= EPIC_9_2) \
+	array_  (int32_t, unknown1, 51, version >= EPIC_9_1)
 CREATE_STRUCT(TS_ITEM_BASE_INFO);
 
 #define TS_ITEM_INFO_DEF(simple_, array_, dynarray_, count_, string_, dynstring_) \
