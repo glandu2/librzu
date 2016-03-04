@@ -6,7 +6,7 @@
 # define SIO_LOOPBACK_FAST_PATH 0x98000010
 #endif
 
-#ifdef WIN32
+#ifdef _WIN32
 #if defined(__MINGW32__) && !defined(__MINGW64_VERSION_MAJOR)
 typedef struct _OSVERSIONINFOW RTL_OSVERSIONINFOW, *PRTL_OSVERSIONINFOW;
 #endif
@@ -95,7 +95,7 @@ int Socket::bind_impl(const std::string& interfaceIp, uint16_t port) {
 		uv_ip4_addr(interfaceIp.c_str(), port, &bindAddr4);
 		bindAddr = (struct sockaddr*)&bindAddr4;
 
-#ifdef WIN32
+#ifdef _WIN32
 		enableFastPath(&socket);
 #endif
 	}
@@ -104,7 +104,7 @@ int Socket::bind_impl(const std::string& interfaceIp, uint16_t port) {
 }
 
 void Socket::enableFastPath(uv_tcp_t *socket) {
-#ifdef WIN32
+#ifdef _WIN32
 	uv_os_fd_t socketFd;
 	DWORD bytes;
 	DWORD enable;
