@@ -21,6 +21,7 @@ public:
 
 public:
 	virtual void cancel() = 0;
+	virtual ~IDbQueryJob() {}
 
 public: //events
 	//To implement in derived classes
