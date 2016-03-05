@@ -35,7 +35,7 @@ public:
 
 	bool checkAvailableBuffer(const char* fieldName, size_t size) {
 		if(bufferOverflow == false) {
-			bool ok = size >= 0 && size < 65536 && size_t(p + size - getData()) <= size_t(getSize());
+			bool ok = size < 65536 && size_t(p + size - getData()) <= size_t(getSize());
 			if(!ok) {
 				bufferOverflow = true;
 				fieldInOverflow = fieldName;
