@@ -29,6 +29,14 @@ Stream::WriteRequest *MessageBuffer::getWriteRequest() {
 }
 
 bool MessageBuffer::checkFinalSize() {
+	if(bufferOverflow) {
+		log(LL_Error, "Serialization overflow: buffer size: %d, offset: %d, field: %s\n",
+			getSize(), uint32_t(p - buffer->buffer.base), getFieldInOverflow().c_str());
+	}
+	return !bufferOverflow;
+}
+
+bool MessageBuffer::checkPacketFinalSize() {
 	uint32_t msgSize = *reinterpret_cast<const uint32_t*>(buffer->buffer.base);
 	bool ok = !bufferOverflow && msgSize == getSize() && uint32_t(p - buffer->buffer.base) == msgSize;
 	if(!ok) {

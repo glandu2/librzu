@@ -33,7 +33,7 @@ public:
 	void sendPacket(const T& data, int version) {
 		MessageBuffer buffer(data.getSize(version), version);
 		data.serialize(&buffer);
-		if(buffer.checkFinalSize() == false) {
+		if(buffer.checkPacketFinalSize() == false) {
 			log(LL_Error, "Wrong packet buffer size, id: %d, size: %d, field: %s\n", buffer.getMessageId(), buffer.getSize(), buffer.getFieldInOverflow().c_str());
 			abortSession();
 		} else {

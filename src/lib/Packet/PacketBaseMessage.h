@@ -106,7 +106,7 @@ void TS_MESSAGE::process(U* instance, void (U::*processFunction)(const T*), int 
 	MessageBuffer buffer((void*)this, this->size, version);
 
 	packet.deserialize(&buffer);
-	if(buffer.checkFinalSize()) {
+	if(buffer.checkPacketFinalSize()) {
 		(instance->*processFunction)(&packet);
 	}
 }

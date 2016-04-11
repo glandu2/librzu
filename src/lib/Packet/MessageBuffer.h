@@ -32,6 +32,7 @@ public:
 	int getVersion() const { return version; }
 
 	bool checkFinalSize();
+	bool checkPacketFinalSize();
 
 	bool checkAvailableBuffer(const char* fieldName, size_t size) {
 		if(bufferOverflow == false) {
