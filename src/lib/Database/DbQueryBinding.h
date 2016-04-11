@@ -92,7 +92,7 @@ public:
 protected:
 	template<class T> friend class DbQueryJob;
 
-	bool process(IDbQueryJob* queryJob, void* inputInstance);
+	bool process(IDbQueryJob* queryJob, const std::vector<void *>& inputInstances);
 	static void setString(DbConnection* connection, const ParameterBinding& paramBinding, SQLLEN* StrLen_or_Ind, const std::string &str, std::string &outStr);
 	static bool getString(DbConnection* connection, int columnIndex, std::string *outString);
 	bool getColumnsMapping(DbConnection* connection, std::vector<const ColumnBinding*>* currentColumnBinding);

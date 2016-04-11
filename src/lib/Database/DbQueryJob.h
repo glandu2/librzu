@@ -148,12 +148,13 @@ public:
 
 
 	static void executeNoResult(const InputType& input);
+	static void executeNoResult(const std::vector<InputType>& input);
 
-	bool execute(const InputType& input);
+	bool execute(const std::vector<InputType> &input);
 	void cancel();
 	bool isDone() { return done; }
 	std::vector<std::unique_ptr<OutputType> >& getResults() { return outputLines; }
-	InputType* getInput() { return &input; }
+	InputType* getInput() { return &input[0]; }
 
 protected:
 	static void onProcessStatic(uv_work_t *req);
@@ -178,7 +179,7 @@ protected:
 
 private:
 	uv_work_t req;
-	InputType input;
+	std::vector<InputType> input;
 	std::vector<std::unique_ptr<OutputType> > outputLines;
 	bool done;
 	volatile bool canceled;
@@ -263,11 +264,19 @@ void DbQueryJob<DbMappingClass>::createBinding(DbConnectionPool *dbConnectionPoo
 template<class DbMappingClass>
 void DbQueryJob<DbMappingClass>::executeNoResult(const InputType &input) {
 	auto query = new DbQueryJob;
-	query->execute(input);
+	std::vector<InputType> inputs;
+	inputs.push_back(input);
+	query->execute(inputs);
 }
 
 template<class DbMappingClass>
-bool DbQueryJob<DbMappingClass>::execute(const InputType& input) {
+void DbQueryJob<DbMappingClass>::executeNoResult(const std::vector<InputType> &inputs) {
+	auto query = new DbQueryJob;
+	query->execute(inputs);
+}
+
+template<class DbMappingClass>
+bool DbQueryJob<DbMappingClass>::execute(const std::vector<InputType>& input) {
 	done = false;
 	canceled = false;
 
@@ -310,7 +319,11 @@ void DbQueryJob<DbMappingClass>::onProcess() {
 		log(LL_Debug, "Canceled DB query in preprocess step\n");
 		return;
 	}
-	done = binding->process(this, &input);
+	std::vector<void*> inputInstances;
+	for(size_t i = 0; i < input.size(); i++) {
+		inputInstances.push_back(&input[i]);
+	}
+	done = binding->process(this, inputInstances);
 
 	onPostProcess();
 }

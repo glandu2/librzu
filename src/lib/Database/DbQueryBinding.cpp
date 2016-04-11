@@ -70,7 +70,7 @@ bool DbQueryBinding::getColumnsMapping(DbConnection* connection, std::vector<con
 	return !getDataErrorOccured;
 }
 
-bool DbQueryBinding::process(IDbQueryJob* queryJob, void* inputInstance) {
+bool DbQueryBinding::process(IDbQueryJob* queryJob, const std::vector<void *> &inputInstances) {
 	struct UnicodeString {
 		std::string str;
 		SQLLEN strLen;
@@ -92,98 +92,105 @@ bool DbQueryBinding::process(IDbQueryJob* queryJob, void* inputInstance) {
 		return false;
 	}
 
-
-	log(LL_Trace, "Executing: %s\n", queryStr.c_str());
-
-	for(size_t i = 0; i < parameterBindings.size(); i++) {
-		const ParameterBinding& paramBinding = parameterBindings.at(i);
-
-		if(paramBinding.index > 0) {
-			SQLLEN* StrLen_or_Ind;
-			if(paramBinding.infoPtr != (size_t)-1)
-				StrLen_or_Ind = (SQLLEN*)((char*)inputInstance +  paramBinding.infoPtr);
-			else
-				StrLen_or_Ind = nullptr;
-
-			if(paramBinding.isStdString) {
-				std::string* str = (std::string*) ((char*)inputInstance + paramBinding.bufferOffset);
-				unicodeStrings.push_back(UnicodeString());
-				UnicodeString& unicodeString = unicodeStrings.back();
-
-				if(!StrLen_or_Ind)
-					StrLen_or_Ind = &unicodeString.strLen;
-
-				setString(connection, paramBinding, StrLen_or_Ind, *str, unicodeString.str);
-				unicodeString.strLen = unicodeString.str.size();
-			} else {
-				connection->bindParameter(*paramBinding.index, paramBinding.way,
-										  paramBinding.cType,
-										  paramBinding.dbType, paramBinding.dbSize, paramBinding.dbPrecision,
-										  (char*)inputInstance + paramBinding.bufferOffset, 0,
-										  StrLen_or_Ind);
-			}
-			//TODO: print content of params buffer
-		}
-	}
-
-	if(!connection->execute(queryStr.c_str())) {
-		connection->releaseWithError();
-		log(LL_Warning, "DB query failed: %s\n", queryStr.c_str());
-		errorCount++;
-		if(errorCount > 10) {
-			enabled.setBool(false);
-			log(LL_Error, "Disabled query: %s, too many errors\n", queryStr.c_str());
-
-			errorCount = 0;
-		}
-		return false;
-	}
+	connection->startTransaction();
 
 	bool getDataErrorOccured = false; //if true, show query after all getData
-	if(mode != EM_NoRow) {
-		log(LL_Trace, "Fetching data\n");
-		std::vector<const ColumnBinding*> currentColumnBinding;
-		getDataErrorOccured = !getColumnsMapping(connection, &currentColumnBinding);
 
-		if(!currentColumnBinding.empty()) {
-			size_t rowFetched = 0;
-			while(connection->fetch() && (rowFetched == 0 || mode == EM_MultiRows)) {
-				rowFetched++;
+	for(size_t instanceIndex = 0; instanceIndex < inputInstances.size() && !getDataErrorOccured; instanceIndex++) {
+		void* inputInstance = inputInstances[instanceIndex];
 
-				void* outputInstance = queryJob->createNextLineInstance();
+		log(LL_Trace, "Executing: %s\n", queryStr.c_str());
 
-				for(int col = 0; col < (int)currentColumnBinding.size(); col++) {
-					const int columnIndex = col + 1;
-					SQLLEN StrLen_Or_Ind;
+		for(size_t i = 0; i < parameterBindings.size(); i++) {
+			const ParameterBinding& paramBinding = parameterBindings.at(i);
 
-					const ColumnBinding* columnBinding = currentColumnBinding[col];
-					if(columnBinding) {
-						bool getDataSucceded;
-						if(columnBinding->isStdString) {
-							std::string* str = (std::string*) ((char*)outputInstance + columnBinding->bufferOffset);
-							getDataSucceded = getString(connection, columnIndex, str);
-						} else {
-							getDataSucceded = connection->getData(columnIndex, columnBinding->cType,
-																  (char*)outputInstance + columnBinding->bufferOffset, columnBinding->bufferSize,
-																  &StrLen_Or_Ind);
-						}
+			if(paramBinding.index > 0) {
+				SQLLEN* StrLen_or_Ind;
+				if(paramBinding.infoPtr != (size_t)-1)
+					StrLen_or_Ind = (SQLLEN*)((char*)inputInstance +  paramBinding.infoPtr);
+				else
+					StrLen_or_Ind = nullptr;
 
-						if(!getDataSucceded) {
-							log(LL_Error, "Failed to retrieve data for column %s(%d) for line %d\n", columnBinding->name->get().c_str(), columnIndex, (int)rowFetched);
-							getDataErrorOccured = true;
-						}
+				if(paramBinding.isStdString) {
+					std::string* str = (std::string*) ((char*)inputInstance + paramBinding.bufferOffset);
+					unicodeStrings.push_back(UnicodeString());
+					UnicodeString& unicodeString = unicodeStrings.back();
 
-						if(columnBinding->isNullPtr != (size_t)-1)
-							*(bool*)((char*)outputInstance + columnBinding->isNullPtr) = StrLen_Or_Ind == SQL_NULL_DATA;
-					}
+					if(!StrLen_or_Ind)
+						StrLen_or_Ind = &unicodeString.strLen;
+
+					setString(connection, paramBinding, StrLen_or_Ind, *str, unicodeString.str);
+					unicodeString.strLen = unicodeString.str.size();
+				} else {
+					connection->bindParameter(*paramBinding.index, paramBinding.way,
+											  paramBinding.cType,
+											  paramBinding.dbType, paramBinding.dbSize, paramBinding.dbPrecision,
+											  (char*)inputInstance + paramBinding.bufferOffset, 0,
+											  StrLen_or_Ind);
 				}
+				//TODO: print content of params buffer
+			}
+		}
 
-				if(queryJob->onRowDone() == false)
-					break;
+		if(!connection->execute(queryStr.c_str())) {
+			connection->releaseWithError();
+			log(LL_Warning, "DB query failed: %s\n", queryStr.c_str());
+			errorCount++;
+			if(errorCount > 10) {
+				enabled.setBool(false);
+				log(LL_Error, "Disabled query: %s, too many errors\n", queryStr.c_str());
+
+				errorCount = 0;
+			}
+			return false;
+		}
+
+		if(mode != EM_NoRow) {
+			log(LL_Trace, "Fetching data\n");
+			std::vector<const ColumnBinding*> currentColumnBinding;
+			getDataErrorOccured = !getColumnsMapping(connection, &currentColumnBinding);
+
+			if(!currentColumnBinding.empty()) {
+				size_t rowFetched = 0;
+				while(connection->fetch() && (rowFetched == 0 || mode == EM_MultiRows)) {
+					rowFetched++;
+
+					void* outputInstance = queryJob->createNextLineInstance();
+
+					for(int col = 0; col < (int)currentColumnBinding.size(); col++) {
+						const int columnIndex = col + 1;
+						SQLLEN StrLen_Or_Ind;
+
+						const ColumnBinding* columnBinding = currentColumnBinding[col];
+						if(columnBinding) {
+							bool getDataSucceded;
+							if(columnBinding->isStdString) {
+								std::string* str = (std::string*) ((char*)outputInstance + columnBinding->bufferOffset);
+								getDataSucceded = getString(connection, columnIndex, str);
+							} else {
+								getDataSucceded = connection->getData(columnIndex, columnBinding->cType,
+																	  (char*)outputInstance + columnBinding->bufferOffset, columnBinding->bufferSize,
+																	  &StrLen_Or_Ind);
+							}
+
+							if(!getDataSucceded) {
+								log(LL_Error, "Failed to retrieve data for column %s(%d) for line %d\n", columnBinding->name->get().c_str(), columnIndex, (int)rowFetched);
+								getDataErrorOccured = true;
+							}
+
+							if(columnBinding->isNullPtr != (size_t)-1)
+								*(bool*)((char*)outputInstance + columnBinding->isNullPtr) = StrLen_Or_Ind == SQL_NULL_DATA;
+						}
+					}
+
+					if(queryJob->onRowDone() == false)
+						break;
+				}
 			}
 		}
 	}
 
+	connection->endTransaction(getDataErrorOccured == false);
 	connection->release();
 
 	if(getDataErrorOccured) {
