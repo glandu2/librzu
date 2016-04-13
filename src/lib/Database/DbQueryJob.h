@@ -35,6 +35,8 @@ public: //events
 
 private:
 	friend class DbQueryBinding;
+	virtual void* getInputPointer(size_t i) = 0;
+	virtual size_t getInputNumber() = 0;
 	virtual void* createNextLineInstance() = 0;
 };
 
@@ -150,11 +152,14 @@ public:
 	static void executeNoResult(const InputType& input);
 	static void executeNoResult(const std::vector<InputType>& input);
 
-	bool execute(const std::vector<InputType> &input);
+	bool execute(const InputType *inputs, size_t number);
 	void cancel();
 	bool isDone() { return done; }
 	std::vector<std::unique_ptr<OutputType> >& getResults() { return outputLines; }
-	InputType* getInput() { return &input[0]; }
+	InputType* getInput(size_t i = 0) { return &input[i]; }
+
+	virtual void* getInputPointer(size_t i) { return &input[i]; }
+	virtual size_t getInputNumber() { return input.size(); }
 
 protected:
 	static void onProcessStatic(uv_work_t *req);
@@ -264,19 +269,17 @@ void DbQueryJob<DbMappingClass>::createBinding(DbConnectionPool *dbConnectionPoo
 template<class DbMappingClass>
 void DbQueryJob<DbMappingClass>::executeNoResult(const InputType &input) {
 	auto query = new DbQueryJob;
-	std::vector<InputType> inputs;
-	inputs.push_back(input);
-	query->execute(inputs);
+	query->execute(&input, 1);
 }
 
 template<class DbMappingClass>
 void DbQueryJob<DbMappingClass>::executeNoResult(const std::vector<InputType> &inputs) {
 	auto query = new DbQueryJob;
-	query->execute(inputs);
+	query->execute(inputs.data(), inputs.size());
 }
 
 template<class DbMappingClass>
-bool DbQueryJob<DbMappingClass>::execute(const std::vector<InputType>& input) {
+bool DbQueryJob<DbMappingClass>::execute(const InputType* inputs, size_t number) {
 	done = false;
 	canceled = false;
 
@@ -286,7 +289,9 @@ bool DbQueryJob<DbMappingClass>::execute(const std::vector<InputType>& input) {
 		return false;
 	}
 
-	this->input = input;
+	this->input.reserve(number);
+	for(size_t i = 0; i < number; i++)
+		this->input.emplace_back(inputs[i]);
 	req.data = this;
 	uv_queue_work(EventLoop::getLoop(), &req, &onProcessStatic, &onDoneStatic);
 
@@ -319,11 +324,7 @@ void DbQueryJob<DbMappingClass>::onProcess() {
 		log(LL_Debug, "Canceled DB query in preprocess step\n");
 		return;
 	}
-	std::vector<void*> inputInstances;
-	for(size_t i = 0; i < input.size(); i++) {
-		inputInstances.push_back(&input[i]);
-	}
-	done = binding->process(this, inputInstances);
+	done = binding->process(this);
 
 	onPostProcess();
 }

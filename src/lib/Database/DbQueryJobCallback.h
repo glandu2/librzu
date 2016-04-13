@@ -47,9 +47,7 @@ public:
 		auto query = new DbJobClass(session, callback);
 		query->setDbQueryJobRef(this);
 		dbQueryJobs.push_back(query);
-		std::vector<typename DbMappingClass::Input> inputs;
-		inputs.push_back(input);
-		query->execute(inputs);
+		query->execute(&input, 1);
 	}
 
 	template<class DbMappingClass, class Session>

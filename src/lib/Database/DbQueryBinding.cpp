@@ -70,7 +70,7 @@ bool DbQueryBinding::getColumnsMapping(DbConnection* connection, std::vector<con
 	return !getDataErrorOccured;
 }
 
-bool DbQueryBinding::process(IDbQueryJob* queryJob, const std::vector<void *> &inputInstances) {
+bool DbQueryBinding::process(IDbQueryJob* queryJob) {
 	struct UnicodeString {
 		std::string str;
 		SQLLEN strLen;
@@ -92,12 +92,13 @@ bool DbQueryBinding::process(IDbQueryJob* queryJob, const std::vector<void *> &i
 		return false;
 	}
 
-	connection->startTransaction();
+	connection->setAutoCommit(true);
 
 	bool getDataErrorOccured = false; //if true, show query after all getData
 
-	for(size_t instanceIndex = 0; instanceIndex < inputInstances.size() && !getDataErrorOccured; instanceIndex++) {
-		void* inputInstance = inputInstances[instanceIndex];
+	size_t inputNumber = queryJob->getInputNumber();
+	for(size_t inputIndex = 0; inputIndex < inputNumber && !getDataErrorOccured; inputIndex++) {
+		void* inputInstance = queryJob->getInputPointer(inputIndex);
 
 		log(LL_Trace, "Executing: %s\n", queryStr.c_str());
 
