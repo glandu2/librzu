@@ -2,7 +2,7 @@
 #include <string.h>
 #include "DbConnectionPool.h"
 #include "DbConnection.h"
-#include "DbQueryJob.h"
+#include "IDbQueryJob.h"
 #include "Config/ConfigParamVal.h"
 #include "Core/CharsetConverter.h"
 #include "Config/GlobalCoreConfig.h"

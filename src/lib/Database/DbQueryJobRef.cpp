@@ -1,4 +1,5 @@
-#include "DbQueryJobCallback.h"
+#include "DbQueryJobRef.h"
+#include "IDbQueryJobCallback.h"
 #include <algorithm>
 
 DbQueryJobRef::DbQueryJobRef(DbQueryJobRef &&other) {
