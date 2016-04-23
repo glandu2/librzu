@@ -1,7 +1,7 @@
 #ifndef DBBINDINGLOADER_H
 #define DBBINDINGLOADER_H
 
-#include "Extern.h"
+#include "../Extern.h"
 #include <vector>
 
 class DbConnectionPool;

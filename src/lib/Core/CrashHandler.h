@@ -1,7 +1,7 @@
 #ifndef CRASHHANDLER_H
 #define CRASHHANDLER_H
 
-#include "Extern.h"
+#include "../Extern.h"
 #include "uv.h"
 #include <vector>
 #include <string>

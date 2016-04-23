@@ -1,7 +1,7 @@
 #ifndef EVENTCHAIN_H
 #define EVENTCHAIN_H
 
-#include "Extern.h"
+#include "../Extern.h"
 #include <type_traits>
 
 template<class RootEventHandlerClass>

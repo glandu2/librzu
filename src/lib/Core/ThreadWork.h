@@ -1,7 +1,7 @@
 #ifndef THREADWORK_H
 #define THREADWORK_H
 
-#include "Extern.h"
+#include "../Extern.h"
 #include <vector>
 #include "uv.h"
 

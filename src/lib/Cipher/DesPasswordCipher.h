@@ -1,7 +1,7 @@
 #ifndef DESPASSWORDCIPHER_H
 #define DESPASSWORDCIPHER_H
 
-#include "Extern.h"
+#include "../Extern.h"
 
 class RZU_EXTERN DesPasswordCipher
 {

@@ -2,7 +2,7 @@
 #define PACKETS_ENCODINGSCRAMBLED_H
 
 #include "EncodingRandomized.h"
-#include "Extern.h"
+#include "../Extern.h"
 
 class RZU_EXTERN EncodingScrambled {
 public:

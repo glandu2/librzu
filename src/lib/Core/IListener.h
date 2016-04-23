@@ -2,7 +2,7 @@
 #define ILISTENER_H
 
 #include <vector>
-#include "Extern.h"
+#include "../Extern.h"
 #include <stddef.h>
 
 typedef void** DelegateRef;

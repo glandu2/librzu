@@ -1,7 +1,7 @@
 #ifndef RC4CIPHER_H
 #define RC4CIPHER_H
 
-#include "Extern.h"
+#include "../Extern.h"
 #include <string.h>
 
 class RZU_EXTERN RC4Cipher

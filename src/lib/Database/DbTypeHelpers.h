@@ -4,7 +4,7 @@
 #include <uv.h>
 #include <sqlext.h>
 #include <string>
-#include "Extern.h"
+#include "../Extern.h"
 
 struct RZU_EXTERN DbDateTime : public SQL_TIMESTAMP_STRUCT {
 	void setUnixTime(time_t t, uint32_t nanoFraction = 0);

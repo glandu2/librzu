@@ -1,7 +1,7 @@
 #ifndef DBPASSWORDCIPHER_H
 #define DBPASSWORDCIPHER_H
 
-#include "Extern.h"
+#include "../Extern.h"
 #include <vector>
 #include <string>
 
