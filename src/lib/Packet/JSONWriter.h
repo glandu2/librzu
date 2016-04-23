@@ -1,26 +1,24 @@
 #ifndef PACKETS_JSONWRITER_H
 #define PACKETS_JSONWRITER_H
 
+#include "StructSerializer.h"
 #include <sstream>
 #include "EncodedInt.h"
 
-class JSONWriter {
+class JSONWriter : public StructSerializer {
 private:
 	std::stringstream json;
 	int depth;
-	int version;
 	bool newList;
 
 public:
-	JSONWriter(int version) : depth(1), version(version), newList(true) {
+	JSONWriter(int version) : StructSerializer(version), depth(1), newList(true) {
 		json << "{";
 	}
 
 	void finalize() { json << "\n}"; }
 
 	std::string toString() { return json.str(); }
-
-	int getVersion() { return version; }
 
 	void printIdent() {
 		if(!newList)
@@ -32,23 +30,6 @@ public:
 		for(int i = 0; i < depth; i++)
 			json << '\t';
 	}
-
-	// Type checking /////////////////////////
-
-	// Primitives
-	template<typename T>
-	struct is_primitive : public std::integral_constant<bool,
-			std::is_fundamental<T>::value ||
-			std::is_enum<T>::value
-			> {};
-
-	// Primitives with cast
-	template<typename T, typename U>
-	struct is_castable_primitive : public std::integral_constant<bool,
-			is_primitive<T>::value &&
-			is_primitive<U>::value &&
-			!std::is_same<T, U>::value
-			> {};
 
 	// Write functions /////////////////////////
 

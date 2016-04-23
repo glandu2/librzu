@@ -1,17 +1,17 @@
 #ifndef MESSAGEBUFFER_H
 #define MESSAGEBUFFER_H
 
+#include "StructSerializer.h"
 #include "Core/Object.h"
 #include "Stream/Stream.h"
 #include <vector>
 #include <string.h>
 #include <type_traits>
 
-class RZU_EXTERN MessageBuffer : public Object {
+class RZU_EXTERN MessageBuffer : public StructSerializer, public Object {
 private:
 	Stream::WriteRequest* buffer;
 	char *p;
-	int version;
 	bool bufferOverflow;
 	std::string fieldInOverflow;
 
@@ -29,7 +29,6 @@ public:
 	uint32_t getSize() const { return buffer->buffer.len; }
 	uint16_t getMessageId() const  { return *reinterpret_cast<const uint16_t*>(buffer->buffer.base + 4); }
 	std::string getFieldInOverflow() const  { return fieldInOverflow; }
-	int getVersion() const { return version; }
 
 	bool checkFinalSize();
 	bool checkPacketFinalSize();
@@ -46,23 +45,6 @@ public:
 			return false;
 		}
 	}
-
-	// Type checking /////////////////////////
-
-	// Primitives
-	template<typename T>
-	struct is_primitive : public std::integral_constant<bool,
-			std::is_fundamental<T>::value ||
-			std::is_enum<T>::value
-			> {};
-
-	// Primitives with cast
-	template<typename T, typename U>
-	struct is_castable_primitive : public std::integral_constant<bool,
-			is_primitive<T>::value &&
-			is_primitive<U>::value &&
-			!std::is_same<T, U>::value
-			> {};
 
 	// Write functions /////////////////////////
 

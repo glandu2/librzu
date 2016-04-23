@@ -2,17 +2,15 @@
 #include <algorithm>
 #include "Core/Utils.h"
 
-MessageBuffer::MessageBuffer(size_t size, int version) {
+MessageBuffer::MessageBuffer(size_t size, int version) : StructSerializer(version) {
 	buffer = Stream::WriteRequest::create(size);
 	p = buffer->buffer.base;
-	this->version = version;
 	bufferOverflow = false;
 }
 
-MessageBuffer::MessageBuffer(const void *data, size_t size, int version) {
+MessageBuffer::MessageBuffer(const void *data, size_t size, int version) : StructSerializer(version) {
 	buffer = Stream::WriteRequest::createFromExisting(const_cast<char*>(static_cast<const char*>(data)), size);
 	p = buffer->buffer.base;
-	this->version = version;
 	bufferOverflow = false;
 }
 
