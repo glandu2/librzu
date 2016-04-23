@@ -1,15 +1,9 @@
 #ifndef DBQUERYJOB_IMPL_H
 #define DBQUERYJOB_IMPL_H
 
-#include "Core/Object.h"
-#include "uv.h"
+#include "DbQueryJob.h"
 #include "Core/EventLoop.h"
-#include <type_traits>
-#include <memory>
 #include <assert.h>
-#include "Config/ConfigInfo.h"
-
-#include "DbQueryBinding.h"
 
 template<class DbMappingClass> template<typename FieldType>
 void DbQueryJob<DbMappingClass>::addParam(const char* columnName, size_t memberOffset, SQLLEN InputType::*nullIndicator) {

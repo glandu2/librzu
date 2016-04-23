@@ -147,6 +147,6 @@ private:
 	static DbQueryBinding* dbBinding;
 };
 
-#include "DbQueryJob_impl.h"
+#include "DbQueryJob.inl"
 
 #endif // DBQUERYJOB_H

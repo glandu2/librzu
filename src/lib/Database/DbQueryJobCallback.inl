@@ -1,7 +1,6 @@
 #ifndef DBQUERYJOBCALLBACK_IMPL_H
 #define DBQUERYJOBCALLBACK_IMPL_H
 
-#include "DbQueryJob.h"
 #include "DbQueryJobCallback.h"
 
 template<class DbMappingClass, class Session, class DbJobClass>

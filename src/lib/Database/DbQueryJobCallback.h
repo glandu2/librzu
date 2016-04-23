@@ -28,6 +28,6 @@ private:
 	DbQueryJobRef* dbQueryJobRef;
 };
 
-#include "DbQueryJobCallback_impl.h"
+#include "DbQueryJobCallback.inl"
 
 #endif // DBQUERYJOBCALLBACK_H

@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.8.12)
 
-file(GLOB_RECURSE SOURCE_FILES *.cpp *.h)
+file(GLOB_RECURSE SOURCE_FILES *.cpp *.h *.inl)
 
 include(AddVersionInfo OPTIONAL RESULT_VARIABLE versioncmakefound)
 if( versioncmakefound )
