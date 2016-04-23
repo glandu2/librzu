@@ -84,23 +84,28 @@ public:
 	//String
 	void writeString(const char* fieldName, const std::string& val, size_t maxSize) {
 		printIdent();
-		json << '\"' << fieldName << "\": \"" << val << "\"";
+		if(fieldName)
+			json << '\"' << fieldName << "\": ";
+		json << "\"" << val << "\"";
 	}
 
 	void writeDynString(const char* fieldName, const std::string& val, bool hasNullTerminator) {
 		printIdent();
-		json << '\"' << fieldName << "\": \"" << val << "\"";
+		if(fieldName)
+			json << '\"' << fieldName << "\": ";
+		json << "\"" << val << "\"";
 	}
 
 	void writeArray(const char* fieldName, const char* val, size_t size) {
 		printIdent();
-		json << '\"' << fieldName << "\": \"" << val << "\"";
+		if(fieldName)
+			json << '\"' << fieldName << "\": ";
+		json << "\"" << val << "\"";
 	}
 
-	//Fixed array of primitive
+	//Fixed array
 	template<typename T>
-	typename std::enable_if<is_primitive<T>::value, void>::type
-	writeArray(const char* fieldName, const T* val, size_t size) {
+	void writeArray(const char* fieldName, const T* val, size_t size) {
 		printIdent();
 		if(fieldName)
 			json << '\"' << fieldName << "\": ";
@@ -125,16 +130,7 @@ public:
 		writeArray<U>(fieldName, val, size);
 	}
 
-	//Fixed array of object
-	template<typename T>
-	typename std::enable_if<!is_primitive<T>::value, void>::type
-	writeArray(const char* fieldName, const T* val, size_t size) {
-		for(size_t i = 0; i < size; i++) {
-			write<T>(fieldName, val[i]);
-		}
-	}
-
-	//Dynamic array of primitive
+	//Dynamic array
 	template<typename T>
 	void writeDynArray(const char* fieldName, const std::vector<T>& val) {
 		printIdent();
@@ -160,16 +156,6 @@ public:
 	typename std::enable_if<is_castable_primitive<T, U>::value, void>::type
 	writeDynArray(const char* fieldName, const std::vector<U>& val) {
 		writeDynArray<U>(fieldName, val);
-	}
-
-	//Dynamic array of object or primitive with cast
-	template<typename T>
-	typename std::enable_if<!is_primitive<T>::value, void>::type
-	writeDynArray(const char* fieldName, const std::vector<T>& val) {
-		auto it = val.begin();
-		auto itEnd = val.end();
-		for(; it != itEnd; ++it)
-			write<T>(fieldName, *it);
 	}
 
 
