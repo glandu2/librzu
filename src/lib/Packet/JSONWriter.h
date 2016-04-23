@@ -158,6 +158,8 @@ public:
 		writeDynArray<U>(fieldName, val);
 	}
 
+	void pad(const char* fieldName, size_t size) {
+	}
 
 	// Read functions /////////////////////////
 

@@ -3,13 +3,13 @@
 
 #include "Packet/PacketDeclaration.h"
 
-#define MOVE_REQUEST_INFO_DEF(simple_, array_, dynarray_, count_, string_, dynstring_) \
+#define MOVE_REQUEST_INFO_DEF(simple_, array_, dynarray_, count_, string_, dynstring_, pad_) \
 	simple_(float, tx) \
 	simple_(float, ty)
 
 CREATE_STRUCT(MOVE_REQUEST_INFO);
 
-#define TS_CS_MOVE_REQUEST_DEF(simple_, array_, dynarray_, count_, string_, dynstring_) \
+#define TS_CS_MOVE_REQUEST_DEF(simple_, array_, dynarray_, count_, string_, dynstring_, pad_) \
 	simple_(uint32_t, handle) \
 	simple_(float, x) \
 	simple_(float, y) \

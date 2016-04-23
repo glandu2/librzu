@@ -3,7 +3,7 @@
 
 #include "Packet/PacketDeclaration.h"
 
-#define ATTACK_INFO_DEF(simple_, array_, dynarray_, count_, string_, dynstring_) \
+#define ATTACK_INFO_DEF(simple_, array_, dynarray_, count_, string_, dynstring_, pad_) \
 	simple_ (int32_t, damage) \
 	simple_ (int32_t, mp_damage) \
 	simple_ (int8_t, flag) \
@@ -17,7 +17,7 @@
 
 CREATE_STRUCT(ATTACK_INFO);
 
-#define TS_SC_ATTACK_EVENT_DEF(simple_, array_, dynarray_, count_, string_, dynstring_) \
+#define TS_SC_ATTACK_EVENT_DEF(simple_, array_, dynarray_, count_, string_, dynstring_, pad_) \
 	simple_   (uint32_t, attacker_handle) \
 	simple_   (uint32_t, target_handle) \
 	simple_   (uint16_t, attack_speed) \

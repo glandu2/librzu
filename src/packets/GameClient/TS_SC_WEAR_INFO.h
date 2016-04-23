@@ -3,7 +3,7 @@
 
 #include "Packet/PacketDeclaration.h"
 
-#define TS_SC_WEAR_INFO_DEF(simple_, array_, dynarray_, count_, string_, dynstring_) \
+#define TS_SC_WEAR_INFO_DEF(simple_, array_, dynarray_, count_, string_, dynstring_, pad_) \
 	simple_ (uint32_t, handle) \
 	array_(def)(uint32_t, wear_info, 24) \
 	array_(impl)(uint32_t, wear_info, 14, version < EPIC_4_1) \

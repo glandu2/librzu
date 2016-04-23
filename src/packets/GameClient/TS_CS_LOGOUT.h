@@ -3,7 +3,7 @@
 
 #include "Packet/PacketDeclaration.h"
 
-#define TS_CS_LOGOUT_DEF(simple_, array_, dynarray_, count_, string_, dynstring_)
+#define TS_CS_LOGOUT_DEF(simple_, array_, dynarray_, count_, string_, dynstring_, pad_)
 
 CREATE_PACKET(TS_CS_LOGOUT, 23);
 

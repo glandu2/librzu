@@ -3,7 +3,7 @@
 
 #include "Packet/PacketDeclaration.h"
 
-#define TS_SC_CHANGE_LOCATION_DEF(simple_, array_, dynarray_, count_, string_, dynstring_) \
+#define TS_SC_CHANGE_LOCATION_DEF(simple_, array_, dynarray_, count_, string_, dynstring_, pad_) \
 	simple_ (uint32_t, prev_location_id) \
 	simple_ (uint32_t, cur_location_id)
 

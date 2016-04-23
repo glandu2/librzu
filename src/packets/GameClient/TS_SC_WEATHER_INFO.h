@@ -3,7 +3,7 @@
 
 #include "Packet/PacketDeclaration.h"
 
-#define TS_SC_WEATHER_INFO_DEF(simple_, array_, dynarray_, count_, string_, dynstring_) \
+#define TS_SC_WEATHER_INFO_DEF(simple_, array_, dynarray_, count_, string_, dynstring_, pad_) \
 	simple_ (uint32_t, region_id) \
 	simple_ (uint16_t, weather_id)
 

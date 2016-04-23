@@ -3,7 +3,7 @@
 
 #include "Packet/PacketDeclaration.h"
 
-#define TS_STAT_INFO_BASE_DEF(simple_, array_, dynarray_, count_, string_, dynstring_) \
+#define TS_STAT_INFO_BASE_DEF(simple_, array_, dynarray_, count_, string_, dynstring_, pad_) \
   simple_(int16_t, stat_id) \
   simple_(int16_t, strength) \
   simple_(int16_t, vital) \
@@ -14,7 +14,7 @@
   simple_(int16_t, luck)
 CREATE_STRUCT(TS_STAT_INFO_BASE);
 
-#define TS_STAT_INFO_ATTRIB_DEF(simple_, array_, dynarray_, count_, string_, dynstring_) \
+#define TS_STAT_INFO_ATTRIB_DEF(simple_, array_, dynarray_, count_, string_, dynstring_, pad_) \
   simple_(int16_t, nCritical) \
   simple_(int16_t, nCriticalPower) \
   simple_(int16_t, nAttackPointRight) \
@@ -51,7 +51,7 @@ CREATE_STRUCT(TS_STAT_INFO_BASE);
   simple_(int16_t, nPhysicalPenetrationRatio, version >= EPIC_7_3, 20)
 CREATE_STRUCT(TS_STAT_INFO_ATTRIB);
 
-#define TS_SC_STAT_INFO_DEF(simple_, array_, dynarray_, count_, string_, dynstring_) \
+#define TS_SC_STAT_INFO_DEF(simple_, array_, dynarray_, count_, string_, dynstring_, pad_) \
 	simple_ (uint32_t, handle) \
 	simple_ (TS_STAT_INFO_BASE, stat) \
 	simple_ (TS_STAT_INFO_ATTRIB, attribute) \

@@ -3,7 +3,7 @@
 
 #include "Packet/PacketDeclaration.h"
 
-#define TS_SC_ITEM_WEAR_INFO_DEF(simple_, array_, dynarray_, count_, string_, dynstring_) \
+#define TS_SC_ITEM_WEAR_INFO_DEF(simple_, array_, dynarray_, count_, string_, dynstring_, pad_) \
 	simple_(uint32_t, item_handle) \
 	simple_(uint16_t, wear_position) \
 	simple_(uint32_t, target_handle) \

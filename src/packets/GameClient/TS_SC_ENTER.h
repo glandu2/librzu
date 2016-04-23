@@ -17,25 +17,25 @@ enum TS_SC_ENTER__OBJ_TYPE : uint8_t {
 	EOT_Pet
 };
 
-#define TS_SC_ENTER__ITEM_PICK_UP_ORDER_DEF(simple_, array_, dynarray_, count_, string_, dynstring_) \
+#define TS_SC_ENTER__ITEM_PICK_UP_ORDER_DEF(simple_, array_, dynarray_, count_, string_, dynstring_, pad_) \
 	simple_ (uint32_t, drop_time) \
 	array_  (uint32_t, hPlayer, 3) \
 	array_  (int32_t, nPartyID, 3)
 CREATE_STRUCT(TS_SC_ENTER__ITEM_PICK_UP_ORDER);
 
-#define TS_SC_ENTER__ITEM_INFO_DEF(simple_, array_, dynarray_, count_, string_, dynstring_) \
+#define TS_SC_ENTER__ITEM_INFO_DEF(simple_, array_, dynarray_, count_, string_, dynstring_, pad_) \
 	simple_ (EncodedInt<EncodingRandomized>, code) \
 	simple_ (uint64_t, count) \
 	simple_ (TS_SC_ENTER__ITEM_PICK_UP_ORDER, pick_up_order)
 CREATE_STRUCT(TS_SC_ENTER__ITEM_INFO);
 
-#define TS_SC_ENTER__SKILL_INFO_DEF(simple_, array_, dynarray_, count_, string_, dynstring_) \
+#define TS_SC_ENTER__SKILL_INFO_DEF(simple_, array_, dynarray_, count_, string_, dynstring_, pad_) \
 	simple_ (uint32_t, casterHandle) \
 	simple_ (uint32_t, startTime) \
 	simple_ (uint32_t, skillId)
 CREATE_STRUCT(TS_SC_ENTER__SKILL_INFO);
 
-#define TS_SC_ENTER__FIELD_PROP_INFO_DEF(simple_, array_, dynarray_, count_, string_, dynstring_) \
+#define TS_SC_ENTER__FIELD_PROP_INFO_DEF(simple_, array_, dynarray_, count_, string_, dynstring_, pad_) \
 	simple_ (uint32_t, prop_id) \
 	simple_ (float, fZOffset) \
 	simple_ (float, fRotateX) \
@@ -48,7 +48,7 @@ CREATE_STRUCT(TS_SC_ENTER__SKILL_INFO);
 	simple_ (float, fLockHeight)
 CREATE_STRUCT(TS_SC_ENTER__FIELD_PROP_INFO);
 
-#define TS_SC_ENTER__CREATURE_INFO_DEF(simple_, array_, dynarray_, count_, string_, dynstring_) \
+#define TS_SC_ENTER__CREATURE_INFO_DEF(simple_, array_, dynarray_, count_, string_, dynstring_, pad_) \
 	simple_ (uint32_t, status) \
 	simple_ (float, face_direction) \
 	simple_ (int32_t, hp) \
@@ -62,13 +62,13 @@ CREATE_STRUCT(TS_SC_ENTER__FIELD_PROP_INFO);
 	simple_ (int32_t, energy)
 CREATE_STRUCT(TS_SC_ENTER__CREATURE_INFO);
 
-#define TS_SC_ENTER__MONSTER_INFO_DEF(simple_, array_, dynarray_, count_, string_, dynstring_) \
+#define TS_SC_ENTER__MONSTER_INFO_DEF(simple_, array_, dynarray_, count_, string_, dynstring_, pad_) \
 	simple_ (TS_SC_ENTER__CREATURE_INFO, creatureInfo) \
 	simple_ (EncodedInt<EncodingScrambled>, monster_id) \
 	simple_ (bool, is_tamed)
 CREATE_STRUCT(TS_SC_ENTER__MONSTER_INFO);
 
-#define TS_SC_ENTER__SUMMON_INFO_DEF(simple_, array_, dynarray_, count_, string_, dynstring_) \
+#define TS_SC_ENTER__SUMMON_INFO_DEF(simple_, array_, dynarray_, count_, string_, dynstring_, pad_) \
 	simple_ (TS_SC_ENTER__CREATURE_INFO, creatureInfo) \
 	simple_ (uint32_t, master_handle) \
 	simple_ (EncodedInt<EncodingRandomized>, summon_code) \
@@ -76,12 +76,12 @@ CREATE_STRUCT(TS_SC_ENTER__MONSTER_INFO);
 	simple_ (uint8_t, enhance)
 CREATE_STRUCT(TS_SC_ENTER__SUMMON_INFO);
 
-#define TS_SC_ENTER__NPC_INFO_DEF(simple_, array_, dynarray_, count_, string_, dynstring_) \
+#define TS_SC_ENTER__NPC_INFO_DEF(simple_, array_, dynarray_, count_, string_, dynstring_, pad_) \
 	simple_ (TS_SC_ENTER__CREATURE_INFO, creatureInfo) \
 	simple_ (EncodedInt<EncodingRandomized>, npc_id)
 CREATE_STRUCT(TS_SC_ENTER__NPC_INFO);
 
-#define TS_SC_ENTER__PLAYER_INFO_DEF(simple_, array_, dynarray_, count_, string_, dynstring_) \
+#define TS_SC_ENTER__PLAYER_INFO_DEF(simple_, array_, dynarray_, count_, string_, dynstring_, pad_) \
 	simple_ (TS_SC_ENTER__CREATURE_INFO, creatureInfo) \
 	simple_ (uint8_t, sex) \
 	simple_ (uint32_t, faceId) \
@@ -97,14 +97,14 @@ CREATE_STRUCT(TS_SC_ENTER__NPC_INFO);
 	simple_ (uint64_t, unknown, version >= EPIC_9_2)
 CREATE_STRUCT(TS_SC_ENTER__PLAYER_INFO);
 
-#define TS_SC_ENTER__PET_INFO_DEF(simple_, array_, dynarray_, count_, string_, dynstring_) \
+#define TS_SC_ENTER__PET_INFO_DEF(simple_, array_, dynarray_, count_, string_, dynstring_, pad_) \
 	simple_ (TS_SC_ENTER__CREATURE_INFO, creatureInfo) \
 	simple_ (uint32_t, master_handle) \
 	simple_ (EncodedInt<EncodingRandomized>, pet_code) \
 	string_ (szName, 19)
 CREATE_STRUCT(TS_SC_ENTER__PET_INFO);
 
-#define TS_SC_ENTER_DEF(simple_, array_, dynarray_, count_, string_, dynstring_) \
+#define TS_SC_ENTER_DEF(simple_, array_, dynarray_, count_, string_, dynstring_, pad_) \
 	simple_ (uint8_t, type) /* 0 = static object, 1 = movable object, 2 = client object (ArObject::ObjectType) */ \
 	simple_ (uint32_t, handle) \
 	simple_ (float, x) \

@@ -3,7 +3,7 @@
 
 #include "Packet/PacketDeclaration.h"
 
-#define TS_SC_URL_LIST_DEF(simple_, array_, dynarray_, count_, string_, dynstring_) \
+#define TS_SC_URL_LIST_DEF(simple_, array_, dynarray_, count_, string_, dynstring_, pad_) \
 	count_(uint16_t, len, url_list) \
 	dynstring_(url_list, false)
 

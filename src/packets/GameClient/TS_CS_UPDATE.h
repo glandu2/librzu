@@ -3,7 +3,7 @@
 
 #include "Packet/PacketDeclaration.h"
 
-#define TS_CS_UPDATE_DEF(simple_, array_, dynarray_, count_, string_, dynstring_) \
+#define TS_CS_UPDATE_DEF(simple_, array_, dynarray_, count_, string_, dynstring_, pad_) \
 	simple_ (uint32_t, handle) \
 	simple_ (uint32_t, time, version >= EPIC_9_2) \
 	simple_ (uint32_t, epoch_time, version >= EPIC_9_2)

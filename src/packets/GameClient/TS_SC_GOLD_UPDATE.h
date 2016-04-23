@@ -3,7 +3,7 @@
 
 #include "Packet/PacketDeclaration.h"
 
-#define TS_SC_GOLD_UPDATE_DEF(simple_, array_, dynarray_, count_, string_, dynstring_) \
+#define TS_SC_GOLD_UPDATE_DEF(simple_, array_, dynarray_, count_, string_, dynstring_, pad_) \
 	simple_(def) (uint64_t, gold) \
 	simple_(impl)(uint64_t, gold, version >= EPIC_5_1) \
 	simple_(impl)(uint32_t, gold, version < EPIC_5_1) \

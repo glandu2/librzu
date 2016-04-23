@@ -3,7 +3,7 @@
 
 #include "Packet/PacketDeclaration.h"
 
-#define TS_ITEM_BASE_INFO_DEF(simple_, array_, dynarray_, count_, string_, dynstring_) \
+#define TS_ITEM_BASE_INFO_DEF(simple_, array_, dynarray_, count_, string_, dynstring_, pad_) \
 	simple_ (uint32_t, handle) \
 	simple_ (int32_t, code) \
 	simple_ (int64_t, uid) \
@@ -31,14 +31,14 @@
 	array_  (int32_t, unknown1, 51, version >= EPIC_9_1)
 CREATE_STRUCT(TS_ITEM_BASE_INFO);
 
-#define TS_ITEM_INFO_DEF(simple_, array_, dynarray_, count_, string_, dynstring_) \
+#define TS_ITEM_INFO_DEF(simple_, array_, dynarray_, count_, string_, dynstring_, pad_) \
 	simple_ (TS_ITEM_BASE_INFO, base_info) \
 	simple_ (int16_t , wear_position) \
 	simple_ (uint32_t, own_summon_handle, version >= EPIC_5_1) \
 	simple_ (int32_t , index, version >= EPIC_5_1)
 CREATE_STRUCT(TS_ITEM_INFO);
 
-#define TS_SC_INVENTORY_DEF(simple_, array_, dynarray_, count_, string_, dynstring_) \
+#define TS_SC_INVENTORY_DEF(simple_, array_, dynarray_, count_, string_, dynstring_, pad_) \
 	count_ (uint16_t, count, items) \
 	dynarray_ (TS_ITEM_INFO, items)
 

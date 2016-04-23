@@ -3,7 +3,7 @@
 
 #include "Packet/PacketDeclaration.h"
 
-#define TS_SC_LEVEL_UPDATE_DEF(simple_, array_, dynarray_, count_, string_, dynstring_) \
+#define TS_SC_LEVEL_UPDATE_DEF(simple_, array_, dynarray_, count_, string_, dynstring_, pad_) \
 	simple_ (uint32_t, handle) \
 	simple_ (int32_t, level) \
 	simple_ (int32_t, job_level)

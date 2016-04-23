@@ -134,6 +134,13 @@ public:
 			write<T>(fieldName, *it);
 	}
 
+	void pad(const char* fieldName, size_t size) {
+		if(checkAvailableBuffer(fieldName, size)) {
+			memset(p, 0, size);
+			p += size;
+		}
+	}
+
 	// Read functions /////////////////////////
 
 	//Primitives via arg

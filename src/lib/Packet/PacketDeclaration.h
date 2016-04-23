@@ -77,6 +77,7 @@ getSizeOf(const T& value, int version) {
 #define DEFINITION_F_COUNT(...) OVERLOADED_CALL(DEFINITION_F_COUNT, __VA_ARGS__)
 #define DEFINITION_F_STRING(...) OVERLOADED_CALL(DEFINITION_F_STRING, __VA_ARGS__)
 #define DEFINITION_F_DYNSTRING(...) OVERLOADED_CALL(DEFINITION_F_DYNSTRING, __VA_ARGS__)
+#define DEFINITION_F_PAD(...)
 
 #define DEFINITION_F_SIMPLE2(type, name) type name;
 #define DEFINITION_F_SIMPLE3(type, name, cond) type name;
@@ -109,6 +110,7 @@ getSizeOf(const T& value, int version) {
 #define SIZE_F_COUNT(...) OVERLOADED_CALL(SIZE_F_COUNT, __VA_ARGS__)
 #define SIZE_F_STRING(...) OVERLOADED_CALL(SIZE_F_STRING, __VA_ARGS__)
 #define SIZE_F_DYNSTRING(...) OVERLOADED_CALL(SIZE_F_DYNSTRING, __VA_ARGS__)
+#define SIZE_F_PAD(...) OVERLOADED_CALL(SIZE_F_PAD, __VA_ARGS__)
 
 #define SIZE_F_SIMPLE2(type, name) \
 	size += PacketDeclaration::getSizeOf((type)name, version);
@@ -152,6 +154,11 @@ getSizeOf(const T& value, int version) {
 #define SIZE_F_DYNSTRING4(name, hasNullTerminator, cond, defaultval) \
 	if(cond) size += (uint32_t)name.size() + hasNullTerminator;
 
+#define SIZE_F_PAD1(_size) \
+	size += _size;
+#define SIZE_F_PAD2(_size, cond) \
+	if(cond) size += _size;
+
 // Serialization function
 #define SERIALIZATION_F_SIMPLE(...) OVERLOADED_CALL(SERIALIZATION_F_SIMPLE, __VA_ARGS__)
 #define SERIALIZATION_F_ARRAY(...) OVERLOADED_CALL(SERIALIZATION_F_ARRAY, __VA_ARGS__)
@@ -159,6 +166,7 @@ getSizeOf(const T& value, int version) {
 #define SERIALIZATION_F_COUNT(...) OVERLOADED_CALL(SERIALIZATION_F_COUNT, __VA_ARGS__)
 #define SERIALIZATION_F_STRING(...) OVERLOADED_CALL(SERIALIZATION_F_STRING, __VA_ARGS__)
 #define SERIALIZATION_F_DYNSTRING(...) OVERLOADED_CALL(SERIALIZATION_F_DYNSTRING, __VA_ARGS__)
+#define SERIALIZATION_F_PAD(...) OVERLOADED_CALL(SERIALIZATION_F_PAD, __VA_ARGS__)
 
 #define SERIALIZATION_F_SIMPLE2(type, name) \
 	buffer->write(#name, (type)name);
@@ -202,6 +210,11 @@ getSizeOf(const T& value, int version) {
 #define SERIALIZATION_F_DYNSTRING4(name, hasNullTerminator, cond, defaultval) \
 	if(cond) buffer->writeDynString(#name, name, hasNullTerminator);
 
+#define SERIALIZATION_F_PAD1(size) \
+	buffer->pad("padding", size);
+#define SERIALIZATION_F_PAD2(size, cond) \
+	if(cond) buffer->pad("padding", size);
+
 // Deserialization function
 #define DESERIALIZATION_F_SIMPLE(...) OVERLOADED_CALL(DESERIALIZATION_F_SIMPLE, __VA_ARGS__)
 #define DESERIALIZATION_F_ARRAY(...) OVERLOADED_CALL(DESERIALIZATION_F_ARRAY, __VA_ARGS__)
@@ -209,6 +222,7 @@ getSizeOf(const T& value, int version) {
 #define DESERIALIZATION_F_COUNT(...) OVERLOADED_CALL(DESERIALIZATION_F_COUNT, __VA_ARGS__)
 #define DESERIALIZATION_F_STRING(...) OVERLOADED_CALL(DESERIALIZATION_F_STRING, __VA_ARGS__)
 #define DESERIALIZATION_F_DYNSTRING(...) OVERLOADED_CALL(DESERIALIZATION_F_DYNSTRING, __VA_ARGS__)
+#define DESERIALIZATION_F_PAD(...) OVERLOADED_CALL(DESERIALIZATION_F_PAD, __VA_ARGS__)
 
 #define DESERIALIZATION_F_SIMPLE2(type, name) \
 	buffer->template read<type>(#name, name);
@@ -262,6 +276,11 @@ getSizeOf(const T& value, int version) {
 		buffer->readDynString(#name, name, hasNullTerminator); \
 	else \
 		name = defaultval;
+
+#define DESERIALIZATION_F_PAD1(size) \
+	buffer->discard("padding", size);
+#define DESERIALIZATION_F_PAD2(size, cond) \
+	if(cond) buffer->discard("padding", size);
 
 
 // def / impl mode implementation
@@ -326,11 +345,11 @@ getSizeOf(const T& value, int version) {
 #define CREATE_STRUCT_IMPL(name_, size_base_, definition_header_, serialization_header_, deserialization_header_) \
 	struct name_ { \
 		definition_header_ \
-		name_ ## _DEF(DEFINITION_F_SIMPLE, DEFINITION_F_ARRAY, DEFINITION_F_DYNARRAY, DEFINITION_F_COUNT, DEFINITION_F_STRING, DEFINITION_F_DYNSTRING) \
+		name_ ## _DEF(DEFINITION_F_SIMPLE, DEFINITION_F_ARRAY, DEFINITION_F_DYNARRAY, DEFINITION_F_COUNT, DEFINITION_F_STRING, DEFINITION_F_DYNSTRING, DEFINITION_F_PAD) \
 	\
 		uint32_t getSize(int version) const { \
 			uint32_t size = size_base_; \
-			name_ ## _DEF(SIZE_F_SIMPLE, SIZE_F_ARRAY, SIZE_F_DYNARRAY, SIZE_F_COUNT, SIZE_F_STRING, SIZE_F_DYNSTRING) \
+			name_ ## _DEF(SIZE_F_SIMPLE, SIZE_F_ARRAY, SIZE_F_DYNARRAY, SIZE_F_COUNT, SIZE_F_STRING, SIZE_F_DYNSTRING, SIZE_F_PAD) \
 	\
 			return size;\
 		} \
@@ -340,7 +359,7 @@ getSizeOf(const T& value, int version) {
 			const int version = buffer->getVersion(); \
 			(void)(version); \
 			serialization_header_ \
-			name_ ## _DEF(SERIALIZATION_F_SIMPLE, SERIALIZATION_F_ARRAY, SERIALIZATION_F_DYNARRAY, SERIALIZATION_F_COUNT, SERIALIZATION_F_STRING, SERIALIZATION_F_DYNSTRING) \
+			name_ ## _DEF(SERIALIZATION_F_SIMPLE, SERIALIZATION_F_ARRAY, SERIALIZATION_F_DYNARRAY, SERIALIZATION_F_COUNT, SERIALIZATION_F_STRING, SERIALIZATION_F_DYNSTRING, SERIALIZATION_F_PAD) \
 		} \
 	\
 		template<class T> \
@@ -349,7 +368,7 @@ getSizeOf(const T& value, int version) {
 			(void)(version); \
 			deserialization_header_ \
 	\
-			name_ ## _DEF(DESERIALIZATION_F_SIMPLE, DESERIALIZATION_F_ARRAY, DESERIALIZATION_F_DYNARRAY, DESERIALIZATION_F_COUNT, DESERIALIZATION_F_STRING, DESERIALIZATION_F_DYNSTRING) \
+			name_ ## _DEF(DESERIALIZATION_F_SIMPLE, DESERIALIZATION_F_ARRAY, DESERIALIZATION_F_DYNARRAY, DESERIALIZATION_F_COUNT, DESERIALIZATION_F_STRING, DESERIALIZATION_F_DYNSTRING, DESERIALIZATION_F_PAD) \
 		} \
 	}
 

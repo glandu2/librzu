@@ -3,7 +3,7 @@
 
 #include "Packet/PacketDeclaration.h"
 
-#define TS_QUEST_INFO_DEF(simple_, array_, dynarray_, count_, string_, dynstring_) \
+#define TS_QUEST_INFO_DEF(simple_, array_, dynarray_, count_, string_, dynstring_, pad_) \
 	simple_ (uint32_t, code) \
 	simple_ (uint32_t, startID) \
 	array_ (uint32_t, value, 6) \
@@ -12,12 +12,12 @@
 	simple_ (uint32_t, timeLimit)
 CREATE_STRUCT(TS_QUEST_INFO);
 
-#define TS_QUEST_PENDING_DEF(simple_, array_, dynarray_, count_, string_, dynstring_) \
+#define TS_QUEST_PENDING_DEF(simple_, array_, dynarray_, count_, string_, dynstring_, pad_) \
 	simple_ (uint32_t, code) \
 	simple_ (uint32_t, startID)
 CREATE_STRUCT(TS_QUEST_PENDING);
 
-#define TS_SC_QUEST_LIST_DEF(simple_, array_, dynarray_, count_, string_, dynstring_) \
+#define TS_SC_QUEST_LIST_DEF(simple_, array_, dynarray_, count_, string_, dynstring_, pad_) \
 	count_ (uint16_t, count_active, activeQuests) \
 	dynarray_(TS_QUEST_INFO, activeQuests) \
 	count_ (uint16_t, count_pending, pendingQuests) \

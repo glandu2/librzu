@@ -3,7 +3,7 @@
 
 #include "Packet/PacketDeclaration.h"
 
-#define TS_SC_EXP_UPDATE_DEF(simple_, array_, dynarray_, count_, string_, dynstring_) \
+#define TS_SC_EXP_UPDATE_DEF(simple_, array_, dynarray_, count_, string_, dynstring_, pad_) \
 	simple_ (uint32_t, handle) \
 	simple_ (uint64_t, exp) \
 	simple_(def) (uint64_t, jp) \
