@@ -80,9 +80,7 @@ public:
 	template<typename T>
 	typename std::enable_if<!is_primitive<T>::value, void>::type
 	write(const char* fieldName, const T& val) {
-		if(checkAvailableBuffer(fieldName, 1)) {
-			val.serialize(this);
-		}
+		val.serialize(this);
 	}
 
 	//String
@@ -170,9 +168,7 @@ public:
 	template<typename T>
 	typename std::enable_if<!is_primitive<T>::value, void>::type
 	read(const char* fieldName, T& val) {
-		if(checkAvailableBuffer(fieldName, 1)) {
-			val.deserialize(this);
-		}
+		val.deserialize(this);
 	}
 
 	//String
