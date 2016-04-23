@@ -3,9 +3,9 @@
 
 #include "PacketDeclaration.h"
 
-#define TS_SC_REGION_ACK_DEF(simple_, array_, dynarray_, count_) \
-	simple_(int32_t, rx) \
-	simple_(int32_t, rx)
+#define TS_SC_REGION_ACK_DEF(_(simple), _(array), _(dynarray), _(count)) \
+	_(simple)(int32_t, rx) \
+	_(simple)(int32_t, rx)
 
 CREATE_PACKET(TS_SC_REGION_ACK, 11);
 

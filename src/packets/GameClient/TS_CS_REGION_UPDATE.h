@@ -3,12 +3,12 @@
 
 #include "Packet/PacketDeclaration.h"
 
-#define TS_CS_REGION_UPDATE_DEF(simple_, array_, dynarray_, count_) \
-	simple_(uint32_t, update_time) \
-	simple_(float, x) \
-	simple_(float, y) \
-	simple_(float, z) \
-	simple_(bool, bIsStopMessage)
+#define TS_CS_REGION_UPDATE_DEF(_) \
+	_(simple)(uint32_t, update_time) \
+	_(simple)(float, x) \
+	_(simple)(float, y) \
+	_(simple)(float, z) \
+	_(simple)(bool, bIsStopMessage)
 
 CREATE_PACKET(TS_CS_REGION_UPDATE, 7);
 

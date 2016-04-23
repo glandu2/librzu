@@ -42,125 +42,125 @@ enum TS_SKILL__DAMAGE_TYPE : uint8_t
 	SDT_TYPE_COUNT = 0x7
 };
 
-#define TS_SC_SKILL__HIT_DAMAGE_INFO_DEF(simple_, array_, dynarray_, count_, string_, dynstring_, pad_) \
-	simple_ (int32_t, target_hp) \
-	simple_ (TS_SKILL__DAMAGE_TYPE, damage_type) \
-	simple_ (int32_t, damage) \
-	simple_ (int32_t, flag) \
-	array_  (uint16_t, elemental_damage, 7)
+#define TS_SC_SKILL__HIT_DAMAGE_INFO_DEF(_) \
+	_(simple) (int32_t, target_hp) \
+	_(simple) (TS_SKILL__DAMAGE_TYPE, damage_type) \
+	_(simple) (int32_t, damage) \
+	_(simple) (int32_t, flag) \
+	_(array)  (uint16_t, elemental_damage, 7)
 CREATE_STRUCT(TS_SC_SKILL__HIT_DAMAGE_INFO);
 
-#define TS_SC_SKILL__HIT_DAMAGE_DEF(simple_, array_, dynarray_, count_, string_, dynstring_, pad_) \
-	simple_ (TS_SC_SKILL__HIT_DAMAGE_INFO, damage) \
-	pad_    (14)
+#define TS_SC_SKILL__HIT_DAMAGE_DEF(_) \
+	_(simple) (TS_SC_SKILL__HIT_DAMAGE_INFO, damage) \
+	_(pad)    (14)
 CREATE_STRUCT(TS_SC_SKILL__HIT_DAMAGE);
 
-#define TS_SC_SKILL__HIT_DAMAGE_WITH_KNOCKBACK_DEF(simple_, array_, dynarray_, count_, string_, dynstring_, pad_) \
-	simple_ (TS_SC_SKILL__HIT_DAMAGE_INFO, damage) \
-	simple_ (float, x) \
-	simple_ (float, y) \
-	simple_ (int16_t, speed) \
-	simple_ (uint32_t, knock_back_time)
+#define TS_SC_SKILL__HIT_DAMAGE_WITH_KNOCKBACK_DEF(_) \
+	_(simple) (TS_SC_SKILL__HIT_DAMAGE_INFO, damage) \
+	_(simple) (float, x) \
+	_(simple) (float, y) \
+	_(simple) (int16_t, speed) \
+	_(simple) (uint32_t, knock_back_time)
 CREATE_STRUCT(TS_SC_SKILL__HIT_DAMAGE_WITH_KNOCKBACK);
 
-#define TS_SC_SKILL__HIT_RESULT_DEF(simple_, array_, dynarray_, count_, string_, dynstring_, pad_) \
-	simple_ (bool, bResult) \
-	simple_ (int32_t, success_type) \
-	pad_    (35)
+#define TS_SC_SKILL__HIT_RESULT_DEF(_) \
+	_(simple) (bool, bResult) \
+	_(simple) (int32_t, success_type) \
+	_(pad)    (35)
 CREATE_STRUCT(TS_SC_SKILL__HIT_RESULT);
 
-#define TS_SC_SKILL__HIT_ADD_STAT_DEF(simple_, array_, dynarray_, count_, string_, dynstring_, pad_) \
-	simple_ (int32_t, target_stat) \
-	simple_ (int32_t, nIncStat) \
-	pad_    (32)
+#define TS_SC_SKILL__HIT_ADD_STAT_DEF(_) \
+	_(simple) (int32_t, target_stat) \
+	_(simple) (int32_t, nIncStat) \
+	_(pad)    (32)
 CREATE_STRUCT(TS_SC_SKILL__HIT_ADD_STAT);
 
-#define TS_SC_SKILL__HIT_ADDHPMPSP_DEF(simple_, array_, dynarray_, count_, string_, dynstring_, pad_) \
-	simple_ (int32_t, target_hp) \
-	simple_ (int32_t, nIncHP) \
-	simple_ (int32_t, nIncMP) \
-	simple_ (int32_t, nIncSP) \
-	simple_ (int32_t, target_mp) \
-	pad_    (22)
+#define TS_SC_SKILL__HIT_ADDHPMPSP_DEF(_) \
+	_(simple) (int32_t, target_hp) \
+	_(simple) (int32_t, nIncHP) \
+	_(simple) (int32_t, nIncMP) \
+	_(simple) (int32_t, nIncSP) \
+	_(simple) (int32_t, target_mp) \
+	_(pad)    (22)
 CREATE_STRUCT(TS_SC_SKILL__HIT_ADDHPMPSP);
 
-#define TS_SC_SKILL__HIT_REBIRTH_DEF(simple_, array_, dynarray_, count_, string_, dynstring_, pad_) \
-	simple_ (int32_t, target_hp) \
-	simple_ (int32_t, nIncHP) \
-	simple_ (int32_t, nIncMP) \
-	simple_ (int32_t, nRecoveryEXP) \
-	simple_ (int32_t, target_mp) \
-	pad_    (22)
+#define TS_SC_SKILL__HIT_REBIRTH_DEF(_) \
+	_(simple) (int32_t, target_hp) \
+	_(simple) (int32_t, nIncHP) \
+	_(simple) (int32_t, nIncMP) \
+	_(simple) (int32_t, nRecoveryEXP) \
+	_(simple) (int32_t, target_mp) \
+	_(pad)    (22)
 CREATE_STRUCT(TS_SC_SKILL__HIT_REBIRTH);
 
-#define TS_SC_SKILL__HIT_RUSH_DEF(simple_, array_, dynarray_, count_, string_, dynstring_, pad_) \
-	simple_ (bool, bResult) \
-	simple_ (float, x) \
-	simple_ (float, y) \
-	simple_ (float, face) \
-	simple_ (int8_t, speed) \
-	pad_    (26)
+#define TS_SC_SKILL__HIT_RUSH_DEF(_) \
+	_(simple) (bool, bResult) \
+	_(simple) (float, x) \
+	_(simple) (float, y) \
+	_(simple) (float, face) \
+	_(simple) (int8_t, speed) \
+	_(pad)    (26)
 CREATE_STRUCT(TS_SC_SKILL__HIT_RUSH);
 
-#define TS_SC_SKILL__HIT_CHAIN_DAMAGE_DEF(simple_, array_, dynarray_, count_, string_, dynstring_, pad_) \
-	simple_ (TS_SC_SKILL__HIT_DAMAGE_INFO, damage) \
-	simple_ (uint32_t, hFrom) \
-	pad_    (9)
+#define TS_SC_SKILL__HIT_CHAIN_DAMAGE_DEF(_) \
+	_(simple) (TS_SC_SKILL__HIT_DAMAGE_INFO, damage) \
+	_(simple) (uint32_t, hFrom) \
+	_(pad)    (9)
 CREATE_STRUCT(TS_SC_SKILL__HIT_CHAIN_DAMAGE);
 
-#define TS_SC_SKILL__HIT_CHAIN_HEAL_DEF(simple_, array_, dynarray_, count_, string_, dynstring_, pad_) \
-	simple_ (int32_t, target_hp) \
-	simple_ (int32_t, nIncHP) \
-	simple_ (uint32_t, hFrom) \
-	pad_    (28)
+#define TS_SC_SKILL__HIT_CHAIN_HEAL_DEF(_) \
+	_(simple) (int32_t, target_hp) \
+	_(simple) (int32_t, nIncHP) \
+	_(simple) (uint32_t, hFrom) \
+	_(pad)    (28)
 CREATE_STRUCT(TS_SC_SKILL__HIT_CHAIN_HEAL);
 
-#define TS_SC_SKILL__HIT_DETAILS_DEF(simple_, array_, dynarray_, count_, string_, dynstring_, pad_) \
-	simple_ (TS_SKILL__HIT_TYPE, type) \
-	simple_ (uint32_t, hTarget) \
-	simple_ (TS_SC_SKILL__HIT_DAMAGE               , hitDamage             , type == SHT_DAMAGE || type == SHT_MAGIC_DAMAGE) \
-	simple_ (TS_SC_SKILL__HIT_DAMAGE_WITH_KNOCKBACK, hitDamageWithKnockBack, type == SHT_DAMAGE_WITH_KNOCK_BACK) \
-	simple_ (TS_SC_SKILL__HIT_RESULT               , hitResult             , type == SHT_RESULT) \
-	simple_ (TS_SC_SKILL__HIT_ADD_STAT             , hitAddStat            , type == SHT_ADD_HP || type == SHT_ADD_MP) \
-	simple_ (TS_SC_SKILL__HIT_ADDHPMPSP            , hitAddHPMPSP          , type == SHT_ADD_HP_MP_SP) \
-	simple_ (TS_SC_SKILL__HIT_REBIRTH              , hitRebirth            , type == SHT_REBIRTH) \
-	simple_ (TS_SC_SKILL__HIT_RUSH                 , hitRush               , type == SHT_RUSH) \
-	simple_ (TS_SC_SKILL__HIT_CHAIN_DAMAGE         , hitChainDamage        , type == SHT_CHAIN_DAMAGE || type == SHT_CHAIN_MAGIC_DAMAGE) \
-	simple_ (TS_SC_SKILL__HIT_CHAIN_HEAL           , hitAddHP              , type == SHT_CHAIN_HEAL)
+#define TS_SC_SKILL__HIT_DETAILS_DEF(_) \
+	_(simple) (TS_SKILL__HIT_TYPE, type) \
+	_(simple) (uint32_t, hTarget) \
+	_(simple) (TS_SC_SKILL__HIT_DAMAGE               , hitDamage             , type == SHT_DAMAGE || type == SHT_MAGIC_DAMAGE) \
+	_(simple) (TS_SC_SKILL__HIT_DAMAGE_WITH_KNOCKBACK, hitDamageWithKnockBack, type == SHT_DAMAGE_WITH_KNOCK_BACK) \
+	_(simple) (TS_SC_SKILL__HIT_RESULT               , hitResult             , type == SHT_RESULT) \
+	_(simple) (TS_SC_SKILL__HIT_ADD_STAT             , hitAddStat            , type == SHT_ADD_HP || type == SHT_ADD_MP) \
+	_(simple) (TS_SC_SKILL__HIT_ADDHPMPSP            , hitAddHPMPSP          , type == SHT_ADD_HP_MP_SP) \
+	_(simple) (TS_SC_SKILL__HIT_REBIRTH              , hitRebirth            , type == SHT_REBIRTH) \
+	_(simple) (TS_SC_SKILL__HIT_RUSH                 , hitRush               , type == SHT_RUSH) \
+	_(simple) (TS_SC_SKILL__HIT_CHAIN_DAMAGE         , hitChainDamage        , type == SHT_CHAIN_DAMAGE || type == SHT_CHAIN_MAGIC_DAMAGE) \
+	_(simple) (TS_SC_SKILL__HIT_CHAIN_HEAL           , hitAddHP              , type == SHT_CHAIN_HEAL)
 CREATE_STRUCT(TS_SC_SKILL__HIT_DETAILS);
 
-#define TS_SC_SKILL__FIRE_DEF(simple_, array_, dynarray_, count_, string_, dynstring_, pad_) \
-	simple_ (bool, bMultiple) \
-	simple_ (float, range) \
-	simple_ (int8_t, target_count) \
-	simple_ (int8_t, fire_count) \
-	count_  (uint16_t, count, hits) \
-	dynarray_(TS_SC_SKILL__HIT_DETAILS, hits)
+#define TS_SC_SKILL__FIRE_DEF(_) \
+	_(simple) (bool, bMultiple) \
+	_(simple) (float, range) \
+	_(simple) (int8_t, target_count) \
+	_(simple) (int8_t, fire_count) \
+	_(count)  (uint16_t, count, hits) \
+	_(dynarray)(TS_SC_SKILL__HIT_DETAILS, hits)
 CREATE_STRUCT(TS_SC_SKILL__FIRE);
 
-#define TS_SC_SKILL__CAST_DEF(simple_, array_, dynarray_, count_, string_, dynstring_, pad_) \
-	simple_ (uint32_t, tm) \
-	simple_ (uint16_t, nErrorCode) \
-	pad_    (3) /* padding to match fire size */
+#define TS_SC_SKILL__CAST_DEF(_) \
+	_(simple) (uint32_t, tm) \
+	_(simple) (uint16_t, nErrorCode) \
+	_(pad)    (3) /* padding to match fire size */
 CREATE_STRUCT(TS_SC_SKILL__CAST);
 
-#define TS_SC_SKILL_DEF(simple_, array_, dynarray_, count_, string_, dynstring_, pad_) \
-	simple_ (uint16_t, skill_id) \
-	simple_ (uint8_t, skill_level) \
-	simple_ (uint32_t, caster) \
-	simple_ (uint32_t, target) \
-	simple_ (float, x) \
-	simple_ (float, y) \
-	simple_ (float, z) \
-	simple_ (uint8_t, layer) \
-	simple_ (TS_SKILL__TYPE, type) \
-	simple_ (int32_t, hp_cost) \
-	simple_ (int32_t, mp_cost) \
-	simple_ (int32_t, caster_hp) \
-	simple_ (int32_t, caster_mp) \
-	simple_ (TS_SC_SKILL__FIRE , fire   , type == ST_Fire || type == ST_RegionFire) \
-	simple_ (TS_SC_SKILL__CAST , casting, type == ST_Casting || type == ST_CastingUpdate) \
-	pad_    (9, type != ST_Fire && type != ST_RegionFire && type != ST_Casting && type != ST_CastingUpdate) /* padding to match fire size */
+#define TS_SC_SKILL_DEF(_) \
+	_(simple) (uint16_t, skill_id) \
+	_(simple) (uint8_t, skill_level) \
+	_(simple) (uint32_t, caster) \
+	_(simple) (uint32_t, target) \
+	_(simple) (float, x) \
+	_(simple) (float, y) \
+	_(simple) (float, z) \
+	_(simple) (uint8_t, layer) \
+	_(simple) (TS_SKILL__TYPE, type) \
+	_(simple) (int32_t, hp_cost) \
+	_(simple) (int32_t, mp_cost) \
+	_(simple) (int32_t, caster_hp) \
+	_(simple) (int32_t, caster_mp) \
+	_(simple) (TS_SC_SKILL__FIRE , fire   , type == ST_Fire || type == ST_RegionFire) \
+	_(simple) (TS_SC_SKILL__CAST , casting, type == ST_Casting || type == ST_CastingUpdate) \
+	_(pad)    (9, type != ST_Fire && type != ST_RegionFire && type != ST_Casting && type != ST_CastingUpdate) /* padding to match fire size */
 
 CREATE_PACKET(TS_SC_SKILL, 401);
 

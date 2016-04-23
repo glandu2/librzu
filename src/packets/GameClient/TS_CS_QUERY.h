@@ -1,10 +1,10 @@
 #ifndef PACKETS_TS_CS_QUERY_H
 #define PACKETS_TS_CS_QUERY_H
 
-#include "PacketDeclaration.h"
+#include "Packet/PacketDeclaration.h"
 
-#define TS_CS_QUERY_DEF(simple_, array_, dynarray_, count_) \
-	simple_(uint32_t, handle) 
+#define TS_CS_QUERY_DEF(_) \
+	_(simple)(uint32_t, handle) 
 
 CREATE_PACKET(TS_CS_QUERY, 13);
 

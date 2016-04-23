@@ -1,13 +1,13 @@
 #ifndef PACKETS_TS_SC_CHAT_RESULT_H
 #define PACKETS_TS_SC_CHAT_RESULT_H
 
-#include "PacketDeclaration.h"
+#include "Packet/PacketDeclaration.h"
 
-#define TS_SC_CHAT_RESULT_DEF(simple_, array_, dynarray_, count_) \
-	simple_(char, type) \
-	simple_(char, percentage) \
-	simple_(int32_t, result) \
-	simple_(int32_t, reserved)
+#define TS_SC_CHAT_RESULT_DEF(_) \
+	_(simple)(char, type) \
+	_(simple)(char, percentage) \
+	_(simple)(int32_t, result) \
+	_(simple)(int32_t, reserved)
 
 CREATE_PACKET(TS_SC_CHAT_RESULT, 24);
 

@@ -3,17 +3,17 @@
 
 #include "Packet/PacketDeclaration.h"
 
-#define TS_SC_PROPERTY_DEF(simple_, array_, dynarray_, count_, string_, dynstring_, pad_) \
-	simple_ (uint32_t, handle) \
-	simple_ (bool, is_number) \
-	string_ (name, 16) \
-	simple_(def)(int64_t, value, is_number == true) \
-	simple_(impl)(int64_t, value, is_number == true && version >= EPIC_5_1) \
-	simple_(impl)(int32_t, value, is_number == true && version < EPIC_5_1) \
-	count_(def)(int64_t, string_size, string_value, is_number == false) \
-	count_(impl)(int64_t, string_size, string_value, is_number == false && version >= EPIC_5_1) \
-	count_(impl)(int32_t, string_size, string_value, is_number == false && version < EPIC_5_1) \
-	dynstring_(string_value, true, is_number == false)
+#define TS_SC_PROPERTY_DEF(_) \
+	_(simple) (uint32_t, handle) \
+	_(simple) (bool, is_number) \
+	_(string) (name, 16) \
+	_(simple)(def)(int64_t, value, is_number == true) \
+	_(simple)(impl)(int64_t, value, is_number == true && version >= EPIC_5_1) \
+	_(simple)(impl)(int32_t, value, is_number == true && version < EPIC_5_1) \
+	_(count)(def)(int64_t, string_size, string_value, is_number == false) \
+	_(count)(impl)(int64_t, string_size, string_value, is_number == false && version >= EPIC_5_1) \
+	_(count)(impl)(int32_t, string_size, string_value, is_number == false && version < EPIC_5_1) \
+	_(dynstring)(string_value, true, is_number == false)
 
 CREATE_PACKET(TS_SC_PROPERTY, 507);
 

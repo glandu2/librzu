@@ -3,9 +3,9 @@
 
 #include "Packet/PacketDeclaration.h"
 
-#define TS_CS_CHANGE_LOCATION_DEF(simple_, array_, dynarray_, count_, string_, dynstring_, pad_) \
-	simple_ (float, x) \
-	simple_ (float, y)
+#define TS_CS_CHANGE_LOCATION_DEF(_) \
+	_(simple) (float, x) \
+	_(simple) (float, y)
 
 CREATE_PACKET(TS_CS_CHANGE_LOCATION, 900);
 

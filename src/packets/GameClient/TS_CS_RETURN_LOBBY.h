@@ -3,7 +3,7 @@
 
 #include "Packet/PacketDeclaration.h"
 
-#define TS_CS_RETURN_LOBBY_DEF(simple_, array_, dynarray_, count_)
+#define TS_CS_RETURN_LOBBY_DEF(_)
 
 CREATE_PACKET(TS_CS_RETURN_LOBBY, 23);
 
