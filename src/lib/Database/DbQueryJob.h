@@ -18,7 +18,12 @@ template<class DbMappingClass>
 class DbQueryJob : public Object, public IDbQueryJob {
 protected:
 	template<typename FieldType>
-	struct IfValidFieldType : public std::integral_constant<bool, std::is_fundamental<FieldType>::value || std::is_same<FieldType, SQL_TIMESTAMP_STRUCT>::value || std::is_same<FieldType, std::string>::value> {};
+	struct IfValidFieldType : public std::integral_constant<bool,
+			std::is_fundamental<FieldType>::value ||
+			std::is_same<FieldType, SQL_TIMESTAMP_STRUCT>::value ||
+			std::is_same<FieldType, DbDateTime>::value ||
+			std::is_same<FieldType, std::string>::value
+			> {};
 
 public:
 	typedef typename DbMappingClass::Input InputType;

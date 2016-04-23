@@ -4,6 +4,11 @@
 #include <uv.h>
 #include <sqlext.h>
 #include <string>
+#include "Extern.h"
+
+struct RZU_EXTERN DbDateTime : public SQL_TIMESTAMP_STRUCT {
+	void setUnixTime(time_t t, uint32_t nanoFraction = 0);
+};
 
 template<typename T> struct DbTypeBinding {};
 
@@ -17,6 +22,7 @@ template<> struct DbTypeBinding<float> { enum { C_TYPE = SQL_C_FLOAT, SQL_TYPE =
 template<> struct DbTypeBinding<double> { enum { C_TYPE = SQL_C_DOUBLE, SQL_TYPE = SQL_DOUBLE, SQL_SIZE = 15, SQL_PRECISION = 0 }; };
 
 template<> struct DbTypeBinding<SQL_TIMESTAMP_STRUCT> {enum { C_TYPE = SQL_C_TIMESTAMP, SQL_TYPE = SQL_TYPE_TIMESTAMP, SQL_SIZE = 23, SQL_PRECISION = 3 }; };
+template<> struct DbTypeBinding<DbDateTime> : DbTypeBinding<SQL_TIMESTAMP_STRUCT> {};
 
 template<> struct DbTypeBinding<unsigned char> : DbTypeBinding<char> {};
 template<> struct DbTypeBinding<unsigned short> : DbTypeBinding<short> {};
