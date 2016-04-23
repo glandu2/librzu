@@ -92,7 +92,7 @@ bool DbQueryBinding::process(IDbQueryJob* queryJob) {
 		return false;
 	}
 
-	connection->setAutoCommit(true);
+	connection->setAutoCommit(false);
 
 	bool getDataErrorOccured = false; //if true, show query after all getData
 
