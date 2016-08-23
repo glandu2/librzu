@@ -30,13 +30,13 @@ public:
 		 * sv.u16[3] = (value & 0xFFFF) - 2*(sv.u16[2] + sv.u16[0]);
 		 */
 
-		buffer->write<uint64_t>("value", sv.u64);
+		buffer->template write<uint64_t>("value", sv.u64);
 	}
 
 	template<class T>
 	static void deserialize(T* buffer, uint32_t& value) {
 		SerializedValue sv;
-		buffer->read<uint64_t>("value", sv.u64);
+		buffer->template read<uint64_t>("value", sv.u64);
 
 		value = (uint16_t(sv.u16[1] - 2*(sv.u16[2] - sv.u16[0])) << 16) |
 				 uint16_t(sv.u16[3] + 2*(sv.u16[2] + sv.u16[0]));

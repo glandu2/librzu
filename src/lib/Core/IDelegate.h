@@ -264,25 +264,26 @@ public:
 
 #define DELEGATE_CALL(c, ...) \
 	do { \
-		auto it = (c).callbacks.begin(); \
-		auto itEnd = (c).callbacks.end(); \
+		auto& delegate = (c); \
+		auto it = delegate.callbacks.begin(); \
+		auto itEnd = delegate.callbacks.end(); \
  \
 		for(; it != itEnd;) { \
 			IListener* instance = it->first; \
 			auto callback = it->second; \
  \
 			if(callback != nullptr) { \
-				(c).callDepth++; \
+				delegate.callDepth++; \
 				callback(instance, __VA_ARGS__); \
-				(c).callDepth--; \
+				delegate.callDepth--; \
 				++it; \
-			} else if((c).callDepth == 0) { \
-				it = (c).callbacks.erase(it); \
+			} else if(delegate.callDepth == 0) { \
+				it = delegate.callbacks.erase(it); \
 			} else { \
 				++it; \
 			} \
 		} \
-		(c).processPendingAdds(); \
+		delegate.processPendingAdds(); \
 	} while(0)
 
 

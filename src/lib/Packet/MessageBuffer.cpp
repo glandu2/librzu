@@ -28,8 +28,8 @@ Stream::WriteRequest *MessageBuffer::getWriteRequest() {
 
 bool MessageBuffer::checkFinalSize() {
 	if(bufferOverflow) {
-		log(LL_Error, "Serialization overflow: buffer size: %d, offset: %d, field: %s\n",
-			getSize(), uint32_t(p - buffer->buffer.base), getFieldInOverflow().c_str());
+		log(LL_Error, "Serialization overflow: version: %d, buffer size: %d, offset: %d, field: %s\n",
+		    getVersion(), getSize(), uint32_t(p - buffer->buffer.base), getFieldInOverflow().c_str());
 	}
 	return !bufferOverflow;
 }

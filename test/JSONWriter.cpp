@@ -1,5 +1,6 @@
 #include <iostream>
 #include "AuthClient/TS_AC_SERVER_LIST.h"
+#include "Packet/JSONWriter.h"
 
 /* Tests:
  * TestPacketServer => Test, name
@@ -9,7 +10,7 @@
  * ProcessSpawner => config => name / enum (used to generate pipe name)
  */
 
-
+/*
 class JSONWriter {
 public:
 	JSONWriter() : depth(0), version(0), newList(true) {}
@@ -167,11 +168,11 @@ public:
 	void discard(const char*, int size) {
 	}
 };
+*/
 
-int main() {
+int main(int argc, char* argv[]) {
 	TS_AC_SERVER_LIST packet;
 	TS_SERVER_INFO serverInfo[2];
-	JSONWriter jsonWriter;
 
 	packet.last_login_server_idx = 5;
 
@@ -194,14 +195,22 @@ int main() {
 	packet.servers.push_back(serverInfo[0]);
 	packet.servers.push_back(serverInfo[1]);
 
-	std::cout << "Version 0 serialization :\n";
-	jsonWriter.version = 0;
-	packet.serialize(&jsonWriter);
+	{
+		std::cout << "Version 0 serialization :\n";
+		JSONWriter jsonWriter(0, false);
+		packet.serialize(&jsonWriter);
+		jsonWriter.finalize();
+		std::cout << jsonWriter.toString();
+	}
 
-	std::cout << "\nVersion 100000000 serialization :\n";
-	jsonWriter.version = 100000000;
-	jsonWriter.newList = true;
-	packet.serialize(&jsonWriter);
+
+	{
+		std::cout << "Version 100000000 serialization :\n";
+		JSONWriter jsonWriter(100000000, false);
+		packet.serialize(&jsonWriter);
+		jsonWriter.finalize();
+		std::cout << jsonWriter.toString();
+	}
 
 	return 0;
 }

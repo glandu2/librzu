@@ -10,25 +10,31 @@ private:
 	std::stringstream json;
 	int depth;
 	bool newList;
+	const bool compact;
+
+private:
+	const char* getEndFieldSeparator() { return compact ? "\":" : "\": "; }
 
 public:
-	JSONWriter(int version) : StructSerializer(version), depth(1), newList(true) {
+	JSONWriter(int version, bool compact) : StructSerializer(version), depth(1), newList(true), compact(compact) {
 		json << "{";
 	}
 
-	void finalize() { json << "\n}"; }
+	void finalize() { json << (compact ? "}" : "\n}"); }
 
 	std::string toString() { return json.str(); }
 
-	void printIdent() {
+	void printIdent(bool addNewLine = true) {
 		if(!newList)
-			json << ",\n";
-		else
+			json << (compact ? "," : ", ");
+
+		if(addNewLine && !compact) {
 			json << "\n";
+			for(int i = 0; i < depth; i++)
+				json << '\t';
+		}
 
 		newList = false;
-		for(int i = 0; i < depth; i++)
-			json << '\t';
 	}
 
 	// Write functions /////////////////////////
@@ -37,9 +43,9 @@ public:
 	template<typename T>
 	typename std::enable_if<is_primitive<T>::value && sizeof(T) < sizeof(int), void>::type
 	write(const char* fieldName, T val) {
-		printIdent();
+		printIdent(fieldName != nullptr);
 		if(fieldName)
-			json << '\"' << fieldName << "\": ";
+			json << '\"' << fieldName << getEndFieldSeparator();
 		json << (int)val;
 	}
 
@@ -47,18 +53,18 @@ public:
 	template<typename T>
 	typename std::enable_if<is_primitive<T>::value && sizeof(T) >= sizeof(int), void>::type
 	write(const char* fieldName, T val) {
-		printIdent();
+		printIdent(fieldName != nullptr);
 		if(fieldName)
-			json << '\"' << fieldName << "\": ";
+			json << '\"' << fieldName << getEndFieldSeparator();
 		json << val;
 	}
 
 	//Encoded values
 	template<typename T>
 	void write(const char* fieldName, const EncodedInt<T>& val) {
-		printIdent();
+		printIdent(fieldName != nullptr);
 		if(fieldName)
-			json << '\"' << fieldName << "\": ";
+			json << '\"' << fieldName << getEndFieldSeparator();
 		json << (uint32_t)val;
 	}
 
@@ -68,7 +74,7 @@ public:
 	write(const char* fieldName, const T& val) {
 		printIdent();
 		if(fieldName)
-			json << '\"' << fieldName << "\": ";
+			json << '\"' << fieldName << getEndFieldSeparator();
 		json << '{';
 
 		newList = true;
@@ -78,28 +84,28 @@ public:
 
 		newList = true;
 		printIdent();
-		json << "}";
+		json << '}';
 	}
 
 	//String
 	void writeString(const char* fieldName, const std::string& val, size_t maxSize) {
 		printIdent();
 		if(fieldName)
-			json << '\"' << fieldName << "\": ";
+			json << '\"' << fieldName << getEndFieldSeparator();
 		json << "\"" << val << "\"";
 	}
 
 	void writeDynString(const char* fieldName, const std::string& val, bool hasNullTerminator) {
 		printIdent();
 		if(fieldName)
-			json << '\"' << fieldName << "\": ";
+			json << '\"' << fieldName << getEndFieldSeparator();
 		json << "\"" << val << "\"";
 	}
 
 	void writeArray(const char* fieldName, const char* val, size_t size) {
 		printIdent();
 		if(fieldName)
-			json << '\"' << fieldName << "\": ";
+			json << '\"' << fieldName << getEndFieldSeparator();
 		json << "\"" << val << "\"";
 	}
 
@@ -108,7 +114,7 @@ public:
 	void writeArray(const char* fieldName, const T* val, size_t size) {
 		printIdent();
 		if(fieldName)
-			json << '\"' << fieldName << "\": ";
+			json << '\"' << fieldName << getEndFieldSeparator();
 		json << '[';
 
 		newList = true;
@@ -119,8 +125,8 @@ public:
 		depth--;
 
 		newList = true;
-		printIdent();
-		json << "]";
+		printIdent(false);
+		json << ']';
 	}
 
 	//Fixed array of primitive with cast
@@ -135,7 +141,7 @@ public:
 	void writeDynArray(const char* fieldName, const std::vector<T>& val) {
 		printIdent();
 		if(fieldName)
-			json << '\"' << fieldName << "\": ";
+			json << '\"' << fieldName << getEndFieldSeparator();
 		json << '[';
 
 		newList = true;
@@ -147,8 +153,8 @@ public:
 		depth--;
 
 		newList = true;
-		printIdent();
-		json << "]";
+		printIdent(false);
+		json << ']';
 	}
 
 	//Dynamic array of primitive with cast

@@ -6,8 +6,13 @@
 
 class DbQueryJobRef;
 
+class RZU_EXTERN DbQueryJobCallbackBase {
+public:
+	void notifyDone(DbQueryJobRef* dbQueryJobRef, IDbQueryJobCallback* query);
+};
+
 template<class DbMappingClass, class Session, class DbJobClass>
-class DbQueryJobCallback : public DbQueryJob<DbMappingClass>, public IDbQueryJobCallback
+class DbQueryJobCallback : public DbQueryJob<DbMappingClass>, public IDbQueryJobCallback, public DbQueryJobCallbackBase
 {
 public:
 	typedef void (Session::*DbCallback)(DbJobClass* query);

@@ -12,6 +12,8 @@
 	protected: struct ClassCounter { \
 		unsigned long objectNo; \
 		ClassCounter() : objectNo(C::__objectsCreated++) { C::__objectCount++; } \
+		ClassCounter(const ClassCounter&) : objectNo(C::__objectsCreated++) { C::__objectCount++; } \
+		ClassCounter& operator =(const ClassCounter&) { return *this; } \
 		~ClassCounter() { C::__objectCount--; } \
 	} _cc; \
 	static unsigned long __objectsCreated; \

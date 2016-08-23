@@ -23,12 +23,12 @@ public:
 
 	template<class T>
 	void serialize(T* buffer) const {
-		Encoder::serialize<T>(buffer, value);
+		Encoder::template serialize<T>(buffer, value);
 	}
 
 	template<class T>
 	void deserialize(T* buffer) {
-		Encoder::deserialize<T>(buffer, value);
+		Encoder::template deserialize<T>(buffer, value);
 	}
 	
 private:

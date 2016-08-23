@@ -26,7 +26,7 @@ inline void exchange(RC4_INT *a, RC4_INT *b) {
 void RC4Cipher::modified_RC4_set_key(int len, const unsigned char *data) {
 	RC4_KEY* key = static_cast<RC4_KEY*>(state);
 	RC4_INT *d;
-	int j;
+	unsigned int j;
 	unsigned int i;
 
 	d = key->data;
