@@ -17,6 +17,7 @@ public:
 	ConsoleSession();
 	virtual ~ConsoleSession();
 
+	using TelnetSession::write;
 	virtual void write(const char *message) override;
 	virtual void writef(const char *format, ...) override;
 	virtual void log(const char *message, ...) override;
