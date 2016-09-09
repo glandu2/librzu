@@ -30,7 +30,7 @@ int main() {
 	uint64_t beginTime = uv_hrtime();
 	int i;
 	int version = EPIC_4_1;
-	for(i = 0; i < 100000000; i++) {
+	for(i = 0; i < 10000000; i++) {
 		MessageBuffer buffer(packet.getSize(version), version);
 		packet.serialize(&buffer);
 	}
