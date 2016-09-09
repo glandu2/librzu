@@ -30,6 +30,13 @@ SessionServerCommon::~SessionServerCommon() {
 
 	if(serverSocket)
 		serverSocket->deleteLater();
+
+	if(sockets.size() > 0)
+		log(LL_Warning, "Destroyed session server but socket session are still active (%d) (detaching them)\n", (int)sockets.size());
+
+	for(auto it = sockets.begin(); it != sockets.end(); ++it) {
+		(*it)->setServer(nullptr);
+	}
 }
 
 bool SessionServerCommon::start() {
@@ -73,10 +80,14 @@ void SessionServerCommon::stop() {
 	checkIdleSocketTimer.stop();
 	serverSocket->close();
 	openServer = false;
-	for(auto it = sockets.begin(); it != sockets.end();) {
+	for(auto it = sockets.begin(); it != sockets.end(); ++it) {
 		(*it)->close();
-		it = sockets.erase(it);
+		//closed socket will cause the SocketSession's to remove themselves from this list
 	}
+}
+
+void SessionServerCommon::socketClosed(SocketSession* socketSession) {
+	sockets.remove(socketSession);
 }
 
 void SessionServerCommon::onNewConnectionStatic(IListener* instance, Stream* serverSocket) { static_cast<SessionServerCommon*>(instance)->onNewConnection(); }
@@ -89,12 +100,11 @@ void SessionServerCommon::onNewConnection() {
 			lastWaitingStreamInstance->abort();
 			log(LL_Debug, "Kick banned ip %s\n", lastWaitingStreamInstance->getRemoteIpStr());
 		} else {
-			sockets.push_back(lastWaitingStreamInstance);
-
 			SocketSession* session = createSession();
-			session->setServer(this, --sockets.end());
 			session->assignStream(lastWaitingStreamInstance);
 			session->onConnected();
+			sockets.push_back(session);
+			session->setServer(this);
 		}
 		GlobalCoreConfig::get()->stats.connectionCount++;
 

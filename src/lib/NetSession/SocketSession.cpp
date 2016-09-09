@@ -5,7 +5,7 @@
 #include "Stream/Socket.h"
 #include "Stream/Pipe.h"
 
-SocketSession::SocketSession() : stream(nullptr), server(nullptr) {
+SocketSession::SocketSession() : stream(nullptr), server(nullptr), autoDelete(false) {
 }
 
 void SocketSession::assignStream(Stream* stream) {
@@ -32,6 +32,11 @@ SocketSession::~SocketSession() {
 	stream->deleteLater();
 }
 
+void SocketSession::setServer(SessionServerCommon *server) {
+	this->server = server;
+	this->autoDelete = true;
+}
+
 void SocketSession::onDataReceivedStatic(IListener* instance, Stream* stream) {
 	SocketSession* thisInstance = static_cast<SocketSession*>(instance);
 
@@ -49,10 +54,13 @@ void SocketSession::onSocketStateChanged(IListener* instance, Stream*, Stream::S
 	if(newState == Stream::UnconnectedState)
 		thisInstance->onDisconnected(causedByRemote);
 
-	SessionServerCommon* server = thisInstance->getServer();
-	if(newState == Stream::UnconnectedState && server) {
+	if(newState == Stream::UnconnectedState && thisInstance->autoDelete) {
 		GlobalCoreConfig::get()->stats.disconnectionCount++;
-		server->socketClosed(thisInstance->getSocketIterator());
+
+		SessionServerCommon* server = thisInstance->getServer();
+		if(server)
+			server->socketClosed(thisInstance);
+
 		if(thisInstance->isScheduledForDelete() == false)
 			delete thisInstance;
 	}

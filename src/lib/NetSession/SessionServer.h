@@ -27,7 +27,7 @@ public:
 
 	Stream::State getState() { return serverSocket ? serverSocket->getState() : Stream::UnconnectedState; }
 
-	void socketClosed(std::list<Stream*>::iterator socketIterator) { if(openServer) sockets.erase(socketIterator); }
+	void socketClosed(SocketSession *socketSession);
 
 protected:
 	static void onNewConnectionStatic(IListener* instance, Stream *serverSocket);
@@ -42,7 +42,7 @@ private:
 	bool openServer;
 	Stream* serverSocket;
 	Stream* lastWaitingStreamInstance;
-	std::list<Stream*> sockets;
+	std::list<SocketSession*> sockets;
 	BanManager* banManager;
 	Log* packetLogger;
 	Timer<SessionServerCommon> checkIdleSocketTimer;

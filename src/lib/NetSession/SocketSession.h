@@ -42,8 +42,7 @@ protected:
 
 	SessionServerCommon* getServer() { return server; }
 
-	void setServer(SessionServerCommon* server, std::list<Stream*>::iterator socketIterator) { this->server = server; this->socketIterator = socketIterator; }
-	std::list<Stream*>::iterator getSocketIterator() { return socketIterator; }
+	void setServer(SessionServerCommon* server);
 	friend class SessionServerCommon;
 
 private:
@@ -54,7 +53,7 @@ private:
 private:
 	Stream* stream;
 	SessionServerCommon* server;
-	std::list<Stream*>::iterator socketIterator;
+	bool autoDelete;
 };
 
 #endif // SOCKETSESSION_H
