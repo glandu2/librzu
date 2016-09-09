@@ -18,14 +18,12 @@ SessionServerCommon::SessionServerCommon(cval<std::string>& listenIp, cval<int>&
 	  port(port),
 	  checkIdleSocketPeriod(idleTimeoutSec)
 {
-	uv_timer_init(EventLoop::getLoop(), &checkIdleSocketTimer);
-	checkIdleSocketTimer.data = this;
 }
 
 SessionServerCommon::~SessionServerCommon() {
 	if(serverSocket && serverSocket->getState() != Stream::UnconnectedState)
 		stop();
-	uv_timer_stop(&checkIdleSocketTimer);
+	checkIdleSocketTimer.stop();
 
 	if(lastWaitingStreamInstance)
 		delete lastWaitingStreamInstance;
@@ -49,7 +47,7 @@ bool SessionServerCommon::start() {
 	int idleTimeout = checkIdleSocketPeriod ? checkIdleSocketPeriod->get() : 0;
 	if(idleTimeout) {
 		uint64_t timeoutMs = uint64_t(idleTimeout)*1000;
-		uv_timer_start(&checkIdleSocketTimer, &onCheckIdleSockets, timeoutMs, timeoutMs);
+		checkIdleSocketTimer.start(this, &SessionServerCommon::onCheckIdleSockets, timeoutMs, timeoutMs);
 	}
 
 	std::string target;
@@ -72,7 +70,7 @@ void SessionServerCommon::stop() {
 
 	log(LL_Info, "Stopping server %s\n", getName());
 
-	uv_timer_stop(&checkIdleSocketTimer);
+	checkIdleSocketTimer.stop();
 	serverSocket->close();
 	openServer = false;
 	for(auto it = sockets.begin(); it != sockets.end();) {
@@ -104,8 +102,7 @@ void SessionServerCommon::onNewConnection() {
 	}
 }
 
-void SessionServerCommon::onCheckIdleSockets(uv_timer_t* timer) {
-	SessionServerCommon* thisInstance = static_cast<SessionServerCommon*>(timer->data);
+void SessionServerCommon::onCheckIdleSockets() {
 	int kickedConnections = 0;
 	uint64_t begin;
 	bool logTrace = Log::get() && Log::get()->wouldLog(LL_Trace);
@@ -113,14 +110,15 @@ void SessionServerCommon::onCheckIdleSockets(uv_timer_t* timer) {
 	if(logTrace)
 		begin = uv_hrtime();
 
-	for(auto it = thisInstance->sockets.begin(); it != thisInstance->sockets.end();) {
-		Stream* socket = *it;
+	for(auto it = sockets.begin(); it != sockets.end();) {
+		SocketSession* session = *it;
+		Stream* socket = session->getStream();
 		++it; //if the socket is removed from the list (when closed), we keep a valid iterator
-		if(socket->getState() == Stream::ConnectedState) {
+		if(socket && socket->getState() == Stream::ConnectedState) {
 			if(socket->isPacketTransferedSinceLastCheck() == false) {
 				socket->close();
 				kickedConnections++;
-				thisInstance->log(LL_Info, "Kicked idle connection: %s:%d\n", socket->getRemoteIpStr(), socket->getRemotePort());
+				log(LL_Info, "Kicked idle connection: %s:%d\n", socket->getRemoteIpStr(), socket->getRemotePort());
 			} else {
 				socket->resetPacketTransferedFlag();
 			}
@@ -128,5 +126,5 @@ void SessionServerCommon::onCheckIdleSockets(uv_timer_t* timer) {
 	}
 	//check fo trace to avoid call to uv_hrtime if not needed
 	if(logTrace)
-		thisInstance->log(LL_Trace, "Idle socket check: kicked %d sockets in %" PRIu64 " ns\n", kickedConnections, uv_hrtime() - begin);
+		log(LL_Trace, "Idle socket check: kicked %d sockets in %" PRIu64 " ns\n", kickedConnections, uv_hrtime() - begin);
 }

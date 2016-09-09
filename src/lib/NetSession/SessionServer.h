@@ -4,6 +4,7 @@
 #include "Core/Object.h"
 #include "StartableObject.h"
 #include "Stream/Stream.h"
+#include "Core/Timer.h"
 #include <list>
 #include "uv.h"
 
@@ -32,7 +33,7 @@ protected:
 	static void onNewConnectionStatic(IListener* instance, Stream *serverSocket);
 	void onNewConnection();
 
-	static void onCheckIdleSockets(uv_timer_t* timer);
+	void onCheckIdleSockets();
 
 	virtual SocketSession* createSession() = 0;
 	virtual bool hasCustomPacketLogger() = 0;
@@ -44,7 +45,7 @@ private:
 	std::list<Stream*> sockets;
 	BanManager* banManager;
 	Log* packetLogger;
-	uv_timer_t checkIdleSocketTimer;
+	Timer<SessionServerCommon> checkIdleSocketTimer;
 	cval<std::string>& listenIp;
 	cval<int>& port;
 	cval<int>* checkIdleSocketPeriod;
