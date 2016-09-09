@@ -181,6 +181,14 @@ size_t Stream::discard(size_t size) {
 	return effectiveSize;
 }
 
+size_t Stream::discardAll() {
+	size_t sizeAvailable = recvBuffer.size();
+
+	recvBuffer.clear();
+
+	return sizeAvailable;
+}
+
 size_t Stream::write(WriteRequest* writeRequest) {
 	if(getState() == ConnectedState) {
 		writeRequest->writeReq.data = this;
