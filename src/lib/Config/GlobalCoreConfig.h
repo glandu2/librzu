@@ -19,7 +19,7 @@ struct ListenerConfig {
 	{}
 };
 
-struct RZU_EXTERN GlobalCoreConfig {
+struct RZU_EXTERN GlobalCoreConfig : public IListener {
 
 	struct App {
 		cval<std::string> &appName, &configfile;
@@ -76,8 +76,13 @@ struct RZU_EXTERN GlobalCoreConfig {
 			disconnectionCount(CFG_STAT_CREATE("stats.disconnections", 0)) {}
 	} stats;
 
+	GlobalCoreConfig() {
+		app.appName.addListener(this, &updateOtherFile);
+	}
+
 	static GlobalCoreConfig* get();
 	static void init();
+	static void updateOtherFile(IListener* instance);
 };
 
 #endif // GLOBALCORECONFIG_H

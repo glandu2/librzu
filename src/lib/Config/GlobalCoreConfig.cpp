@@ -17,3 +17,10 @@ void GlobalCoreConfig::Log::updateConsoleLevel(IListener *instance) {
 
 	thisInstance->consoleLevel.setDefault(thisInstance->level.get());
 }
+
+void GlobalCoreConfig::updateOtherFile(IListener *instance) {
+	GlobalCoreConfig* thisInstance = (GlobalCoreConfig*)instance;
+
+	thisInstance->app.configfile.setDefault(thisInstance->app.appName.get() + ".opt");
+	thisInstance->log.file.setDefault(thisInstance->app.appName.get() + ".log");
+}
