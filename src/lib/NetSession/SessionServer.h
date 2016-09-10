@@ -6,7 +6,6 @@
 #include "Stream/Stream.h"
 #include "Core/Timer.h"
 #include <list>
-#include "uv.h"
 
 class SocketSession;
 class BanManager;

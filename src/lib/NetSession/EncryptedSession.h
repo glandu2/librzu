@@ -4,12 +4,6 @@
 #include "Cipher/RC4Cipher.h"
 #include "Stream/Stream.h"
 #include <stdint.h>
-#include <stdlib.h>
-#ifdef _WIN32
-#include <malloc.h>
-#else
-#include <alloca.h>
-#endif
 
 class Stream;
 
