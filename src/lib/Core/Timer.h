@@ -17,6 +17,9 @@ public:
 	void setRepeat(uint64_t repeat);
 	uint64_t getRepeat() const;
 
+	void ref();
+	void unref();
+
 protected:
 	uv_timer_t* handle;
 

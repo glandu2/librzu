@@ -39,6 +39,16 @@ uint64_t TimerBase::getRepeat() const {
 	return uv_timer_get_repeat(handle);
 }
 
+void TimerBase::ref()
+{
+	uv_ref((uv_handle_t*)handle);
+}
+
+void TimerBase::unref()
+{
+	uv_unref((uv_handle_t*)handle);
+}
+
 void TimerBase::onClosedCallback(uv_handle_t *handle) {
 	freeTimers.push_back((uv_timer_t*)handle);
 }
