@@ -160,7 +160,6 @@ bool DbQueryBinding::process(IDbQueryJob* queryJob) {
 
 					for(int col = 0; col < (int)currentColumnBinding.size(); col++) {
 						const int columnIndex = col + 1;
-						SQLLEN StrLen_Or_Ind;
 
 						const ColumnBinding* columnBinding = currentColumnBinding[col];
 						if(columnBinding) {
@@ -169,18 +168,20 @@ bool DbQueryBinding::process(IDbQueryJob* queryJob) {
 								std::string* str = (std::string*) ((char*)outputInstance + columnBinding->bufferOffset);
 								getDataSucceded = getString(connection, columnIndex, str);
 							} else {
+								SQLLEN StrLen_Or_Ind = 0;
+
 								getDataSucceded = connection->getData(columnIndex, columnBinding->cType,
 																	  (char*)outputInstance + columnBinding->bufferOffset, columnBinding->bufferSize,
 																	  &StrLen_Or_Ind);
+
+								if(columnBinding->isNullPtr != (size_t)-1)
+									*(bool*)((char*)outputInstance + columnBinding->isNullPtr) = StrLen_Or_Ind == SQL_NULL_DATA;
 							}
 
 							if(!getDataSucceded) {
 								log(LL_Error, "Failed to retrieve data for column %s(%d) for line %d\n", columnBinding->name->get().c_str(), columnIndex, (int)rowFetched);
 								getDataErrorOccured = true;
 							}
-
-							if(columnBinding->isNullPtr != (size_t)-1)
-								*(bool*)((char*)outputInstance + columnBinding->isNullPtr) = StrLen_Or_Ind == SQL_NULL_DATA;
 						}
 					}
 

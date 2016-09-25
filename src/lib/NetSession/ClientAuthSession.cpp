@@ -3,9 +3,12 @@
 #include <openssl/bio.h>
 #include <openssl/pem.h>
 #include <openssl/rsa.h>
+#include <openssl/opensslconf.h>
+#include <openssl/bn.h>
 #include <openssl/err.h>
 #include "ClientGameSession.h"
 #include "Packet/PacketEpics.h"
+#include <memory>
 
 #include "AuthClient/TS_AC_SERVER_LIST.h"
 #include "AuthClient/TS_AC_SELECT_SERVER.h"
@@ -165,23 +168,44 @@ EventChain<SocketSession> ClientAuthSession::onConnected() {
 	} else if(this->cipherMethod == ACM_RSA_AES) {
 		TS_CA_RSA_PUBLIC_KEY *keyMsg;
 		int public_key_size;
+		BIO * b;
 
-		if(!rsaCipher)
-			rsaCipher = RSA_generate_key(1024, 65537, NULL, NULL);
+		if(!rsaCipher) {
+			std::unique_ptr<BIGNUM, decltype(&::BN_free)> e (BN_new(), ::BN_free);
+			std::unique_ptr<RSA, decltype(&::RSA_free)> rsa (RSA_new(), ::RSA_free);
 
-		BIO * b = BIO_new(BIO_s_mem());
-		PEM_write_bio_RSA_PUBKEY(b, (RSA*)rsaCipher);
+			if(!rsa) {
+				log(LL_Error, "Failed to create RSA instance\n");
+			} else if(!e) {
+				log(LL_Error, "Failed to create BIGNUM instance\n");
+			} else {
+				BN_set_word(e.get(), RSA_F4);
+				if(!RSA_generate_key_ex(rsa.get(), 1024, e.get(), NULL)) {
+					log(LL_Error, "Failed to generate RSA key\n");
+				} else {
+					rsaCipher = rsa.release();
+				}
+			}
+		}
 
-		public_key_size = BIO_get_mem_data(b, NULL);
-		keyMsg = TS_MESSAGE_WNA::create<TS_CA_RSA_PUBLIC_KEY, unsigned char>(public_key_size);
+		if(rsaCipher) {
+			b = BIO_new(BIO_s_mem());
+			PEM_write_bio_RSA_PUBKEY(b, (RSA*)rsaCipher);
 
-		keyMsg->key_size = public_key_size;
+			public_key_size = BIO_get_mem_data(b, NULL);
+			keyMsg = TS_MESSAGE_WNA::create<TS_CA_RSA_PUBLIC_KEY, unsigned char>(public_key_size);
 
-		BIO_read(b, keyMsg->key, public_key_size);
-		BIO_free(b);
+			keyMsg->key_size = public_key_size;
 
-		sendPacket(keyMsg);
-		TS_MESSAGE_WNA::destroy(keyMsg);
+			BIO_read(b, keyMsg->key, public_key_size);
+			BIO_free(b);
+
+			sendPacket(keyMsg);
+			TS_MESSAGE_WNA::destroy(keyMsg);
+		} else {
+			log(LL_Error, "No RSA key to send, aborting connection\n");
+			abortSession();
+		}
 	}
 
 	return PacketSession::onConnected();
