@@ -8,7 +8,7 @@
 
 #define TS_CS_CHARACTER_LIST_ID(X) \
 	X(2001, version < EPIC_9_4) \
-	X(2008, version >= EPIC_9_4)
+	X(2007, version >= EPIC_9_4)
 
 CREATE_PACKET_VER_ID(TS_CS_CHARACTER_LIST);
 
