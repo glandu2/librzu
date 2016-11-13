@@ -220,7 +220,7 @@ void ClientAuthSession::onPacketAuthPasswordKey(const TS_AC_AES_KEY_IV* packet) 
 	TS_MESSAGE::initMessage<TS_CA_ACCOUNT_RSA>(&accountMsg);
 	memset(accountMsg.account, 0, sizeof(accountMsg.account));
 
-	EVP_CIPHER_CTX *e_ctx = nullptr;
+	std::unique_ptr<EVP_CIPHER_CTX, void(*)(EVP_CIPHER_CTX*)> e_ctx(nullptr, &EVP_CIPHER_CTX_free);
 	const unsigned char *key_data = decrypted_data;
 	const unsigned char *iv_data = decrypted_data + 16;
 	int len = (int)password.size();
@@ -238,15 +238,15 @@ void ClientAuthSession::onPacketAuthPasswordKey(const TS_AC_AES_KEY_IV* packet) 
 	memcpy(aes_key_iv, decrypted_data, 32);
 	memset(accountMsg.password, 0, sizeof(accountMsg.password));
 
-	e_ctx = EVP_CIPHER_CTX_new();
+	e_ctx.reset(EVP_CIPHER_CTX_new());
 	if(!e_ctx)
 		goto end;
 
-	if(!EVP_EncryptInit_ex(e_ctx, EVP_aes_128_cbc(), NULL, key_data, iv_data))
+	if(!EVP_EncryptInit_ex(e_ctx.get(), EVP_aes_128_cbc(), NULL, key_data, iv_data))
 		goto end;
-	if(!EVP_EncryptUpdate(e_ctx, accountMsg.password, &p_len, (const unsigned char*)password.c_str(), len))
+	if(!EVP_EncryptUpdate(e_ctx.get(), accountMsg.password, &p_len, (const unsigned char*)password.c_str(), len))
 		goto end;
-	if(!EVP_EncryptFinal_ex(e_ctx, accountMsg.password+p_len, &f_len))
+	if(!EVP_EncryptFinal_ex(e_ctx.get(), accountMsg.password+p_len, &f_len))
 		goto end;
 
 	ok = true;
@@ -255,8 +255,6 @@ end:
 	unsigned long errorCode = ERR_get_error();
 	if(errorCode)
 		log(LL_Warning, "AES: error while encrypting password for account %s: %s\n", username.c_str(), ERR_error_string(errorCode, nullptr));
-	if(e_ctx)
-		EVP_CIPHER_CTX_free(e_ctx);
 
 	if(ok == false) {
 		log(LL_Warning, "onPacketAuthPasswordKey: could not encrypt password !\n");
@@ -316,7 +314,7 @@ void ClientAuthSession::onPacketSelectServerResult(const TS_AC_SELECT_SERVER* pa
 		//pendingTimeBeforeServerMove = packet->v1.pending_time;
 	} else if(this->cipherMethod == ACM_RSA_AES) {
 		const TS_AC_SELECT_SERVER_RSA* packetv2 = reinterpret_cast<const TS_AC_SELECT_SERVER_RSA*>(packet);
-		EVP_CIPHER_CTX *e_ctx = nullptr;
+		std::unique_ptr<EVP_CIPHER_CTX, void(*)(EVP_CIPHER_CTX*)> e_ctx(nullptr, &EVP_CIPHER_CTX_free);
 		const unsigned char *key_data = aes_key_iv;
 		const unsigned char *iv_data = aes_key_iv + 16;
 		int len = 16;
@@ -324,22 +322,19 @@ void ClientAuthSession::onPacketSelectServerResult(const TS_AC_SELECT_SERVER* pa
 		bool ok = false;
 		uint64_t decryptedData[2];
 
-		e_ctx = EVP_CIPHER_CTX_new();
+		e_ctx.reset(EVP_CIPHER_CTX_new());
 		if(!e_ctx)
 			goto end;
 
-		if(!EVP_DecryptInit_ex(e_ctx, EVP_aes_128_cbc(), NULL, key_data, iv_data))
+		if(!EVP_DecryptInit_ex(e_ctx.get(), EVP_aes_128_cbc(), NULL, key_data, iv_data))
 			goto end;
-		if(!EVP_DecryptUpdate(e_ctx, (unsigned char*)decryptedData, &p_len, packetv2->encrypted_data, len))
+		if(!EVP_DecryptUpdate(e_ctx.get(), (unsigned char*)decryptedData, &p_len, packetv2->encrypted_data, len))
 			goto end;
-		if(!EVP_DecryptFinal_ex(e_ctx, ((unsigned char*)decryptedData) + p_len, &f_len))
+		if(!EVP_DecryptFinal_ex(e_ctx.get(), ((unsigned char*)decryptedData) + p_len, &f_len))
 			goto end;
 		ok = true;
 
 end:
-		if(e_ctx)
-			EVP_CIPHER_CTX_free(e_ctx);
-
 		if(ok == false) {
 			log(LL_Warning, "onPacketSelectServerResult: Could not decrypt TS_AC_SELECT_SERVER\n");
 			closeSession();
