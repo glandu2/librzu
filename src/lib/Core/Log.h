@@ -69,6 +69,7 @@ private:
 #ifdef _WIN32
 	unsigned long logWritterThreadNativeId;
 #endif
+	bool logWritterThreadStarted;
 
 	uv_mutex_t messageListMutex;
 	uv_cond_t messageListCond;

@@ -43,6 +43,7 @@ Log::Log(cval<bool>& enabled, Level fileMaxLevel, Level consoleMaxLevel, cval<st
 
 void Log::construct(cval<bool>& enabled, cval<std::string>& dir, cval<std::string>& fileName) {
 	this->stop = true;
+	this->logWritterThreadStarted = false;
 	uv_mutex_init(&this->messageListMutex);
 	uv_cond_init(&this->messageListCond);
 
@@ -132,8 +133,13 @@ void Log::startWriter() {
 	this->stop = false;
 	this->updateFileRequested = true;
 	this->messageQueueFull = false;
-	uv_thread_create(&this->logWritterThreadId, &logWritterThreadStatic, this);
-	log(LL_Info, this, "Log thread started using filename %s\n", fileName.get().c_str());
+	int result = uv_thread_create(&this->logWritterThreadId, &logWritterThreadStatic, this);
+	if(result == 0) {
+		this->logWritterThreadStarted = true;
+		log(LL_Info, this, "Log thread started using filename %s\n", fileName.get().c_str());
+	} else {
+		log(LL_Info, this, "Failed to start log thread: %d\n", result);
+	}
 }
 
 void Log::stopWriter(bool waitThread) {
@@ -142,9 +148,9 @@ void Log::stopWriter(bool waitThread) {
 	}
 
 #ifdef _WIN32
-	if(this->logWritterThreadNativeId == GetCurrentThreadId())
+	if(!this->logWritterThreadStarted || this->logWritterThreadNativeId == GetCurrentThreadId())
 #else /* unix */
-	if(pthread_equal(pthread_self(), this->logWritterThreadId))
+	if(!this->logWritterThreadStarted || pthread_equal(pthread_self(), this->logWritterThreadId))
 #endif
 	{
 		this->stop = true;
@@ -284,6 +290,7 @@ void Log::logWritterThread() {
 #ifdef _WIN32
 	this->logWritterThreadNativeId = GetCurrentThreadId();
 #endif
+	this->logWritterThreadStarted = true;
 
 	uv_once(&initMutexOnce, &initMutex);
 
