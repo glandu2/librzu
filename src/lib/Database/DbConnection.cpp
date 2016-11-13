@@ -9,9 +9,10 @@ DbConnection::DbConnection(DbConnectionPool* conPool, void *hdbc, void *hstmt) :
 }
 
 DbConnection::~DbConnection() {
-	SQLFreeHandle(SQL_HANDLE_STMT, hstmt);
-	SQLDisconnect(hdbc);
-	SQLFreeHandle(SQL_HANDLE_DBC, hdbc);
+	endTransaction(false);
+	checkResult(SQLFreeHandle(SQL_HANDLE_STMT, hstmt), "SQLFreeHandle(stmt)");
+	checkResult(SQLDisconnect(hdbc), "SQLDisconnect");
+	checkResult(SQLFreeHandle(SQL_HANDLE_DBC, hdbc), "SQLFreeHandle(hdbc)");
 //	uv_mutex_destroy(&lock);
 	uv_mutex_destroy(&usedLock);
 }
@@ -29,8 +30,8 @@ bool DbConnection::trylock() {
 }
 
 void DbConnection::release() {
-	SQLFreeStmt(hstmt, SQL_CLOSE);
-	SQLFreeStmt(hstmt, SQL_RESET_PARAMS);
+	checkResult(SQLFreeStmt(hstmt, SQL_CLOSE), "SQLFreeStmt(CLOSE)");
+	checkResult(SQLFreeStmt(hstmt, SQL_RESET_PARAMS), "SQLFreeStmt(RESET)");
 	uv_mutex_lock(&usedLock);
 	isUsed = false;
 	uv_mutex_unlock(&usedLock);
