@@ -100,7 +100,7 @@ public:
 
 	template<int SIZE>
 	static void addColumn(const char* columnName, char (OutputType::*member)[SIZE], bool OutputType::*nullIndicator = nullptr) {
-		addColumn<char[SIZE]>(columnName, (size_t)&(((OutputType*)0)->*member), SIZE-1, nullIndicator);
+		addColumn<char[SIZE]>(columnName, (size_t)&(((OutputType*)0)->*member), SIZE, nullIndicator);
 	}
 
 	static void createBinding(DbConnectionPool* dbConnectionPool,
