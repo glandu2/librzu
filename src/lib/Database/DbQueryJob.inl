@@ -11,6 +11,8 @@ void DbQueryJob<DbMappingClass>::addParam(const char* columnName, size_t memberO
 	char configName[512];
 	sprintf(configName, "sql.%s.param.%s", SQL_CONFIG_NAME, columnName);
 	dbBinding->addParameter(DbQueryBinding::ParameterBinding(
+	                        columnName,
+	                        &DbPrintableTypeBinding<ValueFieldType>::print,
 							SQL_PARAM_INPUT,
 							ConfigInfo::get()->createValue<cval>(configName, (int)dbBinding->getParameterCount() + 1, true),
 							DbTypeBinding<ValueFieldType>::C_TYPE,
@@ -28,6 +30,8 @@ void DbQueryJob<DbMappingClass>::addOutputParam(const char* columnName, size_t m
 	char configName[512];
 	sprintf(configName, "sql.%s.outparam.%s", SQL_CONFIG_NAME, columnName);
 	dbBinding->addParameter(DbQueryBinding::ParameterBinding(
+	                        columnName,
+	                        &DbPrintableTypeBinding<ValueFieldType>::print,
 							SQL_PARAM_OUTPUT,
 							ConfigInfo::get()->createValue<cval>(configName, (int)dbBinding->getParameterCount() + 1, true),
 							DbTypeBinding<ValueFieldType>::C_TYPE,

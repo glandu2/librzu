@@ -23,7 +23,10 @@ public:
 			Input,
 			Output
 		};
+		typedef void (*PrinterFunction)(std::ostringstream& stream, void* data);
 
+		const char* name;
+		PrinterFunction printerFunction;
 		SQLSMALLINT way;
 		cval<int>* index;
 		SQLSMALLINT cType; //one of SQL_C_* values
@@ -34,8 +37,8 @@ public:
 		size_t bufferOffset; //use offsetof
 		size_t infoPtr;
 
-		ParameterBinding(SQLSMALLINT way, cval<int>& index, SQLSMALLINT cType, SQLSMALLINT dbType, SQLULEN dbSize, SQLSMALLINT dbPrecision, bool isStdString, size_t bufferOffset, size_t infoPtr)
-			: way(way), index(&index), cType(cType), dbType(dbType), dbSize(dbSize), dbPrecision(dbPrecision), isStdString(isStdString), bufferOffset(bufferOffset), infoPtr(infoPtr) {}
+		ParameterBinding(const char* name, PrinterFunction printerFunction, SQLSMALLINT way, cval<int>& index, SQLSMALLINT cType, SQLSMALLINT dbType, SQLULEN dbSize, SQLSMALLINT dbPrecision, bool isStdString, size_t bufferOffset, size_t infoPtr)
+		    : name(name), printerFunction(printerFunction), way(way), index(&index), cType(cType), dbType(dbType), dbSize(dbSize), dbPrecision(dbPrecision), isStdString(isStdString), bufferOffset(bufferOffset), infoPtr(infoPtr) {}
 	};
 
 	//Output data mapping to columns
@@ -73,6 +76,8 @@ protected:
 	size_t getParameterCount() { return parameterBindings.size(); }
 	void addParameter(const ParameterBinding& parameter) { parameterBindings.push_back(parameter); }
 	void addColumn(const ColumnBinding& column) { columnBindings.push_back(column); }
+
+	std::string logParameters(void* inputInstance);
 
 private:
 	DbConnectionPool* dbConnectionPool;
