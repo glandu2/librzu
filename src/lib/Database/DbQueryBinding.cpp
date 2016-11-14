@@ -78,12 +78,6 @@ std::string DbQueryBinding::logParameters(void* inputInstance)
 		const ParameterBinding& paramBinding = parameterBindings.at(i);
 
 		if(paramBinding.index > 0) {
-			SQLLEN* StrLen_or_Ind;
-			if(paramBinding.infoPtr != (size_t)-1)
-				StrLen_or_Ind = (SQLLEN*)((char*)inputInstance +  paramBinding.infoPtr);
-			else
-				StrLen_or_Ind = nullptr;
-
 			logData << " - " << paramBinding.name << ": ";
 
 			if(paramBinding.isStdString) {
