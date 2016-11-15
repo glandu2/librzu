@@ -9,14 +9,14 @@ endif()
 
 find_package(OpenSSL REQUIRED)
 find_package(ODBC REQUIRED)
-set(LIBS uv ${OPENSSL_LIBRARIES} z iconv ODBC)
+set(LIBS uv ${OPENSSL_LIBRARIES} z iconv ${ODBC_LIBRARY})
 if(WIN32)
 	list(APPEND LIBS dbghelp)
 endif()
 
 add_lib(${TARGET_NAME} "${SOURCE_FILES}" "${LIBS}")
 target_include_directories(${TARGET_NAME}
-	PUBLIC lib packets
+	PUBLIC lib packets ${ODBC_INCLUDE_DIR}
 	PRIVATE ${OPENSSL_INCLUDE_DIR}
 	)
 if(CMAKE_SYSTEM_NAME MATCHES "Windows")
