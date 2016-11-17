@@ -26,7 +26,7 @@ public:
 	bool stop(const std::string& name);
 
 	StartableObject *getServer(const std::string& name);
-	void addServer(const char* name, StartableObject* server, cval<bool> &autoStart, bool stopAllKeepRunning = false);
+	void addServer(const char* name, StartableObject* server, cval<bool>* autoStart, bool stopAllKeepRunning = false);
 
 	static ServersManager* getInstance() { return instance; }
 

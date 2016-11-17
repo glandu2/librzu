@@ -17,7 +17,7 @@ void ConsoleSession::start(ServersManager* serverManager) {
 				GlobalCoreConfig::get()->admin.listener.listenIp,
 				GlobalCoreConfig::get()->admin.listener.port,
 				&GlobalCoreConfig::get()->admin.listener.idleTimeout);
-	serverManager->addServer("admin.console", &adminConsoleServer, GlobalCoreConfig::get()->admin.listener.autoStart, true);
+	serverManager->addServer("admin.console", &adminConsoleServer, &GlobalCoreConfig::get()->admin.listener.autoStart, true);
 }
 
 ConsoleSession::ConsoleSession() : consoleCommands(ConsoleCommands::get()) {
