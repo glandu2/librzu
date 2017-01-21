@@ -35,6 +35,7 @@ bool DbQueryBinding::getColumnsMapping(DbConnection* connection, std::vector<con
 	const int columnCount = connection->getColumnNum(&columnCountOk);
 	if(!columnCountOk) {
 		connection->releaseWithError();
+		log(LL_Error, "Coulnd't retrieve column count\n");
 		return false;
 	}
 
@@ -159,9 +160,9 @@ bool DbQueryBinding::process(IDbQueryJob* queryJob) {
 		if(!connection->execute(queryStr.c_str())) {
 			connection->releaseWithError();
 			if(parameterBindings.empty())
-				log(LL_Warning, "DB query failed: %s\n", queryStr.c_str());
+				log(LL_Error, "DB query failed: %s\n", queryStr.c_str());
 			else
-				log(LL_Warning, "DB query failed: %s\nParameters:\n%s", queryStr.c_str(), logParameters(inputInstance).c_str());
+				log(LL_Error, "DB query failed: %s\nParameters:\n%s", queryStr.c_str(), logParameters(inputInstance).c_str());
 			errorCount++;
 			if(errorCount > 10) {
 				enabled.setBool(false);
@@ -177,11 +178,11 @@ bool DbQueryBinding::process(IDbQueryJob* queryJob) {
 			std::vector<const ColumnBinding*> currentColumnBinding;
 			getDataErrorOccured = !getColumnsMapping(connection, &currentColumnBinding);
 
-			if(!currentColumnBinding.empty()) {
-				size_t rowFetched = 0;
-				while(connection->fetch() && (rowFetched == 0 || mode == EM_MultiRows)) {
-					rowFetched++;
+			size_t rowFetched = 0;
+			while(connection->fetch() && (rowFetched == 0 || mode == EM_MultiRows)) {
+				rowFetched++;
 
+				if(!currentColumnBinding.empty()) {
 					void* outputInstance = queryJob->createNextLineInstance();
 
 					for(int col = 0; col < (int)currentColumnBinding.size(); col++) {
@@ -197,8 +198,8 @@ bool DbQueryBinding::process(IDbQueryJob* queryJob) {
 								SQLLEN StrLen_Or_Ind = 0;
 
 								getDataSucceded = connection->getData(columnIndex, columnBinding->cType,
-																	  (char*)outputInstance + columnBinding->bufferOffset, columnBinding->bufferSize,
-																	  &StrLen_Or_Ind);
+								                                      (char*)outputInstance + columnBinding->bufferOffset, columnBinding->bufferSize,
+								                                      &StrLen_Or_Ind);
 
 								if(columnBinding->isNullPtr != (size_t)-1)
 									*(bool*)((char*)outputInstance + columnBinding->isNullPtr) = StrLen_Or_Ind == SQL_NULL_DATA;
@@ -216,6 +217,8 @@ bool DbQueryBinding::process(IDbQueryJob* queryJob) {
 				}
 			}
 		}
+
+		connection->closeCursor();
 	}
 
 	connection->endTransaction(getDataErrorOccured == false);

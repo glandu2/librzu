@@ -39,6 +39,7 @@ public:
 
 	bool execute(const char* query);
 	bool fetch();
+	bool closeCursor();
 	int getColumnNum(bool *ok);
 
 	bool getData(SQLUSMALLINT ColumnNumber,

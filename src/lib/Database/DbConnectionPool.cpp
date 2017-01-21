@@ -133,10 +133,10 @@ DbConnection* DbConnectionPool::addConnection(const char* connectionString, bool
 
 	//20 sec timeout
 	checkSqlResult(SQLSetStmtAttr(hstmt, SQL_ATTR_QUERY_TIMEOUT, (SQLPOINTER)10, 0),
-				   "SQLSetStmtAttrTimeout",
+	               "SQLSetStmtAttrTimeout (error ignored)",
 				   henv, hdbc, hstmt, true);
 	checkSqlResult(SQLSetConnectAttr(hdbc, SQL_ATTR_CONNECTION_TIMEOUT , (SQLPOINTER)10, 0),
-				   "SQLSetConnectAttrTimeout",
+	               "SQLSetConnectAttrTimeout (error ignored)",
 				   henv, hdbc, hstmt, true);
 
 	DbConnection* dbConnection = new DbConnection(this, hdbc, hstmt);

@@ -30,7 +30,7 @@ bool DbConnection::trylock() {
 }
 
 void DbConnection::release() {
-	checkResult(SQLFreeStmt(hstmt, SQL_CLOSE), "SQLFreeStmt(CLOSE)");
+	closeCursor();
 	checkResult(SQLFreeStmt(hstmt, SQL_RESET_PARAMS), "SQLFreeStmt(RESET)");
 	uv_mutex_lock(&usedLock);
 	isUsed = false;
@@ -79,6 +79,11 @@ bool DbConnection::execute(const char *query) {
 bool DbConnection::fetch() {
 	assert(isUsed);
 	return checkResult(SQLFetch(hstmt), "SQLFetch");
+}
+
+bool DbConnection::closeCursor() {
+	assert(isUsed);
+	return checkResult(SQLFreeStmt(hstmt, SQL_CLOSE), "SQLFreeStmt(CLOSE)");
 }
 
 int DbConnection::getColumnNum(bool *ok) {
