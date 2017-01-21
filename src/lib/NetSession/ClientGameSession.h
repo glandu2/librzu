@@ -10,7 +10,7 @@ class ClientAuthSession;
 class RZU_EXTERN ClientGameSession : public EncryptedSession<PacketSession>
 {
 public:
-	ClientGameSession();
+	ClientGameSession(int version);
 
 	void setAuthSession(ClientAuthSession* auth) { this->auth = auth; }
 
@@ -26,6 +26,7 @@ private:
 
 protected:
 	ClientAuthSession* auth;
+	int version;
 };
 
 #endif // CLIENTGAMESESSION_H

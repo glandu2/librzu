@@ -4,7 +4,8 @@
 #include "GameClient/TS_CS_ACCOUNT_WITH_AUTH.h"
 #include "GameClient/TS_SC_RESULT.h"
 
-ClientGameSession::ClientGameSession()
+ClientGameSession::ClientGameSession(int version)
+    : version(version)
 {
 }
 
@@ -19,7 +20,7 @@ EventChain<SocketSession> ClientGameSession::onConnected() {
 
 	loginInGameServerMsg.account = auth->getAccountName();
 	loginInGameServerMsg.one_time_key = auth->getOnTimePassword();
-	sendPacket(loginInGameServerMsg, EPIC_LATEST);
+	sendPacket(loginInGameServerMsg, version);
 
 	return PacketSession::onConnected();
 }

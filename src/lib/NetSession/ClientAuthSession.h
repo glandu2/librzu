@@ -35,7 +35,7 @@ class RZU_EXTERN ClientAuthSession : public EncryptedSession<PacketSession>
 		};
 
 	public:
-		ClientAuthSession(ClientGameSession* gameSession);
+		ClientAuthSession(ClientGameSession* gameSession, int packetVersion);
 		~ClientAuthSession();
 
 		using EncryptedSession<PacketSession>::connect;
@@ -92,6 +92,8 @@ class RZU_EXTERN ClientAuthSession : public EncryptedSession<PacketSession>
 		uint64_t oneTimePassword;
 		bool normalDisconnect;
 		static void* rsaCipher;
+
+		int packetVersion;
 
 		static DesPasswordCipher desCipher;
 };

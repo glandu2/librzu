@@ -25,8 +25,9 @@
 
 DesPasswordCipher ClientAuthSession::desCipher("MERONG");
 
-ClientAuthSession::ClientAuthSession(ClientGameSession* gameSession)
-	: gameSession(gameSession)
+ClientAuthSession::ClientAuthSession(ClientGameSession* gameSession, int packetVersion)
+    : gameSession(gameSession),
+      packetVersion(packetVersion)
 {
 	if(gameSession)
 		gameSession->setAuthSession(this);
@@ -117,7 +118,7 @@ EventChain<PacketSession> ClientAuthSession::onPacketReceived(const TS_MESSAGE* 
 		}
 
 		case TS_AC_SERVER_LIST::packetID: {
-			packet->process(this, &ClientAuthSession::onPacketServerList, EPIC_LATEST);
+			packet->process(this, &ClientAuthSession::onPacketServerList, packetVersion);
 			break;
 		}
 
