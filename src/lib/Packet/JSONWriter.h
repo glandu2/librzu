@@ -20,7 +20,9 @@ public:
 		json << "{";
 	}
 
-	void finalize() { json << (compact ? "}" : "\n}"); }
+	void finalize() { json << (compact ? "}\n" : "\n}\n"); newList = true; }
+	void start() { json << "{"; }
+	void clear() { json.str(std::string()); json.clear(); }
 
 	std::string toString() { return json.str(); }
 
