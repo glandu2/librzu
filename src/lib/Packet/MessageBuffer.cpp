@@ -8,7 +8,7 @@ MessageBuffer::MessageBuffer(size_t size, int version) : StructSerializer(versio
 	bufferOverflow = false;
 }
 
-MessageBuffer::MessageBuffer(const void *data, size_t size, int version) : StructSerializer(version) {
+MessageBuffer::MessageBuffer(const void* data, size_t size, int version) : StructSerializer(version) {
 	buffer = Stream::WriteRequest::createFromExisting(const_cast<char*>(static_cast<const char*>(data)), size);
 	p = buffer->buffer.base;
 	bufferOverflow = false;

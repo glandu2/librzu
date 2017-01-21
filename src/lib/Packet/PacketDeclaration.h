@@ -354,6 +354,7 @@ getSizeOf(const T& value, int version) {
 	\
 		uint32_t getSize(int version) const { \
 			uint32_t size = size_base_; \
+			(void)(version); \
 			name_ ## _DEF(SIZE_F) \
 	\
 			return size;\

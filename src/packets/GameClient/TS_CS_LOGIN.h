@@ -5,8 +5,8 @@
 
 #define TS_CS_LOGIN_DEF(_) \
 	_(string)(name, 19) \
-	_(simple)(char, race) \
-	_(simple)(int, unknown, version >= EPIC_9_4, 0)
+	_(simple)(uint8_t, race) \
+	_(simple)(uint32_t, unknown, version >= EPIC_9_4, 0)
 
 #define TS_CS_LOGIN_ID(X) \
 	X(1, version < EPIC_9_2) \

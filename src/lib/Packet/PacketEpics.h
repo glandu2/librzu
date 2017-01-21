@@ -14,6 +14,8 @@
 #define EPIC_7_4 0x070400
 #define EPIC_8_1 0x080100
 #define EPIC_8_1_1_RSA 0x080101
+#define EPIC_8_2 0x080200
+#define EPIC_8_3 0x080300
 #define EPIC_9_1 0x090100
 #define EPIC_9_2 0x090200
 #define EPIC_9_3 0x090300

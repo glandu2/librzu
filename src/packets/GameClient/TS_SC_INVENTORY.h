@@ -16,19 +16,22 @@
 	_(simple)(impl)(uint16_t, endurance, version < EPIC_4_1) \
 	_(simple) (uint8_t, enhance) \
 	_(simple) (uint8_t, level) \
-	_(simple) (int32_t, flag) \
+	_(simple) (uint16_t, unknown3, version >= EPIC_9_2) \
+	_(simple) (uint32_t, flag) \
 	_(array)  (int32_t, socket, 4) \
 	_(array)  (int32_t, dummy_socket, 2, version < EPIC_7_1, {0}) \
 	_(array)  (uint32_t, awaken_option_value, 5, version >= EPIC_8_1) \
 	_(array)  (int32_t, awaken_option_data, 5, version >= EPIC_8_1) \
+	_(array)  (uint32_t, random_type, 10, version >= EPIC_8_2) \
+	_(array)  (int64_t, random_value_1, 10, version >= EPIC_8_2) \
+	_(array)  (int64_t, random_value_2, 10, version >= EPIC_8_2) \
 	_(simple) (int32_t, remain_time) \
 	_(simple) (uint8_t, elemental_effect_type, version >= EPIC_6_1) \
 	_(simple) (int32_t, elemental_effect_remain_time, version >= EPIC_6_1) \
 	_(simple) (int32_t, elemental_effect_attack_point, version >= EPIC_6_1) \
 	_(simple) (int32_t, elemental_effect_magic_point, version >= EPIC_6_1) \
 	_(simple) (int32_t, appearance_code, version >= EPIC_8_1) \
-	_(simple) (int16_t, unknown2, version >= EPIC_9_2) \
-	_(array)  (int32_t, unknown1, 51, version >= EPIC_9_1)
+	_(simple) (uint32_t, summon_code, version >= EPIC_8_2)
 CREATE_STRUCT(TS_ITEM_BASE_INFO);
 
 #define TS_ITEM_INFO_DEF(_) \

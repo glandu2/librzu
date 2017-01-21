@@ -5,7 +5,7 @@
 
 #define TS_SC_CHANGE_NAME_DEF(_) \
 	_(simple)(uint32_t, handle) \
-	_(array) (char, 19, name)
+	_(array) (char, name, 19)
 
 CREATE_PACKET(TS_SC_CHANGE_NAME, 30);
 

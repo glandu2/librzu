@@ -27,6 +27,7 @@ public:
 	const char* getData() const { return buffer->buffer.base; }
 	char* getData() { return buffer->buffer.base; }
 	uint32_t getSize() const { return buffer->buffer.len; }
+	uint32_t getParsedSize() const { return uint32_t(p - getData()); }
 	uint16_t getMessageId() const  { return *reinterpret_cast<const uint16_t*>(buffer->buffer.base + 4); }
 	std::string getFieldInOverflow() const  { return fieldInOverflow; }
 
