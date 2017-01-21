@@ -363,7 +363,7 @@ void Stream::packetLog(Object::Level level, const unsigned char* rawData, int si
 			if(maxCharNum > 16)
 				maxCharNum = 16;
 
-			buffer += char2hex[line*16 >> 8];
+			buffer += char2hex[(line*16 >> 8) & 0xFF];
 			buffer += char2hex[line*16 & 0xFF];
 			buffer += ": ";
 
