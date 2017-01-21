@@ -29,7 +29,8 @@ bool SocketSession::connect(const char *url, uint16_t port) {
 }
 
 SocketSession::~SocketSession() {
-	stream->deleteLater();
+	if(stream)
+		stream->deleteLater();
 }
 
 void SocketSession::setServer(SessionServerCommon *server) {
