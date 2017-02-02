@@ -15,12 +15,12 @@ CREATE_STRUCT(MOVE_REQUEST_INFO);
 	_(simple)(float, y) \
 	_(simple)(uint32_t, cur_time) \
 	_(simple)(bool, speed_sync) \
-	_(count) (uint16_t, count, move_infos) \
+	_(count) (uint16_t, move_infos) \
 	_(dynarray)(MOVE_REQUEST_INFO, move_infos)
 
 #define TS_CS_MOVE_REQUEST_ID(X) \
 	X(5, version < EPIC_9_2) \
-	X(65, version >= EPIC_9_2)
+	X(63, version >= EPIC_9_2)
 
 CREATE_PACKET_VER_ID(TS_CS_MOVE_REQUEST);
 

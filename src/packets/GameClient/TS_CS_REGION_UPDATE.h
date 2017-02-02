@@ -10,6 +10,10 @@
 	_(simple)(float, z) \
 	_(simple)(bool, bIsStopMessage)
 
-CREATE_PACKET(TS_CS_REGION_UPDATE, 7);
+#define TS_CS_REGION_UPDATE_ID(X) \
+	X(7, version < EPIC_9_2) \
+	X(67, version >= EPIC_9_2)
+
+CREATE_PACKET_VER_ID(TS_CS_REGION_UPDATE);
 
 #endif // PACKETS_TS_CS_REGION_UPDATE_H

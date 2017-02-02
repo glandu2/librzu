@@ -5,9 +5,9 @@
 
 #define TS_SC_GAME_TIME_DEF(_) \
 	_(simple) (uint32_t, t) \
-	_(simple)(def) (uint64_t, game_time) \
-	_(simple)(impl)(uint64_t, game_time, version >= EPIC_8_1) \
-	_(simple)(impl)(uint32_t, game_time, version < EPIC_8_1)
+	_(def)(simple) (uint64_t, game_time) \
+	_(impl)(simple)(uint64_t, game_time, version >= EPIC_8_1) \
+	_(impl)(simple)(uint32_t, game_time, version < EPIC_8_1)
 
 CREATE_PACKET(TS_SC_GAME_TIME, 1101);
 

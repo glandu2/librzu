@@ -7,13 +7,13 @@
 	_(simple) (uint32_t, handle) \
 	_(simple) (int32_t, code) \
 	_(simple) (int64_t, uid) \
-	_(simple)(def)(int64_t, count) \
-	_(simple)(impl)(int64_t, count, version >= EPIC_4_1) \
-	_(simple)(impl)(int32_t, count, version < EPIC_4_1) \
+	_(def)(simple)(int64_t, count) \
+	_(impl)(simple)(int64_t, count, version >= EPIC_4_1) \
+	_(impl)(simple)(int32_t, count, version < EPIC_4_1) \
 	_(simple) (int32_t, ethereal_durability, version >= EPIC_6_2) \
-	_(simple)(def) (uint32_t, endurance) \
-	_(simple)(impl)(uint32_t, endurance, version >= EPIC_4_1) \
-	_(simple)(impl)(uint16_t, endurance, version < EPIC_4_1) \
+	_(def)(simple) (uint32_t, endurance) \
+	_(impl)(simple)(uint32_t, endurance, version >= EPIC_4_1) \
+	_(impl)(simple)(uint16_t, endurance, version < EPIC_4_1) \
 	_(simple) (uint8_t, enhance) \
 	_(simple) (uint8_t, level) \
 	_(simple) (uint16_t, unknown3, version >= EPIC_9_2) \
@@ -42,7 +42,7 @@ CREATE_STRUCT(TS_ITEM_BASE_INFO);
 CREATE_STRUCT(TS_ITEM_INFO);
 
 #define TS_SC_INVENTORY_DEF(_) \
-	_(count) (uint16_t, count, items) \
+	_(count) (uint16_t, items) \
 	_(dynarray) (TS_ITEM_INFO, items)
 
 CREATE_PACKET(TS_SC_INVENTORY, 207);

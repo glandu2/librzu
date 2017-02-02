@@ -26,6 +26,8 @@ public:
 
 	std::string toString() { return json.str(); }
 
+	uint32_t getParsedSize() const { return 0; }
+
 	void printIdent(bool addNewLine = true) {
 		if(!newList)
 			json << (compact ? "," : ", ");

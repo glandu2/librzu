@@ -24,7 +24,7 @@ CREATE_STRUCT(ATTACK_INFO);
 	_(simple)   (uint16_t, attack_delay) \
 	_(simple)   (uint8_t, attack_action) \
 	_(simple)   (uint8_t, attack_flag) \
-	_(count)    (uint8_t, count, attack) \
+	_(count)    (uint8_t, attack) \
 	_(dynarray) (ATTACK_INFO, attack)
 
 CREATE_PACKET(TS_SC_ATTACK_EVENT, 101);

@@ -18,9 +18,9 @@ CREATE_STRUCT(TS_QUEST_INFO);
 CREATE_STRUCT(TS_QUEST_PENDING);
 
 #define TS_SC_QUEST_LIST_DEF(_) \
-	_(count) (uint16_t, count_active, activeQuests) \
+	_(count) (uint16_t, activeQuests) \
 	_(dynarray)(TS_QUEST_INFO, activeQuests) \
-	_(count) (uint16_t, count_pending, pendingQuests) \
+	_(count) (uint16_t, pendingQuests) \
 	_(dynarray)(TS_QUEST_PENDING, pendingQuests)
 
 CREATE_PACKET(TS_SC_QUEST_LIST, 600);

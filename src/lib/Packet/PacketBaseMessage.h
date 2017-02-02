@@ -54,6 +54,9 @@ struct TS_MESSAGE {
 
 	template<class T, class U>
 	void process(U* instance, void (U::*processFunction)(const T*), int version) const;
+
+	template<class T>
+	bool process(T& packet, int version) const;
 };
 
 //Special struct to prevent copy of server->client packet structs
@@ -109,6 +112,13 @@ void TS_MESSAGE::process(U* instance, void (U::*processFunction)(const T*), int 
 	if(buffer.checkPacketFinalSize()) {
 		(instance->*processFunction)(&packet);
 	}
+}
+template<class T>
+bool TS_MESSAGE::process(T& packet, int version) const {
+	MessageBuffer buffer((void*)this, this->size, version);
+
+	packet.deserialize(&buffer);
+	return buffer.checkPacketFinalSize();
 }
 
 #endif // PACKETS_PACKETBASEMESSAGE_H

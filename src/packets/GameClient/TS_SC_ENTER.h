@@ -7,14 +7,14 @@
 #include "Packet/EncodingScrambled.h"
 
 enum TS_SC_ENTER__OBJ_TYPE : uint8_t {
-	EOT_Player,
-	EOT_NPC,
-	EOT_Item,
-	EOT_Monster,
-	EOT_Summon,
-	EOT_Skill,
-	EOT_FieldProp,
-	EOT_Pet
+	EOT_Player = 0,
+	EOT_NPC = 1,
+	EOT_Item = 2,
+	EOT_Monster = 3,
+	EOT_Summon = 4,
+	EOT_Skill = 5,
+	EOT_FieldProp = 6,
+	EOT_Pet = 7
 };
 
 #define TS_SC_ENTER__ITEM_PICK_UP_ORDER_DEF(_) \
@@ -122,8 +122,7 @@ CREATE_STRUCT(TS_SC_ENTER__PET_INFO);
 	_(simple) (TS_SC_ENTER__PET_INFO       , petInfo      , objType == EOT_Pet)
 
 #define TS_SC_ENTER_ID(X) \
-	X(3, version < EPIC_9_2) \
-	X(63, version >= EPIC_9_2)
+	X(3, version < EPIC_9_2)
 
 CREATE_PACKET_VER_ID(TS_SC_ENTER);
 

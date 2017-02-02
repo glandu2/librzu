@@ -163,7 +163,7 @@ public:
 
 	//String
 	void readString(const char* fieldName, std::string& val, size_t size);
-	void readDynString(const char* fieldName, std::string& val, bool hasNullTerminator);
+	void readDynString(const char* fieldName, std::string& val, uint32_t sizeToRead, bool hasNullTerminator);
 
 	//Fixed array of primitive
 	template<typename T>
@@ -199,23 +199,27 @@ public:
 	//Dynamic array of primitive
 	template<typename T>
 	typename std::enable_if<is_primitive<T>::value, void>::type
-	readDynArray(const char* fieldName, std::vector<T>& val) {
-		size_t size = sizeof(T) * val.size();
+	readDynArray(const char* fieldName, std::vector<T>& val, uint32_t sizeToRead) {
+		size_t size = sizeof(T) * sizeToRead;
 		if(size && checkAvailableBuffer(fieldName, size)) {
-			memcpy(&val[0], p, size);
+			val.assign(reinterpret_cast<T*>(p), reinterpret_cast<T*>(p) + sizeToRead);
 			p += size;
+		} else {
+			val.clear();
 		}
 	}
 
 	//Dynamic array of primitive with cast
 	template<typename T, typename U>
 	typename std::enable_if<is_castable_primitive<T, U>::value, void>::type
-	readDynArray(const char* fieldName, std::vector<U>& val) {
-		size_t size = val.size();
-		if(size && checkAvailableBuffer(fieldName, sizeof(T) * size)) {
-			for(size_t i = 0; i < size; i++) {
-					val[i] = (U)*reinterpret_cast<T*>(p);
-					p += sizeof(T);
+	readDynArray(const char* fieldName, std::vector<U>& val, uint32_t sizeToRead) {
+		size_t size = sizeof(T) * sizeToRead;
+		val.clear();
+		if(size && checkAvailableBuffer(fieldName, size)) {
+			val.reserve(sizeToRead);
+			for(size_t i = 0; i < sizeToRead; i++) {
+				val.push_back((U)*reinterpret_cast<T*>(p));
+				p += sizeof(T);
 			}
 		}
 	}
@@ -223,23 +227,18 @@ public:
 	//Dynamic array of object
 	template<typename T>
 	typename std::enable_if<!is_primitive<T>::value, void>::type
-	readDynArray(const char* fieldName, std::vector<T>& val) {
+	readDynArray(const char* fieldName, std::vector<T>& val, uint32_t sizeToRead) {
+		val.resize(sizeToRead);
+
 		auto it = val.begin();
 		auto itEnd = val.end();
 		for(; it != itEnd; ++it)
 			read<T>(fieldName, *it);
 	}
 
-	//read size for objects (std:: containers)
-	template<typename T, class U>
-	void readSize(const char* fieldName, U& vec) {
-		if(checkAvailableBuffer(fieldName, sizeof(T))) {
-			size_t val = *reinterpret_cast<T*>(p);
-			p += sizeof(T);
-			if(checkAvailableBuffer(fieldName, val))
-				vec.resize(val);
-		}
-	}
+	//read remaining size for objects (std::string)
+	//other containers would need to know objet size
+	void readRemainingSize(const char* fieldName, uint32_t& val);
 
 	void discard(const char* fieldName, size_t size) {
 		if(checkAvailableBuffer(fieldName, size)) {

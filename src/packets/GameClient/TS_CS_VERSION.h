@@ -1,15 +1,15 @@
 #ifndef PACKETS_TS_CS_VERSION_H
 #define PACKETS_TS_CS_VERSION_H
 
-#include "Packet/PacketBaseMessage.h"
+#include "Packet/PacketDeclaration.h"
 
-#pragma pack(push, 1)
-struct TS_CS_VERSION : public TS_MESSAGE
-{
-	char szVersion[20];
-	static const uint16_t packetIDv1 = 50;
-	static const uint16_t packetID = 51;
-};
-#pragma pack(pop)
+#define TS_CS_VERSION_DEF(_) \
+	_(string)(szVersion, 20)
+
+#define TS_CS_VERSION_ID(X) \
+	X(50, version < EPIC_8_1) \
+	X(51, version >= EPIC_8_1)
+
+CREATE_PACKET_VER_ID(TS_CS_VERSION);
 
 #endif // PACKETS_TS_CS_VERSION_H

@@ -1,16 +1,11 @@
 #ifndef PACKETS_TS_SC_DISCONNECT_DESC_H
 #define PACKETS_TS_SC_DISCONNECT_DESC_H
 
-#include "Packet/PacketBaseMessage.h"
-#include "PacketEnums.h"
+#include "Packet/PacketDeclaration.h"
 
-#pragma pack(push, 1)
-struct TS_SC_DISCONNECT_DESC : public TS_MESSAGE
-{
-	char desc_id;
+#define TS_SC_DISCONNECT_DESC_DEF(_) \
+	_(simple)(uint8_t, desc_id)
 
-	static const int packetID = 28;
-};
-#pragma pack(pop)
+CREATE_PACKET(TS_SC_DISCONNECT_DESC, 28);
 
 #endif // PACKETS_TS_SC_DISCONNECT_DESC_H

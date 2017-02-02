@@ -1,17 +1,13 @@
 #ifndef PACKETS_TS_SC_RESULT_H
 #define PACKETS_TS_SC_RESULT_H
 
-#include "Packet/PacketBaseMessage.h"
-#include "PacketEnums.h"
+#include "Packet/PacketDeclaration.h"
 
-#pragma pack(push, 1)
-struct TS_SC_RESULT : public TS_MESSAGE
-{
-	uint16_t request_msg_id;
-	uint16_t result;
-	int32_t value;
-	static const uint16_t packetID = 0;
-};
-#pragma pack(pop)
+#define TS_SC_RESULT_DEF(_) \
+	_(simple)(uint16_t, request_msg_id) \
+	_(simple)(uint16_t, result) \
+	_(simple)(int32_t, value)
+
+CREATE_PACKET(TS_SC_RESULT, 0);
 
 #endif // PACKETS_TS_SC_RESULT_H

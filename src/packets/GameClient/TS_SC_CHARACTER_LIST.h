@@ -12,9 +12,9 @@
 	_(simple) (uint32_t, hair_color_rgb, version >= EPIC_7_1) \
 	_(simple) (uint32_t, hide_equip_flag, version >= EPIC_7_3) \
 	_(simple) (uint32_t, texture_id, version >= EPIC_7_1) \
-	_(array)(def)(uint32_t, wear_info, 24) \
-	_(array)(impl)(uint32_t, wear_info, 14, version < EPIC_4_1) \
-	_(array)(impl)(uint32_t, wear_info, 24, version >= EPIC_4_1) \
+	_(def)(array)(uint32_t, wear_info, 24) \
+	_(impl)(array)(uint32_t, wear_info, 14, version < EPIC_4_1) \
+	_(impl)(array)(uint32_t, wear_info, 24, version >= EPIC_4_1) \
 	_(simple) (uint32_t, level) \
 	_(simple) (uint32_t, job) \
 	_(simple) (uint32_t, job_level) \
@@ -27,12 +27,12 @@
 	_(simple) (uint32_t, skin_color, version >= EPIC_4_1) \
 	_(array)  (char, szCreateTime, 30) \
 	_(array)  (char, szDeleteTime, 30) \
-	_(array)(def)(uint32_t, wear_item_enhance_info, 24) \
-	_(array)(impl)(uint32_t, wear_item_enhance_info, 14, version < EPIC_4_1) \
-	_(array)(impl)(uint32_t, wear_item_enhance_info, 24, version >= EPIC_4_1) \
-	_(array)(def)(uint32_t, wear_item_level_info, 24) \
-	_(array)(impl)(uint32_t, wear_item_level_info, 14, version < EPIC_4_1) \
-	_(array)(impl)(uint32_t, wear_item_level_info, 24, version >= EPIC_4_1) \
+	_(def)(array)(uint32_t, wear_item_enhance_info, 24) \
+	_(impl)(array)(uint32_t, wear_item_enhance_info, 14, version < EPIC_4_1) \
+	_(impl)(array)(uint32_t, wear_item_enhance_info, 24, version >= EPIC_4_1) \
+	_(def)(array)(uint32_t, wear_item_level_info, 24) \
+	_(impl)(array)(uint32_t, wear_item_level_info, 14, version < EPIC_4_1) \
+	_(impl)(array)(uint32_t, wear_item_level_info, 24, version >= EPIC_4_1) \
 	_(array)  (uint8_t, wear_item_elemental_type, 24, version >= EPIC_6_1) \
 	_(array)  (uint32_t, wear_appearance_code, 24, version >= EPIC_8_1)
 
@@ -41,7 +41,7 @@ CREATE_STRUCT(LOBBY_CHARACTER_INFO); // struct is 304 bytes long in epic2
 #define TS_SC_CHARACTER_LIST_DEF(_) \
 	_(simple)   (uint32_t, current_server_time) \
 	_(simple)   (uint16_t, last_character_idx, version >= EPIC_4_1, 0) \
-	_(count)    (uint16_t, count, characters) \
+	_(count)    (uint16_t, characters) \
 	_(dynarray) (LOBBY_CHARACTER_INFO, characters)
 
 CREATE_PACKET(TS_SC_CHARACTER_LIST, 2004);

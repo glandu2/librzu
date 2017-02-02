@@ -1,23 +1,19 @@
 #ifndef TS_SC_STATE_RESULT_H
 #define TS_SC_STATE_RESULT_H
 
-#include "Packet/PacketBaseMessage.h"
+#include "Packet/PacketDeclaration.h"
 
-#pragma pack(push, 1)
-struct TS_SC_STATE_RESULT : public TS_MESSAGE
-{
-	uint32_t caster_handle;
-	uint32_t target_handle;
-	int32_t code;
-	uint16_t level;
-	uint16_t result_type;
-	int32_t value;
-	int32_t target_value;
-	bool final;
-	int32_t total_amount;
+#define TS_SC_STATE_RESULT_DEF(_) \
+	_(simple)(uint32_t, caster_handle) \
+	_(simple)(uint32_t, target_handle) \
+	_(simple)(int32_t, code) \
+	_(simple)(uint16_t, level) \
+	_(simple)(uint16_t, result_type) \
+	_(simple)(int32_t, value) \
+	_(simple)(int32_t, target_value) \
+	_(simple)(bool, final) \
+	_(simple)(int32_t, total_amount)
 
-	static const int packetID = 406;
-};
-#pragma pack(pop)
+CREATE_PACKET(TS_SC_STATE_RESULT, 406);
 
 #endif // TS_SC_STATE_RESULT_H

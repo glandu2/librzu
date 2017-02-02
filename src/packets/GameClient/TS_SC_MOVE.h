@@ -14,7 +14,7 @@ CREATE_STRUCT(MOVE_INFO);
 	_(simple)(uint32_t, handle) \
 	_(simple)(char, tlayer) \
 	_(simple)(char, speed) \
-	_(count) (uint16_t, count, move_infos) \
+	_(count) (uint16_t, move_infos) \
 	_(dynarray)(MOVE_INFO, move_infos)
 
 CREATE_PACKET(TS_SC_MOVE, 8);

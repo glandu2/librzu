@@ -5,17 +5,19 @@
 
 #define TS_SC_WEAR_INFO_DEF(_) \
 	_(simple) (uint32_t, handle) \
-	_(array)(def)(uint32_t, wear_info, 24) \
-	_(array)(impl)(uint32_t, wear_info, 14, version < EPIC_4_1) \
-	_(array)(impl)(uint32_t, wear_info, 24, version >= EPIC_4_1) \
-	_(array)(def)(uint32_t, wear_item_enhance_info, 24) \
-	_(array)(impl)(uint32_t, wear_item_enhance_info, 14, version < EPIC_4_1) \
-	_(array)(impl)(uint32_t, wear_item_enhance_info, 24, version >= EPIC_4_1) \
-	_(array)(def)(uint32_t, wear_item_level_info, 24) \
-	_(array)(impl)(uint32_t, wear_item_level_info, 14, version < EPIC_4_1) \
-	_(array)(impl)(uint32_t, wear_item_level_info, 24, version >= EPIC_4_1) \
+	_(def)(array)(uint32_t, wear_info, 24) \
+	_(impl)(array)(uint32_t, wear_info, 14, version < EPIC_4_1) \
+	_(impl)(array)(uint32_t, wear_info, 24, version >= EPIC_4_1) \
+	_(def)(array)(uint32_t, wear_item_enhance_info, 24) \
+	_(impl)(array)(uint32_t, wear_item_enhance_info, 14, version < EPIC_4_1) \
+	_(impl)(array)(uint32_t, wear_item_enhance_info, 24, version >= EPIC_4_1) \
+	_(def)(array)(uint32_t, wear_item_level_info, 24) \
+	_(impl)(array)(uint32_t, wear_item_level_info, 14, version < EPIC_4_1) \
+	_(impl)(array)(uint32_t, wear_item_level_info, 24, version >= EPIC_4_1) \
 	_(array)(uint8_t, wear_item_elemental_type, 24, version >= EPIC_6_1) \
-	_(array)(uint32_t, wear_appearance_code, 24, version >= EPIC_8_1)
+	_(array)(uint32_t, wear_appearance_code, 24, version >= EPIC_8_1) \
+	_(simple)(uint32_t, booster_item, version >= EPIC_9_3) \
+	_(simple)(uint32_t, second_bag_item, version >= EPIC_9_3)
 
 CREATE_PACKET(TS_SC_WEAR_INFO, 202);
 

@@ -10,7 +10,7 @@
 
 #define TS_CS_LOGIN_ID(X) \
 	X(1, version < EPIC_9_2) \
-	X(61, version >= EPIC_9_2) \
+	X(61, version >= EPIC_9_2 && version < EPIC_9_4) \
 	X(62, version >= EPIC_9_4)
 
 CREATE_PACKET_VER_ID(TS_CS_LOGIN);

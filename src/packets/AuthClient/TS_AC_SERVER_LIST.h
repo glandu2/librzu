@@ -16,7 +16,7 @@ CREATE_STRUCT(TS_SERVER_INFO);
 
 #define TS_AC_SERVER_LIST_DEF(_) \
 	_(simple)   (uint16_t, last_login_server_idx, version >= EPIC_4_1, 1) \
-	_(count)    (uint16_t, count, servers) \
+	_(count)    (uint16_t, servers) \
 	_(dynarray) (TS_SERVER_INFO, servers)
 
 CREATE_PACKET(TS_AC_SERVER_LIST, 10022);

@@ -10,10 +10,15 @@ void DelegatedPacketSession::removePacketListener(uint16_t packetId, IListener* 
 }
 
 EventChain<PacketSession> DelegatedPacketSession::onPacketReceived(const TS_MESSAGE *packet) {
-	if(packet->id != TS_SC_RESULT::packetID)
+	if(packet->id != TS_SC_RESULT::packetID) {
 		DELEGATE_HASH_CALL(packetListeners, packet->id, this, packet);
-	else
-		DELEGATE_HASH_CALL(packetListeners, reinterpret_cast<const TS_SC_RESULT*>(packet)->request_msg_id, this, packet);
+	} else {
+		TS_SC_RESULT resultMsg;
+		bool deserializationOk = packet->process(resultMsg, EPIC_LATEST);
+		if(deserializationOk) {
+			DELEGATE_HASH_CALL(packetListeners, resultMsg.request_msg_id, this, packet);
+		}
+	}
 
 	return PacketSession::onPacketReceived(packet);
 }

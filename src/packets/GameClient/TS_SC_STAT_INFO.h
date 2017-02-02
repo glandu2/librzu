@@ -14,14 +14,21 @@
   _(simple)(int16_t, luck)
 CREATE_STRUCT(TS_STAT_INFO_BASE);
 
+// Attacks changed to 32 bits on 14/06/2016 (during epic 9.3)
 #define TS_STAT_INFO_ATTRIB_DEF(_) \
   _(simple)(int16_t, nCritical) \
   _(simple)(int16_t, nCriticalPower) \
-  _(simple)(int16_t, nAttackPointRight) \
-  _(simple)(int16_t, nAttackPointLeft) \
+  _(def)(simple)(int32_t, nAttackPointRight) \
+  _(impl)(simple)(int32_t, nAttackPointRight, version >= EPIC_9_3) \
+  _(impl)(simple)(int16_t, nAttackPointRight, version < EPIC_9_3) \
+  _(def)(simple)(int32_t, nAttackPointLeft) \
+  _(impl)(simple)(int32_t, nAttackPointLeft, version >= EPIC_9_3) \
+  _(impl)(simple)(int16_t, nAttackPointLeft, version < EPIC_9_3) \
   _(simple)(int16_t, nDefence) \
   _(simple)(int16_t, nBlockDefence) \
-  _(simple)(int16_t, nMagicPoint) \
+  _(def)(simple)(int32_t, nMagicPoint) \
+  _(impl)(simple)(int32_t, nMagicPoint, version >= EPIC_9_3) \
+  _(impl)(simple)(int16_t, nMagicPoint, version < EPIC_9_3) \
   _(simple)(int16_t, nMagicDefence) \
   _(simple)(int16_t, nAccuracyRight) \
   _(simple)(int16_t, nAccuracyLeft) \
