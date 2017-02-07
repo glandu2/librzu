@@ -4,8 +4,8 @@
 #include "Packet/PacketDeclaration.h"
 
 #define TS_SC_CHAT_RESULT_DEF(_) \
-	_(simple)(char, type) \
-	_(simple)(char, percentage) \
+	_(simple)(int8_t, type) \
+	_(simple)(int8_t, percentage) \
 	_(simple)(int32_t, result) \
 	_(simple)(int32_t, reserved)
 

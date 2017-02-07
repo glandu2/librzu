@@ -2,7 +2,7 @@
 #define PACKETS_TS_SC_STATE_H
 
 #include "Packet/PacketDeclaration.h"
-  
+
 #define TS_SC_STATE_DEF(_) \
 	_(simple)(uint32_t, handle) \
 	_(simple)(uint16_t, state_handle) \

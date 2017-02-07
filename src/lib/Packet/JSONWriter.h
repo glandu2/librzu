@@ -99,7 +99,7 @@ public:
 		json << "\"" << val << "\"";
 	}
 
-	void writeDynString(const char* fieldName, const std::string& val, bool hasNullTerminator) {
+	void writeDynString(const char* fieldName, const std::string& val, size_t count) {
 		printIdent();
 		if(fieldName)
 			json << '\"' << fieldName << getEndFieldSeparator();
@@ -142,7 +142,7 @@ public:
 
 	//Dynamic array
 	template<typename T>
-	void writeDynArray(const char* fieldName, const std::vector<T>& val) {
+	void writeDynArray(const char* fieldName, const std::vector<T>& val, uint32_t) {
 		printIdent();
 		if(fieldName)
 			json << '\"' << fieldName << getEndFieldSeparator();
@@ -164,12 +164,15 @@ public:
 	//Dynamic array of primitive with cast
 	template<typename T, typename U>
 	typename std::enable_if<is_castable_primitive<T, U>::value, void>::type
-	writeDynArray(const char* fieldName, const std::vector<U>& val) {
-		writeDynArray<U>(fieldName, val);
+	writeDynArray(const char* fieldName, const std::vector<U>& val, uint32_t count) {
+		writeDynArray<U>(fieldName, val, count);
 	}
 
-	void pad(const char* fieldName, size_t size) {
-	}
+	template<typename T>
+	typename std::enable_if<is_primitive<T>::value, void>::type
+	writeSize(const char* fieldName, T size) {}
+
+	void pad(const char* fieldName, size_t size) {}
 
 	// Read functions /////////////////////////
 
@@ -226,8 +229,9 @@ public:
 	}
 
 	//read size for objects (std:: containers)
-	template<typename T, class U>
-	void readSize(const char* fieldName, U& vec) {
+	template<typename T>
+	typename std::enable_if<is_primitive<T>::value, void>::type
+	readSize(const char* fieldName, T& val) {
 	}
 
 	void discard(const char* fieldName, size_t size) {

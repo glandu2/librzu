@@ -2,7 +2,7 @@
 #define PACKETS_TS_CS_TARGETING_H
 
 #include "Packet/PacketDeclaration.h"
-  
+
 #define TS_CS_TARGETING_DEF(_) \
 	_(simple)(uint32_t, target)
 

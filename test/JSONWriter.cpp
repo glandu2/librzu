@@ -177,18 +177,18 @@ int main(int argc, char* argv[]) {
 	packet.last_login_server_idx = 5;
 
 	serverInfo[0].server_idx = 1;
-	strcpy(serverInfo[0].server_name, "server 1");
+	serverInfo[0].server_name = "server 1";
 	serverInfo[0].is_adult_server = false;
-	strcpy(serverInfo[0].server_screenshot_url, "http://screenshot.com/server1");
-	strcpy(serverInfo[0].server_ip, "127.0.0.1");
+	serverInfo[0].server_screenshot_url = "http://screenshot.com/server1";
+	serverInfo[0].server_ip = "127.0.0.1";
 	serverInfo[0].server_port = 4514;
 	serverInfo[0].user_ratio = 30;
 
 	serverInfo[1].server_idx = 2;
-	strcpy(serverInfo[1].server_name, "server 2");
+	serverInfo[1].server_name = "server 2";
 	serverInfo[1].is_adult_server = true;
-	strcpy(serverInfo[1].server_screenshot_url, "http://screenshot.com/server2");
-	strcpy(serverInfo[1].server_ip, "192.168.89.24");
+	serverInfo[1].server_screenshot_url = "http://screenshot.com/server2";
+	serverInfo[1].server_ip = "192.168.89.24";
 	serverInfo[1].server_port = 4515;
 	serverInfo[1].user_ratio = 64;
 

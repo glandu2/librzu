@@ -68,7 +68,7 @@ public:
 
 	//String
 	void writeString(const char* fieldName, const std::string& val, size_t maxSize);
-	void writeDynString(const char* fieldName, const std::string& val, bool hasNullTerminator);
+	void writeDynString(const char* fieldName, const std::string& val, size_t count);
 
 	//Fixed array of primitive
 	template<typename T>
@@ -104,8 +104,8 @@ public:
 	//Dynamic array of primitive
 	template<typename T>
 	typename std::enable_if<is_primitive<T>::value, void>::type
-	writeDynArray(const char* fieldName, const std::vector<T>& val) {
-		size_t size = sizeof(T) * val.size();
+	writeDynArray(const char* fieldName, const std::vector<T>& val, uint32_t count) {
+		size_t size = sizeof(T) * count;
 		if(size && checkAvailableBuffer(fieldName, size)) {
 			memcpy(p, &val[0], size);
 			p += size;
@@ -115,10 +115,10 @@ public:
 	//Dynamic array of primitive with cast
 	template<typename T, typename U>
 	typename std::enable_if<is_castable_primitive<T, U>::value, void>::type
-	writeDynArray(const char* fieldName, const std::vector<U>& val) {
-		size_t size = val.size();
-		if(size && checkAvailableBuffer(fieldName, sizeof(T) * size)) {
-			for(size_t i = 0; i < size; ++i) {
+	writeDynArray(const char* fieldName, const std::vector<U>& val, uint32_t count) {
+		size_t size = sizeof(T) * count;
+		if(size && checkAvailableBuffer(fieldName, size)) {
+			for(size_t i = 0; i < count; ++i) {
 				*reinterpret_cast<T*>(p) = val[i];
 				p += sizeof(T);
 			}
@@ -128,11 +128,15 @@ public:
 	//Dynamic array of object or primitive with cast
 	template<typename T>
 	typename std::enable_if<!is_primitive<T>::value, void>::type
-	writeDynArray(const char* fieldName, const std::vector<T>& val) {
-		auto it = val.begin();
-		auto itEnd = val.end();
-		for(; it != itEnd; ++it)
-			write<T>(fieldName, *it);
+	writeDynArray(const char* fieldName, const std::vector<T>& val, uint32_t count) {
+		for(size_t i = 0; i < count; i++)
+			write<T>(fieldName, val[i]);
+	}
+
+	template<typename T>
+	typename std::enable_if<is_primitive<T>::value, void>::type
+	writeSize(const char* fieldName, T size) {
+		write<T>(fieldName, size);
 	}
 
 	void pad(const char* fieldName, size_t size) {
@@ -234,6 +238,13 @@ public:
 		auto itEnd = val.end();
 		for(; it != itEnd; ++it)
 			read<T>(fieldName, *it);
+	}
+
+	//read size for objects (std:: containers)
+	template<typename T>
+	typename std::enable_if<is_primitive<T>::value, void>::type
+	readSize(const char* fieldName, uint32_t& val) {
+		read<T>(fieldName, val);
 	}
 
 	//read remaining size for objects (std::string)

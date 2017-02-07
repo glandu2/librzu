@@ -7,7 +7,7 @@
 	_(simple)(float, x) \
 	_(simple)(float, y) \
 	_(simple)(float, z) \
-	_(simple)(char, layer)
+	_(simple)(int8_t, layer)
 
 CREATE_PACKET(TS_SC_WARP, 12);
 

@@ -53,12 +53,10 @@ void MessageBuffer::writeString(const char *fieldName, const std::string &val, s
 	}
 }
 
-void MessageBuffer::writeDynString(const char *fieldName, const std::string &val, bool hasNullTerminator) {
-	size_t sizeToWrite = val.size() + hasNullTerminator;
-
-	if(checkAvailableBuffer(fieldName, sizeToWrite)) {
-		memcpy(p, val.c_str(), sizeToWrite);
-		p += sizeToWrite;
+void MessageBuffer::writeDynString(const char *fieldName, const std::string &val, size_t count) {
+	if(checkAvailableBuffer(fieldName, count)) {
+		memcpy(p, val.c_str(), count);
+		p += count;
 	}
 }
 
@@ -71,7 +69,7 @@ void MessageBuffer::readString(const char *fieldName, std::string &val, size_t m
 
 void MessageBuffer::readDynString(const char *fieldName, std::string &val, uint32_t sizeToRead, bool hasNullTerminator) {
 	if(checkAvailableBuffer(fieldName, sizeToRead)) {
-		if(sizeToRead > hasNullTerminator)
+		if(sizeToRead > 0)
 			val.assign(p, sizeToRead - hasNullTerminator);
 		else
 			val.clear();
@@ -81,5 +79,5 @@ void MessageBuffer::readDynString(const char *fieldName, std::string &val, uint3
 
 void MessageBuffer::readRemainingSize(const char*, uint32_t& val) {
 	size_t remainingSize = getSize() - getParsedSize();
-	val = std::min(remainingSize, (size_t)UINT32_MAX);
+	val = (uint32_t)std::min(remainingSize, (size_t)UINT32_MAX);
 }

@@ -8,6 +8,7 @@
 #include <string>
 #include "PacketEpics.h"
 #include "PacketBaseMessage.h"
+#include <limits>
 #endif
 
 #define _ARG5(_0, _1, _2, _3, _4, _5, ...) _5
@@ -32,29 +33,19 @@
 #ifndef DEBUG_PREPROCESSOR
 namespace PacketDeclaration {
 
-template<typename T>
-inline void copyDefaultValue(T& val1, bool val2) {
-	val1 = val2;
-}
-
-template<typename T>
-inline void copyDefaultValue(T& val1, int val2) {
-	val1 = val2;
-}
-
-template<typename T>
-inline void copyDefaultValue(T& val1, float val2) {
-	val1 = val2;
-}
-
-template<typename T>
-inline void copyDefaultValue(T& val1, double val2) {
+template<typename T, typename U>
+inline void copyDefaultValue(T& val1, U val2) {
 	val1 = val2;
 }
 
 template<typename T>
 inline void copyDefaultValue(T val1[], const T val2[], size_t size) {
 	memcpy(val1, val2, size);
+}
+
+template<typename T>
+inline void copyDefaultValue(std::vector<T> val1, const T val2[], size_t size) {
+	val1.assign(val2, val2 + size);
 }
 
 template<class T>
@@ -71,11 +62,18 @@ getSizeOf(const T& value, int version) {
 	return sizeof(value);
 }
 
+template<typename T>
+uint32_t getClampedCount(size_t realSize) {
+	static_assert(sizeof(T) <= sizeof(uint32_t), "Maximum supported size is uint32_t because a packet is limited to 16k bytes");
+	return (uint32_t) std::min(realSize, (size_t)std::numeric_limits<T>::max());
+}
+
 } // namespace PacketDeclaration
 #endif
 
 // Dispatch declarations
 #define DEFINITION_F(x) DEFINITION_F_##x
+#define LOCAL_DEFINITION_F(x) LOCAL_DEFINITION_F_##x
 #define SIZE_F(x) SIZE_F_##x
 #define SERIALIZATION_F(x) SERIALIZATION_F_##x
 #define DESERIALIZATION_F(x) DESERIALIZATION_F_##x
@@ -91,6 +89,17 @@ getSizeOf(const T& value, int version) {
 #define DEFINITION_F_pad(...)
 #define DEFINITION_F_autocount(ref, ...)
 
+// Local fields
+#define LOCAL_DEFINITION_F_simple(type, name, ...)
+#define LOCAL_DEFINITION_F_array(type, name, size, ...)
+#define LOCAL_DEFINITION_F_dynarray(type, name, ...)
+#define LOCAL_DEFINITION_F_count(type, ref, ...) uint32_t ref##_size; (void)(ref##_size);
+#define LOCAL_DEFINITION_F_string(name, size, ...)
+#define LOCAL_DEFINITION_F_dynstring(name, hasNullTerminator, ...)
+#define LOCAL_DEFINITION_F_padmarker(...)
+#define LOCAL_DEFINITION_F_pad(...)
+#define LOCAL_DEFINITION_F_autocount(ref, ...) uint32_t ref##_size; (void)(ref##_size);
+
 // Size function
 #define SIZE_F_simple(...) OVERLOADED_CALL(SIZE_F_SIMPLE, __VA_ARGS__)
 #define SIZE_F_array(...) OVERLOADED_CALL(SIZE_F_ARRAY, __VA_ARGS__)
@@ -100,7 +109,7 @@ getSizeOf(const T& value, int version) {
 #define SIZE_F_dynstring(...) OVERLOADED_CALL(SIZE_F_DYNSTRING, __VA_ARGS__)
 #define SIZE_F_padmarker(...) OVERLOADED_CALL(SIZE_F_PADMARKER, __VA_ARGS__)
 #define SIZE_F_pad(...) OVERLOADED_CALL(SIZE_F_PAD, __VA_ARGS__)
-#define SIZE_F_autocount(...)
+#define SIZE_F_autocount(...) OVERLOADED_CALL(SIZE_F_AUTOCOUNT, __VA_ARGS__)
 
 #define SIZE_F_SIMPLE2(type, name) \
 	size += PacketDeclaration::getSizeOf((type)name, version);
@@ -117,14 +126,27 @@ getSizeOf(const T& value, int version) {
 	if(cond) for(int i = 0; i < _size; ++i) size += PacketDeclaration::getSizeOf((type)name[i], version);
 
 #define SIZE_F_DYNARRAY2(type, name) \
-	for(auto it = name.begin(); it != name.end(); ++it) size += PacketDeclaration::getSizeOf((type)*it, version);
+	for(size_t i = 0; i < name##_size; i++) size += PacketDeclaration::getSizeOf((type)name[i], version);
 #define SIZE_F_DYNARRAY3(type, name, cond) \
-	if(cond) for(auto it = name.begin(); it != name.end(); ++it) size += PacketDeclaration::getSizeOf((type)*it, version);
+	if(cond) for(size_t i = 0; i < name##_size; i++) size += PacketDeclaration::getSizeOf((type)name[i], version);
 #define SIZE_F_DYNARRAY4(type, name, cond, defaultval) \
-	if(cond) for(auto it = name.begin(); it != name.end(); ++it) size += PacketDeclaration::getSizeOf((type)*it, version);
+	if(cond) for(size_t i = 0; i < name##_size; i++) size += PacketDeclaration::getSizeOf((type)name[i], version);
 
 #define SIZE_F_COUNT2(type, ref) \
+	ref##_size = PacketDeclaration::getClampedCount<type>(ref.size() + _metadata_##ref::addNullTerminator); \
 	size += sizeof(type);
+#define SIZE_F_COUNT3(type, ref, cond) \
+	if(cond) { \
+	    ref##_size = PacketDeclaration::getClampedCount<type>(ref.size() + _metadata_##ref::addNullTerminator); \
+	    size += sizeof(type); \
+	}
+#define SIZE_F_COUNT4(type, ref, cond, defaultval) \
+	if(cond) { \
+	    ref##_size = PacketDeclaration::getClampedCount<type>(ref.size() + _metadata_##ref::addNullTerminator); \
+	    size += sizeof(type); \
+	} else { \
+	    ref##_size = defaultval; \
+	}
 
 #define SIZE_F_STRING2(name, _size) \
 	size += _size;
@@ -134,11 +156,11 @@ getSizeOf(const T& value, int version) {
 	if(cond) size += _size;
 
 #define SIZE_F_DYNSTRING2(name, hasNullTerminator) \
-	size += (uint32_t)name.size() + !!hasNullTerminator;
+	size += name##_size;
 #define SIZE_F_DYNSTRING3(name, hasNullTerminator, cond) \
-	if(cond) size += (uint32_t)name.size() + !!hasNullTerminator;
+	if(cond) size += name##_size;
 #define SIZE_F_DYNSTRING4(name, hasNullTerminator, cond, defaultval) \
-	if(cond) size += (uint32_t)name.size() + !!hasNullTerminator;
+	if(cond) size += name##_size;
 
 #define SIZE_F_PADMARKER1(marker) \
 	const uint32_t marker = size;
@@ -146,6 +168,9 @@ getSizeOf(const T& value, int version) {
 	if(size < marker + (_size)) size = marker + (_size);
 #define SIZE_F_PAD3(_size, marker, cond) \
 	if(cond && size < marker + (_size)) size = marker + (_size);
+
+#define SIZE_F_AUTOCOUNT1(ref) \
+	ref##_size = (uint32_t)ref.size() + _metadata_##ref::addNullTerminator;
 
 // Serialization function
 #define SERIALIZATION_F_simple(...) OVERLOADED_CALL(SERIALIZATION_F_SIMPLE, __VA_ARGS__)
@@ -173,14 +198,27 @@ getSizeOf(const T& value, int version) {
 	if(cond) buffer->template writeArray<type>(#name, name, size);
 
 #define SERIALIZATION_F_DYNARRAY2(type, name) \
-	buffer->template writeDynArray<type>(#name, name);
+	buffer->template writeDynArray<type>(#name, name, name##_size);
 #define SERIALIZATION_F_DYNARRAY3(type, name, cond) \
-	if(cond) buffer->template writeDynArray<type>(#name, name);
+	if(cond) buffer->template writeDynArray<type>(#name, name, name##_size);
 #define SERIALIZATION_F_DYNARRAY4(type, name, cond, defaultval) \
-	if(cond) buffer->template writeDynArray<type>(#name, name);
+	if(cond) buffer->template writeDynArray<type>(#name, name, name##_size);
 
 #define SERIALIZATION_F_COUNT2(type, ref) \
-	buffer->write(#ref "_size", (type)(ref.size() + _metadata_##ref::addNullTerminator));
+	ref##_size = PacketDeclaration::getClampedCount<type>(ref.size() + _metadata_##ref::addNullTerminator); \
+	buffer->writeSize(#ref, (type)ref##_size);
+#define SERIALIZATION_F_COUNT3(type, ref, cond) \
+	if(cond) { \
+	    ref##_size = PacketDeclaration::getClampedCount<type>(ref.size() + _metadata_##ref::addNullTerminator); \
+	    buffer->writeSize(#ref, (type)ref##_size); \
+	}
+#define SERIALIZATION_F_COUNT4(type, ref, cond, defaultval) \
+	if(cond) { \
+	    ref##_size = PacketDeclaration::getClampedCount<type>(ref.size() + _metadata_##ref::addNullTerminator); \
+	    buffer->writeSize(#ref, (type)ref##_size); \
+	} else { \
+	    ref##_size = defaultval; \
+	}
 
 #define SERIALIZATION_F_STRING2(name, size) \
 	buffer->writeString(#name, name, size);
@@ -190,11 +228,11 @@ getSizeOf(const T& value, int version) {
 	if(cond) buffer->writeString(#name, name, size);
 
 #define SERIALIZATION_F_DYNSTRING2(name, hasNullTerminator) \
-	buffer->writeDynString(#name, name, hasNullTerminator);
+	buffer->writeDynString(#name, name, name##_size);
 #define SERIALIZATION_F_DYNSTRING3(name, hasNullTerminator, cond) \
-	if(cond) buffer->writeDynString(#name, name, hasNullTerminator);
+	if(cond) buffer->writeDynString(#name, name, name##_size);
 #define SERIALIZATION_F_DYNSTRING4(name, hasNullTerminator, cond, defaultval) \
-	if(cond) buffer->writeDynString(#name, name, hasNullTerminator);
+	if(cond) buffer->writeDynString(#name, name, name##_size);
 
 #define SERIALIZATION_F_PADMARKER1(marker) \
 	const uint32_t marker = buffer->getParsedSize();
@@ -205,7 +243,8 @@ getSizeOf(const T& value, int version) {
 	if(cond && buffer->getParsedSize() < marker + (_size)) \
 	    buffer->pad("pad_" #marker, marker + (_size) - buffer->getParsedSize());
 
-#define SERIALIZATION_F_AUTOCOUNT1(ref)
+#define SERIALIZATION_F_AUTOCOUNT1(ref) \
+	ref##_size = (uint32_t)ref.size() + _metadata_##ref::addNullTerminator;
 
 // Deserialization function
 #define DESERIALIZATION_F_simple(...) OVERLOADED_CALL(DESERIALIZATION_F_SIMPLE, __VA_ARGS__)
@@ -223,7 +262,11 @@ getSizeOf(const T& value, int version) {
 #define DESERIALIZATION_F_SIMPLE3(type, name, cond) \
 	if(cond) buffer->template read<type>(#name, name);
 #define DESERIALIZATION_F_SIMPLE4(type, name, cond, defaultval) \
-	if(cond) buffer->template read<type>(#name, name); else PacketDeclaration::copyDefaultValue(name, defaultval);
+	if(cond) buffer->template read<type>(#name, name); \
+	else { \
+	    static const type defaultValue = defaultval; \
+	    PacketDeclaration::copyDefaultValue(name, defaultValue); \
+	}
 
 #define DESERIALIZATION_F_ARRAY3(type, name, size) \
 	buffer->template readArray<type>(#name, name, size);
@@ -232,7 +275,7 @@ getSizeOf(const T& value, int version) {
 #define DESERIALIZATION_F_ARRAY5(type, name, size, cond, defaultval) \
 	if(cond) buffer->template readArray<type>(#name, name, size); \
 	else { \
-		static const type defaultArray[size] = defaultval; \
+	    static const type defaultArray[size] = defaultval; \
 		PacketDeclaration::copyDefaultValue(name, defaultArray, size); \
 	}
 
@@ -241,11 +284,19 @@ getSizeOf(const T& value, int version) {
 #define DESERIALIZATION_F_DYNARRAY3(type, name, cond) \
 	if(cond) buffer->template readDynArray<type>(#name, name, name##_size);
 #define DESERIALIZATION_F_DYNARRAY4(type, name, cond, defaultval) \
-	if(cond) buffer->template readDynArray<type>(#name, name, name##_size); else PacketDeclaration::copyDefaultValue(name, defaultval);
+	if(cond) buffer->template readDynArray<type>(#name, name, name##_size); \
+	else { \
+	    static const type defaultArray[] = defaultval; \
+	    PacketDeclaration::copyDefaultValue(name, defaultArray, sizeof(defaultArray)/sizeof(type)); \
+	}
 
 #define DESERIALIZATION_F_COUNT2(type, ref) \
-	uint32_t ref##_size; \
-	buffer->template read<type>(#ref "_size", ref##_size);
+	buffer->template readSize<type>(#ref, ref##_size);
+#define DESERIALIZATION_F_COUNT3(type, ref, cond) \
+	if(cond) buffer->template readSize<type>(#ref, ref##_size);
+#define DESERIALIZATION_F_COUNT4(type, ref, cond, defaultval) \
+	if(cond) buffer->template readSize<type>(#ref, ref##_size); \
+	else ref##_size = defaultval;
 
 #define DESERIALIZATION_F_STRING2(name, size) \
 	buffer->readString(#name, name, size);
@@ -263,7 +314,6 @@ getSizeOf(const T& value, int version) {
 	if(cond) buffer->readDynString(#name, name, name##_size, hasNullTerminator); \
 	else name = defaultval;
 
-
 #define DESERIALIZATION_F_PADMARKER1(marker) \
 	const uint32_t marker = buffer->getParsedSize();
 #define DESERIALIZATION_F_PAD2(_size, marker) \
@@ -274,30 +324,33 @@ getSizeOf(const T& value, int version) {
 	    buffer->discard("pad_" #marker, marker + (_size) - buffer->getParsedSize());
 
 #define DESERIALIZATION_F_AUTOCOUNT1(ref) \
-	uint32_t ref##_size; \
-	buffer->readRemainingSize(#ref "_size", ref##_size);
+	buffer->readRemainingSize(#ref, ref##_size);
 
 // def / impl mode implementation
 #define DO_NOTHING(...)
 
 #define DEFINITION_F_def(x) DEFINITION_F_##x
+#define LOCAL_DEFINITION_F_def(x) LOCAL_DEFINITION_F_##x
 #define SIZE_F_def(x) DO_NOTHING
 #define SERIALIZATION_F_def(x) DO_NOTHING
 #define DESERIALIZATION_F_def(x) DO_NOTHING
 
 #define DEFINITION_F_impl(x) DO_NOTHING
+#define LOCAL_DEFINITION_F_impl(x) DO_NOTHING
 #define SIZE_F_impl(x) SIZE_F_##x
 #define SERIALIZATION_F_impl(x) SERIALIZATION_F_##x
 #define DESERIALIZATION_F_impl(x) DESERIALIZATION_F_##x
 
 #define CREATE_STRUCT_IMPL(name_, size_base_, definition_header_, serialization_header_, deserialization_header_) \
 	struct name_ { \
+	    static inline const char* getName() { return #name_; } \
 		definition_header_ \
 		name_ ## _DEF(DEFINITION_F) \
 	\
 		uint32_t getSize(int version) const { \
 			uint32_t size = size_base_; \
 			(void)(version); \
+	        name_ ## _DEF(LOCAL_DEFINITION_F) \
 			name_ ## _DEF(SIZE_F) \
 	\
 			return size;\
@@ -308,6 +361,7 @@ getSizeOf(const T& value, int version) {
 			const int version = buffer->getVersion(); \
 			(void)(version); \
 			serialization_header_ \
+	        name_ ## _DEF(LOCAL_DEFINITION_F) \
 			name_ ## _DEF(SERIALIZATION_F) \
 		} \
 	\
@@ -316,7 +370,7 @@ getSizeOf(const T& value, int version) {
 			const int version = buffer->getVersion(); \
 			(void)(version); \
 			deserialization_header_ \
-	\
+	        name_ ## _DEF(LOCAL_DEFINITION_F) \
 			name_ ## _DEF(DESERIALIZATION_F) \
 	    } \
 	}

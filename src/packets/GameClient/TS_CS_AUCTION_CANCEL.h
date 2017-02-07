@@ -2,7 +2,7 @@
 #define PACKETS_TS_CS_AUCTION_CANCEL_H
 
 #include "Packet/PacketDeclaration.h"
-  
+
 #define TS_CS_AUCTION_CANCEL_DEF(_) \
 	_(simple)(uint32_t, auction_uid)
 

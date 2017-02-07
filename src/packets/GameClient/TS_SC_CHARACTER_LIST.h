@@ -25,8 +25,8 @@
 	_(simple) (uint8_t, is_banned) \
 	_(string) (name, 19) \
 	_(simple) (uint32_t, skin_color, version >= EPIC_4_1) \
-	_(array)  (char, szCreateTime, 30) \
-	_(array)  (char, szDeleteTime, 30) \
+	_(string) (szCreateTime, 30) \
+	_(string) (szDeleteTime, 30) \
 	_(def)(array)(uint32_t, wear_item_enhance_info, 24) \
 	_(impl)(array)(uint32_t, wear_item_enhance_info, 14, version < EPIC_4_1) \
 	_(impl)(array)(uint32_t, wear_item_enhance_info, 24, version >= EPIC_4_1) \

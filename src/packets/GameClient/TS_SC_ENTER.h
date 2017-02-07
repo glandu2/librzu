@@ -94,7 +94,8 @@ CREATE_STRUCT(TS_SC_ENTER__NPC_INFO);
 	_(simple) (uint16_t, job_id) \
 	_(simple) (uint32_t, ride_handle) \
 	_(simple) (uint32_t, guild_id) \
-	_(simple) (uint64_t, unknown, version >= EPIC_9_2)
+	_(simple) (uint32_t, title_code, version >= EPIC_8_1) \
+	_(simple) (uint32_t, emblem_code, version >= EPIC_9_3)
 CREATE_STRUCT(TS_SC_ENTER__PLAYER_INFO);
 
 #define TS_SC_ENTER__PET_INFO_DEF(_) \
@@ -122,7 +123,7 @@ CREATE_STRUCT(TS_SC_ENTER__PET_INFO);
 	_(simple) (TS_SC_ENTER__PET_INFO       , petInfo      , objType == EOT_Pet)
 
 #define TS_SC_ENTER_ID(X) \
-	X(3, version < EPIC_9_2)
+	X(3)
 
 CREATE_PACKET_VER_ID(TS_SC_ENTER);
 
