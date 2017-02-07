@@ -21,7 +21,7 @@ target_include_directories(${TARGET_NAME}
 	PRIVATE ${OPENSSL_INCLUDE_DIR}
 	)
 if(CMAKE_SYSTEM_NAME MATCHES "Windows")
-	target_compile_definitions(${TARGET_NAME} PRIVATE NOMINMAX)
+	target_compile_definitions(${TARGET_NAME} PUBLIC NOMINMAX)
 endif()
 
 if(BUILD_SHARED_LIBS)
