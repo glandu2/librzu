@@ -23,8 +23,8 @@
 	_(def)(simple)(int32_t, max_mp) \
 	_(impl)(simple)(int32_t, max_mp, version >= EPIC_7_1) \
 	_(impl)(simple)(int16_t, max_mp, version <  EPIC_7_1) \
-	_(simple) (int32_t, havoc, version >= EPIC_4_1 && version < EPIC_9_2) \
-	_(simple) (int32_t, max_havoc, version >= EPIC_4_1 && version < EPIC_9_2) \
+	_(simple) (int32_t, havoc, version >= EPIC_4_1 && version < EPIC_8_3) \
+	_(simple) (int32_t, max_havoc, version >= EPIC_4_1 && version < EPIC_8_3) \
 	_(simple) (int32_t, sex) \
 	_(simple) (int32_t, race) \
 	_(simple) (uint32_t, skin_color, version >= EPIC_4_1) \
