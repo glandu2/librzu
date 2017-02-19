@@ -3,6 +3,7 @@
 
 #include <string.h>
 #include <stdint.h>
+#include <type_traits>
 
 #ifndef __GNUC__
 #pragma warning(disable:4200)  //array [0] extension
@@ -19,7 +20,8 @@ struct TS_MESSAGE {
 	int8_t msg_check_sum;
 
 	template<typename MessageType>
-	static void initMessage(MessageType* msg) {
+	static typename std::enable_if<std::is_base_of<TS_MESSAGE, MessageType>::value, void>::type
+	initMessage(MessageType* msg) {
 		memset(msg, 0, sizeof(MessageType));
 		msg->size = sizeof(MessageType);
 		msg->id = MessageType::packetID;

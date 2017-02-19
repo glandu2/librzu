@@ -381,6 +381,7 @@ uint32_t getClampedCount(size_t realSize) {
 
 #define CREATE_PACKET_DEFINITION_HEADER(id_) \
 	static const uint16_t packetID = id_; \
+	static inline uint16_t getId(int version) { (void)version; return id_; } \
 	uint16_t id;
 
 #define CREATE_PACKET_SERIALIZATION_HEADER \
@@ -409,6 +410,12 @@ uint32_t getClampedCount(size_t realSize) {
 
 #define CREATE_PACKET_VER_ID_HEADER_HEADER(name_) \
 	name_ ## _ID(HEADER_F_ID) \
+	static inline uint16_t getId(int version) { \
+	    uint16_t id; \
+	    (void)version; \
+	    name_ ## _ID(SERIALISATION_F_ID) \
+	    return id; \
+	}; \
 	uint16_t id;
 
 #define CREATE_PACKET_VER_ID_SERIALIZATION_HEADER(name_) \

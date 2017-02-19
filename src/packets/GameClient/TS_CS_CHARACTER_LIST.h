@@ -4,7 +4,9 @@
 #include "Packet/PacketDeclaration.h"
 
 #define TS_CS_CHARACTER_LIST_DEF(_) \
-	_(string)(account, 61)
+	_(def)(string)(account, 61) \
+	_(impl)(string)(account, 61, version >= EPIC_5_1) \
+	_(impl)(string)(account, 19, version <  EPIC_5_1)
 
 #define TS_CS_CHARACTER_LIST_ID(X) \
 	X(2001, version < EPIC_9_4) \
