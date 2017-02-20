@@ -7,6 +7,7 @@
 #include <vector>
 #include <string.h>
 #include <type_traits>
+#include "Packet/PacketBaseMessage.h"
 
 class RZU_EXTERN MessageBuffer : public StructSerializer, public Object {
 private:
@@ -14,6 +15,20 @@ private:
 	char *p;
 	bool bufferOverflow;
 	std::string fieldInOverflow;
+
+	inline static uint8_t getMessageChecksum(uint32_t size, uint16_t id) {
+		uint8_t value = 0;
+
+		value += size & 0xFF;
+		value += (size >> 8) & 0xFF;
+		value += (size >> 16) & 0xFF;
+		value += (size >> 24) & 0xFF;
+
+		value += id & 0xFF;
+		value += (id >> 8) & 0xFF;
+
+		return value;
+	}
 
 public:
 
@@ -48,6 +63,12 @@ public:
 	}
 
 	// Write functions /////////////////////////
+
+	void writeHeader(uint32_t size, uint16_t id) {
+		write<uint32_t>("size", size);
+		write<uint16_t>("id", id);
+		write<uint8_t>("msg_checksum", getMessageChecksum(size, id));
+	}
 
 	//Primitives
 	template<typename T>
@@ -147,6 +168,12 @@ public:
 	}
 
 	// Read functions /////////////////////////
+
+	void readHeader(uint16_t& id) {
+		discard("size", 4);
+		read<uint16_t>("id", id);
+		discard("msg_checksum", 1);
+	}
 
 	//Primitives via arg
 	template<typename T, typename U>

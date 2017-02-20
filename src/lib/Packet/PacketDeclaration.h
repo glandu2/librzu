@@ -7,7 +7,6 @@
 #include <vector>
 #include <string>
 #include "PacketEpics.h"
-#include "PacketBaseMessage.h"
 #include <limits>
 #endif
 
@@ -173,11 +172,11 @@ uint32_t getClampedCount(size_t realSize) {
 	if(cond && size < marker + (_size)) size = marker + (_size);
 
 #define SIZE_F_ENDSTRING2(name, hasNullTerminator) \
-	size += name.size();
+	size += (uint32_t)name.size();
 #define SIZE_F_ENDSTRING3(name, hasNullTerminator, cond) \
-	if(cond) size += name.size();
+	if(cond) size += (uint32_t)name.size();
 #define SIZE_F_ENDSTRING4(name, hasNullTerminator, cond, defaultval) \
-	if(cond) size += name.size();
+	if(cond) size += (uint32_t)name.size();
 
 #define SIZE_F_ENDARRAY2(type, name) \
 	for(size_t i = 0; i < name.size(); i++) size += PacketDeclaration::getSizeOf((type)name[i], version);
@@ -259,18 +258,18 @@ uint32_t getClampedCount(size_t realSize) {
 	    buffer->pad("pad_" #marker, marker + (_size) - buffer->getParsedSize());
 
 #define SERIALIZATION_F_ENDSTRING2(name, hasNullTerminator) \
-	buffer->writeDynString(#name, name, name.size());
+	buffer->writeDynString(#name, name, (uint32_t)name.size());
 #define SERIALIZATION_F_ENDSTRING3(name, hasNullTerminator, cond) \
-	if(cond) buffer->writeDynString(#name, name, name.size());
+	if(cond) buffer->writeDynString(#name, name, (uint32_t)name.size());
 #define SERIALIZATION_F_ENDSTRING4(name, hasNullTerminator, cond, defaultval) \
-	if(cond) buffer->writeDynString(#name, name, name.size());
+	if(cond) buffer->writeDynString(#name, name, (uint32_t)name.size());
 
 #define SERIALIZATION_F_ENDARRAY2(type, name) \
-	buffer->template writeDynArray<type>(#name, name, name.size());
+	buffer->template writeDynArray<type>(#name, name, (uint32_t)name.size());
 #define SERIALIZATION_F_ENDARRAY3(type, name, cond) \
-	if(cond) buffer->template writeDynArray<type>(#name, name, name.size());
+	if(cond) buffer->template writeDynArray<type>(#name, name, (uint32_t)name.size());
 #define SERIALIZATION_F_ENDARRAY4(type, name, cond, defaultval) \
-	if(cond) buffer->template writeDynArray<type>(#name, name, name.size());
+	if(cond) buffer->template writeDynArray<type>(#name, name, (uint32_t)name.size());
 
 // Deserialization function
 #define DESERIALIZATION_F_simple(...) OVERLOADED_CALL(DESERIALIZATION_F_SIMPLE, __VA_ARGS__)
@@ -429,14 +428,10 @@ uint32_t getClampedCount(size_t realSize) {
 
 #define CREATE_PACKET_SERIALIZATION_HEADER \
 	uint32_t size = getSize(buffer->getVersion()); \
-	buffer->template write<uint32_t>("size", size); \
-	buffer->template write<uint16_t>("id", packetID); \
-	buffer->template write<uint8_t>("msg_checksum", getMessageChecksum(size, packetID));
+	buffer->writeHeader(size, packetID);
 
 #define CREATE_PACKET_DESERIALIZATION_HEADER \
-	buffer->discard("size", 4); \
-	buffer->template read<uint16_t>("id", id); \
-	buffer->discard("msg_checksum", 1);
+	buffer->readHeader(id);
 
 #define CREATE_PACKET(name_, id_) \
 	CREATE_STRUCT_IMPL(name_, 7, CREATE_PACKET_DEFINITION_HEADER(id_), CREATE_PACKET_SERIALIZATION_HEADER, CREATE_PACKET_DESERIALIZATION_HEADER)
@@ -465,14 +460,10 @@ uint32_t getClampedCount(size_t realSize) {
 	uint32_t size = getSize(buffer->getVersion()); \
 	uint16_t id; \
 	name_ ## _ID(SERIALISATION_F_ID) \
-	buffer->template write<uint32_t>("size", size); \
-	buffer->template write<uint16_t>("id", id); \
-	buffer->template write<uint8_t>("msg_checksum", getMessageChecksum(size, id));
+	buffer->writeHeader(size, id);
 
 #define CREATE_PACKET_VER_ID_DESERIALIZATION_HEADER \
-	buffer->discard("size", 4); \
-	buffer->template read<uint16_t>("id", id); \
-	buffer->discard("msg_checksum", 1);
+	buffer->readHeader(id);
 
 #define CREATE_PACKET_VER_ID(name_) \
 	CREATE_STRUCT_IMPL(name_, 7, CREATE_PACKET_VER_ID_HEADER_HEADER(name_), CREATE_PACKET_VER_ID_SERIALIZATION_HEADER(name_), CREATE_PACKET_VER_ID_DESERIALIZATION_HEADER)

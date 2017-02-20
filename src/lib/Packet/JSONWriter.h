@@ -43,6 +43,10 @@ public:
 
 	// Write functions /////////////////////////
 
+	void writeHeader(uint32_t size, uint16_t id) {
+		write<uint16_t>("id", id);
+	}
+
 	//handle ambiguous << operator for int16_t and int8_t
 	template<typename T>
 	typename std::enable_if<is_primitive<T>::value && sizeof(T) < sizeof(int), void>::type
@@ -174,7 +178,11 @@ public:
 
 	void pad(const char* fieldName, size_t size) {}
 
+
 	// Read functions /////////////////////////
+
+	void readHeader(uint16_t& id) {
+	}
 
 	//Primitives via arg
 	template<typename T, typename U>

@@ -87,20 +87,6 @@ struct TS_MESSAGE_WNA : public TS_MESSAGE {
 		   TS_MESSAGE_WNA& operator=( TS_MESSAGE_WNA const & ); // undefined
 };
 
-inline uint8_t getMessageChecksum(uint32_t size, uint16_t id) {
-	uint8_t value = 0;
-
-	value += size & 0xFF;
-	value += (size >> 8) & 0xFF;
-	value += (size >> 16) & 0xFF;
-	value += (size >> 24) & 0xFF;
-
-	value += id & 0xFF;
-	value += (id >> 8) & 0xFF;
-
-	return value;
-}
-
 #pragma pack(pop)
 
 #include "MessageBuffer.h"
