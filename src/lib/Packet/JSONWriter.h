@@ -190,7 +190,8 @@ public:
 
 	//String
 	void readString(const char* fieldName, std::string& val, size_t size) {}
-	void readDynString(const char* fieldName, std::string& val, bool hasNullTerminator) {}
+	void readDynString(const char* fieldName, std::string& val, size_t sizeToRead, bool hasNullTerminator) {}
+	void readEndString(const char* fieldName, std::string& val, bool hasNullTerminator) {}
 
 	//Fixed array of primitive
 	template<typename T>
@@ -226,6 +227,11 @@ public:
 	template<typename T>
 	typename std::enable_if<!is_primitive<T>::value, void>::type
 	readDynArray(const char* fieldName, std::vector<T>& val) {
+	}
+
+	//End array, read to the end of stream
+	template<typename T>
+	void readEndArray(const char* fieldName, std::vector<T>& val) {
 	}
 
 	//read size for objects (std:: containers)

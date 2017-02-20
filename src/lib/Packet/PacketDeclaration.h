@@ -87,7 +87,8 @@ uint32_t getClampedCount(size_t realSize) {
 #define DEFINITION_F_dynstring(name, hasNullTerminator, ...) std::string name; struct _metadata_##name { enum { addNullTerminator = !!hasNullTerminator }; };
 #define DEFINITION_F_padmarker(...)
 #define DEFINITION_F_pad(...)
-#define DEFINITION_F_autocount(ref, ...)
+#define DEFINITION_F_endstring(name, size, ...) std::string name;
+#define DEFINITION_F_endarray(type, name, ...) std::vector<type> name;
 
 // Local fields
 #define LOCAL_DEFINITION_F_simple(type, name, ...)
@@ -98,7 +99,8 @@ uint32_t getClampedCount(size_t realSize) {
 #define LOCAL_DEFINITION_F_dynstring(name, hasNullTerminator, ...)
 #define LOCAL_DEFINITION_F_padmarker(...)
 #define LOCAL_DEFINITION_F_pad(...)
-#define LOCAL_DEFINITION_F_autocount(ref, ...) uint32_t ref##_size; (void)(ref##_size);
+#define LOCAL_DEFINITION_F_endstring(name, size, ...)
+#define LOCAL_DEFINITION_F_endarray(type, name, ...)
 
 // Size function
 #define SIZE_F_simple(...) OVERLOADED_CALL(SIZE_F_SIMPLE, __VA_ARGS__)
@@ -109,7 +111,8 @@ uint32_t getClampedCount(size_t realSize) {
 #define SIZE_F_dynstring(...) OVERLOADED_CALL(SIZE_F_DYNSTRING, __VA_ARGS__)
 #define SIZE_F_padmarker(...) OVERLOADED_CALL(SIZE_F_PADMARKER, __VA_ARGS__)
 #define SIZE_F_pad(...) OVERLOADED_CALL(SIZE_F_PAD, __VA_ARGS__)
-#define SIZE_F_autocount(...) OVERLOADED_CALL(SIZE_F_AUTOCOUNT, __VA_ARGS__)
+#define SIZE_F_endstring(...) OVERLOADED_CALL(SIZE_F_ENDSTRING, __VA_ARGS__)
+#define SIZE_F_endarray(...) OVERLOADED_CALL(SIZE_F_ENDARRAY, __VA_ARGS__)
 
 #define SIZE_F_SIMPLE2(type, name) \
 	size += PacketDeclaration::getSizeOf((type)name, version);
@@ -169,8 +172,19 @@ uint32_t getClampedCount(size_t realSize) {
 #define SIZE_F_PAD3(_size, marker, cond) \
 	if(cond && size < marker + (_size)) size = marker + (_size);
 
-#define SIZE_F_AUTOCOUNT1(ref) \
-	ref##_size = (uint32_t)ref.size() + _metadata_##ref::addNullTerminator;
+#define SIZE_F_ENDSTRING2(name, hasNullTerminator) \
+	size += name.size();
+#define SIZE_F_ENDSTRING3(name, hasNullTerminator, cond) \
+	if(cond) size += name.size();
+#define SIZE_F_ENDSTRING4(name, hasNullTerminator, cond, defaultval) \
+	if(cond) size += name.size();
+
+#define SIZE_F_ENDARRAY2(type, name) \
+	for(size_t i = 0; i < name.size(); i++) size += PacketDeclaration::getSizeOf((type)name[i], version);
+#define SIZE_F_ENDARRAY3(type, name, cond) \
+	if(cond) for(size_t i = 0; i < name.size(); i++) size += PacketDeclaration::getSizeOf((type)name[i], version);
+#define SIZE_F_ENDARRAY4(type, name, cond, defaultval) \
+	if(cond) for(size_t i = 0; i < name.size(); i++) size += PacketDeclaration::getSizeOf((type)name[i], version);
 
 // Serialization function
 #define SERIALIZATION_F_simple(...) OVERLOADED_CALL(SERIALIZATION_F_SIMPLE, __VA_ARGS__)
@@ -181,7 +195,8 @@ uint32_t getClampedCount(size_t realSize) {
 #define SERIALIZATION_F_dynstring(...) OVERLOADED_CALL(SERIALIZATION_F_DYNSTRING, __VA_ARGS__)
 #define SERIALIZATION_F_padmarker(...) OVERLOADED_CALL(SERIALIZATION_F_PADMARKER, __VA_ARGS__)
 #define SERIALIZATION_F_pad(...) OVERLOADED_CALL(SERIALIZATION_F_PAD, __VA_ARGS__)
-#define SERIALIZATION_F_autocount(...) OVERLOADED_CALL(SERIALIZATION_F_AUTOCOUNT, __VA_ARGS__)
+#define SERIALIZATION_F_endstring(...) OVERLOADED_CALL(SERIALIZATION_F_ENDSTRING, __VA_ARGS__)
+#define SERIALIZATION_F_endarray(...) OVERLOADED_CALL(SERIALIZATION_F_ENDARRAY, __VA_ARGS__)
 
 #define SERIALIZATION_F_SIMPLE2(type, name) \
 	buffer->write(#name, (type)name);
@@ -243,8 +258,19 @@ uint32_t getClampedCount(size_t realSize) {
 	if(cond && buffer->getParsedSize() < marker + (_size)) \
 	    buffer->pad("pad_" #marker, marker + (_size) - buffer->getParsedSize());
 
-#define SERIALIZATION_F_AUTOCOUNT1(ref) \
-	ref##_size = (uint32_t)ref.size() + _metadata_##ref::addNullTerminator;
+#define SERIALIZATION_F_ENDSTRING2(name, hasNullTerminator) \
+	buffer->writeDynString(#name, name, name.size());
+#define SERIALIZATION_F_ENDSTRING3(name, hasNullTerminator, cond) \
+	if(cond) buffer->writeDynString(#name, name, name.size());
+#define SERIALIZATION_F_ENDSTRING4(name, hasNullTerminator, cond, defaultval) \
+	if(cond) buffer->writeDynString(#name, name, name.size());
+
+#define SERIALIZATION_F_ENDARRAY2(type, name) \
+	buffer->template writeDynArray<type>(#name, name, name.size());
+#define SERIALIZATION_F_ENDARRAY3(type, name, cond) \
+	if(cond) buffer->template writeDynArray<type>(#name, name, name.size());
+#define SERIALIZATION_F_ENDARRAY4(type, name, cond, defaultval) \
+	if(cond) buffer->template writeDynArray<type>(#name, name, name.size());
 
 // Deserialization function
 #define DESERIALIZATION_F_simple(...) OVERLOADED_CALL(DESERIALIZATION_F_SIMPLE, __VA_ARGS__)
@@ -255,7 +281,8 @@ uint32_t getClampedCount(size_t realSize) {
 #define DESERIALIZATION_F_dynstring(...) OVERLOADED_CALL(DESERIALIZATION_F_DYNSTRING, __VA_ARGS__)
 #define DESERIALIZATION_F_pad(...) OVERLOADED_CALL(DESERIALIZATION_F_PAD, __VA_ARGS__)
 #define DESERIALIZATION_F_padmarker(...) OVERLOADED_CALL(DESERIALIZATION_F_PADMARKER, __VA_ARGS__)
-#define DESERIALIZATION_F_autocount(...) OVERLOADED_CALL(DESERIALIZATION_F_AUTOCOUNT, __VA_ARGS__)
+#define DESERIALIZATION_F_endstring(...) OVERLOADED_CALL(DESERIALIZATION_F_ENDSTRING, __VA_ARGS__)
+#define DESERIALIZATION_F_endarray(...) OVERLOADED_CALL(DESERIALIZATION_F_ENDARRAY, __VA_ARGS__)
 
 #define DESERIALIZATION_F_SIMPLE2(type, name) \
 	buffer->template read<type>(#name, name);
@@ -323,8 +350,24 @@ uint32_t getClampedCount(size_t realSize) {
 	if(cond && buffer->getParsedSize() < marker + (_size)) \
 	    buffer->discard("pad_" #marker, marker + (_size) - buffer->getParsedSize());
 
-#define DESERIALIZATION_F_AUTOCOUNT1(ref) \
-	buffer->readRemainingSize(#ref, ref##_size);
+#define DESERIALIZATION_F_ENDSTRING2(name, hasNullTerminator) \
+	buffer->readEndString(#name, name, hasNullTerminator);
+#define DESERIALIZATION_F_ENDSTRING3(name, hasNullTerminator, cond) \
+	if(cond) buffer->readEndString(#name, name, hasNullTerminator);
+#define DESERIALIZATION_F_ENDSTRING4(name, hasNullTerminator, cond, defaultval) \
+	if(cond) buffer->readEndString(#name, name, hasNullTerminator); \
+	else name = defaultval;
+
+#define DESERIALIZATION_F_ENDARRAY2(type, name) \
+	buffer->template readEndArray<type>(#name, name);
+#define DESERIALIZATION_F_ENDARRAY3(type, name, cond) \
+	if(cond) buffer->template readEndArray<type>(#name, name);
+#define DESERIALIZATION_F_ENDARRAY4(type, name, cond, defaultval) \
+	if(cond) buffer->template readEndArray<type>(#name, name); \
+	else { \
+	    static const type defaultArray[] = defaultval; \
+	    PacketDeclaration::copyDefaultValue(name, defaultArray, sizeof(defaultArray)/sizeof(type)); \
+	}
 
 // def / impl mode implementation
 #define DO_NOTHING(...)

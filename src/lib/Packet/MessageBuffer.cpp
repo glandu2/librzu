@@ -77,7 +77,14 @@ void MessageBuffer::readDynString(const char *fieldName, std::string &val, uint3
 	}
 }
 
-void MessageBuffer::readRemainingSize(const char*, uint32_t& val) {
+void MessageBuffer::readEndString(const char* fieldName, std::string& val, bool hasNullTerminator)
+{
 	size_t remainingSize = getSize() - getParsedSize();
-	val = (uint32_t)std::min(remainingSize, (size_t)UINT32_MAX);
+	if(checkAvailableBuffer(fieldName, remainingSize)) {
+		if(remainingSize > 0)
+			val.assign(p, remainingSize - hasNullTerminator);
+		else
+			val.clear();
+		p += remainingSize;
+	}
 }

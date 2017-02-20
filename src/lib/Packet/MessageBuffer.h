@@ -168,6 +168,7 @@ public:
 	//String
 	void readString(const char* fieldName, std::string& val, size_t size);
 	void readDynString(const char* fieldName, std::string& val, uint32_t sizeToRead, bool hasNullTerminator);
+	void readEndString(const char* fieldName, std::string& val, bool hasNullTerminator);
 
 	//Fixed array of primitive
 	template<typename T>
@@ -240,16 +241,25 @@ public:
 			read<T>(fieldName, *it);
 	}
 
+	//End array, read to the end of stream
+	template<typename T>
+	void readEndArray(const char* fieldName, std::vector<T>& val) {
+		// While there are non parsed bytes and the read actually read something, continue
+		uint32_t lastParsedSize = UINT32_MAX;
+		while(lastParsedSize != getParsedSize() && getParsedSize() < getSize()) {
+			lastParsedSize = getParsedSize();
+			auto it = val.insert(val.end(), T());
+			T& newItem = *it;
+			read<T>(fieldName, newItem);
+		}
+	}
+
 	//read size for objects (std:: containers)
 	template<typename T>
 	typename std::enable_if<is_primitive<T>::value, void>::type
 	readSize(const char* fieldName, uint32_t& val) {
 		read<T>(fieldName, val);
 	}
-
-	//read remaining size for objects (std::string)
-	//other containers would need to know objet size
-	void readRemainingSize(const char* fieldName, uint32_t& val);
 
 	void discard(const char* fieldName, size_t size) {
 		if(checkAvailableBuffer(fieldName, size)) {

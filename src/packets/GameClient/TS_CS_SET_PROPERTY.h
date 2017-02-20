@@ -5,8 +5,7 @@
 
 #define TS_CS_SET_PROPERTY_DEF(_) \
 	_(string)(name, 16) \
-	_(autocount)(string_value) \
-	_(dynstring)(string_value, true)
+	_(endstring)(string_value, true)
 
 CREATE_PACKET(TS_CS_SET_PROPERTY, 508);
 
