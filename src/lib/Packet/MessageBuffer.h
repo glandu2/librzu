@@ -7,7 +7,6 @@
 #include <vector>
 #include <string.h>
 #include <type_traits>
-#include "Packet/PacketBaseMessage.h"
 
 class RZU_EXTERN MessageBuffer : public StructSerializer, public Object {
 private:
