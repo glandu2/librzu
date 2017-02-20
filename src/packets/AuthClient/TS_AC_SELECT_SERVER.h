@@ -1,27 +1,19 @@
 #ifndef PACKETS_TS_AC_SELECT_SERVER_H
 #define PACKETS_TS_AC_SELECT_SERVER_H
 
-#include "Packet/PacketBaseMessage.h"
+#include "Packet/PacketDeclaration.h"
 
-#pragma pack(push, 1)
-struct TS_AC_SELECT_SERVER : public TS_MESSAGE
-{
-	uint16_t result;
-	int64_t one_time_key;
-	uint32_t pending_time;
-	static const uint16_t packetID = 10024;
-};
+#define TS_AC_SELECT_SERVER_DEF(_) \
+	_(simple)(uint16_t, result) \
+	_(simple)(int64_t, one_time_key) \
+	_(simple)(uint32_t, pending_time)
+CREATE_PACKET(TS_AC_SELECT_SERVER, 10024);
 
-struct TS_AC_SELECT_SERVER_RSA : public TS_MESSAGE
-{
-	uint16_t result;
-	int32_t encrypted_data_size;
-	unsigned char encrypted_data[16];
-	uint32_t unknown;
-	uint32_t unknown2;
-	uint32_t pending_time;
-	static const uint16_t packetID = 10024;
-};
-#pragma pack(pop)
+#define TS_AC_SELECT_SERVER_RSA_DEF(_) \
+	_(simple)(uint16_t, result) \
+	_(simple)(int32_t, encrypted_data_size) \
+	_(array)(uint8_t, encrypted_data, 24) \
+	_(simple)(uint32_t, pending_time)
+CREATE_PACKET(TS_AC_SELECT_SERVER_RSA, 10024);
 
 #endif // PACKETS_TS_AC_SELECT_SERVER_H

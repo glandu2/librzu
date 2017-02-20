@@ -1,13 +1,10 @@
 #ifndef PACKETS_TS_CA_DISTRIBUTION_INFO_H
 #define PACKETS_TS_CA_DISTRIBUTION_INFO_H
 
-#include "Packet/PacketBaseMessage.h"
+#include "Packet/PacketDeclaration.h"
 
-#pragma pack(push, 1)
-struct TS_CA_DISTRIBUTION_INFO : public TS_MESSAGE
-{
-	static const uint16_t packetID = 10026;
-};
-#pragma pack(pop)
+#define TS_CA_DISTRIBUTION_INFO_DEF(_) \
+	_(endstring)(distributionInfo, true)
+CREATE_PACKET(TS_CA_DISTRIBUTION_INFO, 10026);
 
 #endif // PACKETS_TS_CA_DISTRIBUTION_INFO_H

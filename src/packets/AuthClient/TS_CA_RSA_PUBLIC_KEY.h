@@ -1,15 +1,11 @@
 #ifndef PACKETS_TS_CA_RSA_PUBLIC_KEY_H
 #define PACKETS_TS_CA_RSA_PUBLIC_KEY_H
 
-#include "Packet/PacketBaseMessage.h"
+#include "Packet/PacketDeclaration.h"
 
-#pragma pack(push, 1)
-struct TS_CA_RSA_PUBLIC_KEY : public TS_MESSAGE_WNA
-{
-	int key_size;
-	unsigned char key[0];
-	static const uint16_t packetID = 71;
-};
-#pragma pack(pop)
+#define TS_CA_RSA_PUBLIC_KEY_DEF(_) \
+	_(count)(int32_t, key) \
+	_(dynarray)(uint8_t, key)
+CREATE_PACKET(TS_CA_RSA_PUBLIC_KEY, 71);
 
 #endif // PACKETS_TS_CA_RSA_PUBLIC_KEY_H
