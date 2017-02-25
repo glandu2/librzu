@@ -58,7 +58,7 @@ CREATE_STRUCT(TS_SC_SKILL__HIT_DAMAGE);
 	_(simple) (TS_SC_SKILL__HIT_DAMAGE_INFO, damage) \
 	_(simple) (float, x) \
 	_(simple) (float, y) \
-	_(simple) (int16_t, speed) \
+	_(simple)(int8_t, speed) \
 	_(simple) (uint32_t, knock_back_time)
 CREATE_STRUCT(TS_SC_SKILL__HIT_DAMAGE_WITH_KNOCKBACK);
 
@@ -77,7 +77,9 @@ CREATE_STRUCT(TS_SC_SKILL__HIT_ADD_STAT);
 	_(simple) (int32_t, nIncHP) \
 	_(simple) (int32_t, nIncMP) \
 	_(simple) (int32_t, nIncSP) \
-	_(simple) (int32_t, target_mp)
+	_(def)(simple)(int32_t, target_mp) \
+	  _(impl)(simple)(int32_t, target_mp, version >= EPIC_7_1) \
+	  _(impl)(simple)(int16_t, target_mp, version < EPIC_7_1)
 CREATE_STRUCT(TS_SC_SKILL__HIT_ADDHPMPSP);
 
 #define TS_SC_SKILL__HIT_REBIRTH_DEF(_) \
@@ -85,7 +87,9 @@ CREATE_STRUCT(TS_SC_SKILL__HIT_ADDHPMPSP);
 	_(simple) (int32_t, nIncHP) \
 	_(simple) (int32_t, nIncMP) \
 	_(simple) (int32_t, nRecoveryEXP) \
-	_(simple) (int32_t, target_mp)
+	_(def)(simple)(int32_t, target_mp) \
+	  _(impl)(simple)(int32_t, target_mp, version >= EPIC_7_1) \
+	  _(impl)(simple)(int16_t, target_mp, version < EPIC_7_1)
 CREATE_STRUCT(TS_SC_SKILL__HIT_REBIRTH);
 
 #define TS_SC_SKILL__HIT_RUSH_DEF(_) \
@@ -147,10 +151,16 @@ CREATE_STRUCT(TS_SC_SKILL__CAST);
 	_(simple) (float, z) \
 	_(simple) (uint8_t, layer) \
 	_(simple) (TS_SKILL__TYPE, type) \
-	_(simple) (int32_t, hp_cost) \
-	_(simple) (int32_t, mp_cost) \
+	_(def)(simple)(int32_t, hp_cost) \
+	  _(impl)(simple)(int32_t, hp_cost, version >= EPIC_7_1) \
+	  _(impl)(simple)(int16_t, hp_cost, version < EPIC_7_1) \
+	_(def)(simple)(int32_t, mp_cost) \
+	  _(impl)(simple)(int32_t, mp_cost, version >= EPIC_7_1) \
+	  _(impl)(simple)(int16_t, mp_cost, version < EPIC_7_1) \
 	_(simple) (int32_t, caster_hp) \
-	_(simple) (int32_t, caster_mp) \
+	_(def)(simple)(int32_t, caster_mp) \
+	  _(impl)(simple)(int32_t, caster_mp, version >= EPIC_7_1) \
+	  _(impl)(simple)(int16_t, caster_mp, version < EPIC_7_1) \
 	_(padmarker)(skill_type_marker) \
 	_(simple) (TS_SC_SKILL__FIRE , fire   , type == ST_Fire || type == ST_RegionFire) \
 	_(simple) (TS_SC_SKILL__CAST , casting, type == ST_Casting || type == ST_CastingUpdate) \

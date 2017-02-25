@@ -4,16 +4,30 @@
 #include "Packet/PacketDeclaration.h"
 
 #define ATTACK_INFO_DEF(_) \
-	_(simple) (int32_t, damage) \
-	_(simple) (int32_t, mp_damage) \
+	_(def)(simple)(int32_t, damage) \
+	  _(impl)(simple)(int32_t, damage, version >= EPIC_7_1) \
+	  _(impl)(simple)(int16_t, damage, version < EPIC_7_1) \
+	_(def)(simple)(int32_t, mp_damage) \
+	  _(impl)(simple)(int32_t, mp_damage, version >= EPIC_7_1) \
+	  _(impl)(simple)(int16_t, mp_damage, version < EPIC_7_1) \
 	_(simple) (int8_t, flag) \
-	_(array)  (int32_t, elemental_damage, 7) \
-	_(simple) (int32_t, target_hp) \
-	_(simple) (int32_t, target_mp) \
-	_(simple) (int32_t, attacker_damage) \
-	_(simple) (int32_t, attacker_mp_damage) \
-	_(simple) (int32_t, attacker_hp) \
-	_(simple) (int32_t, attacker_mp)
+	_(def)(array)(int32_t, elemental_damage, 7) \
+	  _(impl)(array)(int32_t, elemental_damage, 7, version >= EPIC_7_1) \
+	  _(impl)(array)(uint16_t, elemental_damage, 7, version < EPIC_7_1) \
+	_(simple) (uint32_t, target_hp) \
+	_(def)(simple)(int32_t, target_mp) \
+	  _(impl)(simple)(int32_t, target_mp, version >= EPIC_7_1) \
+	  _(impl)(simple)(uint16_t, target_mp, version < EPIC_7_1) \
+	_(def)(simple)(int32_t, attacker_damage) \
+	  _(impl)(simple)(int32_t, attacker_damage, version >= EPIC_7_1) \
+	  _(impl)(simple)(int16_t, attacker_damage, version < EPIC_7_1) \
+	_(def)(simple)(int32_t, attacker_mp_damage) \
+	  _(impl)(simple)(int32_t, attacker_mp_damage, version >= EPIC_7_1) \
+	  _(impl)(simple)(int16_t, attacker_mp_damage, version < EPIC_7_1) \
+	_(simple) (uint32_t, attacker_hp) \
+	_(def)(simple)(int32_t, attacker_mp) \
+	  _(impl)(simple)(int32_t, attacker_mp, version >= EPIC_7_1) \
+	  _(impl)(simple)(uint16_t, attacker_mp, version < EPIC_7_1)
 
 CREATE_STRUCT(ATTACK_INFO);
 

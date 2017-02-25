@@ -8,7 +8,7 @@
 	_(simple)(int32_t, sub_category_id) \
 	_(string)(keyword, 31) \
 	_(simple)(int32_t, page_num) \
-	_(simple)(bool, is_equipable)
+	_(simple)(bool, is_equipable, version >= EPIC_7_2)
 
 CREATE_PACKET(TS_CS_AUCTION_SEARCH, 1300);
 

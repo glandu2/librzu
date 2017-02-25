@@ -86,10 +86,10 @@ CREATE_STRUCT(TS_SC_ENTER__NPC_INFO);
 	_(simple) (uint8_t, sex) \
 	_(simple) (uint32_t, faceId) \
 	_(simple) (uint32_t, faceTextureId) \
-	_(simple) (uint32_t, hairId) \
-	_(simple) (uint32_t, hairColorIndex) \
-	_(simple) (uint32_t, hairColorRGB) \
-	_(simple) (uint32_t, hideEquipFlag) \
+	_(simple) (uint32_t, hairId, version >= EPIC_7_1) \
+	_(simple) (uint32_t, hairColorIndex, version >= EPIC_7_1) \
+	_(simple) (uint32_t, hairColorRGB, version >= EPIC_7_1) \
+	_(simple) (uint32_t, hideEquipFlag, version >= EPIC_7_2) \
 	_(string) (szName, 19) \
 	_(simple) (uint16_t, job_id) \
 	_(simple) (uint32_t, ride_handle) \
