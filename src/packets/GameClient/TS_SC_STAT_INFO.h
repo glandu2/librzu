@@ -40,8 +40,8 @@ CREATE_STRUCT(TS_STAT_INFO_BASE);
   _(simple)(int16_t, nAttackSpeed) \
   _(simple)(int16_t, nAttackRange) \
   _(def)(simple)(int32_t, nMaxWeight) \
-  _(impl)(simple)(int32_t, nMaxWeight, version >= EPIC_7_1) \
-  _(impl)(simple)(int16_t, nMaxWeight, version < EPIC_7_1) \
+  _(impl)(simple)(int32_t, nMaxWeight, version >= EPIC_7_4) \
+  _(impl)(simple)(int16_t, nMaxWeight, version < EPIC_7_4) \
   _(simple)(int16_t, nCastingSpeed) \
   _(simple)(int16_t, nCoolTimeSpeed) \
   _(simple)(int16_t, nItemChance) \

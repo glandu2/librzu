@@ -13,6 +13,7 @@ CREATE_STRUCT(TS_TITLE_CONDITION_INFO);
 	_(count)(uint16_t, title_condition_infos) \
 	_(dynarray)(TS_TITLE_CONDITION_INFO, title_condition_infos)
 
+// Since EPIC_8_1
 CREATE_PACKET(TS_SC_TITLE_CONDITION_LIST, 626);
 
 #endif // PACKETS_TS_SC_TITLE_CONDITION_LIST_H

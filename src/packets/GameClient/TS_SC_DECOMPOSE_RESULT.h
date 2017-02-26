@@ -13,6 +13,7 @@ CREATE_STRUCT(TS_DECOMPOSE_INFO);
 	_(count)(uint32_t, decompositions) \
 	_(dynarray)(TS_DECOMPOSE_INFO, decompositions)
 
+// Since EPIC_8_1
 CREATE_PACKET(TS_SC_DECOMPOSE_RESULT, 266);
 
 #endif // PACKETS_TS_SC_DECOMPOSE_RESULT_H

@@ -24,6 +24,7 @@ enum TS_ARENA_LEAVE_TYPE : int32_t
 	_(simple)(TS_ARENA_LEAVE_TYPE, eLeaveType) \
 	_(string)(szName, 19)
 
+// Since EPIC_8_1
 CREATE_PACKET(TS_SC_BATTLE_ARENA_LEAVE, 4705);
 
 #endif // PACKETS_TS_SC_BATTLE_ARENA_LEAVE_H

@@ -10,8 +10,8 @@
 	_(array)  (uint32_t, model_id, 5) \
 	_(simple) (uint32_t, hair_color_index, version >= EPIC_7_1) \
 	_(simple) (uint32_t, hair_color_rgb, version >= EPIC_7_1) \
-	_(simple) (uint32_t, hide_equip_flag, version >= EPIC_7_3) \
-	_(simple) (uint32_t, texture_id, version >= EPIC_7_1) \
+	_(simple) (uint32_t, hide_equip_flag, version >= EPIC_7_1) \
+	_(simple) (uint32_t, texture_id, version >= EPIC_6_3) \
 	_(def)(array)(uint32_t, wear_info, 24) \
 	_(impl)(array)(uint32_t, wear_info, 14, version < EPIC_4_1) \
 	_(impl)(array)(uint32_t, wear_info, 24, version >= EPIC_4_1) \
@@ -34,7 +34,7 @@
 	_(impl)(array)(uint32_t, wear_item_level_info, 14, version < EPIC_4_1) \
 	_(impl)(array)(uint32_t, wear_item_level_info, 24, version >= EPIC_4_1) \
 	_(array)  (uint8_t, wear_item_elemental_type, 24, version >= EPIC_6_1) \
-	_(array)  (uint32_t, wear_appearance_code, 24, version >= EPIC_8_1)
+	_(array)  (uint32_t, wear_appearance_code, 24, version >= EPIC_7_4)
 
 CREATE_STRUCT(LOBBY_CHARACTER_INFO); // struct is 304 bytes long in epic2
 

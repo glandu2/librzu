@@ -73,7 +73,7 @@ CREATE_STRUCT(TS_SC_ENTER__MONSTER_INFO);
 	_(simple) (uint32_t, master_handle) \
 	_(simple) (EncodedInt<EncodingRandomized>, summon_code) \
 	_(string) (szName, 19) \
-	_(simple) (uint8_t, enhance)
+	_(simple) (uint8_t, enhance, version >= EPIC_7_1)
 CREATE_STRUCT(TS_SC_ENTER__SUMMON_INFO);
 
 #define TS_SC_ENTER__NPC_INFO_DEF(_) \
@@ -85,11 +85,11 @@ CREATE_STRUCT(TS_SC_ENTER__NPC_INFO);
 	_(simple) (TS_SC_ENTER__CREATURE_INFO, creatureInfo) \
 	_(simple) (uint8_t, sex) \
 	_(simple) (uint32_t, faceId) \
-	_(simple) (uint32_t, faceTextureId) \
-	_(simple) (uint32_t, hairId, version >= EPIC_7_1) \
+	_(simple) (uint32_t, faceTextureId, version >= EPIC_6_3) \
+	_(simple) (uint32_t, hairId, version >= EPIC_5_2) \
 	_(simple) (uint32_t, hairColorIndex, version >= EPIC_7_1) \
 	_(simple) (uint32_t, hairColorRGB, version >= EPIC_7_1) \
-	_(simple) (uint32_t, hideEquipFlag, version >= EPIC_7_2) \
+	_(simple) (uint32_t, hideEquipFlag, version >= EPIC_7_1) \
 	_(string) (szName, 19) \
 	_(simple) (uint16_t, job_id) \
 	_(simple) (uint32_t, ride_handle) \

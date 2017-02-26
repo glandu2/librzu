@@ -17,12 +17,12 @@
 	_(simple) (int32_t, region_size) \
 	_(simple) (int32_t, hp) \
 	_(def)(simple)(int32_t, mp) \
-	_(impl)(simple)(int32_t, mp, version >= EPIC_7_1) \
-	_(impl)(simple)(int16_t, mp, version <  EPIC_7_1) \
+	_(impl)(simple)(int32_t, mp, version >= EPIC_7_3) \
+	_(impl)(simple)(int16_t, mp, version <  EPIC_7_3) \
 	_(simple) (int32_t, max_hp) \
 	_(def)(simple)(int32_t, max_mp) \
-	_(impl)(simple)(int32_t, max_mp, version >= EPIC_7_1) \
-	_(impl)(simple)(int16_t, max_mp, version <  EPIC_7_1) \
+	_(impl)(simple)(int32_t, max_mp, version >= EPIC_7_3) \
+	_(impl)(simple)(int16_t, max_mp, version <  EPIC_7_3) \
 	_(simple) (int32_t, havoc, version >= EPIC_4_1 && version < EPIC_8_3) \
 	_(simple) (int32_t, max_havoc, version >= EPIC_4_1 && version < EPIC_8_3) \
 	_(simple) (int32_t, sex) \

@@ -22,6 +22,7 @@ CREATE_STRUCT(TS_CRACKER_INFO);
 	_(dynarray)(TS_TICKET_INFO, ticket_info) \
 	_(dynarray)(TS_CRACKER_INFO, cracker_info)
 
+// Since EPIC_7_3
 CREATE_PACKET(TS_CS_FOSTER_CREATURE, 6002);
 
 #endif // PACKETS_TS_CS_FOSTER_CREATURE_H

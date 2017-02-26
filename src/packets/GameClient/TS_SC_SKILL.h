@@ -152,15 +152,15 @@ CREATE_STRUCT(TS_SC_SKILL__CAST);
 	_(simple) (uint8_t, layer) \
 	_(simple) (TS_SKILL__TYPE, type) \
 	_(def)(simple)(int32_t, hp_cost) \
-	  _(impl)(simple)(int32_t, hp_cost, version >= EPIC_7_1) \
-	  _(impl)(simple)(int16_t, hp_cost, version < EPIC_7_1) \
+	  _(impl)(simple)(int32_t, hp_cost, version >= EPIC_7_3) \
+	  _(impl)(simple)(int16_t, hp_cost, version < EPIC_7_3) \
 	_(def)(simple)(int32_t, mp_cost) \
-	  _(impl)(simple)(int32_t, mp_cost, version >= EPIC_7_1) \
-	  _(impl)(simple)(int16_t, mp_cost, version < EPIC_7_1) \
+	  _(impl)(simple)(int32_t, mp_cost, version >= EPIC_7_3) \
+	  _(impl)(simple)(int16_t, mp_cost, version < EPIC_7_3) \
 	_(simple) (int32_t, caster_hp) \
 	_(def)(simple)(int32_t, caster_mp) \
-	  _(impl)(simple)(int32_t, caster_mp, version >= EPIC_7_1) \
-	  _(impl)(simple)(int16_t, caster_mp, version < EPIC_7_1) \
+	  _(impl)(simple)(int32_t, caster_mp, version >= EPIC_7_3) \
+	  _(impl)(simple)(int16_t, caster_mp, version < EPIC_7_3) \
 	_(padmarker)(skill_type_marker) \
 	_(simple) (TS_SC_SKILL__FIRE , fire   , type == ST_Fire || type == ST_RegionFire) \
 	_(simple) (TS_SC_SKILL__CAST , casting, type == ST_Casting || type == ST_CastingUpdate) \

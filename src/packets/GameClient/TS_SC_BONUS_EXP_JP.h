@@ -6,7 +6,9 @@
 #define TS_BONUS_INFO_DEF(_) \
 	_(simple)(int32_t, type) \
 	_(simple)(int32_t, rate) \
-	_(simple)(int64_t, exp) \
+	_(def)(simple) (int64_t, exp) \
+	_(impl)(simple)(int64_t, exp, version >= EPIC_6_1) \
+	_(impl)(simple)(int32_t, exp, version < EPIC_6_1) \
 	_(simple)(int32_t, jp)
 
 CREATE_STRUCT(TS_BONUS_INFO);

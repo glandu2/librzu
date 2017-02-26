@@ -7,8 +7,8 @@
 	_(string)(szVersion, 20)
 
 #define TS_CS_VERSION_ID(X) \
-	X(50, version < EPIC_8_1) \
-	X(51, version >= EPIC_8_1)
+	X(50, version < EPIC_7_4) \
+	X(51, version >= EPIC_7_4)
 
 CREATE_PACKET_VER_ID(TS_CS_VERSION);
 

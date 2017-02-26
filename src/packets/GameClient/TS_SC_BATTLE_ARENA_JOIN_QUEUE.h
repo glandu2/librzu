@@ -8,6 +8,7 @@
 	_(simple)(int32_t, nArenaID) \
 	_(simple)(TS_BATTLE_GRADE, eGrade)
 
+// Since EPIC_8_1
 CREATE_PACKET(TS_SC_BATTLE_ARENA_JOIN_QUEUE, 4702);
 
 #endif // PACKETS_TS_SC_BATTLE_ARENA_JOIN_QUEUE_H

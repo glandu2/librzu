@@ -13,6 +13,7 @@ CREATE_STRUCT(TS_TITLE_INFO);
 	_(count)(uint16_t, titles) \
 	_(dynarray)(TS_TITLE_INFO, titles)
 
+// Since EPIC_8_1
 CREATE_PACKET(TS_SC_TITLE_LIST, 625);
 
 #endif // PACKETS_TS_SC_TITLE_LIST_H

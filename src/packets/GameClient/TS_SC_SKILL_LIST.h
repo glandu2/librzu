@@ -20,4 +20,6 @@ CREATE_STRUCT(TS_SKILL_INFO);
 
 CREATE_PACKET(TS_SC_SKILL_LIST, 403);
 
+// modification_type: if true then refresh
+
 #endif // PACKETS_TS_SC_SKILL_LIST_H

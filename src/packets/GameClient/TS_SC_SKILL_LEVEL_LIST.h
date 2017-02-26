@@ -13,6 +13,7 @@ CREATE_STRUCT(TS_SKILL_LEVEL_INFO);
 	_(count)(uint16_t, skill_levels) \
 	_(dynarray)(TS_SKILL_LEVEL_INFO, skill_levels)
 
+// Since EPIC_7_3
 CREATE_PACKET(TS_SC_SKILL_LEVEL_LIST, 451);
 
 #endif // PACKETS_TS_SC_SKILL_LEVEL_LIST_H

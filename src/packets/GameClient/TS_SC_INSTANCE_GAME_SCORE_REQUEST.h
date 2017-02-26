@@ -8,11 +8,11 @@
 	_(simple)(uint32_t, bearroad_ranking) \
 	_(simple)(uint32_t, deathmatch_kill_count) \
 	_(simple)(uint32_t, deathmatch_death_count) \
-	_(simple)(int32_t, battle_arena_point) \
-	_(simple)(int32_t, battle_arena_mvp_count) \
-	_(array)(int32_t, battle_arena_record_classic, 2) \
-	_(array)(int32_t, battle_arena_record_slaughter, 2) \
-	_(array)(int32_t, battle_arena_record_bingo, 2)
+	_(simple)(int32_t, battle_arena_point, version >= EPIC_8_1) \
+	_(simple)(int32_t, battle_arena_mvp_count, version >= EPIC_8_1) \
+	_(array)(int32_t, battle_arena_record_classic, 2, version >= EPIC_8_1) \
+	_(array)(int32_t, battle_arena_record_slaughter, 2, version >= EPIC_8_1) \
+	_(array)(int32_t, battle_arena_record_bingo, 2, version >= EPIC_8_1)
 
 CREATE_PACKET(TS_SC_INSTANCE_GAME_SCORE_REQUEST, 4253);
 

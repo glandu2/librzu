@@ -21,6 +21,7 @@ CREATE_STRUCT(TS_FARM_SUMMON_INFO);
 	_(count)(int8_t, summons) \
 	_(dynarray)(TS_FARM_SUMMON_INFO, summons)
 
+// Since EPIC_7_3
 CREATE_PACKET(TS_SC_FARM_INFO, 6001);
 
 #endif // PACKETS_TS_SC_FARM_INFO_H

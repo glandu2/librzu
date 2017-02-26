@@ -8,6 +8,7 @@
 #define EPIC_5_2 0x050200
 #define EPIC_6_1 0x060100
 #define EPIC_6_2 0x060200
+#define EPIC_6_3 0x060300
 #define EPIC_7_1 0x070100
 #define EPIC_7_2 0x070200
 #define EPIC_7_3 0x070300

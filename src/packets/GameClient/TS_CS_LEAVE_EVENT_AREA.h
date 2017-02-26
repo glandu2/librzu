@@ -7,6 +7,7 @@
 	_(simple)(int32_t, event_area_id) \
 	_(simple)(int32_t, area_index)
 
+// Since EPIC_7_3
 CREATE_PACKET(TS_CS_LEAVE_EVENT_AREA, 16);
 
 #endif // PACKETS_TS_CS_LEAVE_EVENT_AREA_H
