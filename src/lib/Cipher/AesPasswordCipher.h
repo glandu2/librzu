@@ -4,6 +4,7 @@
 #include "../Extern.h"
 #include <vector>
 #include <stdint.h>
+#include <memory>
 
 typedef struct evp_cipher_ctx_st EVP_CIPHER_CTX;
 
