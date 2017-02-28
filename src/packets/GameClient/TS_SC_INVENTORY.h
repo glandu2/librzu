@@ -41,7 +41,7 @@ CREATE_STRUCT(TS_ITEM_BASE_INFO);
 #define TS_ITEM_INFO_DEF(_) \
 	_(simple) (TS_ITEM_BASE_INFO, base_info) \
 	_(simple) (int16_t , wear_position) \
-	_(simple) (uint32_t, own_summon_handle, version >= EPIC_5_1) \
+	_(simple) (uint32_t, own_summon_handle) \
 	_(simple) (int32_t , index, version >= EPIC_5_1)
 CREATE_STRUCT(TS_ITEM_INFO);
 

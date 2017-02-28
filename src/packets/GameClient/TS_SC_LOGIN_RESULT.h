@@ -32,7 +32,7 @@
 	_(simple) (int32_t, hairId) \
 	_(string) (name, 19) \
 	_(simple) (int32_t, cell_size) \
-	_(simple) (int32_t, guild_id, version >= EPIC_5_1) \
+	_(simple) (int32_t, guild_id) \
 	_(simple) (int32_t, unknown, version >= EPIC_9_2)
 
 #define TS_SC_LOGIN_RESULT_ID(X) \

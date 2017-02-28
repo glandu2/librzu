@@ -86,7 +86,7 @@ CREATE_STRUCT(TS_SC_ENTER__NPC_INFO);
 	_(simple) (uint8_t, sex) \
 	_(simple) (uint32_t, faceId) \
 	_(simple) (uint32_t, faceTextureId, version >= EPIC_6_3) \
-	_(simple) (uint32_t, hairId, version >= EPIC_5_2) \
+	_(simple) (uint32_t, hairId) \
 	_(simple) (uint32_t, hairColorIndex, version >= EPIC_7_1) \
 	_(simple) (uint32_t, hairColorRGB, version >= EPIC_7_1) \
 	_(simple) (uint32_t, hideEquipFlag, version >= EPIC_7_1) \
