@@ -29,10 +29,6 @@ bool AesPasswordCipher::encrypt(const std::vector<uint8_t>& input, std::vector<u
 	if(!evpCipher)
 		evpCipher.reset(EVP_CIPHER_CTX_new());
 
-	guard_on_exit(evpReset, [this] {
-		EVP_CIPHER_CTX_reset(evpCipher.get());
-	});
-
 	if(EVP_EncryptInit_ex(evpCipher.get(), EVP_aes_128_cbc(), nullptr, key, key + 16) <= 0)
 		return false;
 
@@ -58,10 +54,6 @@ bool AesPasswordCipher::encrypt(const std::vector<uint8_t>& input, std::vector<u
 bool AesPasswordCipher::decrypt(const std::vector<uint8_t>& input, std::vector<uint8_t>& output) {
 	if(!evpCipher)
 		evpCipher.reset(EVP_CIPHER_CTX_new());
-
-	guard_on_exit(evpReset, [this] {
-		EVP_CIPHER_CTX_reset(evpCipher.get());
-	});
 
 	if(EVP_DecryptInit_ex(evpCipher.get(), EVP_aes_128_cbc(), nullptr, key, key + 16) <= 0)
 		return false;

@@ -64,7 +64,8 @@ getSizeOf(const T& value, int version) {
 template<typename T>
 uint32_t getClampedCount(size_t realSize) {
 	static_assert(sizeof(T) <= sizeof(uint32_t), "Maximum supported size is uint32_t because a packet is limited to 16k bytes");
-	return (uint32_t) std::min(realSize, (size_t)std::numeric_limits<T>::max());
+	size_t maxSize = (size_t)std::numeric_limits<T>::max();
+	return (uint32_t) (realSize < maxSize ? realSize : maxSize);
 }
 
 } // namespace PacketDeclaration
