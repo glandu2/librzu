@@ -14,7 +14,7 @@ RsaCipher::~RsaCipher() {
 void RsaCipher::loadKey(const std::vector<uint8_t>& pemKey) {
 	std::unique_ptr<BIO, int(*)(BIO*)> bio(nullptr, &BIO_free);
 
-	bio.reset(BIO_new_mem_buf(pemKey.data(), (int)pemKey.size()));
+	bio.reset(BIO_new_mem_buf((void*)pemKey.data(), (int)pemKey.size()));
 	rsaCipher.reset(PEM_read_bio_RSA_PUBKEY(bio.get(), NULL, NULL, NULL));
 }
 
