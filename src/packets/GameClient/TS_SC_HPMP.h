@@ -8,10 +8,16 @@
 	_(simple)(int32_t, add_hp) \
 	_(simple)(int32_t, hp) \
 	_(simple)(int32_t, max_hp) \
-	_(simple)(int32_t, add_mp) \
-	_(simple)(int32_t, mp) \
-	_(simple)(int32_t, max_mp) \
-	_(simple)(bool, need_to_display)
+	_(def)(simple) (int32_t, add_mp) \
+	_(impl)(simple)(int32_t, add_mp, version >= EPIC_5_1) \
+	_(impl)(simple)(int16_t, add_mp, version < EPIC_5_1) \
+	_(def)(simple) (int32_t, mp) \
+	_(impl)(simple)(int32_t, mp, version >= EPIC_5_1) \
+	_(impl)(simple)(int16_t, mp, version < EPIC_5_1) \
+	_(def)(simple) (int32_t, max_mp) \
+	_(impl)(simple)(int32_t, max_mp, version >= EPIC_5_1) \
+	_(impl)(simple)(int16_t, max_mp, version < EPIC_5_1) \
+	_(simple)(bool, need_to_display, version >= EPIC_4_1)
 
 CREATE_PACKET(TS_SC_HPMP, 509);
 

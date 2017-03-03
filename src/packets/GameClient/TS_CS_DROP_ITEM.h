@@ -5,7 +5,9 @@
 
 #define TS_CS_DROP_ITEM_DEF(_) \
 	_(simple)(uint32_t, item_handle) \
-	_(simple)(int32_t, count)
+	_(def)(simple) (int32_t, count) \
+	_(impl)(simple)(int32_t, count, version >= EPIC_4_1) \
+	_(impl)(simple)(uint16_t, count, version < EPIC_4_1)
 
 CREATE_PACKET(TS_CS_DROP_ITEM, 203);
 

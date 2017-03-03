@@ -5,7 +5,9 @@
 
 #define TS_SC_UPDATE_ITEM_COUNT_DEF(_) \
 	_(simple)(uint32_t, item_handle) \
-	_(simple)(int64_t, count)
+	_(def)(simple)(int64_t, count) \
+	_(impl)(simple)(int64_t, count, version >= EPIC_4_1) \
+	_(impl)(simple)(int32_t, count, version < EPIC_4_1)
 
 CREATE_PACKET(TS_SC_UPDATE_ITEM_COUNT, 255);
 

@@ -7,9 +7,9 @@
 	_(simple)(uint32_t, hPlayer) \
 	_(simple)(uint32_t, hCorpse) \
 	_(simple)(int32_t, nChaos) \
-	_(simple)(int8_t, nBonusType) \
-	_(simple)(int8_t, nBonusPercent) \
-	_(simple)(int32_t, nBonus)
+	_(simple)(int8_t, nBonusType, version >= EPIC_4_1) \
+	_(simple)(int8_t, nBonusPercent, version >= EPIC_4_1) \
+	_(simple)(int32_t, nBonus, version >= EPIC_4_1)
 
 CREATE_PACKET(TS_SC_GET_CHAOS, 213);
 

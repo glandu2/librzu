@@ -7,11 +7,13 @@
 	_(simple)(uint32_t, handle) \
 	_(simple)(uint16_t, state_handle) \
 	_(simple)(uint32_t, state_code) \
-	_(simple)(uint16_t, state_level) \
+	_(def)(simple) (uint16_t, state_level) \
+	_(impl)(simple)(uint16_t, state_level, version >= EPIC_4_1) \
+	_(impl)(simple)(int8_t, state_level, version < EPIC_4_1) \
 	_(simple)(uint32_t, end_time) \
-	_(simple)(uint32_t, start_time) \
-	_(simple)(int32_t, state_value) \
-	_(string)(state_string_value, 32)
+	_(simple)(uint32_t, start_time, version >= EPIC_3) \
+	_(simple)(int32_t, state_value, version >= EPIC_4_1) \
+	_(string)(state_string_value, 32, version >= EPIC_4_1)
 
 CREATE_PACKET(TS_SC_STATE, 505);
 

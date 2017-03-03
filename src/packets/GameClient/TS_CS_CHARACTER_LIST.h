@@ -5,8 +5,8 @@
 
 #define TS_CS_CHARACTER_LIST_DEF(_) \
 	_(def)(string)(account, 61) \
-	_(impl)(string)(account, 61, version >= EPIC_5_1) \
-	_(impl)(string)(account, 19, version <  EPIC_5_1)
+	_(impl)(string)(account, 61, version >= EPIC_5_2) \
+	_(impl)(string)(account, 19, version <  EPIC_5_2)
 
 #define TS_CS_CHARACTER_LIST_ID(X) \
 	X(2001, version < EPIC_9_4) \

@@ -17,8 +17,8 @@ CREATE_STRUCT(TS_ACCOUNT_ADDITIONAL_INFO);
 
 #define TS_ACCOUNT_PASSWORD_DES_DEF(_) \
 	_(def)(array)(uint8_t, password, 61) \
-	_(impl)(array)(uint8_t, password, 61, version >= EPIC_5_1) \
-	_(impl)(array)(uint8_t, password, 32, version <  EPIC_5_1)
+	_(impl)(array)(uint8_t, password, 61, version >= EPIC_5_2) \
+	_(impl)(array)(uint8_t, password, 32, version <  EPIC_5_2)
 CREATE_STRUCT(TS_ACCOUNT_PASSWORD_DES);
 
 #define TS_ACCOUNT_PASSWORD_AES_DEF(_) \
@@ -28,8 +28,8 @@ CREATE_STRUCT(TS_ACCOUNT_PASSWORD_AES);
 
 #define TS_CA_ACCOUNT_DEF(_) \
 	_(def)(string)(account, 61) \
-	_(impl)(string)(account, 61, version >= EPIC_5_1) \
-	_(impl)(string)(account, 19, version <  EPIC_5_1) \
+	_(impl)(string)(account, 61, version >= EPIC_5_2) \
+	_(impl)(string)(account, 19, version <  EPIC_5_2) \
 	_(simple)(TS_ACCOUNT_PASSWORD_DES, passwordDes, version < EPIC_8_1_1_RSA) \
 	_(simple)(TS_ACCOUNT_PASSWORD_AES, passwordAes, version >= EPIC_8_1_1_RSA) \
 	_(endarray)(TS_ACCOUNT_ADDITIONAL_INFO, additionalInfos)

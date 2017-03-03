@@ -25,12 +25,14 @@ CREATE_STRUCT(TS_SC_ENTER__ITEM_PICK_UP_ORDER);
 
 #define TS_SC_ENTER__ITEM_INFO_DEF(_) \
 	_(simple) (EncodedInt<EncodingRandomized>, code) \
-	_(simple) (uint64_t, count) \
+	_(def)(simple) (uint64_t, count) \
+	_(impl)(simple)(uint64_t, count, version >= EPIC_4_1) \
+	_(impl)(simple)(uint32_t, count, version < EPIC_4_1) \
 	_(simple) (TS_SC_ENTER__ITEM_PICK_UP_ORDER, pick_up_order)
 CREATE_STRUCT(TS_SC_ENTER__ITEM_INFO);
 
 #define TS_SC_ENTER__SKILL_INFO_DEF(_) \
-	_(simple) (uint32_t, casterHandle) \
+	_(simple) (uint32_t, casterHandle, version >= EPIC_4_1) \
 	_(simple) (uint32_t, startTime) \
 	_(simple) (uint32_t, skillId)
 CREATE_STRUCT(TS_SC_ENTER__SKILL_INFO);
@@ -41,11 +43,11 @@ CREATE_STRUCT(TS_SC_ENTER__SKILL_INFO);
 	_(simple) (float, fRotateX) \
 	_(simple) (float, fRotateY) \
 	_(simple) (float, fRotateZ) \
-	_(simple) (float, fScaleX) \
-	_(simple) (float, fScaleY) \
-	_(simple) (float, fScaleZ) \
-	_(simple) (bool, bLockHeight) \
-	_(simple) (float, fLockHeight)
+	_(simple) (float, fScaleX) /* in epic < 4, a single scale for all axis */ \
+	_(simple) (float, fScaleY, version >= EPIC_4_1) \
+	_(simple) (float, fScaleZ, version >= EPIC_4_1) \
+	_(simple) (bool, bLockHeight, version >= EPIC_4_1) \
+	_(simple) (float, fLockHeight, version >= EPIC_4_1)
 CREATE_STRUCT(TS_SC_ENTER__FIELD_PROP_INFO);
 
 #define TS_SC_ENTER__CREATURE_INFO_DEF(_) \
@@ -57,9 +59,9 @@ CREATE_STRUCT(TS_SC_ENTER__FIELD_PROP_INFO);
 	_(simple) (int32_t, max_mp) \
 	_(simple) (int32_t, level) \
 	_(simple) (uint8_t, race) \
-	_(simple) (uint32_t, skin_color) \
+	_(simple) (uint32_t, skin_color, version >= EPIC_4_1) \
 	_(simple) (bool, is_first_enter) \
-	_(simple) (int32_t, energy)
+	_(simple) (int32_t, energy, version >= EPIC_4_1)
 CREATE_STRUCT(TS_SC_ENTER__CREATURE_INFO);
 
 #define TS_SC_ENTER__MONSTER_INFO_DEF(_) \
@@ -72,7 +74,7 @@ CREATE_STRUCT(TS_SC_ENTER__MONSTER_INFO);
 	_(simple) (TS_SC_ENTER__CREATURE_INFO, creatureInfo) \
 	_(simple) (uint32_t, master_handle) \
 	_(simple) (EncodedInt<EncodingRandomized>, summon_code) \
-	_(string) (szName, 19) \
+	_(string) (szName, 19, version >= EPIC_3) \
 	_(simple) (uint8_t, enhance, version >= EPIC_7_1)
 CREATE_STRUCT(TS_SC_ENTER__SUMMON_INFO);
 
@@ -95,7 +97,8 @@ CREATE_STRUCT(TS_SC_ENTER__NPC_INFO);
 	_(simple) (uint32_t, ride_handle) \
 	_(simple) (uint32_t, guild_id) \
 	_(simple) (uint32_t, title_code, version >= EPIC_8_1) \
-	_(simple) (uint32_t, emblem_code, version >= EPIC_9_3)
+	_(simple) (uint32_t, emblem_code, version >= EPIC_9_3) \
+	_(simple) (int32_t, energy, version < EPIC_4_1)
 CREATE_STRUCT(TS_SC_ENTER__PLAYER_INFO);
 
 #define TS_SC_ENTER__PET_INFO_DEF(_) \
