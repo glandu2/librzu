@@ -25,6 +25,7 @@ public:
 	bool isStarted() { return serverSocket && serverSocket->getState() == Stream::ListeningState; }
 
 	Stream::State getState() { return serverSocket ? serverSocket->getState() : Stream::UnconnectedState; }
+	Stream* getServerStream() { return serverSocket; }
 
 	void socketClosed(SocketSession *socketSession);
 
@@ -67,6 +68,36 @@ protected:
 	virtual bool hasCustomPacketLogger() {
 		return T::hasCustomPacketLoggerStatic();
 	}
+};
+
+template<class T, class Param>
+class SessionServerWithParameter : public SessionServerCommon
+{
+public:
+	SessionServerWithParameter(Param parameter,
+	                           cval<std::string>& listenIp,
+	                           cval<int>& port,
+	                           cval<int>* idleTimeoutSec = nullptr,
+	                           Log* packetLogger = nullptr,
+	                           BanManager* banManager = nullptr)
+	    : SessionServerCommon(listenIp, port, idleTimeoutSec, packetLogger, banManager),
+	      parameter(parameter)
+	{}
+
+	void updateObjectName() {
+		setObjectName(15 + T::getStaticClassNameSize(), "SessionServer<%s>", T::getStaticClassName());
+	}
+
+protected:
+	virtual SocketSession* createSession() {
+		return new T(parameter);
+	}
+	virtual bool hasCustomPacketLogger() {
+		return T::hasCustomPacketLoggerStatic();
+	}
+
+private:
+	Param parameter;
 };
 
 #endif // SESSIONSERVER_H
