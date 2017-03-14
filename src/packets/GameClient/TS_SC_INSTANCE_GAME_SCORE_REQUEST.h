@@ -14,6 +14,7 @@
 	_(array)(int32_t, battle_arena_record_slaughter, 2, version >= EPIC_8_1) \
 	_(array)(int32_t, battle_arena_record_bingo, 2, version >= EPIC_8_1)
 
+// Since EPIC_6_3
 CREATE_PACKET(TS_SC_INSTANCE_GAME_SCORE_REQUEST, 4253);
 
 #endif // PACKETS_TS_SC_INSTANCE_GAME_SCORE_REQUEST_H
