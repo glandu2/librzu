@@ -31,7 +31,7 @@ public:
 	typedef void (CallbackClass::*DoneCallback)(int status);
 public:
 	int queue(CallbackClass* instance, ProcessCallback processCb, DoneCallback doneCb) {
-		if(isInProgress)
+		if(isInProgress())
 			return -EBUSY;
 
 		this->processCallback = processCb;
@@ -63,8 +63,9 @@ private:
 
 			if(instance && callback)
 				(instance->*callback)(status);
+
+			instance->freeHandle();
 		}
-		freeHandle();
 	}
 };
 
