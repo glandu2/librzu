@@ -1,11 +1,6 @@
 #include "ClientAuthSession.h"
 #include "Cipher/DesPasswordCipher.h"
-#include <openssl/bio.h>
-#include <openssl/pem.h>
-#include <openssl/rsa.h>
-#include <openssl/opensslconf.h>
-#include <openssl/bn.h>
-#include <openssl/err.h>
+#include "Cipher/AesPasswordCipher.h"
 #include "ClientGameSession.h"
 #include "Packet/PacketEpics.h"
 #include <memory>
@@ -132,27 +127,19 @@ EventChain<PacketSession> ClientAuthSession::onPacketReceived(const TS_MESSAGE* 
 
 ////////////////////////////////////////////////////////
 
-void* ClientAuthSession::rsaCipher = nullptr;
+RsaCipher ClientAuthSession::rsaCipher;
 EventChain<SocketSession> ClientAuthSession::onConnected() {
-	TS_CA_VERSION versionMsg;
+	TS_CA_VERSION versionMsg = {};
 
 	TS_MESSAGE::initMessage<TS_CA_VERSION>(&versionMsg);
-#ifndef NDEBUG
-	memset(versionMsg.szVersion, 0, sizeof(versionMsg.szVersion));
-#endif
+
 	strcpy(versionMsg.szVersion, version.c_str());
 	sendPacket(&versionMsg);
 
 	if(this->cipherMethod == ACM_DES) {
-		TS_CA_ACCOUNT accountMsg;
+		TS_CA_ACCOUNT accountMsg = {};
 
 		TS_MESSAGE::initMessage<TS_CA_ACCOUNT>(&accountMsg);
-
-#ifndef NDEBUG
-		memset(accountMsg.account, 0, sizeof(accountMsg.account));
-		memset(accountMsg.password, 0, sizeof(accountMsg.password));
-#endif
-		strcpy(accountMsg.account, username.c_str());
 
 		static unsigned char cachedPassword[sizeof(accountMsg.password)] = {0};
 		static std::string cachedPasswordStr;
@@ -163,43 +150,27 @@ EventChain<SocketSession> ClientAuthSession::onConnected() {
 			cachedPasswordStr = password;
 		}
 
+		strcpy(accountMsg.account, username.c_str());
 		memcpy(accountMsg.password, cachedPassword, sizeof(accountMsg.password));
 
 		sendPacket(&accountMsg);
 	} else if(this->cipherMethod == ACM_RSA_AES) {
-		TS_CA_RSA_PUBLIC_KEY *keyMsg;
-		int public_key_size;
-		BIO * b;
-
-		if(!rsaCipher) {
-			std::unique_ptr<BIGNUM, decltype(&::BN_free)> e (BN_new(), ::BN_free);
-			std::unique_ptr<RSA, decltype(&::RSA_free)> rsa (RSA_new(), ::RSA_free);
-
-			if(!rsa) {
-				log(LL_Error, "Failed to create RSA instance\n");
-			} else if(!e) {
-				log(LL_Error, "Failed to create BIGNUM instance\n");
-			} else {
-				BN_set_word(e.get(), RSA_F4);
-				if(!RSA_generate_key_ex(rsa.get(), 1024, e.get(), NULL)) {
-					log(LL_Error, "Failed to generate RSA key\n");
-				} else {
-					rsaCipher = rsa.release();
-				}
+		if(!rsaCipher.isInitialized()) {
+			if(!rsaCipher.generateKey()) {
+				log(LL_Error, "Failed to generate RSA key\n");
 			}
 		}
 
-		if(rsaCipher) {
-			b = BIO_new(BIO_s_mem());
-			PEM_write_bio_RSA_PUBKEY(b, (RSA*)rsaCipher);
+		if(rsaCipher.isInitialized()) {
+			TS_CA_RSA_PUBLIC_KEY *keyMsg;
+			std::vector<uint8_t> key;
 
-			public_key_size = BIO_get_mem_data(b, NULL);
-			keyMsg = TS_MESSAGE_WNA::create<TS_CA_RSA_PUBLIC_KEY, unsigned char>(public_key_size);
+			rsaCipher.getPemPublicKey(key);
 
-			keyMsg->key_size = public_key_size;
+			keyMsg = TS_MESSAGE_WNA::create<TS_CA_RSA_PUBLIC_KEY, unsigned char>(key.size());
 
-			BIO_read(b, keyMsg->key, public_key_size);
-			BIO_free(b);
+			keyMsg->key_size = key.size();
+			memcpy(keyMsg->key, key.data(), key.size());
 
 			sendPacket(keyMsg);
 			TS_MESSAGE_WNA::destroy(keyMsg);
@@ -214,60 +185,33 @@ EventChain<SocketSession> ClientAuthSession::onConnected() {
 
 void ClientAuthSession::onPacketAuthPasswordKey(const TS_AC_AES_KEY_IV* packet) {
 	TS_CA_ACCOUNT_RSA accountMsg;
-	unsigned char decrypted_data[256];
-	int data_size;
-	bool ok = false;
+	std::vector<uint8_t> encryptedPassword;
 
 	TS_MESSAGE::initMessage<TS_CA_ACCOUNT_RSA>(&accountMsg);
 	memset(accountMsg.account, 0, sizeof(accountMsg.account));
 
-	std::unique_ptr<EVP_CIPHER_CTX, void(*)(EVP_CIPHER_CTX*)> e_ctx(nullptr, &EVP_CIPHER_CTX_free);
-	const unsigned char *key_data = decrypted_data;
-	const unsigned char *iv_data = decrypted_data + 16;
-	int len = (int)password.size();
-	int p_len = len, f_len = 0;
-
-	data_size = RSA_private_decrypt(packet->data_size, (unsigned char*)packet->rsa_encrypted_data, decrypted_data, (RSA*)rsaCipher, RSA_PKCS1_PADDING);
-//	RSA_free((RSA*)rsaCipher);
-//	rsaCipher = 0;
-	if(data_size != 32) {
-		log(LL_Warning, "onPacketAuthPasswordKey: invalid decrypted data size: %d\n", data_size);
+	if(!rsaCipher.privateDecrypt(packet->rsa_encrypted_data, packet->data_size, aesKey) || aesKey.size() != 32) {
+		log(LL_Warning, "onPacketAuthPasswordKey: invalid decrypted data size: %d\n", (int)aesKey.size());
 		closeSession();
 		return;
 	}
 
-	memcpy(aes_key_iv, decrypted_data, 32);
-	memset(accountMsg.password, 0, sizeof(accountMsg.password));
+	AesPasswordCipher aesCipher;
+	aesCipher.init(aesKey.data());
 
-	e_ctx.reset(EVP_CIPHER_CTX_new());
-	if(!e_ctx)
-		goto end;
-
-	if(!EVP_EncryptInit_ex(e_ctx.get(), EVP_aes_128_cbc(), NULL, key_data, iv_data))
-		goto end;
-	if(!EVP_EncryptUpdate(e_ctx.get(), accountMsg.password, &p_len, (const unsigned char*)password.c_str(), len))
-		goto end;
-	if(!EVP_EncryptFinal_ex(e_ctx.get(), accountMsg.password+p_len, &f_len))
-		goto end;
-
-	ok = true;
-
-end:
-	unsigned long errorCode = ERR_get_error();
-	if(errorCode)
-		log(LL_Warning, "AES: error while encrypting password for account %s: %s\n", username.c_str(), ERR_error_string(errorCode, nullptr));
-
-	if(ok == false) {
+	if(!aesCipher.encrypt((const uint8_t*)password.c_str(), password.size(), encryptedPassword)) {
 		log(LL_Warning, "onPacketAuthPasswordKey: could not encrypt password !\n");
 		closeSession();
 		return;
 	}
 
+	memcpy(accountMsg.password, encryptedPassword.data(), encryptedPassword.size());
+
 	//password.fill(0);
 	password.clear();
 
 	strcpy(accountMsg.account, username.c_str());
-	accountMsg.password_size = p_len + f_len;
+	accountMsg.password_size = encryptedPassword.size();
 	accountMsg.dummy[0] = accountMsg.dummy[1] = accountMsg.dummy[2] = 0;
 	accountMsg.unknown_00000100 = 0x00000100;
 	sendPacket(&accountMsg);
@@ -315,34 +259,18 @@ void ClientAuthSession::onPacketSelectServerResult(const TS_AC_SELECT_SERVER* pa
 		//pendingTimeBeforeServerMove = packet->v1.pending_time;
 	} else if(this->cipherMethod == ACM_RSA_AES) {
 		const TS_AC_SELECT_SERVER_RSA* packetv2 = reinterpret_cast<const TS_AC_SELECT_SERVER_RSA*>(packet);
-		std::unique_ptr<EVP_CIPHER_CTX, void(*)(EVP_CIPHER_CTX*)> e_ctx(nullptr, &EVP_CIPHER_CTX_free);
-		const unsigned char *key_data = aes_key_iv;
-		const unsigned char *iv_data = aes_key_iv + 16;
-		int len = 16;
-		int p_len = 0, f_len = 0;
-		bool ok = false;
-		uint64_t decryptedData[2];
+		std::vector<uint8_t> decryptedData;
 
-		e_ctx.reset(EVP_CIPHER_CTX_new());
-		if(!e_ctx)
-			goto end;
+		AesPasswordCipher aesCipher;
+		aesCipher.init(aesKey.data());
 
-		if(!EVP_DecryptInit_ex(e_ctx.get(), EVP_aes_128_cbc(), NULL, key_data, iv_data))
-			goto end;
-		if(!EVP_DecryptUpdate(e_ctx.get(), (unsigned char*)decryptedData, &p_len, packetv2->encrypted_data, len))
-			goto end;
-		if(!EVP_DecryptFinal_ex(e_ctx.get(), ((unsigned char*)decryptedData) + p_len, &f_len))
-			goto end;
-		ok = true;
-
-end:
-		if(ok == false) {
+		if(!aesCipher.decrypt(packetv2->encrypted_data, sizeof(packetv2->encrypted_data), decryptedData) || decryptedData.size() < sizeof(uint64_t) ) {
 			log(LL_Warning, "onPacketSelectServerResult: Could not decrypt TS_AC_SELECT_SERVER\n");
 			closeSession();
 			return;
 		}
 
-		oneTimePassword = decryptedData[0];
+		oneTimePassword = *reinterpret_cast<uint64_t*>(decryptedData.data());
 		//pendingTimeBeforeServerMove = packetv2->pending_time;
 	}
 

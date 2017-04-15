@@ -2,26 +2,31 @@
 #define RSACIPHER_H
 
 #include "../Extern.h"
+#include "Core/Object.h"
 #include <vector>
 #include <stdint.h>
 #include <memory>
 
 typedef struct rsa_st RSA;
 
-class RZU_EXTERN RsaCipher
+class RZU_EXTERN RsaCipher : public Object
 {
 public:
 	RsaCipher();
 	~RsaCipher();
 
-	void loadKey(const std::vector<uint8_t>& pemKey);
-	void getPemPublicKey(std::vector<uint8_t>& outKey);
-	void generateKey();
+	bool loadKey(const std::vector<uint8_t>& pemKey);
+	bool getPemPublicKey(std::vector<uint8_t>& outKey);
+	int generateKey();
+	bool isInitialized();
 
-	bool publicEncrypt(const std::vector<uint8_t>& input, std::vector<uint8_t>& output);
-	bool publicDecrypt(const std::vector<uint8_t>& input, std::vector<uint8_t>& output);
-	bool privateEncrypt(const std::vector<uint8_t>& input, std::vector<uint8_t>& output);
-	bool privateDecrypt(const std::vector<uint8_t>& input, std::vector<uint8_t>& output);
+	bool publicEncrypt(const uint8_t* input, size_t input_size, std::vector<uint8_t>& output);
+	bool publicDecrypt(const uint8_t* input, size_t input_size, std::vector<uint8_t>& output);
+	bool privateEncrypt(const uint8_t* input, size_t input_size, std::vector<uint8_t>& output);
+	bool privateDecrypt(const uint8_t* input, size_t input_size, std::vector<uint8_t>& output);
+
+protected:
+	void printError();
 
 private:
 	std::unique_ptr<RSA, void (*)(RSA *)> rsaCipher;

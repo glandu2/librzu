@@ -8,6 +8,7 @@
 #include "PacketEnums.h"
 #include <vector>
 #include "Cipher/DesPasswordCipher.h"
+#include "Cipher/RsaCipher.h"
 
 struct TS_MESSAGE;
 struct TS_AC_SERVER_LIST;
@@ -86,16 +87,16 @@ class RZU_EXTERN ClientAuthSession : public EncryptedSession<PacketSession>
 		std::string version;
 		std::string username;
 		std::string password;
-		unsigned char aes_key_iv[32];
+		std::vector<uint8_t> aesKey;
 		std::vector<ServerConnectionInfo> serverList;
 		int selectedServer;
 		uint64_t oneTimePassword;
 		bool normalDisconnect;
-		static void* rsaCipher;
 
 		int packetVersion;
 
 		static DesPasswordCipher desCipher;
+		static RsaCipher rsaCipher;
 };
 
 #endif // CLIENTAUTHSESSION_H

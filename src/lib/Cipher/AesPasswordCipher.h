@@ -18,8 +18,8 @@ public:
 	void init();
 	void getKey(std::vector<uint8_t>& key);
 
-	bool encrypt(const std::vector<uint8_t>& input, std::vector<uint8_t>& output);
-	bool decrypt(const std::vector<uint8_t>& input, std::vector<uint8_t>& output);
+	bool encrypt(const uint8_t* input, size_t input_size, std::vector<uint8_t>& output);
+	bool decrypt(const uint8_t* input, size_t input_size, std::vector<uint8_t>& output);
 
 private:
 	uint8_t key[32];
