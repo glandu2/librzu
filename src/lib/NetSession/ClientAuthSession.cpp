@@ -129,7 +129,8 @@ EventChain<PacketSession> ClientAuthSession::onPacketReceived(const TS_MESSAGE* 
 
 RsaCipher ClientAuthSession::rsaCipher;
 EventChain<SocketSession> ClientAuthSession::onConnected() {
-	TS_CA_VERSION versionMsg = {};
+	TS_CA_VERSION versionMsg;
+	memset(&versionMsg, 0, sizeof(versionMsg));
 
 	TS_MESSAGE::initMessage<TS_CA_VERSION>(&versionMsg);
 
@@ -137,7 +138,8 @@ EventChain<SocketSession> ClientAuthSession::onConnected() {
 	sendPacket(&versionMsg);
 
 	if(this->cipherMethod == ACM_DES) {
-		TS_CA_ACCOUNT accountMsg = {};
+		TS_CA_ACCOUNT accountMsg;
+		memset(&accountMsg, 0, sizeof(accountMsg));
 
 		TS_MESSAGE::initMessage<TS_CA_ACCOUNT>(&accountMsg);
 

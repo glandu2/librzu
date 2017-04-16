@@ -101,13 +101,9 @@ void CrashHandler::commandListObjectsCount(IWritableConsole* console, const std:
 
 #if defined(_WIN32) && defined(_DEBUG)
 	_CrtMemState memUsage;
-	size_t heapSize = 0, heapCommit = 0;
 	memset(&memUsage, 0, sizeof(memUsage));
 	_CrtMemDumpStatistics(&memUsage);
-	_heapused(&heapSize, &heapCommit);
 	console->writef("Memory usage:\r\n"
-					" heap size: %ld\r\n"
-					" commit size: %ld\r\n"
 					" normal block size: %ld\r\n"
 					" free block size: %ld\r\n"
 					" CRT block size: %ld\r\n"
@@ -115,8 +111,6 @@ void CrashHandler::commandListObjectsCount(IWritableConsole* console, const std:
 					" ignore block size: %ld\r\n"
 					" peak memory size: %ld\r\n"
 					" used memory size: %ld\r\n\r\n",
-					heapSize,
-					heapCommit,
 					memUsage.lSizes[_NORMAL_BLOCK],
 					memUsage.lSizes[_FREE_BLOCK],
 					memUsage.lSizes[_CRT_BLOCK],
