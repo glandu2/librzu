@@ -21,6 +21,12 @@ struct TS_GA_LOGIN_WITH_LOGOUT : public TS_GA_LOGIN
 	static const uint16_t packetID = 60001;
 };
 
+struct TS_GA_LOGIN_WITH_LOGOUT_EXT : public TS_GA_LOGIN_WITH_LOGOUT
+{
+	static const uint16_t packetID = 60004;
+	uint8_t guid[16];
+};
+
 #pragma pack(pop)
 
 #endif // PACKETS_TS_GA_LOGIN_H
