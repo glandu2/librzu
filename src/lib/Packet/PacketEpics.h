@@ -22,6 +22,9 @@
 #define EPIC_9_3 0x090300
 #define EPIC_9_4 0x090400
 #define EPIC_9_4_AR 0x090401
-#define EPIC_LATEST 0xFFFFFF
+#define EPIC_9_5 0x090500
+
+// Latest released epic
+#define EPIC_LATEST EPIC_9_4
 
 #endif // PACKETS_EPICS_H
