@@ -5,7 +5,7 @@
 
 #define TS_SC_ITEM_WEAR_INFO_DEF(_) \
 	_(simple)(uint32_t, item_handle) \
-	_(simple)(uint16_t, wear_position) \
+	_(simple)(int16_t, wear_position) \
 	_(simple)(uint32_t, target_handle) \
 	_(simple)(int32_t, enhance) \
 	_(simple)(int8_t, elemental_effect_type, version >= EPIC_6_1) \
