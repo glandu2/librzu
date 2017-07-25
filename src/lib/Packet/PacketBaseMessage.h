@@ -57,6 +57,9 @@ struct TS_MESSAGE {
 	template<class T, class U>
 	void process(U* instance, void (U::*processFunction)(const T*), int version) const;
 
+	template<class T, class U, typename ...Args>
+	void process(U* instance, void (U::*processFunction)(const T*, Args...), int version, Args... args) const;
+
 	template<class T>
 	bool process(T& packet, int version) const;
 };
@@ -99,6 +102,16 @@ void TS_MESSAGE::process(U* instance, void (U::*processFunction)(const T*), int 
 	packet.deserialize(&buffer);
 	if(buffer.checkPacketFinalSize()) {
 		(instance->*processFunction)(&packet);
+	}
+}
+template<class T, class U, typename ...Args>
+void TS_MESSAGE::process(U* instance, void (U::*processFunction)(const T*, Args...), int version, Args... args) const {
+	T packet;
+	MessageBuffer buffer((void*)this, this->size, version);
+
+	packet.deserialize(&buffer);
+	if(buffer.checkPacketFinalSize()) {
+		(instance->*processFunction)(&packet, args...);
 	}
 }
 template<class T>
