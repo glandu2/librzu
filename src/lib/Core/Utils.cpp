@@ -186,7 +186,7 @@ std::string Utils::convertToString(float i) {
 }
 
 std::string Utils::convertToString(const char *str, int maxSize) {
-	return std::string(str, std::find(str, str + maxSize, '\0'));
+	return std::string(str, std::find(str, str + std::max(0, maxSize), '\0'));
 }
 
 std::vector<unsigned char> Utils::convertToDataArray(const unsigned char *data, int maxSize, int usedSize) {
@@ -194,7 +194,7 @@ std::vector<unsigned char> Utils::convertToDataArray(const unsigned char *data, 
 }
 
 std::vector<unsigned char> Utils::convertToDataArray(const unsigned char *data, int size) {
-	return std::vector<unsigned char>(data, data + size);
+	return std::vector<unsigned char>(data, data + std::max(0, size));
 }
 
 void Utils::convertDataToHex(const void *data, int size, char *outHex) {

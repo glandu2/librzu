@@ -259,7 +259,7 @@ public:
 	template<typename T>
 	typename std::enable_if<!is_primitive<T>::value, void>::type
 	readDynArray(const char* fieldName, std::vector<T>& val, uint32_t sizeToRead) {
-		val.resize(sizeToRead);
+		val.resize(sizeToRead, T{});
 
 		auto it = val.begin();
 		auto itEnd = val.end();

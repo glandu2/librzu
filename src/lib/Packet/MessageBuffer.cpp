@@ -38,8 +38,20 @@ bool MessageBuffer::checkPacketFinalSize() {
 	uint32_t msgSize = *reinterpret_cast<const uint32_t*>(buffer->buffer.base);
 	bool ok = !bufferOverflow && msgSize == getSize() && uint32_t(p - buffer->buffer.base) == msgSize;
 	if(!ok) {
-		log(LL_Error, "Packet has invalid data: id: %d, packet size: %d, buffer size: %d, offset: %d, field: %s\n",
-			getMessageId(), msgSize, getSize(), uint32_t(p - buffer->buffer.base), bufferOverflow ? getFieldInOverflow().c_str() : "<no overflow>");
+		if(bufferOverflow) {
+			log(LL_Error, "Packet read/write overflow: id: %d, packet size: %d, buffer size: %d, offset: %d, field: %s\n",
+			    getMessageId(), msgSize, getSize(), uint32_t(p - buffer->buffer.base), bufferOverflow ? getFieldInOverflow().c_str() : "<no overflow>");
+		} else if(msgSize != getSize()) {
+			log(LL_Error, "Packet size is not buffer size: id: %d, packet size: %d, buffer size: %d, offset: %d\n",
+			    getMessageId(), msgSize, getSize(), uint32_t(p - buffer->buffer.base));
+		} else if(uint32_t(p - buffer->buffer.base) != msgSize) {
+			log(LL_Error, "Packet was not fully read/written: id: %d, packet size: %d, buffer size: %d, offset: %d\n",
+			    getMessageId(), msgSize, getSize(), uint32_t(p - buffer->buffer.base));
+		} else {
+			log(LL_Error, "Packet has invalid data: id: %d, packet size: %d, buffer size: %d, offset: %d, field: %s\n",
+			    getMessageId(), msgSize, getSize(), uint32_t(p - buffer->buffer.base), bufferOverflow ? getFieldInOverflow().c_str() : "<no overflow>");
+		}
+
 	}
 	return ok;
 }

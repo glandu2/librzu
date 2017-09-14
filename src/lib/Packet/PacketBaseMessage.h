@@ -104,6 +104,7 @@ void TS_MESSAGE::process(U* instance, void (U::*processFunction)(const T*), int 
 		(instance->*processFunction)(&packet);
 	}
 }
+
 template<class T, class U, typename ...Args>
 void TS_MESSAGE::process(U* instance, void (U::*processFunction)(const T*, Args...), int version, Args... args) const {
 	T packet;
@@ -114,6 +115,7 @@ void TS_MESSAGE::process(U* instance, void (U::*processFunction)(const T*, Args.
 		(instance->*processFunction)(&packet, args...);
 	}
 }
+
 template<class T>
 bool TS_MESSAGE::process(T& packet, int version) const {
 	MessageBuffer buffer((void*)this, this->size, version);
