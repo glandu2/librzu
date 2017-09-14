@@ -25,6 +25,6 @@
 #define EPIC_9_5 0x090500
 
 // Latest released epic
-#define EPIC_LATEST EPIC_9_4
+#define EPIC_LATEST EPIC_9_5
 
 #endif // PACKETS_EPICS_H
