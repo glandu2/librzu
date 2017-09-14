@@ -42,6 +42,18 @@ enum TS_SKILL__DAMAGE_TYPE : uint8_t
 	SDT_TYPE_COUNT = 0x7
 };
 
+enum TS_SKILL_RESULT_SUCESS_TYPE : int32_t {
+	SRST_AddState = 10,
+	SRST_RemoveState = 11,
+	SRST_AddHate = 12,
+	SRST_TurnOn = 21,
+	SRST_TurnOff = 22,
+	SRST_SummonDead = 30,
+	SRST_TargetDead = 31,
+	SRST_CreateItem = 40,
+	SRST_RespawnMonster = 41
+};
+
 #define TS_SC_SKILL__HIT_DAMAGE_INFO_DEF(_) \
 	_(simple) (int32_t, target_hp) \
 	_(simple) (TS_SKILL__DAMAGE_TYPE, damage_type) \
@@ -64,7 +76,7 @@ CREATE_STRUCT(TS_SC_SKILL__HIT_DAMAGE_WITH_KNOCKBACK);
 
 #define TS_SC_SKILL__HIT_RESULT_DEF(_) \
 	_(simple) (bool, bResult) \
-	_(simple) (int32_t, success_type)
+	_(simple) (TS_SKILL_RESULT_SUCESS_TYPE, success_type)
 CREATE_STRUCT(TS_SC_SKILL__HIT_RESULT);
 
 #define TS_SC_SKILL__HIT_ADD_STAT_DEF(_) \
@@ -122,7 +134,7 @@ CREATE_STRUCT(TS_SC_SKILL__HIT_CHAIN_HEAL);
 	_(simple) (TS_SC_SKILL__HIT_REBIRTH              , hitRebirth            , type == SHT_REBIRTH) \
 	_(simple) (TS_SC_SKILL__HIT_RUSH                 , hitRush               , type == SHT_RUSH) \
 	_(simple) (TS_SC_SKILL__HIT_CHAIN_DAMAGE         , hitChainDamage        , type == SHT_CHAIN_DAMAGE || type == SHT_CHAIN_MAGIC_DAMAGE) \
-	_(simple) (TS_SC_SKILL__HIT_CHAIN_HEAL           , hitAddHP              , type == SHT_CHAIN_HEAL)
+	_(simple) (TS_SC_SKILL__HIT_CHAIN_HEAL           , hitChainHeal          , type == SHT_CHAIN_HEAL)
 CREATE_STRUCT(TS_SC_SKILL__HIT_DETAILS);
 
 #define TS_SC_SKILL__FIRE_DEF(_) \
