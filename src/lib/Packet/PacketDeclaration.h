@@ -94,7 +94,7 @@ uint32_t getClampedCount(size_t realSize) {
 #define LOCAL_DEFINITION_F_simple(type, name, ...)
 #define LOCAL_DEFINITION_F_array(type, name, size, ...)
 #define LOCAL_DEFINITION_F_dynarray(type, name, ...)
-#define LOCAL_DEFINITION_F_count(type, ref, ...) uint32_t ref##_size; (void)(ref##_size);
+#define LOCAL_DEFINITION_F_count(type, ref, ...) uint32_t ref##_size = 0; (void)(ref##_size);
 #define LOCAL_DEFINITION_F_string(name, size, ...)
 #define LOCAL_DEFINITION_F_dynstring(name, hasNullTerminator, ...)
 #define LOCAL_DEFINITION_F_padmarker(...)
