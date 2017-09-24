@@ -78,7 +78,7 @@ std::string DbQueryBinding::logParameters(void* inputInstance)
 	for(size_t i = 0; i < parameterBindings.size(); i++) {
 		const ParameterBinding& paramBinding = parameterBindings.at(i);
 
-		if(paramBinding.index > 0) {
+		if(*paramBinding.index > 0) {
 			logData << " - " << paramBinding.name << ": ";
 
 			if(paramBinding.isStdString) {
@@ -130,7 +130,7 @@ bool DbQueryBinding::process(IDbQueryJob* queryJob) {
 		for(size_t i = 0; i < parameterBindings.size(); i++) {
 			const ParameterBinding& paramBinding = parameterBindings.at(i);
 
-			if(paramBinding.index > 0) {
+			if(*paramBinding.index > 0) {
 				SQLLEN* StrLen_or_Ind;
 				if(paramBinding.infoPtr != (size_t)-1)
 					StrLen_or_Ind = (SQLLEN*)((char*)inputInstance +  paramBinding.infoPtr);
