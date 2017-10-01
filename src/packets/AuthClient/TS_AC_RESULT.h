@@ -1,8 +1,8 @@
 #ifndef PACKETS_TS_AC_RESULT_H
 #define PACKETS_TS_AC_RESULT_H
 
-#include "PacketEnums.h"
 #include "Packet/PacketDeclaration.h"
+#include "PacketEnums.h"
 
 enum TS_LOGIN_SUCCESS_FLAG
 {

@@ -1,11 +1,11 @@
 #include "ConfigInfo.h"
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
 #include "Config/GlobalCoreConfig.h"
-#include <map>
 #include "Console/ConsoleCommands.h"
 #include "Core/Utils.h"
+#include <map>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 ConfigInfo::~ConfigInfo() {
 	for(auto it = config.begin(); it != config.end(); ++it) {
@@ -13,23 +13,31 @@ ConfigInfo::~ConfigInfo() {
 	}
 }
 
-void ConfigInfo::init(int argc, char **argv) {
+void ConfigInfo::init(int argc, char** argv) {
 	GlobalCoreConfig::init();
 
 	parseCommandLine(argc, argv, true);
 	readFile(GlobalCoreConfig::get()->app.configfile.get().c_str());
-	//Set all keys given on the command line to overwrite config file values
+	// Set all keys given on the command line to overwrite config file values
 	parseCommandLine(argc, argv);
 
-	ConsoleCommands::get()->addCommand("config.get", "get", 0, 1, &commandGetEnv,
-									   "Get a config value",
-									   "config.get <config> : get <config> value. <config> can contains wildcards (* and ?)\r\n"
-									   "   example : config.get core.log.level\r\n");
+	ConsoleCommands::get()->addCommand(
+	    "config.get",
+	    "get",
+	    0,
+	    1,
+	    &commandGetEnv,
+	    "Get a config value",
+	    "config.get <config> : get <config> value. <config> can contains wildcards (* and ?)\r\n"
+	    "   example : config.get core.log.level\r\n");
 
-	ConsoleCommands::get()->addCommand("config.set", "set", 2, &commandSetEnv,
-									   "Set a config value",
-									   "config.set <config> <value>: set <config> to <value>\r\n"
-									   "   example : config.set core.log.level debug\r\n");
+	ConsoleCommands::get()->addCommand("config.set",
+	                                   "set",
+	                                   2,
+	                                   &commandSetEnv,
+	                                   "Set a config value",
+	                                   "config.set <config> <value>: set <config> to <value>\r\n"
+	                                   "   example : config.set core.log.level debug\r\n");
 }
 
 ConfigInfo* ConfigInfo::get() {
@@ -48,14 +56,16 @@ ConfigValue* ConfigInfo::getValue(const std::string& key) {
 		return nullptr;
 }
 
-std::pair<std::unordered_map<std::string, ConfigValue*>::iterator, bool> ConfigInfo::addValue(const std::string& key, ConfigValue* v) {
-	std::pair<std::unordered_map<std::string, ConfigValue*>::iterator, bool> it = config.insert(std::pair<std::string, ConfigValue*>(key, v));
+std::pair<std::unordered_map<std::string, ConfigValue*>::iterator, bool> ConfigInfo::addValue(const std::string& key,
+                                                                                              ConfigValue* v) {
+	std::pair<std::unordered_map<std::string, ConfigValue*>::iterator, bool> it =
+	    config.insert(std::pair<std::string, ConfigValue*>(key, v));
 	if(it.second)
 		v->setKeyName(&it.first->first);
 	return it;
 }
 
-void ConfigInfo::parseCommandLine(int argc, char **argv, bool onlyConfigFileLocation) {
+void ConfigInfo::parseCommandLine(int argc, char** argv, bool onlyConfigFileLocation) {
 	int i;
 	char* key;
 	char* value;
@@ -77,7 +87,7 @@ void ConfigInfo::parseCommandLine(int argc, char **argv, bool onlyConfigFileLoca
 
 		std::string keyStr(key, value - key);
 
-		//Check only config file location value if requested
+		// Check only config file location value if requested
 		if(onlyConfigFileLocation && keyStr != CONFIG_FILE_KEY)
 			continue;
 
@@ -92,7 +102,7 @@ void ConfigInfo::parseCommandLine(int argc, char **argv, bool onlyConfigFileLoca
 	}
 }
 
-bool ConfigInfo::parseLine(char* line, std::string &keyStr, std::string &valueStr) {
+bool ConfigInfo::parseLine(char* line, std::string& keyStr, std::string& valueStr) {
 	char *p, *key, *value;
 
 	keyStr.clear();
@@ -100,28 +110,28 @@ bool ConfigInfo::parseLine(char* line, std::string &keyStr, std::string &valueSt
 
 	size_t len = strlen(line);
 
-	//remove leading spaces
+	// remove leading spaces
 	p = line;
 	while(Utils::isspace(*p) && *p)
 		p++;
 
 	key = p;
-	if(key[0] == '#' || key[0] == '\0')	//a comment or end of line (nothing on the line)
+	if(key[0] == '#' || key[0] == '\0')  // a comment or end of line (nothing on the line)
 		return false;
 
-	//remove trailing spaces
+	// remove trailing spaces
 	p = line + len - 1;
 	while(Utils::isspace(*p) && p > key)
 		p--;
 	if(p == key)
 		return false;
-	*(p+1) = 0;
+	*(p + 1) = 0;
 
 	p = strpbrk(key, ":=");
 	if(!p)
 		return false;
 	*p = 0;
-	value = p+1;
+	value = p + 1;
 
 	keyStr.assign(key);
 	valueStr.assign(value);
@@ -137,7 +147,10 @@ bool ConfigInfo::readFile(const char* filename, int fileDepth) {
 	std::string value;
 
 	if(fileDepth > 10) {
-		log(LL_Error, "Too many file inclusions (%d) while reading %s, continuing without going deeper\n", fileDepth, filename);
+		log(LL_Error,
+		    "Too many file inclusions (%d) while reading %s, continuing without going deeper\n",
+		    fileDepth,
+		    filename);
 		return false;
 	}
 
@@ -168,20 +181,20 @@ bool ConfigInfo::readFile(const char* filename, int fileDepth) {
 		log(LL_Trace, "%s:%d: Read key: %s, value: %s\n", filename, lineNumber, key.c_str(), value.c_str());
 
 		if(key[0] == '%') {
-			//special command
+			// special command
 			std::string command = key.substr(1);
 			log(LL_Trace, "Config line is a command: %s\n", command.c_str());
 
 			if(command == "include") {
 				std::string fileToInclude;
 
-				const char *p = filename + strlen(filename);
+				const char* p = filename + strlen(filename);
 				while(p >= filename) {
 					if(*p == '/' || *p == '\\')
 						break;
 					p--;
 				}
-				fileToInclude = std::string(filename, p+1);
+				fileToInclude = std::string(filename, p + 1);
 
 				if(Utils::isAbsolute(value.c_str()))
 					fileToInclude = value;
@@ -190,7 +203,7 @@ bool ConfigInfo::readFile(const char* filename, int fileDepth) {
 
 				if(fileToInclude.empty() == false) {
 					log(LL_Trace, "Including file %s\n", fileToInclude.c_str());
-					readFile(fileToInclude.c_str(), fileDepth+1);
+					readFile(fileToInclude.c_str(), fileDepth + 1);
 				} else {
 					log(LL_Trace, "Not including a file, filename is empty: \"%s\"\n", fileToInclude.c_str());
 				}
@@ -231,10 +244,14 @@ void ConfigInfo::dump(bool showDefault) {
 			continue;
 
 		if(!v->isDefault() || showDefault)
-			log(LL_Info, "%c%c%s:%s\n", v->getTypeLetter(), v->isDefault() ? '*' : ' ', it->first.c_str(), v->getString().c_str());
+			log(LL_Info,
+			    "%c%c%s:%s\n",
+			    v->getTypeLetter(),
+			    v->isDefault() ? '*' : ' ',
+			    it->first.c_str(),
+			    v->getString().c_str());
 	}
 }
-
 
 void ConfigInfo::commandSetEnv(IWritableConsole* console, const std::vector<std::string>& args) {
 	const std::string& variableName = args[0];
@@ -260,7 +277,7 @@ void ConfigInfo::commandGetEnv(IWritableConsole* console, const std::vector<std:
 	{
 		std::unordered_map<std::string, ConfigValue*>::const_iterator it, itEnd;
 		for(it = ConfigInfo::get()->config.cbegin(), itEnd = ConfigInfo::get()->config.cend(); it != itEnd; ++it) {
-			if (Utils::stringWildcardMatch(it->first.c_str(), pattern)) {
+			if(Utils::stringWildcardMatch(it->first.c_str(), pattern)) {
 				ordered.insert(std::pair<std::string, ConfigValue*>(it->first, it->second));
 			}
 		}
@@ -270,7 +287,11 @@ void ConfigInfo::commandGetEnv(IWritableConsole* console, const std::vector<std:
 		std::map<std::string, ConfigValue*>::const_iterator itOrdered, itEndOrdered;
 		for(itOrdered = ordered.cbegin(), itEndOrdered = ordered.cend(); itOrdered != itEndOrdered; ++itOrdered) {
 			ConfigValue* v = itOrdered->second;
-			console->writef("%c%c%s:%s\r\n", v->getTypeLetter(), v->isDefault() ? '*' : ' ', itOrdered->first.c_str(), v->getString().c_str());
+			console->writef("%c%c%s:%s\r\n",
+			                v->getTypeLetter(),
+			                v->isDefault() ? '*' : ' ',
+			                itOrdered->first.c_str(),
+			                v->getString().c_str());
 		}
 	} else {
 		console->writef("No config matching pattern %s\n", pattern);

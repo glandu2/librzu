@@ -2,22 +2,25 @@
 #define SESSIONSERVER_H
 
 #include "Core/Object.h"
+#include "Core/Timer.h"
 #include "StartableObject.h"
 #include "Stream/Stream.h"
-#include "Core/Timer.h"
 #include <list>
 
 class SocketSession;
 class BanManager;
 class Log;
 
-class RZU_EXTERN SessionServerCommon : public Object, public IListener, public StartableObject
-{
+class RZU_EXTERN SessionServerCommon : public Object, public IListener, public StartableObject {
 	DECLARE_CLASS(SessionServerCommon)
 
 public:
-	//Timeout idle connection (real timeout vary between idleTimeoutSec and idleTimeoutSec*2 seconds)
-	SessionServerCommon(cval<std::string>& listenIp, cval<int>& port, cval<int>* idleTimeoutSec = nullptr, Log* packetLogger = nullptr, BanManager* banManager = nullptr);
+	// Timeout idle connection (real timeout vary between idleTimeoutSec and idleTimeoutSec*2 seconds)
+	SessionServerCommon(cval<std::string>& listenIp,
+	                    cval<int>& port,
+	                    cval<int>* idleTimeoutSec = nullptr,
+	                    Log* packetLogger = nullptr,
+	                    BanManager* banManager = nullptr);
 	~SessionServerCommon();
 
 	bool start();
@@ -27,10 +30,10 @@ public:
 	Stream::State getState() { return serverSocket ? serverSocket->getState() : Stream::UnconnectedState; }
 	Stream* getServerStream() { return serverSocket; }
 
-	void socketClosed(SocketSession *socketSession);
+	void socketClosed(SocketSession* socketSession);
 
 protected:
-	static void onNewConnectionStatic(IListener* instance, Stream *serverSocket);
+	static void onNewConnectionStatic(IListener* instance, Stream* serverSocket);
 	void onNewConnection();
 
 	void onCheckIdleSockets();
@@ -51,28 +54,25 @@ private:
 	cval<int>* checkIdleSocketPeriod;
 };
 
-template<class T>
-class SessionServer : public SessionServerCommon
-{
+template<class T> class SessionServer : public SessionServerCommon {
 public:
-	SessionServer(cval<std::string>& listenIp, cval<int>& port, cval<int>* idleTimeoutSec = nullptr, Log* packetLogger = nullptr, BanManager* banManager = nullptr) : SessionServerCommon(listenIp, port, idleTimeoutSec, packetLogger, banManager) {}
+	SessionServer(cval<std::string>& listenIp,
+	              cval<int>& port,
+	              cval<int>* idleTimeoutSec = nullptr,
+	              Log* packetLogger = nullptr,
+	              BanManager* banManager = nullptr)
+	    : SessionServerCommon(listenIp, port, idleTimeoutSec, packetLogger, banManager) {}
 
 	void updateObjectName() {
 		setObjectName(15 + T::getStaticClassNameSize(), "SessionServer<%s>", T::getStaticClassName());
 	}
 
 protected:
-	virtual SocketSession* createSession() {
-		return new T();
-	}
-	virtual bool hasCustomPacketLogger() {
-		return T::hasCustomPacketLoggerStatic();
-	}
+	virtual SocketSession* createSession() { return new T(); }
+	virtual bool hasCustomPacketLogger() { return T::hasCustomPacketLoggerStatic(); }
 };
 
-template<class T, class Param>
-class SessionServerWithParameter : public SessionServerCommon
-{
+template<class T, class Param> class SessionServerWithParameter : public SessionServerCommon {
 public:
 	SessionServerWithParameter(Param parameter,
 	                           cval<std::string>& listenIp,
@@ -80,24 +80,18 @@ public:
 	                           cval<int>* idleTimeoutSec = nullptr,
 	                           Log* packetLogger = nullptr,
 	                           BanManager* banManager = nullptr)
-	    : SessionServerCommon(listenIp, port, idleTimeoutSec, packetLogger, banManager),
-	      parameter(parameter)
-	{}
+	    : SessionServerCommon(listenIp, port, idleTimeoutSec, packetLogger, banManager), parameter(parameter) {}
 
 	void updateObjectName() {
 		setObjectName(15 + T::getStaticClassNameSize(), "SessionServer<%s>", T::getStaticClassName());
 	}
 
 protected:
-	virtual SocketSession* createSession() {
-		return new T(parameter);
-	}
-	virtual bool hasCustomPacketLogger() {
-		return T::hasCustomPacketLoggerStatic();
-	}
+	virtual SocketSession* createSession() { return new T(parameter); }
+	virtual bool hasCustomPacketLogger() { return T::hasCustomPacketLoggerStatic(); }
 
 private:
 	Param parameter;
 };
 
-#endif // SESSIONSERVER_H
+#endif  // SESSIONSERVER_H

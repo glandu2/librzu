@@ -2,11 +2,10 @@
 #define TELNETSESSION_H
 
 #include "SocketSession.h"
-#include <string>
 #include <sstream>
+#include <string>
 
-class RZU_EXTERN TelnetSession : public SocketSession
-{
+class RZU_EXTERN TelnetSession : public SocketSession {
 	DECLARE_CLASS(TelnetSession)
 public:
 	TelnetSession() {}
@@ -15,7 +14,12 @@ public:
 	virtual void onCommand(const std::vector<std::string>& args) = 0;
 
 protected:
-	virtual size_t write(const void* data, size_t size) { if(getStream()->getState() == Stream::ConnectedState) return SocketSession::write(data, size); else return 0; }
+	virtual size_t write(const void* data, size_t size) {
+		if(getStream()->getState() == Stream::ConnectedState)
+			return SocketSession::write(data, size);
+		else
+			return 0;
+	}
 	virtual void close() { abortSession(); }
 
 private:
@@ -28,4 +32,4 @@ private:
 	std::vector<char> buffer;
 };
 
-#endif // TELNETSESSION_H
+#endif  // TELNETSESSION_H

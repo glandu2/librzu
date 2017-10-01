@@ -1,12 +1,12 @@
 #include "LibRzuInit.h"
 #include "Core/CrashHandler.h"
+#include "Core/Utils.h"
+#include "uv.h"
 #include <openssl/crypto.h>
 #include <openssl/err.h>
-#include "uv.h"
-#include <vector>
 #include <stdlib.h>
 #include <time.h>
-#include "Core/Utils.h"
+#include <vector>
 
 #ifdef __unix
 #include <signal.h>
@@ -18,14 +18,13 @@ static void disableSigPipe() {
 #endif
 }
 
-
 struct CRYPTO_dynlock_value {
 	uv_mutex_t mutex;
 };
 
 static std::vector<uv_mutex_t> staticLocks;
 
-static void OPENSSL_staticLock(int mode, int type, const char *file, int line) {
+static void OPENSSL_staticLock(int mode, int type, const char* file, int line) {
 	if(mode & CRYPTO_LOCK) {
 		uv_mutex_lock(&staticLocks[type]);
 	} else {
@@ -33,14 +32,14 @@ static void OPENSSL_staticLock(int mode, int type, const char *file, int line) {
 	}
 }
 
-struct CRYPTO_dynlock_value * OPENSSL_dyn_create_function(const char *, int) {
+struct CRYPTO_dynlock_value* OPENSSL_dyn_create_function(const char*, int) {
 	struct CRYPTO_dynlock_value* lock = new struct CRYPTO_dynlock_value;
 	uv_mutex_init(&lock->mutex);
 
 	return lock;
 }
 
-void OPENSSL_dyn_lock_function(int mode, struct CRYPTO_dynlock_value *l, const char*, int) {
+void OPENSSL_dyn_lock_function(int mode, struct CRYPTO_dynlock_value* l, const char*, int) {
 	if(mode & CRYPTO_LOCK) {
 		uv_mutex_lock(&l->mutex);
 	} else {
@@ -48,7 +47,7 @@ void OPENSSL_dyn_lock_function(int mode, struct CRYPTO_dynlock_value *l, const c
 	}
 }
 
-void OPENSSL_dyn_destroy_function(struct CRYPTO_dynlock_value *l, const char *, int) {
+void OPENSSL_dyn_destroy_function(struct CRYPTO_dynlock_value* l, const char*, int) {
 	uv_mutex_destroy(&l->mutex);
 	delete l;
 }
@@ -72,7 +71,7 @@ static void initOpenssl() {
 }
 
 bool LibRzuInit() {
-	srand((unsigned int)time(NULL));
+	srand((unsigned int) time(NULL));
 
 	disableSigPipe();
 	CrashHandler::init();

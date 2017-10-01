@@ -1,18 +1,14 @@
 #include "BanManager.h"
-#include <stdio.h>
 #include "Config/GlobalCoreConfig.h"
 #include "uv.h"
-#include <string>
 #include <assert.h>
+#include <stdio.h>
+#include <string>
 
 struct BanConfig {
-	cval<std::string> &banFile;
+	cval<std::string>& banFile;
 
-	BanConfig() :
-		banFile(CFG_CREATE("ban.ipfile", "bannedip.txt"))
-	{
-		Utils::autoSetAbsoluteDir(banFile);
-	}
+	BanConfig() : banFile(CFG_CREATE("ban.ipfile", "bannedip.txt")) { Utils::autoSetAbsoluteDir(banFile); }
 };
 static BanConfig* config = nullptr;
 
@@ -40,12 +36,12 @@ void BanManager::loadFile() {
 	std::unordered_set<uint32_t> newBannedIps;
 
 	while(fgets(line, 512, file)) {
-		char *p = line;
+		char* p = line;
 		while(*p && (Utils::isdigit(*p) || *p == '.'))
 			p++;
 		*p = '\0';
 
-		//If not empty string
+		// If not empty string
 		if(line[0]) {
 			if(uv_inet_pton(AF_INET, line, &inet) >= 0) {
 				newBannedIps.insert(inet);

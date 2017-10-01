@@ -5,8 +5,7 @@
 #include "uv.h"
 #include <list>
 
-class RZU_EXTERN EventLoop : public Object
-{
+class RZU_EXTERN EventLoop : public Object {
 	DECLARE_CLASS(EventLoop)
 
 public:
@@ -18,7 +17,7 @@ public:
 
 	void run(uv_run_mode mode) { uv_run(&loop, mode); }
 
-	//one different loop per thread
+	// one different loop per thread
 	static EventLoop* getInstance();
 	static uv_loop_t* getLoop() { return &getInstance()->loop; }
 
@@ -35,4 +34,4 @@ private:
 	static void initKey();
 };
 
-#endif // EVENTLOOP_H
+#endif  // EVENTLOOP_H

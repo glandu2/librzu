@@ -3,22 +3,22 @@
 #include <stdlib.h>
 #include <string.h>
 
-ConfigValue::ConfigValue(Type type)
-	: keyName(nullptr), type(type), hidden(false)
-{
-}
+ConfigValue::ConfigValue(Type type) : keyName(nullptr), type(type), hidden(false) {}
 
 char ConfigValue::getTypeLetter() {
 	switch(type) {
-		case ConfigValue::Bool: return 'B';
-		case ConfigValue::Integer: return 'N';
-		case ConfigValue::Float: return 'F';
-		case ConfigValue::String: return 'S';
+		case ConfigValue::Bool:
+			return 'B';
+		case ConfigValue::Integer:
+			return 'N';
+		case ConfigValue::Float:
+			return 'F';
+		case ConfigValue::String:
+			return 'S';
 	}
 
 	return 'd';
 }
-
 
 bool ConfigValue::getBool() {
 	return getBool(false);
@@ -50,7 +50,6 @@ std::string ConfigValue::getString() {
 	return getString(nullptr);
 }
 
-
 bool ConfigValue::getBool(bool def) {
 	wrongType(Bool);
 	return def;
@@ -79,7 +78,6 @@ std::string ConfigValue::getString(const std::string& def) {
 	return def;
 }
 
-
 void ConfigValue::setBool(bool val) {
 	wrongType(Bool);
 }
@@ -103,7 +101,7 @@ void ConfigValue::setString(const char* val) {
 			break;
 
 		case ConfigValue::Float:
-			setFloat((float)atof(val));
+			setFloat((float) atof(val));
 			break;
 
 		case ConfigValue::String:
@@ -122,17 +120,13 @@ bool ConfigValue::isDefault() {
 
 void ConfigValue::wrongType(Type expectedType) {
 	if(expectedType != type) {
-		static const char* typeStr[] = {
-			"Bool",
-			"Integer",
-			"Float",
-			"String"
-		};
+		static const char* typeStr[] = {"Bool", "Integer", "Float", "String"};
 
-		log(LL_Fatal, "Config value type mismatch for %s[%s], tried to get as %s. Check the config file.\n",
-				keyName != nullptr ? keyName->c_str() : "unknown key",
-				typeStr[type],
-				typeStr[expectedType]);
+		log(LL_Fatal,
+		    "Config value type mismatch for %s[%s], tried to get as %s. Check the config file.\n",
+		    keyName != nullptr ? keyName->c_str() : "unknown key",
+		    typeStr[type],
+		    typeStr[expectedType]);
 		abort();
 	}
 }

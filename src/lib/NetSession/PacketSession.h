@@ -1,15 +1,14 @@
 #ifndef PACKETSESSION_H
 #define PACKETSESSION_H
 
-#include "SocketSession.h"
-#include "Packet/PacketBaseMessage.h"
 #include "Packet/MessageBuffer.h"
+#include "Packet/PacketBaseMessage.h"
+#include "SocketSession.h"
 #include "Stream/Stream.h"
 
 class SessionServerCommon;
 
-class RZU_EXTERN PacketSession : public SocketSession
-{
+class RZU_EXTERN PacketSession : public SocketSession {
 	DECLARE_CLASS(PacketSession)
 
 public:
@@ -29,15 +28,18 @@ public:
 	PacketSession();
 	virtual ~PacketSession();
 
-	template<class T>
-	void sendPacket(const T& data, int version) {
+	template<class T> void sendPacket(const T& data, int version) {
 		MessageBuffer buffer(data.getSize(version), version);
 		data.serialize(&buffer);
 		if(buffer.checkPacketFinalSize() == false) {
-			log(LL_Error, "Wrong packet buffer size, id: %d, size: %d, field: %s\n", buffer.getMessageId(), buffer.getSize(), buffer.getFieldInOverflow().c_str());
+			log(LL_Error,
+			    "Wrong packet buffer size, id: %d, size: %d, field: %s\n",
+			    buffer.getMessageId(),
+			    buffer.getSize(),
+			    buffer.getFieldInOverflow().c_str());
 			abortSession();
 		} else {
-			logPacket(true, (const TS_MESSAGE*)buffer.getData());
+			logPacket(true, (const TS_MESSAGE*) buffer.getData());
 			write(buffer.getWriteRequest());
 		}
 	}
@@ -62,4 +64,4 @@ private:
 	InputBuffer inputBuffer;
 };
 
-#endif // PACKETSESSION_H
+#endif  // PACKETSESSION_H

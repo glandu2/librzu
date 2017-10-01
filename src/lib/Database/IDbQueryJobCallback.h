@@ -9,4 +9,4 @@ public:
 	virtual void cancel() = 0;
 };
 
-#endif // IDBQUERYJOBCALLBACK_H
+#endif  // IDBQUERYJOBCALLBACK_H

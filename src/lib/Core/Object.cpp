@@ -1,11 +1,11 @@
 #include "Object.h"
-#include <stdio.h>
-#include <string.h>
-#include <stdarg.h>
+#include "Config/GlobalCoreConfig.h"
 #include "EventLoop.h"
 #include "Log.h"
 #include "Utils.h"
-#include "Config/GlobalCoreConfig.h"
+#include <stdarg.h>
+#include <stdio.h>
+#include <string.h>
 
 Object::Object() {
 	objectName = nullptr;
@@ -19,11 +19,11 @@ Object::~Object() {
 		delete[] objectName;
 }
 
-void Object::setObjectName(const char *name) {
+void Object::setObjectName(const char* name) {
 	const char* oldName = objectName;
 
 	if(name) {
-		objectNameSize = strlen(name)+1;
+		objectNameSize = strlen(name) + 1;
 		objectName = new char[objectNameSize];
 		strcpy(objectName, name);
 	} else {
@@ -37,16 +37,16 @@ void Object::setObjectName(const char *name) {
 		delete[] oldName;
 }
 
-//maxLen without null terminator
-void Object::setObjectName(size_t maxLen, const char *format, ...) {
+// maxLen without null terminator
+void Object::setObjectName(size_t maxLen, const char* format, ...) {
 	va_list args;
 	const char* oldName = objectName;
 
 	if(format && maxLen > 0) {
-		objectNameSize = maxLen+1;
+		objectNameSize = maxLen + 1;
 		objectName = new char[objectNameSize];
 		va_start(args, format);
-		vsnprintf(objectName, maxLen+1, format, args);
+		vsnprintf(objectName, maxLen + 1, format, args);
 		va_end(args);
 		objectName[maxLen] = 0;
 	} else {
@@ -60,7 +60,7 @@ void Object::setObjectName(size_t maxLen, const char *format, ...) {
 		delete[] oldName;
 }
 
-const char *Object::getObjectName(size_t *size) {
+const char* Object::getObjectName(size_t* size) {
 	if(dirtyName)
 		updateObjectName();
 	dirtyName = false;
@@ -72,7 +72,7 @@ const char *Object::getObjectName(size_t *size) {
 }
 
 void Object::updateObjectName() {
-	char *name;
+	char* name;
 
 	if(objectName)
 		return;
@@ -80,7 +80,7 @@ void Object::updateObjectName() {
 	objectNameSize = getClassNameSize() + 9;
 	name = new char[objectNameSize];
 
-	sprintf(name, "%s%lu", getClassName(), (getObjectNum()>999999999)? 999999999 : getObjectNum());
+	sprintf(name, "%s%lu", getClassName(), (getObjectNum() > 999999999) ? 999999999 : getObjectNum());
 	objectName = name;
 }
 
@@ -88,7 +88,16 @@ static void defaultLog(const char* suffix, const char* objectName, const char* m
 	struct tm localtm;
 	Utils::getGmTime(time(NULL), &localtm);
 
-	fprintf(stdout, "%4d-%02d-%02d %02d:%02d:%02d %-5s %s: ", localtm.tm_year, localtm.tm_mon, localtm.tm_mday, localtm.tm_hour, localtm.tm_min, localtm.tm_sec, suffix, objectName);
+	fprintf(stdout,
+	        "%4d-%02d-%02d %02d:%02d:%02d %-5s %s: ",
+	        localtm.tm_year,
+	        localtm.tm_mon,
+	        localtm.tm_mday,
+	        localtm.tm_hour,
+	        localtm.tm_min,
+	        localtm.tm_sec,
+	        suffix,
+	        objectName);
 	vfprintf(stdout, message, args);
 }
 
@@ -119,20 +128,32 @@ void Object::logv(Level level, const char* message, va_list args) {
 	else if(getCurrentLevel() >= level) {
 		const char* levelStr = "Unknown";
 		switch(level) {
-			case LL_Fatal: levelStr = "Fatal"; break;
-			case LL_Error: levelStr = "Error"; break;
-			case LL_Warning: levelStr = "Warning"; break;
-			case LL_Info: levelStr = "Info"; break;
-			case LL_Debug: levelStr = "Debug"; break;
-			case LL_Trace: levelStr = "Trace"; break;
+			case LL_Fatal:
+				levelStr = "Fatal";
+				break;
+			case LL_Error:
+				levelStr = "Error";
+				break;
+			case LL_Warning:
+				levelStr = "Warning";
+				break;
+			case LL_Info:
+				levelStr = "Info";
+				break;
+			case LL_Debug:
+				levelStr = "Debug";
+				break;
+			case LL_Trace:
+				levelStr = "Trace";
+				break;
 		}
 
 		defaultLog(levelStr, getObjectName(), message, args);
 	}
 }
 
-void Object::log(Level level, const char *message, ...) {
-	//early check for performance boost if trace is not active
+void Object::log(Level level, const char* message, ...) {
+	// early check for performance boost if trace is not active
 	Log* logger = Log::get();
 	if(level < LL_Trace || (logger && logger->wouldLog(level))) {
 		va_list args;
@@ -150,19 +171,31 @@ void Object::logStaticv(Level level, const char* className, const char* message,
 	else if(getCurrentLevel() >= level) {
 		const char* levelStr = "Unknown";
 		switch(level) {
-			case LL_Fatal: levelStr = "Fatal"; break;
-			case LL_Error: levelStr = "Error"; break;
-			case LL_Warning: levelStr = "Warning"; break;
-			case LL_Info: levelStr = "Info"; break;
-			case LL_Debug: levelStr = "Debug"; break;
-			case LL_Trace: levelStr = "Trace"; break;
+			case LL_Fatal:
+				levelStr = "Fatal";
+				break;
+			case LL_Error:
+				levelStr = "Error";
+				break;
+			case LL_Warning:
+				levelStr = "Warning";
+				break;
+			case LL_Info:
+				levelStr = "Info";
+				break;
+			case LL_Debug:
+				levelStr = "Debug";
+				break;
+			case LL_Trace:
+				levelStr = "Trace";
+				break;
 		}
 
 		defaultLog(levelStr, className, message, args);
 	}
 }
 
-void Object::logStatic(Level level, const char* className, const char *message, ...) {
+void Object::logStatic(Level level, const char* className, const char* message, ...) {
 	Log* logger = Log::get();
 	if(level < LL_Trace || (logger && logger->wouldLog(level))) {
 		va_list args;

@@ -5,24 +5,20 @@
 
 class IDbQueryJob {
 public:
-	enum Status {
-		S_Ok,
-		S_Canceled,
-		S_Error
-	};
+	enum Status { S_Ok, S_Canceled, S_Error };
 
 public:
 	virtual void cancel() = 0;
 	virtual ~IDbQueryJob() {}
 
-public: //events
-	//To implement in derived classes
-	//In a thread job
-	virtual bool onPreProcess() { return true; } //if return false, don't execute the rest (nor the DB query)
+public:  // events
+	// To implement in derived classes
+	// In a thread job
+	virtual bool onPreProcess() { return true; }  // if return false, don't execute the rest (nor the DB query)
 	virtual bool onRowDone() { return true; }
 	virtual void onPostProcess() {}
 
-	//In main thread
+	// In main thread
 	virtual void onDone(Status status) {}
 
 private:
@@ -32,4 +28,4 @@ private:
 	virtual void* createNextLineInstance() = 0;
 };
 
-#endif // IDBQUERYJOB_H
+#endif  // IDBQUERYJOB_H

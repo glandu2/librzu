@@ -2,11 +2,10 @@
 #define BANMANAGER_H
 
 #include "Core/Object.h"
-#include <unordered_set>
 #include <stdint.h>
+#include <unordered_set>
 
-class RZU_EXTERN BanManager : public Object
-{
+class RZU_EXTERN BanManager : public Object {
 	DECLARE_CLASS(BanManager)
 
 public:
@@ -16,8 +15,9 @@ public:
 	bool isBanned(uint32_t ip);
 
 	static void registerConfig();
+
 private:
 	std::unordered_set<uint32_t> bannedIps;
 };
 
-#endif // BANMANAGER_H
+#endif  // BANMANAGER_H

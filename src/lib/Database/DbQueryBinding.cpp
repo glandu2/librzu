@@ -1,32 +1,30 @@
 #include "DbQueryBinding.h"
-#include <string.h>
-#include "DbConnectionPool.h"
-#include "DbConnection.h"
-#include "IDbQueryJob.h"
 #include "Config/ConfigParamVal.h"
-#include "Core/CharsetConverter.h"
 #include "Config/GlobalCoreConfig.h"
+#include "Core/CharsetConverter.h"
 #include "Core/PrintfFormats.h"
+#include "DbConnection.h"
+#include "DbConnectionPool.h"
+#include "IDbQueryJob.h"
+#include <string.h>
 
 DbQueryBinding::DbQueryBinding(DbConnectionPool* dbConnectionPool,
-					   cval<bool>& enabled,
-					   cval<std::string>& connectionString,
-					   cval<std::string>& query,
-					   ExecuteMode mode)
-	: dbConnectionPool(dbConnectionPool),
-	  enabled(enabled),
-	  connectionString(connectionString),
-	  query(query),
-	  mode(mode),
-	  errorCount(0),
-	  columnMappingErrorsShown(false)
-{
-}
+                               cval<bool>& enabled,
+                               cval<std::string>& connectionString,
+                               cval<std::string>& query,
+                               ExecuteMode mode)
+    : dbConnectionPool(dbConnectionPool),
+      enabled(enabled),
+      connectionString(connectionString),
+      query(query),
+      mode(mode),
+      errorCount(0),
+      columnMappingErrorsShown(false) {}
 
-DbQueryBinding::~DbQueryBinding() {
-}
+DbQueryBinding::~DbQueryBinding() {}
 
-bool DbQueryBinding::getColumnsMapping(DbConnection* connection, std::vector<const ColumnBinding*>* currentColumnBinding) {
+bool DbQueryBinding::getColumnsMapping(DbConnection* connection,
+                                       std::vector<const ColumnBinding*>* currentColumnBinding) {
 	bool columnCountOk;
 	bool getDataErrorOccured = false;
 	bool showErrors = columnMappingErrorsShown == false;
@@ -71,8 +69,7 @@ bool DbQueryBinding::getColumnsMapping(DbConnection* connection, std::vector<con
 	return !getDataErrorOccured;
 }
 
-std::string DbQueryBinding::logParameters(void* inputInstance)
-{
+std::string DbQueryBinding::logParameters(void* inputInstance) {
 	std::ostringstream logData;
 
 	for(size_t i = 0; i < parameterBindings.size(); i++) {
@@ -82,11 +79,11 @@ std::string DbQueryBinding::logParameters(void* inputInstance)
 			logData << " - " << paramBinding.name << ": ";
 
 			if(paramBinding.isStdString) {
-				std::string* str = (std::string*) ((char*)inputInstance + paramBinding.bufferOffset);
+				std::string* str = (std::string*) ((char*) inputInstance + paramBinding.bufferOffset);
 				logData << "\"" << *str << "\"\n";
 			} else {
 				logData << "\"";
-				paramBinding.printerFunction(logData, (char*)inputInstance + paramBinding.bufferOffset);
+				paramBinding.printerFunction(logData, (char*) inputInstance + paramBinding.bufferOffset);
 				logData << "\"\n";
 			}
 		}
@@ -119,7 +116,7 @@ bool DbQueryBinding::process(IDbQueryJob* queryJob) {
 
 	connection->setAutoCommit(false);
 
-	bool getDataErrorOccured = false; //if true, show query after all getData
+	bool getDataErrorOccured = false;  // if true, show query after all getData
 
 	size_t inputNumber = queryJob->getInputNumber();
 	for(size_t inputIndex = 0; inputIndex < inputNumber && !getDataErrorOccured; inputIndex++) {
@@ -132,13 +129,13 @@ bool DbQueryBinding::process(IDbQueryJob* queryJob) {
 
 			if(*paramBinding.index > 0) {
 				SQLLEN* StrLen_or_Ind;
-				if(paramBinding.infoPtr != (size_t)-1)
-					StrLen_or_Ind = (SQLLEN*)((char*)inputInstance +  paramBinding.infoPtr);
+				if(paramBinding.infoPtr != (size_t) -1)
+					StrLen_or_Ind = (SQLLEN*) ((char*) inputInstance + paramBinding.infoPtr);
 				else
 					StrLen_or_Ind = nullptr;
 
 				if(paramBinding.isStdString) {
-					std::string* str = (std::string*) ((char*)inputInstance + paramBinding.bufferOffset);
+					std::string* str = (std::string*) ((char*) inputInstance + paramBinding.bufferOffset);
 					unicodeStrings.push_back(UnicodeString());
 					UnicodeString& unicodeString = unicodeStrings.back();
 
@@ -148,11 +145,15 @@ bool DbQueryBinding::process(IDbQueryJob* queryJob) {
 					setString(connection, paramBinding, StrLen_or_Ind, *str, unicodeString.str);
 					unicodeString.strLen = unicodeString.str.size();
 				} else {
-					connection->bindParameter(*paramBinding.index, paramBinding.way,
-											  paramBinding.cType,
-											  paramBinding.dbType, paramBinding.dbSize, paramBinding.dbPrecision,
-											  (char*)inputInstance + paramBinding.bufferOffset, 0,
-											  StrLen_or_Ind);
+					connection->bindParameter(*paramBinding.index,
+					                          paramBinding.way,
+					                          paramBinding.cType,
+					                          paramBinding.dbType,
+					                          paramBinding.dbSize,
+					                          paramBinding.dbPrecision,
+					                          (char*) inputInstance + paramBinding.bufferOffset,
+					                          0,
+					                          StrLen_or_Ind);
 				}
 			}
 		}
@@ -162,7 +163,10 @@ bool DbQueryBinding::process(IDbQueryJob* queryJob) {
 			if(parameterBindings.empty())
 				log(LL_Error, "DB query failed: %s\n", queryStr.c_str());
 			else
-				log(LL_Error, "DB query failed: %s\nParameters:\n%s", queryStr.c_str(), logParameters(inputInstance).c_str());
+				log(LL_Error,
+				    "DB query failed: %s\nParameters:\n%s",
+				    queryStr.c_str(),
+				    logParameters(inputInstance).c_str());
 			errorCount++;
 			if(errorCount > 10) {
 				enabled.setBool(false);
@@ -185,28 +189,37 @@ bool DbQueryBinding::process(IDbQueryJob* queryJob) {
 				if(!currentColumnBinding.empty()) {
 					void* outputInstance = queryJob->createNextLineInstance();
 
-					for(int col = 0; col < (int)currentColumnBinding.size(); col++) {
+					for(int col = 0; col < (int) currentColumnBinding.size(); col++) {
 						const int columnIndex = col + 1;
 
 						const ColumnBinding* columnBinding = currentColumnBinding[col];
 						if(columnBinding) {
 							bool getDataSucceded;
 							if(columnBinding->isStdString) {
-								std::string* str = (std::string*) ((char*)outputInstance + columnBinding->bufferOffset);
+								std::string* str =
+								    (std::string*) ((char*) outputInstance + columnBinding->bufferOffset);
 								getDataSucceded = getString(connection, columnIndex, str);
 							} else {
 								SQLLEN StrLen_Or_Ind = 0;
 
-								getDataSucceded = connection->getData(columnIndex, columnBinding->cType,
-								                                      (char*)outputInstance + columnBinding->bufferOffset, columnBinding->bufferSize,
-								                                      &StrLen_Or_Ind);
+								getDataSucceded =
+								    connection->getData(columnIndex,
+								                        columnBinding->cType,
+								                        (char*) outputInstance + columnBinding->bufferOffset,
+								                        columnBinding->bufferSize,
+								                        &StrLen_Or_Ind);
 
-								if(columnBinding->isNullPtr != (size_t)-1)
-									*(bool*)((char*)outputInstance + columnBinding->isNullPtr) = StrLen_Or_Ind == SQL_NULL_DATA;
+								if(columnBinding->isNullPtr != (size_t) -1)
+									*(bool*) ((char*) outputInstance + columnBinding->isNullPtr) =
+									    StrLen_Or_Ind == SQL_NULL_DATA;
 							}
 
 							if(!getDataSucceded) {
-								log(LL_Error, "Failed to retrieve data for column %s(%d) for line %d\n", columnBinding->name->get().c_str(), columnIndex, (int)rowFetched);
+								log(LL_Error,
+								    "Failed to retrieve data for column %s(%d) for line %d\n",
+								    columnBinding->name->get().c_str(),
+								    columnIndex,
+								    (int) rowFetched);
 								getDataErrorOccured = true;
 							}
 						}
@@ -231,16 +244,24 @@ bool DbQueryBinding::process(IDbQueryJob* queryJob) {
 	return true;
 }
 
-void DbQueryBinding::setString(DbConnection* connection, const ParameterBinding& paramBinding, SQLLEN* StrLen_or_Ind, const std::string& str, std::string &outStr) {
+void DbQueryBinding::setString(DbConnection* connection,
+                               const ParameterBinding& paramBinding,
+                               SQLLEN* StrLen_or_Ind,
+                               const std::string& str,
+                               std::string& outStr) {
 	CharsetConverter localToUtf16(CharsetConverter::getEncoding().c_str(), "UTF-16LE");
 	localToUtf16.convert(str, outStr, 2);
 
 	// If the string is empty, put a size of 1 else SQL server complains about invalid precision
-	connection->bindParameter(*paramBinding.index, SQL_PARAM_INPUT,
-							  SQL_C_WCHAR,
-							  SQL_WVARCHAR, str.size() > 0 ? str.size() : 1, paramBinding.dbPrecision,
-							  (SQLPOINTER)outStr.data(), 0,
-							  StrLen_or_Ind);
+	connection->bindParameter(*paramBinding.index,
+	                          SQL_PARAM_INPUT,
+	                          SQL_C_WCHAR,
+	                          SQL_WVARCHAR,
+	                          str.size() > 0 ? str.size() : 1,
+	                          paramBinding.dbPrecision,
+	                          (SQLPOINTER) outStr.data(),
+	                          0,
+	                          StrLen_or_Ind);
 }
 
 bool DbQueryBinding::getString(DbConnection* connection, int columnIndex, std::string* outString) {
@@ -258,33 +279,39 @@ bool DbQueryBinding::getString(DbConnection* connection, int columnIndex, std::s
 		outString->clear();
 		return true;
 	} else if(dataSize < 0) {
-		logStatic(LL_Warning, DbQueryBinding::getStaticClassName(), "getString: dataSize is negative: %" PRId64 "\n", (int64_t)dataSize);
+		logStatic(LL_Warning,
+		          DbQueryBinding::getStaticClassName(),
+		          "getString: dataSize is negative: %" PRId64 "\n",
+		          (int64_t) dataSize);
 		return false;
 	}
 
-	unicodeBuffer.resize(dataSize*2 + 4);
+	unicodeBuffer.resize(dataSize * 2 + 4);
 
 	while(connection->getData(columnIndex,
-							  SQL_C_WCHAR,
-							  &unicodeBuffer[bytesRead],
-							  unicodeBuffer.size() - bytesRead,
-							  &isDataNull,
-							  false,
-							  &ret) &&
-		  ret == SQL_SUCCESS_WITH_INFO)
-	{
+	                          SQL_C_WCHAR,
+	                          &unicodeBuffer[bytesRead],
+	                          unicodeBuffer.size() - bytesRead,
+	                          &isDataNull,
+	                          false,
+	                          &ret) &&
+	      ret == SQL_SUCCESS_WITH_INFO) {
 		if(isDataNull == SQL_NULL_DATA)
 			break;
 
-		bytesRead = unicodeBuffer.size()-2; //dont keep null terminator
-		unicodeBuffer.resize(unicodeBuffer.size()*2);
+		bytesRead = unicodeBuffer.size() - 2;  // dont keep null terminator
+		unicodeBuffer.resize(unicodeBuffer.size() * 2);
 	}
 
 	if(isDataNull == SQL_NULL_DATA || ret == SQL_NO_DATA) {
 		outString->clear();
 		return true;
 	} else if(isDataNull < 0) {
-		logStatic(LL_Warning, DbQueryBinding::getStaticClassName(), "getString: isDataNull is negative: %" PRId64 ", status: %d\n", (int64_t)isDataNull, ret);
+		logStatic(LL_Warning,
+		          DbQueryBinding::getStaticClassName(),
+		          "getString: isDataNull is negative: %" PRId64 ", status: %d\n",
+		          (int64_t) isDataNull,
+		          ret);
 		return false;
 	} else if(ret == SQL_SUCCESS) {
 		bytesRead += isDataNull;

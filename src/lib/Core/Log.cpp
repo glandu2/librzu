@@ -1,23 +1,27 @@
 #include "Log.h"
+#include "Config/ConfigParamVal.h"
+#include "Utils.h"
+#include <stdarg.h>
 #include <stdio.h>
 #include <time.h>
-#include <stdarg.h>
-#include "Utils.h"
-#include "Config/ConfigParamVal.h"
 
-static const char * const  LEVELSTRINGS[] = { "FATAL", "ERROR", "Warn", "Info", "Debug", "Trace" };
+static const char* const LEVELSTRINGS[] = {"FATAL", "ERROR", "Warn", "Info", "Debug", "Trace"};
 
 Log* Log::defaultLogger = nullptr;
 Log* Log::defaultPacketLogger = nullptr;
 
-Log::Log(cval<bool>& enabled, cval<std::string>& fileMaxLevel, cval<std::string>& consoleMaxLevel, cval<std::string>& dir, cval<std::string>& fileName, cval<int>& maxQueueSize) :
-	fileMaxLevel(LL_Info),
-	consoleMaxLevel(LL_Info),
-	dir(dir),
-	fileName(fileName),
-	maxQueueSize(maxQueueSize),
-	maxQueueSizeReached(0)
-{
+Log::Log(cval<bool>& enabled,
+         cval<std::string>& fileMaxLevel,
+         cval<std::string>& consoleMaxLevel,
+         cval<std::string>& dir,
+         cval<std::string>& fileName,
+         cval<int>& maxQueueSize)
+    : fileMaxLevel(LL_Info),
+      consoleMaxLevel(LL_Info),
+      dir(dir),
+      fileName(fileName),
+      maxQueueSize(maxQueueSize),
+      maxQueueSizeReached(0) {
 	updateFileLevel(this, &fileMaxLevel);
 	updateConsoleLevel(this, &consoleMaxLevel);
 
@@ -27,14 +31,18 @@ Log::Log(cval<bool>& enabled, cval<std::string>& fileMaxLevel, cval<std::string>
 	consoleMaxLevel.addListener(this, &updateConsoleLevel);
 }
 
-Log::Log(cval<bool>& enabled, Level fileMaxLevel, Level consoleMaxLevel, cval<std::string>& dir, cval<std::string>& fileName, cval<int>& maxQueueSize) :
-	fileMaxLevel(LL_Info),
-	consoleMaxLevel(LL_Info),
-	dir(dir),
-	fileName(fileName),
-	maxQueueSize(maxQueueSize),
-	maxQueueSizeReached(0)
-{
+Log::Log(cval<bool>& enabled,
+         Level fileMaxLevel,
+         Level consoleMaxLevel,
+         cval<std::string>& dir,
+         cval<std::string>& fileName,
+         cval<int>& maxQueueSize)
+    : fileMaxLevel(LL_Info),
+      consoleMaxLevel(LL_Info),
+      dir(dir),
+      fileName(fileName),
+      maxQueueSize(maxQueueSize),
+      maxQueueSizeReached(0) {
 	this->fileMaxLevel = fileMaxLevel;
 	this->consoleMaxLevel = consoleMaxLevel;
 
@@ -84,7 +92,7 @@ void Log::updateConsoleLevel(IListener* instance, cval<std::string>* level) {
 }
 
 void Log::updateLevel(bool isConsole, const std::string& level) {
-	Level *levelToChange;
+	Level* levelToChange;
 
 	if(isConsole)
 		levelToChange = &consoleMaxLevel;
@@ -110,7 +118,11 @@ void Log::updateLevel(bool isConsole, const std::string& level) {
 		else
 			target = "console";
 
-		Object::log(LL_Error, "Invalid %s level value: %s. Using warning. (valid ones are: fatal, never (alias for fatal), error, warning, info, debug and trace)\n", target, level.c_str());
+		Object::log(LL_Error,
+		            "Invalid %s level value: %s. Using warning. (valid ones are: fatal, never (alias for fatal), "
+		            "error, warning, info, debug and trace)\n",
+		            target,
+		            level.c_str());
 		*levelToChange = LL_Warning;
 	}
 
@@ -169,7 +181,6 @@ void Log::stopWriter(bool waitThread) {
 		uv_thread_join(&this->logWritterThreadId);
 }
 
-
 void Log::log(Level level, Object* object, const char* message, ...) {
 	size_t nameSize;
 	const char* name;
@@ -183,7 +194,6 @@ void Log::log(Level level, Object* object, const char* message, ...) {
 	va_start(args, message);
 	logv(level, name, nameSize, message, args);
 	va_end(args);
-
 }
 
 void Log::logv(Level level, Object* object, const char* message, va_list args) {
@@ -195,10 +205,9 @@ void Log::logv(Level level, Object* object, const char* message, va_list args) {
 
 	name = object->getObjectName(&nameSize);
 	logv(level, name, nameSize, message, args);
-
 }
 
-void Log::log(Level level, const char *objectName, size_t objectNameSize, const char* message, ...) {
+void Log::log(Level level, const char* objectName, size_t objectNameSize, const char* message, ...) {
 	va_list args;
 
 	if(!wouldLog(level))
@@ -209,7 +218,7 @@ void Log::log(Level level, const char *objectName, size_t objectNameSize, const 
 	va_end(args);
 }
 
-void Log::logv(Level level, const char *objectName, size_t objectNameSize, const char* message, va_list args) {
+void Log::logv(Level level, const char* objectName, size_t objectNameSize, const char* message, va_list args) {
 	if(!wouldLog(level) || this->messageQueueFull)
 		return;
 
@@ -222,7 +231,7 @@ void Log::logv(Level level, const char *objectName, size_t objectNameSize, const
 	Utils::stringFormatv(msg->message, message, args);
 
 	uv_mutex_lock(&this->messageListMutex);
-	if((int)this->messageQueue.size() < maxQueueSize.get())
+	if((int) this->messageQueue.size() < maxQueueSize.get())
 		this->messageQueue.push_back(msg);
 	else
 		this->messageQueueFull = true;
@@ -240,7 +249,8 @@ size_t Log::getQueueUsage() {
 /* In a thread                       */
 /*************************************/
 
-static FILE* openLogFile(FILE* currentFile, const std::string& dir, const std::string& filename, int year, int month, int day) {
+static FILE* openLogFile(
+    FILE* currentFile, const std::string& dir, const std::string& filename, int year, int month, int day) {
 	std::string absoluteDir = dir + '/';
 	std::string newFileName = filename;
 	char datesuffix[16];
@@ -265,14 +275,15 @@ static FILE* openLogFile(FILE* currentFile, const std::string& dir, const std::s
 	return currentFile;
 }
 
-
 static uv_mutex_t consoleMutex;
 static uv_once_t initMutexOnce = UV_ONCE_INIT;
 static void initMutex() {
 	uv_mutex_init(&consoleMutex);
 }
 
-void Log::logWritterThreadStatic(void* arg) { reinterpret_cast<Log*>(arg)->logWritterThread(); }
+void Log::logWritterThreadStatic(void* arg) {
+	reinterpret_cast<Log*>(arg)->logWritterThread();
+}
 void Log::logWritterThread() {
 	std::vector<Message*>* messagesToWrite = new std::vector<Message*>;
 	size_t i, size;
@@ -317,7 +328,6 @@ void Log::logWritterThread() {
 
 		uv_mutex_unlock(&this->messageListMutex);
 
-
 		size = messagesToWrite->size();
 
 		bool messageUseFile = false;
@@ -328,7 +338,7 @@ void Log::logWritterThread() {
 			}
 		}
 
-		//Check if the date changed, if so, update the log file to us a new one (filename has timestamp)
+		// Check if the date changed, if so, update the log file to us a new one (filename has timestamp)
 		if(size > 0 && messageUseFile) {
 			time_t firstMsgTime = messagesToWrite->at(0)->time;
 
@@ -350,7 +360,8 @@ void Log::logWritterThread() {
 			if(willUpdateFile || logFile == nullptr) {
 				this->updateFileRequested = false;
 
-				FILE* newfile = openLogFile(logFile, this->dir.get(), this->fileName.get(), lastYear, lastMonth, lastDay);
+				FILE* newfile =
+				    openLogFile(logFile, this->dir.get(), this->fileName.get(), lastYear, lastMonth, lastDay);
 				if(newfile == logFile) {
 					if(logFile)
 						fprintf(logFile, "Failed to change log file to %s\n", this->fileName.get().c_str());
@@ -358,7 +369,7 @@ void Log::logWritterThread() {
 				}
 				logFile = newfile;
 				if(logFile)
-					setvbuf(logFile, nullptr, _IOFBF, 64*1024);
+					setvbuf(logFile, nullptr, _IOFBF, 64 * 1024);
 			}
 		}
 
@@ -367,20 +378,32 @@ void Log::logWritterThread() {
 
 			Utils::getGmTime(msg->time, &localtm);
 
-			//26 char to %-5s included
+			// 26 char to %-5s included
 			logHeader.resize(27 + msg->objectName.size() + 3);
-			size_t strLen = snprintf(&logHeader[0], logHeader.size(), "%4d-%02d-%02d %02d:%02d:%02d %-5s %s: ", localtm.tm_year, localtm.tm_mon, localtm.tm_mday, localtm.tm_hour, localtm.tm_min, localtm.tm_sec, LEVELSTRINGS[msg->level], msg->objectName.c_str());
+			size_t strLen = snprintf(&logHeader[0],
+			                         logHeader.size(),
+			                         "%4d-%02d-%02d %02d:%02d:%02d %-5s %s: ",
+			                         localtm.tm_year,
+			                         localtm.tm_mon,
+			                         localtm.tm_mday,
+			                         localtm.tm_hour,
+			                         localtm.tm_min,
+			                         localtm.tm_sec,
+			                         LEVELSTRINGS[msg->level],
+			                         msg->objectName.c_str());
 			if(strLen >= logHeader.size()) {
 				uv_mutex_lock(&consoleMutex);
-					fprintf(stdout, "------------------- ERROR Log::logWritterThread: Log buffer was too small, next log message might be truncated\n");
+				fprintf(stdout,
+				        "------------------- ERROR Log::logWritterThread: Log buffer was too small, next log message "
+				        "might be truncated\n");
 				uv_mutex_unlock(&consoleMutex);
-				strLen = logHeader.size()-1; //do not write the \0
+				strLen = logHeader.size() - 1;  // do not write the \0
 			}
 
 			if(msg->writeToConsole) {
 				uv_mutex_lock(&consoleMutex);
-					fwrite(&logHeader[0], 1, strLen, stdout);
-					fwrite(msg->message.c_str(), 1, msg->message.size(), stdout);
+				fwrite(&logHeader[0], 1, strLen, stdout);
+				fwrite(msg->message.c_str(), 1, msg->message.size(), stdout);
 				uv_mutex_unlock(&consoleMutex);
 			}
 

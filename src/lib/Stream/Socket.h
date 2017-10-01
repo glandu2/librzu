@@ -6,8 +6,7 @@
 #include <stdint.h>
 #include <string>
 
-class RZU_EXTERN Socket : public Stream
-{
+class RZU_EXTERN Socket : public Stream {
 	DECLARE_CLASS(Socket)
 public:
 	Socket(uv_loop_t* uvLoop, bool logPackets = true);
@@ -20,9 +19,9 @@ public:
 	void setNoDelay(bool enable);
 
 protected:
-	virtual int connect_impl(uv_connect_t* connectRequest, const std::string & hostName, uint16_t port);
+	virtual int connect_impl(uv_connect_t* connectRequest, const std::string& hostName, uint16_t port);
 	virtual int bind_impl(const std::string& interfaceIp, uint16_t port);
-	virtual Stream *createStream_impl();
+	virtual Stream* createStream_impl();
 
 	virtual void retrieveSocketBoundsInfo();
 	virtual void updateObjectName();
@@ -36,4 +35,4 @@ private:
 	uv_tcp_t socket;
 };
 
-#endif // SOCKET_H
+#endif  // SOCKET_H

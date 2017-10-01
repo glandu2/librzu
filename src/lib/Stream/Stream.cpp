@@ -1,11 +1,11 @@
 #include "Stream.h"
 #include <stdarg.h>
-#include <string.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "Core/EventLoop.h"
-#include "Socket.h"
 #include "Pipe.h"
+#include "Socket.h"
 
 #ifndef SHUT_RDWR
 #define SHUT_RDWR 2
@@ -17,12 +17,12 @@ struct ReadBuffer {
 	bool mustBeDeleted;
 };
 
-const char* Stream::STATES[] = { "Unconnected", "Connecting", "Binding", "Listening", "Connected", "Closing" };
+const char* Stream::STATES[] = {"Unconnected", "Connecting", "Binding", "Listening", "Connected", "Closing"};
 
 Stream::WriteRequest* Stream::WriteRequest::create(size_t dataSize) {
 	WriteRequest* writeRequest = reinterpret_cast<WriteRequest*>(malloc(sizeof(WriteRequest) + dataSize));
 
-	writeRequest->buffer.len = (int)dataSize;
+	writeRequest->buffer.len = (int) dataSize;
 	writeRequest->buffer.base = writeRequest->data;
 
 	return writeRequest;
@@ -31,7 +31,7 @@ Stream::WriteRequest* Stream::WriteRequest::create(size_t dataSize) {
 Stream::WriteRequest* Stream::WriteRequest::createFromExisting(char* buffer, size_t dataSize) {
 	WriteRequest* writeRequest = reinterpret_cast<WriteRequest*>(malloc(sizeof(WriteRequest)));
 
-	writeRequest->buffer.len = (int)dataSize;
+	writeRequest->buffer.len = (int) dataSize;
 	writeRequest->buffer.base = buffer;
 
 	return writeRequest;
@@ -41,15 +41,14 @@ void Stream::WriteRequest::destroy(WriteRequest* req) {
 	free(req);
 }
 
-Stream::Stream(uv_loop_t *uvLoop, uv_stream_t* handle, bool logPackets)
-	: logPackets(logPackets),
-	  loop(uvLoop),
-	  handle(handle),
-	  currentState(UnconnectedState),
-	  packetLogger(Log::getDefaultPacketLogger()),
-	  packetTransferedSinceLastCheck(true),
-	  closeCausedByRemote(false)
-{
+Stream::Stream(uv_loop_t* uvLoop, uv_stream_t* handle, bool logPackets)
+    : logPackets(logPackets),
+      loop(uvLoop),
+      handle(handle),
+      currentState(UnconnectedState),
+      packetLogger(Log::getDefaultPacketLogger()),
+      packetTransferedSinceLastCheck(true),
+      closeCausedByRemote(false) {
 	remoteIpStr[0] = localIpStr[0] = 0;
 	remoteIp = localIp = 0;
 	remotePort = localPort = 0;
@@ -64,7 +63,7 @@ Stream::~Stream() {
 		uv_run(getLoop(), UV_RUN_ONCE);
 }
 
-Stream::StreamType Stream::parseConnectionUrl(const char *url, std::string *target) {
+Stream::StreamType Stream::parseConnectionUrl(const char* url, std::string* target) {
 	StreamType type = ST_Socket;
 	const char* startOfTarget = url;
 
@@ -79,7 +78,7 @@ Stream::StreamType Stream::parseConnectionUrl(const char *url, std::string *targ
 	return type;
 }
 
-Stream* Stream::getStream(StreamType type, Stream* existingStream, bool *changed, bool enablePacketLogger) {
+Stream* Stream::getStream(StreamType type, Stream* existingStream, bool* changed, bool enablePacketLogger) {
 	Stream* newStream = existingStream;
 
 	switch(type) {
@@ -106,7 +105,7 @@ Stream* Stream::getStream(StreamType type, Stream* existingStream, bool *changed
 	return newStream;
 }
 
-bool Stream::connect(const std::string & hostName, uint16_t port) {
+bool Stream::connect(const std::string& hostName, uint16_t port) {
 	if(getState() != UnconnectedState) {
 		log(LL_Warning, "Attempt to connect a not unconnected stream to %s\n", hostName.c_str());
 		return false;
@@ -154,7 +153,7 @@ bool Stream::listen(const std::string& interfaceIp, uint16_t port) {
 	return true;
 }
 
-size_t Stream::read(void *buffer, size_t size) {
+size_t Stream::read(void* buffer, size_t size) {
 	size_t sizeAvailable = recvBuffer.size();
 	size_t effectiveSize = sizeAvailable > size ? size : sizeAvailable;
 
@@ -164,10 +163,10 @@ size_t Stream::read(void *buffer, size_t size) {
 	return effectiveSize;
 }
 
-size_t Stream::readAll(std::vector<char> *buffer) {
+size_t Stream::readAll(std::vector<char>* buffer) {
 	buffer->swap(recvBuffer);
 	recvBuffer.clear();
-	//recvBuffer.reserve(buffer->capacity());
+	// recvBuffer.reserve(buffer->capacity());
 
 	return buffer->size();
 }
@@ -201,25 +200,33 @@ size_t Stream::write(WriteRequest* writeRequest) {
 		}
 
 		if(logPackets)
-			packetLog(LL_Debug, reinterpret_cast<const unsigned char*>(writeRequest->buffer.base), (int)writeRequest->buffer.len,
-									"Written %d bytes\n",
-									(int)writeRequest->buffer.len);
+			packetLog(LL_Debug,
+			          reinterpret_cast<const unsigned char*>(writeRequest->buffer.base),
+			          (int) writeRequest->buffer.len,
+			          "Written %d bytes\n",
+			          (int) writeRequest->buffer.len);
 
 		return writeRequest->buffer.len;
 	} else {
-		log(LL_Error, "Attempt to send data but stream not connected, current state is: %s(%d)\n", (getState() < (sizeof(STATES)/sizeof(const char*))) ? STATES[getState()] : "Unknown", getState());
+		log(LL_Error,
+		    "Attempt to send data but stream not connected, current state is: %s(%d)\n",
+		    (getState() < (sizeof(STATES) / sizeof(const char*))) ? STATES[getState()] : "Unknown",
+		    getState());
 		WriteRequest::destroy(writeRequest);
 		return 0;
 	}
 }
 
-size_t Stream::write(const void *buffer, size_t size) {
+size_t Stream::write(const void* buffer, size_t size) {
 	if(getState() == ConnectedState) {
 		WriteRequest* writeRequest = WriteRequest::create(size);
 		memcpy(writeRequest->buffer.base, buffer, size);
 		return write(writeRequest);
 	} else {
-		log(LL_Error, "Attempt to send data but stream not connected, current state is: %s(%d)\n", (getState() < (sizeof(STATES)/sizeof(const char*))) ? STATES[getState()] : "Unknown", getState());
+		log(LL_Error,
+		    "Attempt to send data but stream not connected, current state is: %s(%d)\n",
+		    (getState() < (sizeof(STATES) / sizeof(const char*))) ? STATES[getState()] : "Unknown",
+		    getState());
 		return 0;
 	}
 }
@@ -230,7 +237,7 @@ bool Stream::accept(Stream** clientSocketPtr) {
 		(*clientSocketPtr)->setPacketLogger(packetLogger);
 	}
 	Stream* clientSocket = *clientSocketPtr;
-	uv_stream_t *client = clientSocket->handle;
+	uv_stream_t* client = clientSocket->handle;
 
 	int result = uv_accept(handle, client);
 	if(result == UV_EAGAIN)
@@ -261,7 +268,7 @@ void Stream::close(bool causedByRemote) {
 		result = uv_shutdown(&shutdownReq, handle, &onShutdownDone);
 	}
 	if(result < 0) {
-		uv_close((uv_handle_t*)handle, &onConnectionClosed);
+		uv_close((uv_handle_t*) handle, &onConnectionClosed);
 	}
 }
 
@@ -270,7 +277,7 @@ void Stream::abort(bool causedByRemote) {
 		return;
 
 	setState(ClosingState, causedByRemote);
-	uv_close((uv_handle_t*)handle, &onConnectionClosed);
+	uv_close((uv_handle_t*) handle, &onConnectionClosed);
 }
 
 const char* Stream::getRemoteIpStr() {
@@ -292,8 +299,8 @@ void Stream::setState(State state, bool causedByRemote) {
 	State oldState = currentState;
 	currentState = state;
 
-	const char* oldStateStr = (oldState < (sizeof(STATES)/sizeof(const char*))) ? STATES[oldState] : "Unknown";
-	const char* newStateStr = (state < (sizeof(STATES)/sizeof(const char*))) ? STATES[state] : "Unknown";
+	const char* oldStateStr = (oldState < (sizeof(STATES) / sizeof(const char*))) ? STATES[oldState] : "Unknown";
+	const char* newStateStr = (state < (sizeof(STATES) / sizeof(const char*))) ? STATES[state] : "Unknown";
 	log(LL_Trace, "Stream state changed from %s to %s\n", oldStateStr, newStateStr);
 	packetLog(LL_Info, nullptr, 0, "Stream state changed from %s to %s\n", oldStateStr, newStateStr);
 
@@ -318,26 +325,23 @@ void Stream::setState(State state, bool causedByRemote) {
 	onStateChanged(oldState, state);
 }
 
-
 void Stream::packetLog(Object::Level level, const unsigned char* rawData, int size, const char* format, ...) {
 	static const char* char2hex[] = {
-		"00","01","02","03","04","05","06","07","08","09","0A","0B","0C","0D","0E","0F",
-		"10","11","12","13","14","15","16","17","18","19","1A","1B","1C","1D","1E","1F",
-		"20","21","22","23","24","25","26","27","28","29","2A","2B","2C","2D","2E","2F",
-		"30","31","32","33","34","35","36","37","38","39","3A","3B","3C","3D","3E","3F",
-		"40","41","42","43","44","45","46","47","48","49","4A","4B","4C","4D","4E","4F",
-		"50","51","52","53","54","55","56","57","58","59","5A","5B","5C","5D","5E","5F",
-		"60","61","62","63","64","65","66","67","68","69","6A","6B","6C","6D","6E","6F",
-		"70","71","72","73","74","75","76","77","78","79","7A","7B","7C","7D","7E","7F",
-		"80","81","82","83","84","85","86","87","88","89","8A","8B","8C","8D","8E","8F",
-		"90","91","92","93","94","95","96","97","98","99","9A","9B","9C","9D","9E","9F",
-		"A0","A1","A2","A3","A4","A5","A6","A7","A8","A9","AA","AB","AC","AD","AE","AF",
-		"B0","B1","B2","B3","B4","B5","B6","B7","B8","B9","BA","BB","BC","BD","BE","BF",
-		"C0","C1","C2","C3","C4","C5","C6","C7","C8","C9","CA","CB","CC","CD","CE","CF",
-		"D0","D1","D2","D3","D4","D5","D6","D7","D8","D9","DA","DB","DC","DD","DE","DF",
-		"E0","E1","E2","E3","E4","E5","E6","E7","E8","E9","EA","EB","EC","ED","EE","EF",
-		"F0","F1","F2","F3","F4","F5","F6","F7","F8","F9","FA","FB","FC","FD","FE","FF"
-	};
+	    "00", "01", "02", "03", "04", "05", "06", "07", "08", "09", "0A", "0B", "0C", "0D", "0E", "0F", "10", "11",
+	    "12", "13", "14", "15", "16", "17", "18", "19", "1A", "1B", "1C", "1D", "1E", "1F", "20", "21", "22", "23",
+	    "24", "25", "26", "27", "28", "29", "2A", "2B", "2C", "2D", "2E", "2F", "30", "31", "32", "33", "34", "35",
+	    "36", "37", "38", "39", "3A", "3B", "3C", "3D", "3E", "3F", "40", "41", "42", "43", "44", "45", "46", "47",
+	    "48", "49", "4A", "4B", "4C", "4D", "4E", "4F", "50", "51", "52", "53", "54", "55", "56", "57", "58", "59",
+	    "5A", "5B", "5C", "5D", "5E", "5F", "60", "61", "62", "63", "64", "65", "66", "67", "68", "69", "6A", "6B",
+	    "6C", "6D", "6E", "6F", "70", "71", "72", "73", "74", "75", "76", "77", "78", "79", "7A", "7B", "7C", "7D",
+	    "7E", "7F", "80", "81", "82", "83", "84", "85", "86", "87", "88", "89", "8A", "8B", "8C", "8D", "8E", "8F",
+	    "90", "91", "92", "93", "94", "95", "96", "97", "98", "99", "9A", "9B", "9C", "9D", "9E", "9F", "A0", "A1",
+	    "A2", "A3", "A4", "A5", "A6", "A7", "A8", "A9", "AA", "AB", "AC", "AD", "AE", "AF", "B0", "B1", "B2", "B3",
+	    "B4", "B5", "B6", "B7", "B8", "B9", "BA", "BB", "BC", "BD", "BE", "BF", "C0", "C1", "C2", "C3", "C4", "C5",
+	    "C6", "C7", "C8", "C9", "CA", "CB", "CC", "CD", "CE", "CF", "D0", "D1", "D2", "D3", "D4", "D5", "D6", "D7",
+	    "D8", "D9", "DA", "DB", "DC", "DD", "DE", "DF", "E0", "E1", "E2", "E3", "E4", "E5", "E6", "E7", "E8", "E9",
+	    "EA", "EB", "EC", "ED", "EE", "EF", "F0", "F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8", "F9", "FA", "FB",
+	    "FC", "FD", "FE", "FF"};
 
 	if(packetLogger == nullptr || !packetLogger->wouldLog(level))
 		return;
@@ -353,23 +357,23 @@ void Stream::packetLog(Object::Level level, const unsigned char* rawData, int si
 
 	if(rawData && size > 0) {
 		std::string buffer;
-		buffer.reserve((size+15)/16*74 + 1);
+		buffer.reserve((size + 15) / 16 * 74 + 1);
 
-		//Log full packet data
-		const int lineNum = (size+15)/16;
+		// Log full packet data
+		const int lineNum = (size + 15) / 16;
 
 		for(int line = 0; line < lineNum; line++) {
-			int maxCharNum = size - (line*16);
+			int maxCharNum = size - (line * 16);
 			if(maxCharNum > 16)
 				maxCharNum = 16;
 
-			buffer += char2hex[(line*16 >> 8) & 0xFF];
-			buffer += char2hex[line*16 & 0xFF];
+			buffer += char2hex[(line * 16 >> 8) & 0xFF];
+			buffer += char2hex[line * 16 & 0xFF];
 			buffer += ": ";
 
 			for(int row = 0; row < 16; row++) {
 				if(row < maxCharNum) {
-					buffer += char2hex[rawData[line*16+row]];
+					buffer += char2hex[rawData[line * 16 + row]];
 					buffer += " ";
 				} else
 					buffer += "   ";
@@ -380,7 +384,7 @@ void Stream::packetLog(Object::Level level, const unsigned char* rawData, int si
 			buffer += ' ';
 
 			for(int row = 0; row < maxCharNum; row++) {
-				const unsigned char c = rawData[line*16+row];
+				const unsigned char c = rawData[line * 16 + row];
 
 				if(c >= 32 && c < 127)
 					buffer += c;
@@ -392,14 +396,9 @@ void Stream::packetLog(Object::Level level, const unsigned char* rawData, int si
 			buffer += '\n';
 		}
 
-		packetLogger->log(level, this,
-						  "%s%s\n",
-						  messageBuffer,
-						  buffer.c_str());
+		packetLogger->log(level, this, "%s%s\n", messageBuffer, buffer.c_str());
 	} else {
-		packetLogger->log(level, this,
-						  "%s",
-						  messageBuffer);
+		packetLogger->log(level, this, "%s", messageBuffer);
 	}
 }
 
@@ -433,7 +432,7 @@ void Stream::onStreamError(int errorValue) {
 }
 
 void Stream::onConnected(uv_connect_t* req, int status) {
-	Stream* thisInstance = (Stream*)req->data;
+	Stream* thisInstance = (Stream*) req->data;
 
 	if(status < 0) {
 		const char* errorString = uv_strerror(status);
@@ -446,7 +445,7 @@ void Stream::onConnected(uv_connect_t* req, int status) {
 }
 
 void Stream::onNewConnection(uv_stream_t* req, int status) {
-	Stream* thisInstance = (Stream*)req->data;
+	Stream* thisInstance = (Stream*) req->data;
 
 	if(status < 0) {
 		const char* errorString = uv_strerror(status);
@@ -462,7 +461,7 @@ void Stream::onAllocReceiveBuffer(uv_handle_t*, size_t, uv_buf_t* buf) {
 	static ReadBuffer staticReadBuffer = {{0}, false, false};
 
 #ifdef __GNUC__
-	static_assert((void*)staticReadBuffer.data == (void*)&staticReadBuffer, "Expected ReadBuffer adresses wrong");
+	static_assert((void*) staticReadBuffer.data == (void*) &staticReadBuffer, "Expected ReadBuffer adresses wrong");
 #endif
 
 	if(staticReadBuffer.isUsed == false) {
@@ -479,7 +478,7 @@ void Stream::onAllocReceiveBuffer(uv_handle_t*, size_t, uv_buf_t* buf) {
 }
 
 void Stream::onReadCompleted(uv_stream_t* stream, ssize_t nread, const uv_buf_t* buf) {
-	Stream* thisInstance = (Stream*)stream->data;
+	Stream* thisInstance = (Stream*) stream->data;
 
 	if(nread == UV_EOF) {
 		thisInstance->log(LL_Trace, "Connection closed by peer\n");
@@ -488,17 +487,19 @@ void Stream::onReadCompleted(uv_stream_t* stream, ssize_t nread, const uv_buf_t*
 		thisInstance->log(LL_Trace, "Connection reset by peer\n");
 		thisInstance->abort(true);
 	} else if(nread < 0) {
-		const char* errorString = uv_strerror((int)nread);
+		const char* errorString = uv_strerror((int) nread);
 		thisInstance->log(LL_Error, "onReadCompleted: %s\n", errorString);
-		thisInstance->onStreamError((int)nread);
+		thisInstance->onStreamError((int) nread);
 	} else if(nread > 0) {
 		thisInstance->packetTransferedSinceLastCheck = true;
-		thisInstance->log(LL_Trace, "Read %ld bytes\n", (long)nread);
+		thisInstance->log(LL_Trace, "Read %ld bytes\n", (long) nread);
 
 		if(thisInstance->logPackets)
-			thisInstance->packetLog(LL_Debug, reinterpret_cast<const unsigned char*>(buf->base), (int)nread,
-									"Read    %ld bytes\n",  //large space to align with writes
-									(long)nread);
+			thisInstance->packetLog(LL_Debug,
+			                        reinterpret_cast<const unsigned char*>(buf->base),
+			                        (int) nread,
+			                        "Read    %ld bytes\n",  // large space to align with writes
+			                        (long) nread);
 
 		size_t oldSize = thisInstance->recvBuffer.size();
 		thisInstance->recvBuffer.resize(oldSize + nread);
@@ -517,8 +518,8 @@ void Stream::onReadCompleted(uv_stream_t* stream, ssize_t nread, const uv_buf_t*
 }
 
 void Stream::onWriteCompleted(uv_write_t* req, int status) {
-	WriteRequest* writeRequest = (WriteRequest*)req;
-	Stream* thisInstance = (Stream*)req->data;
+	WriteRequest* writeRequest = (WriteRequest*) req;
+	Stream* thisInstance = (Stream*) req->data;
 
 	if(status < 0) {
 		const char* errorString = uv_strerror(status);
@@ -526,25 +527,25 @@ void Stream::onWriteCompleted(uv_write_t* req, int status) {
 		thisInstance->onStreamError(status);
 	} else {
 		thisInstance->packetTransferedSinceLastCheck = true;
-		thisInstance->log(LL_Trace, "Written %ld bytes\n", (long)writeRequest->buffer.len);
+		thisInstance->log(LL_Trace, "Written %ld bytes\n", (long) writeRequest->buffer.len);
 	}
 
 	WriteRequest::destroy(writeRequest);
 }
 
 void Stream::onShutdownDone(uv_shutdown_t* req, int status) {
-	Stream* thisInstance = (Stream*)req->data;
+	Stream* thisInstance = (Stream*) req->data;
 
 	if(status < 0) {
 		const char* errorString = uv_strerror(status);
 		thisInstance->log(LL_Error, "onShutdownDone: %s\n", errorString);
 	}
 
-	uv_close((uv_handle_t*)thisInstance->handle, &onConnectionClosed);
+	uv_close((uv_handle_t*) thisInstance->handle, &onConnectionClosed);
 }
 
 void Stream::onConnectionClosed(uv_handle_t* handle) {
-	Stream* thisInstance = (Stream*)handle->data;
+	Stream* thisInstance = (Stream*) handle->data;
 
 	thisInstance->setState(UnconnectedState, thisInstance->closeCausedByRemote);
 	thisInstance->closeCausedByRemote = false;

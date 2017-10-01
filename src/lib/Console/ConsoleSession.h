@@ -1,26 +1,26 @@
 #ifndef CONSOLESESSION_H
 #define CONSOLESESSION_H
 
-#include "NetSession/TelnetSession.h"
 #include "IWritableConsole.h"
+#include "NetSession/TelnetSession.h"
 
 class ConsoleCommands;
 class ServersManager;
 
-class RZU_EXTERN ConsoleSession : public TelnetSession, public IWritableConsole
-{
+class RZU_EXTERN ConsoleSession : public TelnetSession, public IWritableConsole {
 	DECLARE_CLASS(ConsoleSession)
 public:
 	static void init();
-	static void start(ServersManager *serverManager);
+	static void start(ServersManager* serverManager);
 
 	ConsoleSession();
 	virtual ~ConsoleSession();
 
 	using TelnetSession::write;
-	virtual void write(const char *message) override;
-	virtual void writef(const char *format, ...) override;
-	virtual void log(const char *message, ...) override;
+	virtual void write(const char* message) override;
+	virtual void writef(const char* format, ...) override;
+	virtual void log(const char* message, ...) override;
+
 protected:
 	EventChain<SocketSession> onConnected();
 	void printPrompt();
@@ -30,4 +30,4 @@ private:
 	const ConsoleCommands* consoleCommands;
 };
 
-#endif // CONSOLESESSION_H
+#endif  // CONSOLESESSION_H

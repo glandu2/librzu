@@ -20,5 +20,4 @@ private:
 	std::vector<InitBindingFunction> dbQueryBindingInits;
 };
 
-
-#endif // DBBINDINGLOADER_H
+#endif  // DBBINDINGLOADER_H

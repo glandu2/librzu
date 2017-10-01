@@ -1,42 +1,44 @@
 #include "ClientAuthSession.h"
-#include "Cipher/DesPasswordCipher.h"
 #include "Cipher/AesPasswordCipher.h"
+#include "Cipher/DesPasswordCipher.h"
 #include "ClientGameSession.h"
 #include "Packet/PacketEpics.h"
 #include <memory>
 
-#include "AuthClient/TS_AC_SERVER_LIST.h"
-#include "AuthClient/Flat/TS_AC_SELECT_SERVER.h"
 #include "AuthClient/Flat/TS_AC_AES_KEY_IV.h"
 #include "AuthClient/Flat/TS_AC_RESULT.h"
 #include "AuthClient/Flat/TS_AC_RESULT_WITH_STRING.h"
+#include "AuthClient/Flat/TS_AC_SELECT_SERVER.h"
+#include "AuthClient/TS_AC_SERVER_LIST.h"
 #include "GameClient/TS_SC_RESULT.h"
 
-#include "AuthClient/Flat/TS_CA_VERSION.h"
-#include "AuthClient/Flat/TS_CA_RSA_PUBLIC_KEY.h"
 #include "AuthClient/Flat/TS_CA_ACCOUNT.h"
-#include "AuthClient/Flat/TS_CA_SERVER_LIST.h"
+#include "AuthClient/Flat/TS_CA_RSA_PUBLIC_KEY.h"
 #include "AuthClient/Flat/TS_CA_SELECT_SERVER.h"
+#include "AuthClient/Flat/TS_CA_SERVER_LIST.h"
+#include "AuthClient/Flat/TS_CA_VERSION.h"
 
 DesPasswordCipher ClientAuthSession::desCipher("MERONG");
 
 ClientAuthSession::ClientAuthSession(ClientGameSession* gameSession, int packetVersion)
-    : gameSession(gameSession),
-      packetVersion(packetVersion)
-{
+    : gameSession(gameSession), packetVersion(packetVersion) {
 	if(gameSession)
 		gameSession->setAuthSession(this);
 }
 
-ClientAuthSession::~ClientAuthSession() {
-}
+ClientAuthSession::~ClientAuthSession() {}
 
-bool ClientAuthSession::connect(const std::string& ip, uint16_t port, const std::string& account, const std::string& password, AuthCipherMethod method, const std::string& version) {
+bool ClientAuthSession::connect(const std::string& ip,
+                                uint16_t port,
+                                const std::string& account,
+                                const std::string& password,
+                                AuthCipherMethod method,
+                                const std::string& version) {
 	this->username = account;
 	this->password = password;
 	this->version = version;
 	this->cipherMethod = method;
-//	this->rsaCipher = 0;
+	//	this->rsaCipher = 0;
 	this->selectedServer = 0;
 	this->normalDisconnect = false;
 
@@ -62,7 +64,7 @@ bool ClientAuthSession::selectServer(uint16_t serverId) {
 	selectedServer = -1;
 	for(size_t i = 0; i < serverList.size(); i++) {
 		if(serverList.at(i).id == serverId) {
-			selectedServer = (int)i;
+			selectedServer = (int) i;
 			break;
 		}
 	}
@@ -94,20 +96,18 @@ EventChain<PacketSession> ClientAuthSession::onPacketReceived(const TS_MESSAGE* 
 			onPacketAuthPasswordKey(reinterpret_cast<const TS_AC_AES_KEY_IV*>(packet));
 			break;
 
-		case TS_AC_RESULT::packetID:
-		{
+		case TS_AC_RESULT::packetID: {
 			const TS_AC_RESULT* resultMsg = reinterpret_cast<const TS_AC_RESULT*>(packet);
 			if(resultMsg->request_msg_id == TS_CA_ACCOUNT::packetID) {
-				onAuthResult((TS_ResultCode)resultMsg->result, std::string());
+				onAuthResult((TS_ResultCode) resultMsg->result, std::string());
 			}
 			break;
 		}
 
-		case TS_AC_RESULT_WITH_STRING::packetID:
-		{
+		case TS_AC_RESULT_WITH_STRING::packetID: {
 			const TS_AC_RESULT_WITH_STRING* resultMsg = reinterpret_cast<const TS_AC_RESULT_WITH_STRING*>(packet);
 			if(resultMsg->request_msg_id == TS_CA_ACCOUNT::packetID) {
-				onAuthResult((TS_ResultCode)resultMsg->result, std::string(resultMsg->string, resultMsg->strSize));
+				onAuthResult((TS_ResultCode) resultMsg->result, std::string(resultMsg->string, resultMsg->strSize));
 			}
 			break;
 		}
@@ -164,7 +164,7 @@ EventChain<SocketSession> ClientAuthSession::onConnected() {
 		}
 
 		if(rsaCipher.isInitialized()) {
-			TS_CA_RSA_PUBLIC_KEY *keyMsg;
+			TS_CA_RSA_PUBLIC_KEY* keyMsg;
 			std::vector<uint8_t> key;
 
 			rsaCipher.getPemPublicKey(key);
@@ -193,7 +193,7 @@ void ClientAuthSession::onPacketAuthPasswordKey(const TS_AC_AES_KEY_IV* packet) 
 	memset(accountMsg.account, 0, sizeof(accountMsg.account));
 
 	if(!rsaCipher.privateDecrypt(packet->rsa_encrypted_data, packet->data_size, aesKey) || aesKey.size() != 32) {
-		log(LL_Warning, "onPacketAuthPasswordKey: invalid decrypted data size: %d\n", (int)aesKey.size());
+		log(LL_Warning, "onPacketAuthPasswordKey: invalid decrypted data size: %d\n", (int) aesKey.size());
 		closeSession();
 		return;
 	}
@@ -201,7 +201,7 @@ void ClientAuthSession::onPacketAuthPasswordKey(const TS_AC_AES_KEY_IV* packet) 
 	AesPasswordCipher aesCipher;
 	aesCipher.init(aesKey.data());
 
-	if(!aesCipher.encrypt((const uint8_t*)password.c_str(), password.size(), encryptedPassword)) {
+	if(!aesCipher.encrypt((const uint8_t*) password.c_str(), password.size(), encryptedPassword)) {
 		log(LL_Warning, "onPacketAuthPasswordKey: could not encrypt password !\n");
 		closeSession();
 		return;
@@ -209,7 +209,7 @@ void ClientAuthSession::onPacketAuthPasswordKey(const TS_AC_AES_KEY_IV* packet) 
 
 	memcpy(accountMsg.password, encryptedPassword.data(), encryptedPassword.size());
 
-	//password.fill(0);
+	// password.fill(0);
 	password.clear();
 
 	strcpy(accountMsg.account, username.c_str());
@@ -240,25 +240,25 @@ void ClientAuthSession::onPacketServerList(const TS_AC_SERVER_LIST* packet) {
 		currentServerInfo.userRatio = packetServerList[i].user_ratio;
 		serverList.push_back(currentServerInfo);
 
-		//Keep in memory server's ip & port for the server move
+		// Keep in memory server's ip & port for the server move
 		serverConnectionInfo.id = currentServerInfo.serverId;
 		serverConnectionInfo.ip = currentServerInfo.serverIp;
 		serverConnectionInfo.port = currentServerInfo.serverPort;
 		this->serverList.push_back(serverConnectionInfo);
 
 		if(packetServerList[i].server_idx == packet->last_login_server_idx)
-			selectedServer = (int)i;
+			selectedServer = (int) i;
 	}
 
 	onServerList(serverList, packet->last_login_server_idx);
 }
 
 void ClientAuthSession::onPacketSelectServerResult(const TS_AC_SELECT_SERVER* packet) {
-	//int pendingTimeBeforeServerMove;
+	// int pendingTimeBeforeServerMove;
 
 	if(this->cipherMethod == ACM_DES) {
 		oneTimePassword = packet->one_time_key;
-		//pendingTimeBeforeServerMove = packet->v1.pending_time;
+		// pendingTimeBeforeServerMove = packet->v1.pending_time;
 	} else if(this->cipherMethod == ACM_RSA_AES) {
 		const TS_AC_SELECT_SERVER_RSA* packetv2 = reinterpret_cast<const TS_AC_SELECT_SERVER_RSA*>(packet);
 		std::vector<uint8_t> decryptedData;
@@ -266,14 +266,15 @@ void ClientAuthSession::onPacketSelectServerResult(const TS_AC_SELECT_SERVER* pa
 		AesPasswordCipher aesCipher;
 		aesCipher.init(aesKey.data());
 
-		if(!aesCipher.decrypt(packetv2->encrypted_data, sizeof(packetv2->encrypted_data), decryptedData) || decryptedData.size() < sizeof(uint64_t) ) {
+		if(!aesCipher.decrypt(packetv2->encrypted_data, sizeof(packetv2->encrypted_data), decryptedData) ||
+		   decryptedData.size() < sizeof(uint64_t)) {
 			log(LL_Warning, "onPacketSelectServerResult: Could not decrypt TS_AC_SELECT_SERVER\n");
 			closeSession();
 			return;
 		}
 
 		oneTimePassword = *reinterpret_cast<uint64_t*>(decryptedData.data());
-		//pendingTimeBeforeServerMove = packetv2->pending_time;
+		// pendingTimeBeforeServerMove = packetv2->pending_time;
 	}
 
 	const ServerConnectionInfo& selectedServerInfo = serverList.at(selectedServer);

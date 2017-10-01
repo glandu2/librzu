@@ -1,23 +1,22 @@
 #include "ConsoleSession.h"
-#include "NetSession/ServersManager.h"
-#include "Config/ConfigInfo.h"
-#include <stdlib.h>
+#include "../NetSession/SessionServer.h"
 #include "ClassCounter.h"
-#include "Database/DbConnectionPool.h"
-#include "Core/CrashHandler.h"
-#include <string.h>
-#include "Core/Utils.h"
+#include "Config/ConfigInfo.h"
 #include "Config/GlobalCoreConfig.h"
 #include "ConsoleCommands.h"
-#include "../NetSession/SessionServer.h"
-#include "Config/GlobalCoreConfig.h"
+#include "Core/CrashHandler.h"
+#include "Core/Utils.h"
+#include "Database/DbConnectionPool.h"
+#include "NetSession/ServersManager.h"
+#include <stdlib.h>
+#include <string.h>
 
 void ConsoleSession::start(ServersManager* serverManager) {
-	static SessionServer<ConsoleSession> adminConsoleServer(
-				GlobalCoreConfig::get()->admin.listener.listenIp,
-				GlobalCoreConfig::get()->admin.listener.port,
-				&GlobalCoreConfig::get()->admin.listener.idleTimeout);
-	serverManager->addServer("admin.console", &adminConsoleServer, &GlobalCoreConfig::get()->admin.listener.autoStart, true);
+	static SessionServer<ConsoleSession> adminConsoleServer(GlobalCoreConfig::get()->admin.listener.listenIp,
+	                                                        GlobalCoreConfig::get()->admin.listener.port,
+	                                                        &GlobalCoreConfig::get()->admin.listener.idleTimeout);
+	serverManager->addServer(
+	    "admin.console", &adminConsoleServer, &GlobalCoreConfig::get()->admin.listener.autoStart, true);
 }
 
 ConsoleSession::ConsoleSession() : consoleCommands(ConsoleCommands::get()) {
@@ -28,11 +27,11 @@ ConsoleSession::~ConsoleSession() {
 	Object::log(LL_Info, "Console session closed\n");
 }
 
-void ConsoleSession::write(const char *message) {
+void ConsoleSession::write(const char* message) {
 	TelnetSession::write(message, strlen(message));
 }
 
-void ConsoleSession::writef(const char *format, ...) {
+void ConsoleSession::writef(const char* format, ...) {
 	std::string str;
 	va_list args;
 
@@ -43,7 +42,7 @@ void ConsoleSession::writef(const char *format, ...) {
 	TelnetSession::write(str.c_str(), str.size());
 }
 
-void ConsoleSession::log(const char *message, ...) {
+void ConsoleSession::log(const char* message, ...) {
 	va_list args;
 	va_start(args, message);
 	Object::logv(LL_Info, message, args);
@@ -52,7 +51,7 @@ void ConsoleSession::log(const char *message, ...) {
 
 EventChain<SocketSession> ConsoleSession::onConnected() {
 	writef("%s - Administration console - Type \"help\" for a list of available commands\r\n",
-		   GlobalCoreConfig::get()->app.appName.get().c_str());
+	       GlobalCoreConfig::get()->app.appName.get().c_str());
 	printPrompt();
 
 	return TelnetSession::onConnected();
@@ -63,14 +62,14 @@ void ConsoleSession::printPrompt() {
 		write("> ");
 }
 
-void ConsoleSession::onCommand(const std::vector<std::string> &args) {
+void ConsoleSession::onCommand(const std::vector<std::string>& args) {
 	if(args.empty()) {
 		printPrompt();
 		return;
 	}
 
 	const std::string& commandName = args[0];
-	std::vector<std::string> commandArgs(args.begin()+1, args.end());
+	std::vector<std::string> commandArgs(args.begin() + 1, args.end());
 
 	const ConsoleCommands::Command* command = consoleCommands->getCommand(commandName);
 

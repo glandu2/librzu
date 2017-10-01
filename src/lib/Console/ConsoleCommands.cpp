@@ -1,17 +1,21 @@
 #include "ConsoleCommands.h"
 #include <map>
 
-ConsoleCommands *ConsoleCommands::get() {
+ConsoleCommands* ConsoleCommands::get() {
 	static ConsoleCommands consoleCommands;
 
 	return &consoleCommands;
 }
 
 ConsoleCommands::ConsoleCommands() {
-	addCommand("console.help", "help", 0, 1, &commandHelp,
-			   "Show help about commands",
-			   "help : list all commands\r\n"
-			   "help <cmd> : show command's help\r\n");
+	addCommand("console.help",
+	           "help",
+	           0,
+	           1,
+	           &commandHelp,
+	           "Show help about commands",
+	           "help : list all commands\r\n"
+	           "help <cmd> : show command's help\r\n");
 }
 
 void ConsoleCommands::addCommand(Command command) {
@@ -32,7 +36,10 @@ void ConsoleCommands::addCommand(Command command) {
 	if(!commandRef->alias.empty()) {
 		auto result = commands.insert(std::make_pair(commandRef->alias, commandRef));
 		if(result.second == false)
-			log(LL_Warning, "Can't register alias %s for command %s\n", commandRef->alias.c_str(), commandRef->name.c_str());
+			log(LL_Warning,
+			    "Can't register alias %s for command %s\n",
+			    commandRef->alias.c_str(),
+			    commandRef->name.c_str());
 		else
 			addedAlias = true;
 	}
@@ -43,23 +50,40 @@ void ConsoleCommands::addCommand(Command command) {
 		log(LL_Debug, "Registered command %s\n", commandRef->name.c_str());
 }
 
-void ConsoleCommands::addCommand(std::string name, std::string alias, int minArgNum, int maxArgNum, CommandFunction function, std::string helpString, std::string usageExample) {
-	Command command = { name, alias, minArgNum, maxArgNum, function, helpString, usageExample };
+void ConsoleCommands::addCommand(std::string name,
+                                 std::string alias,
+                                 int minArgNum,
+                                 int maxArgNum,
+                                 CommandFunction function,
+                                 std::string helpString,
+                                 std::string usageExample) {
+	Command command = {name, alias, minArgNum, maxArgNum, function, helpString, usageExample};
 	addCommand(command);
 }
 
-void ConsoleCommands::addCommand(std::string name, int minArgNum, int maxArgNum, CommandFunction function, std::string helpString, std::string usageExample) {
-	Command command = { name, std::string(), minArgNum, maxArgNum, function, helpString, usageExample };
+void ConsoleCommands::addCommand(std::string name,
+                                 int minArgNum,
+                                 int maxArgNum,
+                                 CommandFunction function,
+                                 std::string helpString,
+                                 std::string usageExample) {
+	Command command = {name, std::string(), minArgNum, maxArgNum, function, helpString, usageExample};
 	addCommand(command);
 }
 
-void ConsoleCommands::addCommand(std::string name, std::string alias, int argNum, CommandFunction function, std::string helpString, std::string usageExample) {
-	Command command = { name, alias, argNum, argNum, function, helpString, usageExample };
+void ConsoleCommands::addCommand(std::string name,
+                                 std::string alias,
+                                 int argNum,
+                                 CommandFunction function,
+                                 std::string helpString,
+                                 std::string usageExample) {
+	Command command = {name, alias, argNum, argNum, function, helpString, usageExample};
 	addCommand(command);
 }
 
-void ConsoleCommands::addCommand(std::string name, int argNum, CommandFunction function, std::string helpString, std::string usageExample) {
-	Command command = { name, std::string(), argNum, argNum, function, helpString, usageExample };
+void ConsoleCommands::addCommand(
+    std::string name, int argNum, CommandFunction function, std::string helpString, std::string usageExample) {
+	Command command = {name, std::string(), argNum, argNum, function, helpString, usageExample};
 	addCommand(command);
 }
 
@@ -90,10 +114,11 @@ const ConsoleCommands::Command* ConsoleCommands::getCommand(const std::string& n
 		return nullptr;
 }
 
-ConsoleCommands::Command::CallStatus ConsoleCommands::Command::call(IWritableConsole* console, const std::vector<std::string>& args) const {
-	if((int)args.size() < minArgNum)
+ConsoleCommands::Command::CallStatus ConsoleCommands::Command::call(IWritableConsole* console,
+                                                                    const std::vector<std::string>& args) const {
+	if((int) args.size() < minArgNum)
 		return CS_NotEnoughArgs;
-	else if((int)args.size() > maxArgNum)
+	else if((int) args.size() > maxArgNum)
 		return CS_TooMuchArgs;
 
 	(*function)(console, args);
@@ -112,8 +137,8 @@ void ConsoleCommands::commandHelp(IWritableConsole* console, const std::vector<s
 			Command* command = it->second.get();
 			// Remove alias to avoid duplicate help lines
 			if(it->first == command->name) {
-				if(width < (int)command->name.size())
-					width = (int)command->name.size();
+				if(width < (int) command->name.size())
+					width = (int) command->name.size();
 				++it;
 			} else {
 				it = orderedCommands.erase(it);
@@ -123,7 +148,11 @@ void ConsoleCommands::commandHelp(IWritableConsole* console, const std::vector<s
 		for(auto it = orderedCommands.begin(); it != itEnd; ++it) {
 			Command* command = it->second.get();
 			if(!command->alias.empty())
-				console->writef("%-*s : %s (alias: %s)\r\n", width, command->name.c_str(), command->helpString.c_str(), command->alias.c_str());
+				console->writef("%-*s : %s (alias: %s)\r\n",
+				                width,
+				                command->name.c_str(),
+				                command->helpString.c_str(),
+				                command->alias.c_str());
 			else
 				console->writef("%-*s : %s\r\n", width, command->name.c_str(), command->helpString.c_str());
 		}

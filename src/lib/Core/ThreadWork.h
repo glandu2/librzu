@@ -2,11 +2,10 @@
 #define THREADWORK_H
 
 #include "../Extern.h"
-#include <vector>
 #include "uv.h"
+#include <vector>
 
-class RZU_EXTERN ThreadWorkBase
-{
+class RZU_EXTERN ThreadWorkBase {
 public:
 	ThreadWorkBase();
 	~ThreadWorkBase();
@@ -17,18 +16,18 @@ public:
 
 protected:
 	void freeHandle();
+
 private:
 	uv_work_t* handle;
 
 	static std::vector<uv_work_t*> freeHandles;
 };
 
-template<class CallbackClass>
-class ThreadWork : public ThreadWorkBase
-{
+template<class CallbackClass> class ThreadWork : public ThreadWorkBase {
 public:
 	typedef void (CallbackClass::*ProcessCallback)();
 	typedef void (CallbackClass::*DoneCallback)(int status);
+
 public:
 	int queue(CallbackClass* instance, ProcessCallback processCb, DoneCallback doneCb) {
 		if(isInProgress())
@@ -47,7 +46,7 @@ private:
 
 	static void onProcess(uv_work_t* handle) {
 		if(handle && handle->data) {
-			ThreadWork *threadWork = static_cast<ThreadWork*>(handle->data);
+			ThreadWork* threadWork = static_cast<ThreadWork*>(handle->data);
 			CallbackClass* instance = threadWork->instance;
 			ProcessCallback callback = threadWork->processCallback;
 
@@ -57,7 +56,7 @@ private:
 
 	static void onDone(uv_work_t* handle, int status) {
 		if(handle && handle->data) {
-			ThreadWork *threadWork = static_cast<ThreadWork*>(handle->data);
+			ThreadWork* threadWork = static_cast<ThreadWork*>(handle->data);
 			CallbackClass* instance = threadWork->instance;
 			DoneCallback callback = threadWork->doneCallback;
 
@@ -69,4 +68,4 @@ private:
 	}
 };
 
-#endif // THREADWORK_H
+#endif  // THREADWORK_H

@@ -1,24 +1,23 @@
 #include "SessionServer.h"
+#include "BanManager.h"
+#include "Config/ConfigParamVal.h"
+#include "Config/GlobalCoreConfig.h"
 #include "Core/EventLoop.h"
-#include "SocketSession.h"
 #include "Core/PrintfFormats.h"
+#include "SocketSession.h"
 #include "Stream/Pipe.h"
 #include "Stream/Socket.h"
-#include "Config/ConfigParamVal.h"
-#include "BanManager.h"
-#include "Config/GlobalCoreConfig.h"
 
-SessionServerCommon::SessionServerCommon(cval<std::string>& listenIp, cval<int>& port, cval<int>* idleTimeoutSec, Log *packetLogger, BanManager* banManager)
-	: openServer(false),
-	  serverSocket(nullptr),
-	  lastWaitingStreamInstance(nullptr),
-	  banManager(banManager),
-	  packetLogger(packetLogger),
-	  listenIp(listenIp),
-	  port(port),
-	  checkIdleSocketPeriod(idleTimeoutSec)
-{
-}
+SessionServerCommon::SessionServerCommon(
+    cval<std::string>& listenIp, cval<int>& port, cval<int>* idleTimeoutSec, Log* packetLogger, BanManager* banManager)
+    : openServer(false),
+      serverSocket(nullptr),
+      lastWaitingStreamInstance(nullptr),
+      banManager(banManager),
+      packetLogger(packetLogger),
+      listenIp(listenIp),
+      port(port),
+      checkIdleSocketPeriod(idleTimeoutSec) {}
 
 SessionServerCommon::~SessionServerCommon() {
 	if(serverSocket && serverSocket->getState() != Stream::UnconnectedState)
@@ -32,7 +31,9 @@ SessionServerCommon::~SessionServerCommon() {
 		serverSocket->deleteLater();
 
 	if(sockets.size() > 0)
-		log(LL_Warning, "Destroyed session server but socket session are still active (%d) (detaching them)\n", (int)sockets.size());
+		log(LL_Warning,
+		    "Destroyed session server but socket session are still active (%d) (detaching them)\n",
+		    (int) sockets.size());
 
 	for(auto it = sockets.begin(); it != sockets.end(); ++it) {
 		(*it)->setServer(nullptr);
@@ -53,7 +54,7 @@ bool SessionServerCommon::start() {
 	openServer = true;
 	int idleTimeout = checkIdleSocketPeriod ? checkIdleSocketPeriod->get() : 0;
 	if(idleTimeout) {
-		uint64_t timeoutMs = uint64_t(idleTimeout)*1000;
+		uint64_t timeoutMs = uint64_t(idleTimeout) * 1000;
 		checkIdleSocketTimer.start(this, &SessionServerCommon::onCheckIdleSockets, timeoutMs, timeoutMs);
 	}
 
@@ -82,7 +83,7 @@ void SessionServerCommon::stop() {
 	openServer = false;
 	for(auto it = sockets.begin(); it != sockets.end(); ++it) {
 		(*it)->close();
-		//closed socket will cause the SocketSession's to remove themselves from this list
+		// closed socket will cause the SocketSession's to remove themselves from this list
 	}
 }
 
@@ -90,7 +91,9 @@ void SessionServerCommon::socketClosed(SocketSession* socketSession) {
 	sockets.remove(socketSession);
 }
 
-void SessionServerCommon::onNewConnectionStatic(IListener* instance, Stream* serverSocket) { static_cast<SessionServerCommon*>(instance)->onNewConnection(); }
+void SessionServerCommon::onNewConnectionStatic(IListener* instance, Stream* serverSocket) {
+	static_cast<SessionServerCommon*>(instance)->onNewConnection();
+}
 void SessionServerCommon::onNewConnection() {
 	if(!openServer)
 		return;
@@ -123,7 +126,7 @@ void SessionServerCommon::onCheckIdleSockets() {
 	for(auto it = sockets.begin(); it != sockets.end();) {
 		SocketSession* session = *it;
 		Stream* socket = session->getStream();
-		++it; //if the socket is removed from the list (when closed), we keep a valid iterator
+		++it;  // if the socket is removed from the list (when closed), we keep a valid iterator
 		if(socket && socket->getState() == Stream::ConnectedState) {
 			if(socket->isPacketTransferedSinceLastCheck() == false) {
 				socket->close();
@@ -134,7 +137,10 @@ void SessionServerCommon::onCheckIdleSockets() {
 			}
 		}
 	}
-	//check fo trace to avoid call to uv_hrtime if not needed
+	// check fo trace to avoid call to uv_hrtime if not needed
 	if(logTrace)
-		log(LL_Trace, "Idle socket check: kicked %d sockets in %" PRIu64 " ns\n", kickedConnections, uv_hrtime() - begin);
+		log(LL_Trace,
+		    "Idle socket check: kicked %d sockets in %" PRIu64 " ns\n",
+		    kickedConnections,
+		    uv_hrtime() - begin);
 }

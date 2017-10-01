@@ -27,4 +27,4 @@
 // Latest released epic
 #define EPIC_LATEST EPIC_9_5
 
-#endif // PACKETS_EPICS_H
+#endif  // PACKETS_EPICS_H

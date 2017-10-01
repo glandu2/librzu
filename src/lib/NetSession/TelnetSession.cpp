@@ -1,9 +1,9 @@
 #include "TelnetSession.h"
-#include <string.h>
-#include <stdio.h>
 #include "Core/Utils.h"
-#include <string>
 #include <sstream>
+#include <stdio.h>
+#include <string.h>
+#include <string>
 
 EventChain<SocketSession> TelnetSession::onDataReceived() {
 	std::vector<char> buffer;
@@ -21,8 +21,8 @@ void TelnetSession::parseData(const std::vector<char>& data) {
 
 	char* nextLine;
 
-	while((nextLine = (char*)memchr(buffer.data(), '\n', buffer.size()))) {
-		size_t byteCount = nextLine - buffer.data() + 1; //+1, count the found \n
+	while((nextLine = (char*) memchr(buffer.data(), '\n', buffer.size()))) {
+		size_t byteCount = nextLine - buffer.data() + 1;  //+1, count the found \n
 		std::string line(buffer.data(), byteCount);
 		parseCommand(line);
 		buffer.erase(buffer.begin(), buffer.begin() + byteCount);
@@ -33,12 +33,12 @@ void TelnetSession::parseCommand(const std::string& data) {
 	std::vector<std::string> args;
 	std::ostringstream arg;
 
-	const char *p;
+	const char* p;
 	bool insideQuotes = false;
 
 	for(p = data.c_str(); p < data.c_str() + data.size(); p++) {
 		if(*p == '\"') {
-			if(p+1 < data.c_str() + data.size() && *(p+1) == '\"') {
+			if(p + 1 < data.c_str() + data.size() && *(p + 1) == '\"') {
 				p++;
 				arg << '\"';
 			} else {

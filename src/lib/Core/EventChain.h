@@ -4,11 +4,10 @@
 #include "../Extern.h"
 #include <type_traits>
 
-template<class RootEventHandlerClass>
-class EventChain
-{
+template<class RootEventHandlerClass> class EventChain {
 public:
 	EventChain(EventChain&&) {}
+
 private:
 	friend RootEventHandlerClass;
 
@@ -17,4 +16,4 @@ private:
 	EventChain& operator=(const EventChain&);
 };
 
-#endif // EVENTCHAIN_H
+#endif  // EVENTCHAIN_H

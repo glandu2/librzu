@@ -6,11 +6,9 @@
 #ifdef _WIN32
 #include <Windows.h>
 
-template<typename T>
-class cstatval : public ConfigTypedValue<T>
-{
+template<typename T> class cstatval : public ConfigTypedValue<T> {
 public:
-	cstatval(T initVal = 0) : value((unsigned long long)initVal) {}
+	cstatval(T initVal = 0) : value((unsigned long long) initVal) {}
 
 	T get() { return (T) InterlockedCompareExchange(&value, 0, 0); }
 	T get(const T& def) { return (T) InterlockedCompareExchange(&value, 0, 0); }
@@ -19,25 +17,26 @@ public:
 	T operator++(int) { return (T) InterlockedIncrement(&value); }
 	T operator--(int) { return (T) InterlockedDecrement(&value); }
 
-	T operator++() { return (T) (InterlockedIncrement(&value) + 1); }
-	T operator--() { return (T) (InterlockedDecrement(&value) - 1); }
+	T operator++() { return (T)(InterlockedIncrement(&value) + 1); }
+	T operator--() { return (T)(InterlockedDecrement(&value) - 1); }
 
-	cstatval<T>& operator= (T val) { set(val); return *this; }
+	cstatval<T>& operator=(T val) {
+		set(val);
+		return *this;
+	}
 
 public:
 #ifdef _MSC_VER
-	__declspec (align(8))
+	__declspec(align(8))
 #endif
-	volatile unsigned long long value;
+	    volatile unsigned long long value;
 };
 
-#else // _WIN32
+#else  // _WIN32
 
 #include <atomic>
 
-template<typename T>
-class cstatval : public ConfigTypedValue<T>
-{
+template<typename T> class cstatval : public ConfigTypedValue<T> {
 public:
 	cstatval(T initVal = 0) : value(initVal) {}
 
@@ -51,11 +50,14 @@ public:
 	T operator++() { return ++value; }
 	T operator--() { return --value; }
 
-	cstatval<T>& operator= (T val) { set(val); return *this; }
+	cstatval<T>& operator=(T val) {
+		set(val);
+		return *this;
+	}
 
 private:
 	std::atomic<T> value;
 };
-#endif // _WIN32
+#endif  // _WIN32
 
-#endif // CONFIGSTATVAL_H
+#endif  // CONFIGSTATVAL_H

@@ -2,19 +2,18 @@
 #define AESPASSWORDCIPHER_H
 
 #include "../Extern.h"
-#include <vector>
-#include <stdint.h>
 #include <memory>
+#include <stdint.h>
+#include <vector>
 
 typedef struct evp_cipher_ctx_st EVP_CIPHER_CTX;
 
-class RZU_EXTERN AesPasswordCipher
-{
+class RZU_EXTERN AesPasswordCipher {
 public:
 	AesPasswordCipher();
 	~AesPasswordCipher();
 
-	void init(const uint8_t *key);
+	void init(const uint8_t* key);
 	void init();
 	void getKey(std::vector<uint8_t>& key);
 
@@ -23,7 +22,7 @@ public:
 
 private:
 	uint8_t key[32];
-	std::unique_ptr<EVP_CIPHER_CTX, void(*)(EVP_CIPHER_CTX*)> evpCipher;
+	std::unique_ptr<EVP_CIPHER_CTX, void (*)(EVP_CIPHER_CTX*)> evpCipher;
 };
 
-#endif // AESPASSWORDCIPHER_H
+#endif  // AESPASSWORDCIPHER_H

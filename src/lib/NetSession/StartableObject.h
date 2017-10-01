@@ -3,8 +3,7 @@
 
 #include "Core/IListener.h"
 
-class RZU_EXTERN StartableObject
-{
+class RZU_EXTERN StartableObject {
 public:
 	StartableObject();
 	~StartableObject();
@@ -20,4 +19,4 @@ private:
 	char* name;
 };
 
-#endif // ISTARTABLESESSION_H
+#endif  // ISTARTABLESESSION_H

@@ -1,7 +1,9 @@
 #include "DelegatedPacketSession.h"
 #include "GameClient/TS_SC_RESULT.h"
 
-void DelegatedPacketSession::addPacketListener(uint16_t packetId, IListener* instance, CallbackFunction onPacketReceivedCallback) {
+void DelegatedPacketSession::addPacketListener(uint16_t packetId,
+                                               IListener* instance,
+                                               CallbackFunction onPacketReceivedCallback) {
 	packetListeners.add(packetId, instance, onPacketReceivedCallback);
 }
 
@@ -9,7 +11,7 @@ void DelegatedPacketSession::removePacketListener(uint16_t packetId, IListener* 
 	packetListeners.del(packetId, instance);
 }
 
-EventChain<PacketSession> DelegatedPacketSession::onPacketReceived(const TS_MESSAGE *packet) {
+EventChain<PacketSession> DelegatedPacketSession::onPacketReceived(const TS_MESSAGE* packet) {
 	if(packet->id != TS_SC_RESULT::packetID) {
 		DELEGATE_HASH_CALL(packetListeners, packet->id, this, packet);
 	} else {

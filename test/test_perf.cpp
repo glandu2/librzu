@@ -1,6 +1,6 @@
-#include <iostream>
 #include "AuthClient/TS_AC_SERVER_LIST.h"
 #include "Packet/MessageBuffer.h"
+#include <iostream>
 
 int main() {
 	TS_AC_SERVER_LIST packet;
@@ -36,7 +36,7 @@ int main() {
 	}
 
 	uint64_t duration = uv_hrtime() - beginTime;
-	printf("Serialization duration: %f ns\n", (double)duration / i);
+	printf("Serialization duration: %f ns\n", (double) duration / i);
 
 	return 0;
 }

@@ -4,16 +4,10 @@
 #include "Core/Object.h"
 #include <string>
 
-class RZU_EXTERN ConfigValue : public Object
-{
+class RZU_EXTERN ConfigValue : public Object {
 	DECLARE_CLASS(ConfigValue)
 public:
-	enum Type {
-		Bool,
-		Integer,
-		Float,
-		String
-	};
+	enum Type { Bool, Integer, Float, String };
 
 	ConfigValue(Type type);
 	virtual ~ConfigValue() {}
@@ -55,12 +49,9 @@ private:
 	bool hidden;
 };
 
+template<typename T> class ConfigTypedValue : public ConfigValue {};
 
-template<typename T>
-class ConfigTypedValue : public ConfigValue {};
-
-template<>
-class ConfigTypedValue<bool> : public ConfigValue {
+template<> class ConfigTypedValue<bool> : public ConfigValue {
 public:
 	ConfigTypedValue() : ConfigValue(Bool) {}
 	virtual bool get() = 0;
@@ -73,8 +64,7 @@ public:
 	virtual void setBool(bool val) { return set(val); }
 };
 
-template<>
-class ConfigTypedValue<int> : public ConfigValue {
+template<> class ConfigTypedValue<int> : public ConfigValue {
 public:
 	ConfigTypedValue() : ConfigValue(Integer) {}
 	virtual int get() = 0;
@@ -87,8 +77,7 @@ public:
 	virtual void setInt(int val) { return set(val); }
 };
 
-template<>
-class ConfigTypedValue<float> : public ConfigValue {
+template<> class ConfigTypedValue<float> : public ConfigValue {
 public:
 	ConfigTypedValue() : ConfigValue(Float) {}
 	virtual float get() = 0;
@@ -101,8 +90,7 @@ public:
 	virtual void setFloat(float val) { return set(val); }
 };
 
-template<>
-class ConfigTypedValue<std::string> : public ConfigValue {
+template<> class ConfigTypedValue<std::string> : public ConfigValue {
 public:
 	ConfigTypedValue() : ConfigValue(String) {}
 	virtual std::string get() = 0;
@@ -117,4 +105,4 @@ public:
 	virtual void setString(const std::string& val) { return set(val); }
 };
 
-#endif // CONFIGVALUE_H
+#endif  // CONFIGVALUE_H

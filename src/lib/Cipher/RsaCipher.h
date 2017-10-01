@@ -3,14 +3,13 @@
 
 #include "../Extern.h"
 #include "Core/Object.h"
-#include <vector>
-#include <stdint.h>
 #include <memory>
+#include <stdint.h>
+#include <vector>
 
 typedef struct rsa_st RSA;
 
-class RZU_EXTERN RsaCipher : public Object
-{
+class RZU_EXTERN RsaCipher : public Object {
 public:
 	RsaCipher();
 	~RsaCipher();
@@ -29,7 +28,7 @@ protected:
 	void printError();
 
 private:
-	std::unique_ptr<RSA, void (*)(RSA *)> rsaCipher;
+	std::unique_ptr<RSA, void (*)(RSA*)> rsaCipher;
 };
 
-#endif // RSACIPHER_H
+#endif  // RSACIPHER_H

@@ -1,14 +1,16 @@
 #ifndef DEBUG_PREPROCESSOR
-#include "gtest/gtest.h"
-#include "Packet/MessageBuffer.h"
 #include "Packet/EncodedInt.h"
 #include "Packet/EncodingRandomized.h"
 #include "Packet/EncodingScrambled.h"
+#include "Packet/MessageBuffer.h"
+#include "gtest/gtest.h"
 #include <vector>
 #endif
 
-#include "Packet/PacketDeclaration.h"
 #include "Packet/PacketBaseMessage.h"
+#include "Packet/PacketDeclaration.h"
+
+// clang-format off
 
 enum EnumNoClass : uint16_t {
 	ENC_Item1,

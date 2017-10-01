@@ -3,17 +3,17 @@
 
 #include "../Extern.h"
 #include "uv.h"
-#include <vector>
 #include <string>
+#include <vector>
 
 class IWritableConsole;
 template<class T> class cval;
 class IListener;
 
-class RZU_EXTERN CrashHandler
-{
+class RZU_EXTERN CrashHandler {
 public:
 	typedef void (*TerminateCallback)(void* instance);
+
 public:
 	static void init();
 	// Sets exception handlers that work on per-process basis
@@ -22,7 +22,7 @@ public:
 	// Installs C++ exception handlers that function on per-thread basis
 	static void setThreadExceptionHandlers();
 
-	static void setDumpMode(IListener *, cval<int> *);
+	static void setDumpMode(IListener*, cval<int>*);
 
 	static void setTerminateCallback(TerminateCallback callback, void* instance);
 
@@ -38,4 +38,4 @@ private:
 	static bool globalHandlersInitialized;
 };
 
-#endif // CRASHHANDLER_H
+#endif  // CRASHHANDLER_H

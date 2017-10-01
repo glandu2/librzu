@@ -1,13 +1,13 @@
 #include "CharsetConverter.h"
+#include "Config/GlobalCoreConfig.h"
+#include "Log.h"
+#include "iconv.h"
 #include <errno.h>
 #include <stdio.h>
-#include "Log.h"
-#include "Config/GlobalCoreConfig.h"
-#include "iconv.h"
 
-CharsetConverter::CharsetConverter(const char *from, const char *to) {
+CharsetConverter::CharsetConverter(const char* from, const char* to) {
 	ic = iconv_open(to, from);
-	if(!ic || ic == (iconv_t)-1) {
+	if(!ic || ic == (iconv_t) -1) {
 		log(LL_Error, "Cant open iconv: from: \"%s\", to: \"%s\"\n", from, to);
 		ic = nullptr;
 	}
@@ -28,17 +28,17 @@ void CharsetConverter::convert(const std::string& in, std::string& out, float ra
 
 	const char* inPtr = in.data();
 	char* outPtr = &out[0];
-	int inRemainingBytes = (int)in.size();
-	int outRemainingBytes = (int)out.size();
+	int inRemainingBytes = (int) in.size();
+	int outRemainingBytes = (int) out.size();
 
 	while(inRemainingBytes > 0) {
 		int result = iconvIgnoreInvalid(&inPtr, &inRemainingBytes, &outPtr, &outRemainingBytes);
 		if(result < 0) {
 			if(result == -E2BIG) {
-				int outDone = (int)out.size() - outRemainingBytes;
+				int outDone = (int) out.size() - outRemainingBytes;
 				out.resize(out.size() * 2);
 				outPtr = &out[outDone];
-				outRemainingBytes = (int)out.size() - outDone;
+				outRemainingBytes = (int) out.size() - outDone;
 			} else {
 				break;
 			}
@@ -60,7 +60,7 @@ int CharsetConverter::iconvIgnoreInvalid(const char** inBuf, int* inSize, char**
 	size_t result;
 
 	iconv(ic, nullptr, nullptr, nullptr, nullptr);
-	while((result = iconv(ic, &inPtr, &sInSize, &outPtr, &sOutSize)) == (size_t)-1 && sInSize > 1 && sOutSize > 0) {
+	while((result = iconv(ic, &inPtr, &sInSize, &outPtr, &sOutSize)) == (size_t) -1 && sInSize > 1 && sOutSize > 0) {
 		if(errno == EINVAL || errno == E2BIG)
 			break;
 
@@ -69,9 +69,9 @@ int CharsetConverter::iconvIgnoreInvalid(const char** inBuf, int* inSize, char**
 	}
 
 	*inBuf = inPtr;
-	*inSize = (int)sInSize;
+	*inSize = (int) sInSize;
 	*outBuf = outPtr;
-	*outSize = (int)sOutSize;
+	*outSize = (int) sOutSize;
 
 	if(sInSize == 0)
 		return 0;

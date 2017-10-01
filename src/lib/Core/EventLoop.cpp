@@ -7,13 +7,12 @@ void EventLoop::initKey() {
 	uv_key_create(&tlsKey);
 }
 
-EventLoop::EventLoop()
-{
+EventLoop::EventLoop() {
 	uv_loop_init(&loop);
 	deleteObjectsHandle.data = this;
 	uv_prepare_init(&loop, &deleteObjectsHandle);
 	uv_prepare_start(&deleteObjectsHandle, &staticDeleteObjects);
-	uv_unref((uv_handle_t*)&deleteObjectsHandle);
+	uv_unref((uv_handle_t*) &deleteObjectsHandle);
 }
 
 EventLoop::~EventLoop() {
@@ -30,7 +29,7 @@ EventLoop::~EventLoop() {
 }
 
 EventLoop* EventLoop::getInstance() {
-	EventLoop *threadLocalEventLoop;
+	EventLoop* threadLocalEventLoop;
 
 	uv_once(&tlsKeyInitOnce, &initKey);
 
@@ -45,7 +44,7 @@ EventLoop* EventLoop::getInstance() {
 
 void EventLoop::deleteObjects() {
 	std::list<Object*>::iterator it = objectsToDelete.begin();
-	for(; it != objectsToDelete.end(); ) {
+	for(; it != objectsToDelete.end();) {
 		delete *it;
 		it = objectsToDelete.erase(it);
 	}
@@ -53,7 +52,7 @@ void EventLoop::deleteObjects() {
 
 void EventLoop::staticDeleteObjects(uv_prepare_t* handle) {
 	static bool deletingObjects = false;
-	EventLoop* thisInstance = (EventLoop*)handle->data;
+	EventLoop* thisInstance = (EventLoop*) handle->data;
 
 	if(deletingObjects == false) {
 		deletingObjects = true;

@@ -2,8 +2,8 @@
 #define SERVERSMANAGER_H
 
 #include "Core/Object.h"
-#include <unordered_map>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 class BanManager;
@@ -11,8 +11,7 @@ class StartableObject;
 class IWritableConsole;
 template<typename T> class cval;
 
-class RZU_EXTERN ServersManager : public Object
-{
+class RZU_EXTERN ServersManager : public Object {
 	DECLARE_CLASSNAME(ServersManager, 0)
 public:
 	ServersManager();
@@ -20,12 +19,12 @@ public:
 
 	bool start();
 	bool stop();
-	bool forceStop(); ///< Stop all servers even those with stopAllKeepRunning set
+	bool forceStop();  ///< Stop all servers even those with stopAllKeepRunning set
 
 	bool start(const std::string& name);
 	bool stop(const std::string& name);
 
-	StartableObject *getServer(const std::string& name);
+	StartableObject* getServer(const std::string& name);
 	void addServer(const char* name, StartableObject* server, cval<bool>* autoStart, bool stopAllKeepRunning = false);
 
 	static ServersManager* getInstance() { return instance; }
@@ -37,8 +36,8 @@ protected:
 
 private:
 	struct ServerInfo {
-		ServerInfo(StartableObject* server, cval<bool>* autoStart, bool stopAllKeepRunning) :
-			server(server), autoStart(autoStart), stopAllKeepRunning(stopAllKeepRunning) {}
+		ServerInfo(StartableObject* server, cval<bool>* autoStart, bool stopAllKeepRunning)
+		    : server(server), autoStart(autoStart), stopAllKeepRunning(stopAllKeepRunning) {}
 
 		StartableObject* server;
 		cval<bool>* autoStart;
@@ -49,4 +48,4 @@ private:
 	static ServersManager* instance;
 };
 
-#endif // SERVERSMANAGER_H
+#endif  // SERVERSMANAGER_H

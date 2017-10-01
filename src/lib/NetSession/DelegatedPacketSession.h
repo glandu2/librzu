@@ -1,11 +1,10 @@
 #ifndef DELEGATEDPACKETSESSION_H
 #define DELEGATEDPACKETSESSION_H
 
-#include "PacketSession.h"
 #include "Core/IDelegate.h"
+#include "PacketSession.h"
 
-class RZU_EXTERN DelegatedPacketSession : public PacketSession
-{
+class RZU_EXTERN DelegatedPacketSession : public PacketSession {
 	DECLARE_CLASS(DelegatedPacketSession)
 public:
 	typedef void (*CallbackFunction)(IListener* instance, PacketSession* server, const TS_MESSAGE* packetData);
@@ -21,4 +20,4 @@ private:
 	IDelegateHash<uint16_t, CallbackFunction> packetListeners;
 };
 
-#endif // DELEGATEDPACKETSESSION_H
+#endif  // DELEGATEDPACKETSESSION_H

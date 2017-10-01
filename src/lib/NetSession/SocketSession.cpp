@@ -1,12 +1,11 @@
 #include "SocketSession.h"
-#include "SessionServer.h"
 #include "Config/GlobalCoreConfig.h"
+#include "SessionServer.h"
 
-#include "Stream/Socket.h"
 #include "Stream/Pipe.h"
+#include "Stream/Socket.h"
 
-SocketSession::SocketSession() : stream(nullptr), server(nullptr), autoDelete(false) {
-}
+SocketSession::SocketSession() : stream(nullptr), server(nullptr), autoDelete(false) {}
 
 void SocketSession::assignStream(Stream* stream) {
 	this->stream = stream;
@@ -14,7 +13,7 @@ void SocketSession::assignStream(Stream* stream) {
 	stream->addEventListener(this, &SocketSession::onSocketStateChanged);
 }
 
-bool SocketSession::connect(const char *url, uint16_t port) {
+bool SocketSession::connect(const char* url, uint16_t port) {
 	std::string target;
 	Stream* newStream;
 	bool changed;
@@ -33,7 +32,7 @@ SocketSession::~SocketSession() {
 		stream->deleteLater();
 }
 
-void SocketSession::setServer(SessionServerCommon *server) {
+void SocketSession::setServer(SessionServerCommon* server) {
 	this->server = server;
 	this->autoDelete = true;
 }
@@ -44,7 +43,8 @@ void SocketSession::onDataReceivedStatic(IListener* instance, Stream* stream) {
 	thisInstance->onDataReceived();
 }
 
-void SocketSession::onSocketStateChanged(IListener* instance, Stream*, Stream::State oldState, Stream::State newState, bool causedByRemote) {
+void SocketSession::onSocketStateChanged(
+    IListener* instance, Stream*, Stream::State oldState, Stream::State newState, bool causedByRemote) {
 	SocketSession* thisInstance = static_cast<SocketSession*>(instance);
 
 	if(newState == Stream::ConnectedState)
@@ -67,7 +67,7 @@ void SocketSession::onSocketStateChanged(IListener* instance, Stream*, Stream::S
 	}
 }
 
-void SocketSession::socketError(IListener *instance, Stream*, int errnoValue) {
+void SocketSession::socketError(IListener* instance, Stream*, int errnoValue) {
 	SocketSession* thisInstance = static_cast<SocketSession*>(instance);
 
 	thisInstance->onError(errnoValue);

@@ -1,20 +1,29 @@
 #ifndef LOG_H
 #define LOG_H
 
+#include "IListener.h"
+#include "Object.h"
+#include "uv.h"
 #include <string>
 #include <vector>
-#include "Object.h"
-#include "IListener.h"
-#include "uv.h"
 
 template<typename T> class cval;
 
-class RZU_EXTERN Log : public Object, public IListener
-{
+class RZU_EXTERN Log : public Object, public IListener {
 	DECLARE_CLASS(Log)
 public:
-	Log(cval<bool>& enabled, cval<std::string>& fileMaxLevel, cval<std::string>& consoleMaxLevel, cval<std::string>& dir, cval<std::string>& fileName, cval<int>& maxQueueSize);
-	Log(cval<bool>& enabled, Level fileMaxLevel, Level consoleMaxLevel, cval<std::string>& dir, cval<std::string>& fileName, cval<int>& maxQueueSize);
+	Log(cval<bool>& enabled,
+	    cval<std::string>& fileMaxLevel,
+	    cval<std::string>& consoleMaxLevel,
+	    cval<std::string>& dir,
+	    cval<std::string>& fileName,
+	    cval<int>& maxQueueSize);
+	Log(cval<bool>& enabled,
+	    Level fileMaxLevel,
+	    Level consoleMaxLevel,
+	    cval<std::string>& dir,
+	    cval<std::string>& fileName,
+	    cval<int>& maxQueueSize);
 
 	~Log();
 
@@ -29,9 +38,17 @@ public:
 	void logv(Level level, const char* objectName, size_t objectNameSize, const char* message, va_list args);
 
 	static Log* get() { return defaultLogger; }
-	static Log* setDefaultLogger(Log* newLogger) { Log* old = defaultLogger; defaultLogger = newLogger; return old; }
+	static Log* setDefaultLogger(Log* newLogger) {
+		Log* old = defaultLogger;
+		defaultLogger = newLogger;
+		return old;
+	}
 	static Log* getDefaultPacketLogger() { return defaultPacketLogger; }
-	static Log* setDefaultPacketLogger(Log* newLogger) { Log* old = defaultPacketLogger; defaultPacketLogger = newLogger; return old; }
+	static Log* setDefaultPacketLogger(Log* newLogger) {
+		Log* old = defaultPacketLogger;
+		defaultPacketLogger = newLogger;
+		return old;
+	}
 
 	Level getMaxLevel() { return fileMaxLevel > consoleMaxLevel ? fileMaxLevel : consoleMaxLevel; }
 
@@ -86,4 +103,4 @@ private:
 	size_t maxQueueSizeReached;
 };
 
-#endif // LOG_H
+#endif  // LOG_H

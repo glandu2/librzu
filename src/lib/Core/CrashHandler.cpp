@@ -1,11 +1,11 @@
 #include "CrashHandler.h"
-#include "Log.h"
-#include "EventLoop.h"
-#include "Console/ConsoleCommands.h"
-#include <stdlib.h>
-#include <map>
 #include "ClassCounter.h"
 #include "Config/GlobalCoreConfig.h"
+#include "Console/ConsoleCommands.h"
+#include "EventLoop.h"
+#include "Log.h"
+#include <map>
+#include <stdlib.h>
 
 #ifdef __GLIBC__
 #include <malloc.h>
@@ -13,33 +13,35 @@
 #endif
 
 #ifdef _WIN32
-#include <windows.h>
+#include <crtdbg.h>
 #include <dbghelp.h>
+#include <exception>
+#include <malloc.h>
 #include <new.h>
 #include <signal.h>
-#include <exception>
-#include <crtdbg.h>
-#include <malloc.h>
+#include <windows.h>
 #endif
 
-//if equal to 1, don't do a crashdump
+// if equal to 1, don't do a crashdump
 static long long int dumpMode = 0;
 uv_async_t CrashHandler::asyncCallback;
 void* CrashHandler::callbackInstance = nullptr;
-bool  CrashHandler::interruptAttemptInProgress = false;
-bool  CrashHandler::globalHandlersInitialized = false;
+bool CrashHandler::interruptAttemptInProgress = false;
+bool CrashHandler::globalHandlersInitialized = false;
 
 void CrashHandler::init() {
 	if(globalHandlersInitialized == false) {
 		globalHandlersInitialized = true;
 		setProcessExceptionHandlers();
 
-		ConsoleCommands::get()->addCommand("terminate", "term", 0, &commandTerminate,
-										   "Ask the server to terminate gracefuly",
-										   "terminate : terminate the server gracefuly");
+		ConsoleCommands::get()->addCommand("terminate",
+		                                   "term",
+		                                   0,
+		                                   &commandTerminate,
+		                                   "Ask the server to terminate gracefuly",
+		                                   "terminate : terminate the server gracefuly");
 
-		ConsoleCommands::get()->addCommand("mem.list", "mem", 0, &commandListObjectsCount,
-										   "List objects count");
+		ConsoleCommands::get()->addCommand("mem.list", "mem", 0, &commandListObjectsCount, "List objects count");
 	}
 	setThreadExceptionHandlers();
 	GlobalCoreConfig::get()->admin.dumpMode.addListener(nullptr, &setDumpMode);
@@ -51,7 +53,7 @@ void CrashHandler::setDumpMode(IListener*, cval<int>*) {
 }
 
 void CrashHandler::setTerminateCallback(TerminateCallback callback, void* instance) {
-	asyncCallback.data = (void*)callback;
+	asyncCallback.data = (void*) callback;
 	callbackInstance = instance;
 }
 
@@ -64,7 +66,7 @@ void CrashHandler::terminate() {
 	}
 }
 
-void CrashHandler::onTerminate(uv_async_t *) {
+void CrashHandler::onTerminate(uv_async_t*) {
 	TerminateCallback callback = (TerminateCallback) asyncCallback.data;
 	if(callback)
 		callback(callbackInstance);
@@ -76,27 +78,26 @@ void CrashHandler::commandTerminate(IWritableConsole*, const std::vector<std::st
 	terminate();
 }
 
-
 void CrashHandler::commandListObjectsCount(IWritableConsole* console, const std::vector<std::string>&) {
 	std::map<std::string, unsigned long*>::const_iterator it, itEnd;
 
 #ifdef __GLIBC__
 	struct mallinfo memUsage = mallinfo();
 	console->writef("Memory usage:\r\n"
-					" heap size: %d\r\n"
-					" unused chunks: %d\r\n"
-					" mmap chunks: %d\r\n"
-					" mmap mem size: %d\r\n"
-					" used mem size: %d\r\n"
-					" unused mem size: %d\r\n"
-					" trailing releasable size: %d\r\n\r\n",
-					memUsage.arena,
-					memUsage.ordblks,
-					memUsage.hblks,
-					memUsage.hblkhd,
-					memUsage.uordblks,
-					memUsage.fordblks,
-					memUsage.keepcost);
+	                " heap size: %d\r\n"
+	                " unused chunks: %d\r\n"
+	                " mmap chunks: %d\r\n"
+	                " mmap mem size: %d\r\n"
+	                " used mem size: %d\r\n"
+	                " unused mem size: %d\r\n"
+	                " trailing releasable size: %d\r\n\r\n",
+	                memUsage.arena,
+	                memUsage.ordblks,
+	                memUsage.hblks,
+	                memUsage.hblkhd,
+	                memUsage.uordblks,
+	                memUsage.fordblks,
+	                memUsage.keepcost);
 #endif
 
 #if defined(_WIN32) && defined(_DEBUG)
@@ -104,35 +105,31 @@ void CrashHandler::commandListObjectsCount(IWritableConsole* console, const std:
 	memset(&memUsage, 0, sizeof(memUsage));
 	_CrtMemDumpStatistics(&memUsage);
 	console->writef("Memory usage:\r\n"
-					" normal block size: %ld\r\n"
-					" free block size: %ld\r\n"
-					" CRT block size: %ld\r\n"
-					" client block size: %ld\r\n"
-					" ignore block size: %ld\r\n"
-					" peak memory size: %ld\r\n"
-					" used memory size: %ld\r\n\r\n",
-					memUsage.lSizes[_NORMAL_BLOCK],
-					memUsage.lSizes[_FREE_BLOCK],
-					memUsage.lSizes[_CRT_BLOCK],
-					memUsage.lSizes[_CLIENT_BLOCK],
-					memUsage.lSizes[_IGNORE_BLOCK],
-					memUsage.lHighWaterCount,
-					memUsage.lTotalCount);
+	                " normal block size: %ld\r\n"
+	                " free block size: %ld\r\n"
+	                " CRT block size: %ld\r\n"
+	                " client block size: %ld\r\n"
+	                " ignore block size: %ld\r\n"
+	                " peak memory size: %ld\r\n"
+	                " used memory size: %ld\r\n\r\n",
+	                memUsage.lSizes[_NORMAL_BLOCK],
+	                memUsage.lSizes[_FREE_BLOCK],
+	                memUsage.lSizes[_CRT_BLOCK],
+	                memUsage.lSizes[_CLIENT_BLOCK],
+	                memUsage.lSizes[_IGNORE_BLOCK],
+	                memUsage.lHighWaterCount,
+	                memUsage.lTotalCount);
 #endif
 
 	for(it = getObjectsCount().cbegin(), itEnd = getObjectsCount().cend(); it != itEnd; ++it) {
-		console->writef("%s: %ld\r\n",
-						it->first.c_str(),
-						*it->second);
+		console->writef("%s: %ld\r\n", it->first.c_str(), *it->second);
 	}
 }
 
 #ifdef _WIN32
 
 // Collects current process state.
-static void getExceptionPointers(
-		DWORD dwExceptionCode,
-		EXCEPTION_POINTERS** pExceptionPointers);
+static void getExceptionPointers(DWORD dwExceptionCode, EXCEPTION_POINTERS** pExceptionPointers);
 
 // This method creates minidump of the process
 static void createMiniDump(EXCEPTION_POINTERS* pExcPtrs);
@@ -145,14 +142,14 @@ static void __cdecl unexpectedHandler();
 
 static void __cdecl pureCallHandler();
 
-static void __cdecl invalidParameterHandler(const wchar_t* expression,
-											const wchar_t* function, const wchar_t* file, unsigned int line, uintptr_t pReserved);
+static void __cdecl invalidParameterHandler(
+    const wchar_t* expression, const wchar_t* function, const wchar_t* file, unsigned int line, uintptr_t pReserved);
 
 static int __cdecl newHandler(size_t);
 
 static void sigabrtHandler(int);
 static void sigfpeHandler(int /*code*/, int subcode);
-//static void sigintHandler(int);
+// static void sigintHandler(int);
 static void sigillHandler(int);
 static void sigsegvHandler(int);
 static void sigtermHandler(int);
@@ -168,16 +165,14 @@ static BOOL WINAPI handlerRoutine(DWORD dwCtrlType);
 #endif
 
 // _ReturnAddress and _AddressOfReturnAddress should be prototyped before use
-EXTERNC void * _AddressOfReturnAddress(void);
-EXTERNC void * _ReturnAddress(void);
+EXTERNC void* _AddressOfReturnAddress(void);
+EXTERNC void* _ReturnAddress(void);
 
 #endif
 
-
-void CrashHandler::setProcessExceptionHandlers()
-{
+void CrashHandler::setProcessExceptionHandlers() {
 	uv_async_init(EventLoop::getLoop(), &asyncCallback, &onTerminate);
-	uv_unref((uv_handle_t*)&asyncCallback);
+	uv_unref((uv_handle_t*) &asyncCallback);
 	// Install top-level SEH handler
 	SetUnhandledExceptionFilter(&sehHandler);
 	SetConsoleCtrlHandler(&handlerRoutine, TRUE);
@@ -206,16 +201,13 @@ void CrashHandler::setProcessExceptionHandlers()
 	signal(SIGABRT, &sigabrtHandler);
 
 	// Catch illegal instruction handler
-	//signal(SIGINT, &sigintHandler);
+	// signal(SIGINT, &sigintHandler);
 
 	// Catch a termination request
 	signal(SIGTERM, &sigtermHandler);
-
 }
 
-void CrashHandler::setThreadExceptionHandlers()
-{
-
+void CrashHandler::setThreadExceptionHandlers() {
 	// Catch terminate() calls.
 	// In a multithreaded environment, terminate functions are maintained
 	// separately for each thread. Each new thread needs to install its own
@@ -232,34 +224,31 @@ void CrashHandler::setThreadExceptionHandlers()
 
 	// Catch a floating point error
 	typedef void (*sigh)(int);
-	signal(SIGFPE, (sigh)sigfpeHandler);
+	signal(SIGFPE, (sigh) sigfpeHandler);
 
 	// Catch an illegal instruction
 	signal(SIGILL, &sigillHandler);
 
 	// Catch illegal storage access errors
 	signal(SIGSEGV, &sigsegvHandler);
-
 }
 
 // The following code gets exception pointers using a workaround found in CRT code.
-void getExceptionPointers(DWORD dwExceptionCode,
-						  EXCEPTION_POINTERS** ppExceptionPointers)
-{
+void getExceptionPointers(DWORD dwExceptionCode, EXCEPTION_POINTERS** ppExceptionPointers) {
 	// The following code was taken from VC++ 8.0 CRT (invarg.c: line 104)
 
 	EXCEPTION_RECORD ExceptionRecord;
 	CONTEXT ContextRecord;
 	memset(&ContextRecord, 0, sizeof(CONTEXT));
 
-#if defined (_X86_) || defined (_IA64_) || defined (_AMD64_)
+#if defined(_X86_) || defined(_IA64_) || defined(_AMD64_)
 	RtlCaptureContext(&ContextRecord);
 
-#else  /* defined (_IA64_) || defined (_AMD64_) */
+#else /* defined (_IA64_) || defined (_AMD64_) */
 
 	ZeroMemory(&ContextRecord, sizeof(ContextRecord));
 
-#endif  /* defined (_IA64_) || defined (_AMD64_) */
+#endif /* defined (_IA64_) || defined (_AMD64_) */
 
 	ZeroMemory(&ExceptionRecord, sizeof(EXCEPTION_RECORD));
 
@@ -284,30 +273,21 @@ void getExceptionPointers(DWORD dwExceptionCode,
 }
 
 // This method creates minidump of the process
-void createMiniDump(EXCEPTION_POINTERS* pExcPtrs)
-{
+void createMiniDump(EXCEPTION_POINTERS* pExcPtrs) {
 	HANDLE hFile = NULL;
 	MINIDUMP_EXCEPTION_INFORMATION mei;
 	MINIDUMP_CALLBACK_INFORMATION mci;
 
-	//if equal to 1, don't do a crashdump
+	// if equal to 1, don't do a crashdump
 	if(dumpMode == 1)
 		return;
 
 	// Create the minidump file
-	hFile = CreateFileA(
-				"crashdump.dmp",
-				GENERIC_WRITE,
-				0,
-				NULL,
-				CREATE_ALWAYS,
-				FILE_ATTRIBUTE_NORMAL,
-				NULL);
+	hFile = CreateFileA("crashdump.dmp", GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
 
-	if(hFile == INVALID_HANDLE_VALUE)
-	{
+	if(hFile == INVALID_HANDLE_VALUE) {
 		// Couldn't create file
-		char szScratch[_MAX_PATH*2];
+		char szScratch[_MAX_PATH * 2];
 		wsprintf(szScratch, "Failed to open dump file \'crashdump.dmp\' (error %d)", GetLastError());
 		OutputDebugString(szScratch);
 		return;
@@ -324,18 +304,16 @@ void createMiniDump(EXCEPTION_POINTERS* pExcPtrs)
 	HANDLE hProcess = GetCurrentProcess();
 	DWORD dwProcessId = GetCurrentProcessId();
 
-	BOOL bWriteDump = MiniDumpWriteDump(
-				hProcess,
-				dwProcessId,
-				hFile,
-				MINIDUMP_TYPE(MiniDumpWithDataSegs | MiniDumpWithIndirectlyReferencedMemory),
-				&mei,
-				NULL,
-				&mci);
+	BOOL bWriteDump = MiniDumpWriteDump(hProcess,
+	                                    dwProcessId,
+	                                    hFile,
+	                                    MINIDUMP_TYPE(MiniDumpWithDataSegs | MiniDumpWithIndirectlyReferencedMemory),
+	                                    &mei,
+	                                    NULL,
+	                                    &mci);
 
-	if(!bWriteDump)
-	{
-		char szScratch[_MAX_PATH*2];
+	if(!bWriteDump) {
+		char szScratch[_MAX_PATH * 2];
 		wsprintf(szScratch, "Failed to save dump file to \'crashdump.dmp\' (error %d)", GetLastError());
 		OutputDebugString(szScratch);
 	}
@@ -343,14 +321,13 @@ void createMiniDump(EXCEPTION_POINTERS* pExcPtrs)
 	// Close file
 	CloseHandle(hFile);
 
-	//Stop and flush log message. Do it after crash dump, this might crash ...
+	// Stop and flush log message. Do it after crash dump, this might crash ...
 	if(Log::get())
 		Log::get()->stopWriter();
 }
 
 // Structured exception handler
-LONG WINAPI sehHandler(PEXCEPTION_POINTERS pExceptionPtrs)
-{
+LONG WINAPI sehHandler(PEXCEPTION_POINTERS pExceptionPtrs) {
 	// Write minidump file
 	createMiniDump(pExceptionPtrs);
 
@@ -362,8 +339,7 @@ LONG WINAPI sehHandler(PEXCEPTION_POINTERS pExceptionPtrs)
 }
 
 // CRT terminate() call handler
-void __cdecl terminateHandler()
-{
+void __cdecl terminateHandler() {
 	// Abnormal program termination (terminate() function was called)
 
 	// Retrieve exception information
@@ -378,8 +354,7 @@ void __cdecl terminateHandler()
 }
 
 // CRT unexpected() call handler
-void __cdecl unexpectedHandler()
-{
+void __cdecl unexpectedHandler() {
 	// Unexpected error (unexpected() function was called)
 
 	// Retrieve exception information
@@ -394,8 +369,7 @@ void __cdecl unexpectedHandler()
 }
 
 // CRT Pure virtual method call handler
-void __cdecl pureCallHandler()
-{
+void __cdecl pureCallHandler() {
 	// Pure virtual function call
 
 	// Retrieve exception information
@@ -407,18 +381,11 @@ void __cdecl pureCallHandler()
 
 	// Terminate process
 	TerminateProcess(GetCurrentProcess(), 1);
-
 }
-
 
 // CRT invalid parameter handler
 void __cdecl invalidParameterHandler(
-		const wchar_t* expression,
-		const wchar_t* function,
-		const wchar_t* file,
-		unsigned int line,
-		uintptr_t pReserved)
-{
+    const wchar_t* expression, const wchar_t* function, const wchar_t* file, unsigned int line, uintptr_t pReserved) {
 	// Invalid parameter exception
 
 	// Retrieve exception information
@@ -430,12 +397,10 @@ void __cdecl invalidParameterHandler(
 
 	// Terminate process
 	TerminateProcess(GetCurrentProcess(), 1);
-
 }
 
 // CRT new operator fault handler
-static int __cdecl newHandler(size_t)
-{
+static int __cdecl newHandler(size_t) {
 	// 'new' operator memory allocation exception
 
 	// Retrieve exception information
@@ -453,8 +418,7 @@ static int __cdecl newHandler(size_t)
 }
 
 // CRT SIGABRT signal handler
-void sigabrtHandler(int)
-{
+void sigabrtHandler(int) {
 	// Caught SIGABRT C++ signal
 
 	// Retrieve exception information
@@ -466,27 +430,23 @@ void sigabrtHandler(int)
 
 	// Terminate process
 	TerminateProcess(GetCurrentProcess(), 1);
-
 }
 
 // CRT SIGFPE signal handler
-void sigfpeHandler(int /*code*/, int subcode)
-{
+void sigfpeHandler(int /*code*/, int subcode) {
 	// Floating point exception (SIGFPE)
 
-	EXCEPTION_POINTERS* pExceptionPtrs = (PEXCEPTION_POINTERS)_pxcptinfoptrs;
+	EXCEPTION_POINTERS* pExceptionPtrs = (PEXCEPTION_POINTERS) _pxcptinfoptrs;
 
 	// Write minidump file
 	createMiniDump(pExceptionPtrs);
 
 	// Terminate process
 	TerminateProcess(GetCurrentProcess(), 1);
-
 }
 
 // CRT sigill signal handler
-void sigillHandler(int)
-{
+void sigillHandler(int) {
 	// Illegal instruction (SIGILL)
 
 	// Retrieve exception information
@@ -498,62 +458,59 @@ void sigillHandler(int)
 
 	// Terminate process
 	TerminateProcess(GetCurrentProcess(), 1);
-
 }
 
 // CRT sigint signal handler
 /*void sigintHandler(int)
 {
-	// Interruption (SIGINT)
+    // Interruption (SIGINT)
 
-	// Retrieve exception information
-	EXCEPTION_POINTERS* pExceptionPtrs = NULL;
-	getExceptionPointers(0, &pExceptionPtrs);
+    // Retrieve exception information
+    EXCEPTION_POINTERS* pExceptionPtrs = NULL;
+    getExceptionPointers(0, &pExceptionPtrs);
 
-	// Write minidump file
-	createMiniDump(pExceptionPtrs);
+    // Write minidump file
+    createMiniDump(pExceptionPtrs);
 
-	// Terminate process
-	TerminateProcess(GetCurrentProcess(), 1);
+    // Terminate process
+    TerminateProcess(GetCurrentProcess(), 1);
 
 }*/
 
 // CRT SIGSEGV signal handler
-void sigsegvHandler(int)
-{
+void sigsegvHandler(int) {
 	// Invalid storage access (SIGSEGV)
 
-	PEXCEPTION_POINTERS pExceptionPtrs = (PEXCEPTION_POINTERS)_pxcptinfoptrs;
+	PEXCEPTION_POINTERS pExceptionPtrs = (PEXCEPTION_POINTERS) _pxcptinfoptrs;
 
 	// Write minidump file
 	createMiniDump(pExceptionPtrs);
 
 	// Terminate process
 	TerminateProcess(GetCurrentProcess(), 1);
-
 }
 
 // CRT SIGTERM signal handler
-void sigtermHandler(int)
-{
+void sigtermHandler(int) {
 	// Termination request (SIGTERM)
-/*
-	// Retrieve exception information
-	EXCEPTION_POINTERS* pExceptionPtrs = NULL;
-	getExceptionPointers(0, &pExceptionPtrs);
+	/*
+	    // Retrieve exception information
+	    EXCEPTION_POINTERS* pExceptionPtrs = NULL;
+	    getExceptionPointers(0, &pExceptionPtrs);
 
-	// Write minidump file
-	createMiniDump(pExceptionPtrs);
+	    // Write minidump file
+	    createMiniDump(pExceptionPtrs);
 
-	// Terminate process
-	TerminateProcess(GetCurrentProcess(), 1);*/
+	    // Terminate process
+	    TerminateProcess(GetCurrentProcess(), 1);*/
 	CrashHandler::terminate();
 }
 
 static BOOL WINAPI handlerRoutine(DWORD dwCtrlType) {
-	if(dwCtrlType == CTRL_CLOSE_EVENT || dwCtrlType == CTRL_BREAK_EVENT || dwCtrlType == CTRL_C_EVENT || dwCtrlType == CTRL_SHUTDOWN_EVENT) {
+	if(dwCtrlType == CTRL_CLOSE_EVENT || dwCtrlType == CTRL_BREAK_EVENT || dwCtrlType == CTRL_C_EVENT ||
+	   dwCtrlType == CTRL_SHUTDOWN_EVENT) {
 		CrashHandler::terminate();
-		//wait end
+		// wait end
 		Sleep(5000);
 		return TRUE;
 	}
@@ -562,7 +519,7 @@ static BOOL WINAPI handlerRoutine(DWORD dwCtrlType) {
 
 #else /* _WIN32 */
 
-//UNIX
+	// UNIX
 
 #include <signal.h>
 
@@ -574,7 +531,7 @@ void CrashHandler::setProcessExceptionHandlers() {
 	struct sigaction sa;
 
 	uv_async_init(EventLoop::getLoop(), &asyncCallback, &onTerminate);
-	uv_unref((uv_handle_t*)&asyncCallback);
+	uv_unref((uv_handle_t*) &asyncCallback);
 
 	sa.sa_flags = 0;
 	sigemptyset(&sa.sa_mask);
@@ -584,8 +541,6 @@ void CrashHandler::setProcessExceptionHandlers() {
 	sigaction(SIGHUP, &sa, NULL);
 }
 
-void CrashHandler::setThreadExceptionHandlers() {
-
-}
+void CrashHandler::setThreadExceptionHandlers() {}
 
 #endif

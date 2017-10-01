@@ -1,16 +1,12 @@
 #include "AesPasswordCipher.h"
-#include <openssl/evp.h>
-#include <string.h>
-#include <stdlib.h>
 #include "Core/ScopeGuard.h"
+#include <openssl/evp.h>
+#include <stdlib.h>
+#include <string.h>
 
-AesPasswordCipher::AesPasswordCipher()
-    : evpCipher(nullptr, &EVP_CIPHER_CTX_free)
-{
-}
+AesPasswordCipher::AesPasswordCipher() : evpCipher(nullptr, &EVP_CIPHER_CTX_free) {}
 
-AesPasswordCipher::~AesPasswordCipher() {
-}
+AesPasswordCipher::~AesPasswordCipher() {}
 
 void AesPasswordCipher::init(const uint8_t* key) {
 	memcpy(this->key, key, 32);

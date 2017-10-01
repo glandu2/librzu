@@ -1,46 +1,52 @@
 #include "ServersManager.h"
-#include "Config/ConfigParamVal.h"
 #include "BanManager.h"
-#include "StartableObject.h"
+#include "Config/ConfigParamVal.h"
 #include "Console/ConsoleCommands.h"
+#include "StartableObject.h"
 
 ServersManager* ServersManager::instance = nullptr;
 
-ServersManager::ServersManager()
-{
+ServersManager::ServersManager() {
 	if(instance == nullptr) {
 		instance = this;
-		ConsoleCommands::get()->addCommand("server.list", 0, &commandListServers,
-										   "List all available servers",
-										   "server.list : list all servers\r\n");
-		ConsoleCommands::get()->addCommand("server.start", "start", 1, &commandStartServer,
-										   "Start a server (use server.list to get server names)",
-										   "server.start <server name> : Start <server name> server\r\n"
-										   "server.start all           : Start all servers\r\n");
-		ConsoleCommands::get()->addCommand("server.stop", "stop", 1, &commandStopServer,
-										   "Stop a server (use server.list to get server names)",
-										   "server.stop <server name> : Stop <server name> server\r\n"
-										   "server.stop all           : Stop all servers except console server\r\n");
+		ConsoleCommands::get()->addCommand(
+		    "server.list", 0, &commandListServers, "List all available servers", "server.list : list all servers\r\n");
+		ConsoleCommands::get()->addCommand("server.start",
+		                                   "start",
+		                                   1,
+		                                   &commandStartServer,
+		                                   "Start a server (use server.list to get server names)",
+		                                   "server.start <server name> : Start <server name> server\r\n"
+		                                   "server.start all           : Start all servers\r\n");
+		ConsoleCommands::get()->addCommand("server.stop",
+		                                   "stop",
+		                                   1,
+		                                   &commandStopServer,
+		                                   "Stop a server (use server.list to get server names)",
+		                                   "server.stop <server name> : Stop <server name> server\r\n"
+		                                   "server.stop all           : Stop all servers except console server\r\n");
 	} else {
 		log(LL_Error, "Several ServersManager instance !\n");
 	}
 }
 
-ServersManager::~ServersManager()
-{
+ServersManager::~ServersManager() {
 	if(instance == this)
 		instance = nullptr;
 
 	std::unordered_map<std::string, ServerInfo*>::iterator it, itEnd;
 
 	for(it = servers.begin(), itEnd = servers.end(); it != itEnd; ++it) {
-		ServerInfo* & server = it->second;
+		ServerInfo*& server = it->second;
 		delete server;
 		server = nullptr;
 	}
 }
 
-void ServersManager::addServer(const char* name, StartableObject *server, cval<bool>* autoStart, bool stopAllKeepRunning) {
+void ServersManager::addServer(const char* name,
+                               StartableObject* server,
+                               cval<bool>* autoStart,
+                               bool stopAllKeepRunning) {
 	ServerInfo* serverInfo = new ServerInfo(server, autoStart, stopAllKeepRunning);
 
 	server->setName(name);

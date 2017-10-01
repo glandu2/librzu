@@ -2,8 +2,8 @@
 #define CONFIGINFO_H
 
 #include "Core/Object.h"
-#include <unordered_map>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 #include "ConfigParamVal.h"
@@ -11,22 +11,20 @@
 
 class IWritableConsole;
 
-class RZU_EXTERN ConfigInfo : public Object
-{
+class RZU_EXTERN ConfigInfo : public Object {
 	DECLARE_CLASS(ConfigInfo)
 
 public:
-	void init(int argc, char **argv);
+	void init(int argc, char** argv);
 
-	void parseCommandLine(int argc, char **argv, bool onlyConfigFileLocation = false);
-	bool readFile(const char *filename, int fileDepth = 0);
+	void parseCommandLine(int argc, char** argv, bool onlyConfigFileLocation = false);
+	bool readFile(const char* filename, int fileDepth = 0);
 	void dump(bool showDefault = true);
 	void showConfig(ConfigValue* v);
 
 	ConfigValue* getValue(const std::string& key);
 
-	template<template<class> class U, typename T>
-	U<T>& createValue(const char* key, T def, bool isHidden = false) {
+	template<template<class> class U, typename T> U<T>& createValue(const char* key, T def, bool isHidden = false) {
 		U<T>* value = new U<T>(def);
 		value->setHidden(isHidden);
 
@@ -62,15 +60,15 @@ private:
 	ConfigInfo() {}
 	~ConfigInfo();
 
-	static bool parseLine(char* line, std::string &key, std::string &value);
+	static bool parseLine(char* line, std::string& key, std::string& value);
 
-	std::pair<std::unordered_map<std::string, ConfigValue*>::iterator, bool> addValue(const std::string& key, ConfigValue* v);
+	std::pair<std::unordered_map<std::string, ConfigValue*>::iterator, bool> addValue(const std::string& key,
+	                                                                                  ConfigValue* v);
 	std::unordered_map<std::string, ConfigValue*> config;
 };
-
 
 #define CFG_CREATE(...) ConfigInfo::get()->createValue<cval>(__VA_ARGS__)
 #define CFG_STAT_CREATE(...) ConfigInfo::get()->createValue<cstatval>(__VA_ARGS__)
 #define CFG_GET(key) ConfigInfo::get()->getValue(key)
 
-#endif // CONFIGINFO_H
+#endif  // CONFIGINFO_H

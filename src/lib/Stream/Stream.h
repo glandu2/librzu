@@ -1,35 +1,30 @@
 #ifndef STREAM_H
 #define STREAM_H
 
+#include "Core/IDelegate.h"
+#include "Core/IListener.h"
+#include "Core/Log.h"
 #include "Core/Object.h"
 #include "uv.h"
-#include "Core/IListener.h"
-#include "Core/IDelegate.h"
 #include <stdint.h>
-#include "Core/Log.h"
 
 #include <string>
 #include <vector>
 
-class RZU_EXTERN Stream : public Object
-{
-
+class RZU_EXTERN Stream : public Object {
 public:
-	enum StreamType {
-		ST_Socket,
-		ST_Pipe
-	};
+	enum StreamType { ST_Socket, ST_Pipe };
 
 	enum State {
-		UnconnectedState,	//Client & server
+		UnconnectedState,  // Client & server
 
-		ConnectingState,	//Client
-		BindingState,			//Server
+		ConnectingState,  // Client
+		BindingState,     // Server
 
-		ListeningState,			//Server
-		ConnectedState,		//Client
+		ListeningState,  // Server
+		ConnectedState,  // Client
 
-		ClosingState		//Client & Server
+		ClosingState  // Client & Server
 	};
 
 	struct RZU_EXTERN WriteRequest {
@@ -46,33 +41,37 @@ public:
 	private:
 		WriteRequest();
 		~WriteRequest();
-		WriteRequest(const WriteRequest &);
-		WriteRequest& operator =(const WriteRequest&);
+		WriteRequest(const WriteRequest&);
+		WriteRequest& operator=(const WriteRequest&);
 	};
 
 	static const char* STATES[];
 
 	typedef void (*CallbackOnDataReady)(IListener* instance, Stream* socket);
-	typedef void (*CallbackOnStateChanged)(IListener* instance, Stream* socket, State oldState, State newState, bool causedByRemote);
+	typedef void (*CallbackOnStateChanged)(
+	    IListener* instance, Stream* socket, State oldState, State newState, bool causedByRemote);
 	typedef void (*CallbackOnError)(IListener* instance, Stream* socket, int errnoValue);
 
 public:
 	virtual ~Stream();
 
-	static StreamType parseConnectionUrl(const char *url, std::string *target);
-	static Stream* getStream(StreamType type, Stream* existingStream = nullptr, bool *changed = nullptr, bool enablePacketLogger = true);
+	static StreamType parseConnectionUrl(const char* url, std::string* target);
+	static Stream* getStream(StreamType type,
+	                         Stream* existingStream = nullptr,
+	                         bool* changed = nullptr,
+	                         bool enablePacketLogger = true);
 
 	bool connect(const std::string& hostName, uint16_t port);
 	bool listen(const std::string& interfaceIp, uint16_t port);
 
 	size_t getAvailableBytes() { return recvBuffer.size(); }
-	size_t read(void *buffer, size_t size);
-	size_t readAll(std::vector<char>* buffer); //data in buffer will be destroyed
-	size_t discard(size_t size); //read but does not store read data
-	size_t discardAll(); //discard all data
-	size_t write(WriteRequest* writeRequest); //take writeRequest's ownership
-	size_t write(const void *buffer, size_t size);
-	bool accept(Stream **clientSocket);
+	size_t read(void* buffer, size_t size);
+	size_t readAll(std::vector<char>* buffer);  // data in buffer will be destroyed
+	size_t discard(size_t size);                // read but does not store read data
+	size_t discardAll();                        // discard all data
+	size_t write(WriteRequest* writeRequest);   // take writeRequest's ownership
+	size_t write(const void* buffer, size_t size);
+	bool accept(Stream** clientSocket);
 
 	void close(bool causedByRemote = false);
 	void abort(bool causedByRemote = false);
@@ -103,10 +102,11 @@ public:
 	void resetPacketTransferedFlag() { packetTransferedSinceLastCheck = false; }
 	bool isPacketTransferedSinceLastCheck() { return packetTransferedSinceLastCheck; }
 
-	void packetLog(Object::Level level, const unsigned char *rawData, int size, const char* format, ...) PRINTFCHECK(5, 6);
+	void packetLog(Object::Level level, const unsigned char* rawData, int size, const char* format, ...)
+	    PRINTFCHECK(5, 6);
 
 protected:
-	Stream(uv_loop_t *uvLoop, uv_stream_t* handle, bool logPackets = true);
+	Stream(uv_loop_t* uvLoop, uv_stream_t* handle, bool logPackets = true);
 	void setState(State state, bool causedByRemote = true);
 	uv_loop_t* getLoop() { return loop; }
 
@@ -121,7 +121,7 @@ protected:
 	static void onConnectionClosed(uv_handle_t* handle);
 
 protected:
-	virtual int connect_impl(uv_connect_t* connectRequest, const std::string & hostName, uint16_t port) = 0;
+	virtual int connect_impl(uv_connect_t* connectRequest, const std::string& hostName, uint16_t port) = 0;
 	virtual int bind_impl(const std::string& interfaceIp, uint16_t port) = 0;
 	virtual Stream* createStream_impl() = 0;
 	virtual void retrieveSocketBoundsInfo() {}
@@ -135,7 +135,7 @@ protected:
 	uint16_t localPort;
 	char remoteIpStr[INET6_ADDRSTRLEN];
 	char localIpStr[INET6_ADDRSTRLEN];
-	bool logPackets; //set to false when logging is done in a derived class
+	bool logPackets;  // set to false when logging is done in a derived class
 
 private:
 	uv_loop_t* loop;
@@ -154,8 +154,9 @@ private:
 
 	Log* packetLogger;
 
-	bool packetTransferedSinceLastCheck; //when checking idle pipes, if this flag is false, then the pipe is closed (idle)
+	bool packetTransferedSinceLastCheck;  // when checking idle pipes, if this flag is false, then the pipe is closed
+	                                      // (idle)
 	bool closeCausedByRemote;
 };
 
-#endif // STREAM_H
+#endif  // STREAM_H

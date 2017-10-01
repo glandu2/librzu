@@ -1,10 +1,10 @@
 #ifndef PACKETS_TS_SC_ENTER_H
 #define PACKETS_TS_SC_ENTER_H
 
-#include "Packet/PacketDeclaration.h"
 #include "Packet/EncodedInt.h"
 #include "Packet/EncodingRandomized.h"
 #include "Packet/EncodingScrambled.h"
+#include "Packet/PacketDeclaration.h"
 
 enum TS_SC_ENTER__OBJ_TYPE : uint8_t {
 	EOT_Player = 0,

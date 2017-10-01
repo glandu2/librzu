@@ -25,4 +25,4 @@ void DbQueryJobCallback<DbMappingClass, Session, DbJobClass>::onDone(IDbQueryJob
 	}
 }
 
-#endif // DBQUERYJOBCALLBACK_IMPL_H
+#endif  // DBQUERYJOBCALLBACK_IMPL_H

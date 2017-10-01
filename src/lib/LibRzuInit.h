@@ -5,7 +5,8 @@
 
 typedef void (*ClientConfigInit)();
 
-//configDeclareInitCallback must bind or declare config keys to set their types (if there is no config used in client code, set to nullptr)
+// configDeclareInitCallback must bind or declare config keys to set their types (if there is no config used in client
+// code, set to nullptr)
 bool RZU_EXTERN LibRzuInit();
 
-#endif // LIBRZUINIT_H
+#endif  // LIBRZUINIT_H

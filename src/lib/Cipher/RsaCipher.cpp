@@ -1,21 +1,17 @@
 #include "RsaCipher.h"
-#include <openssl/rsa.h>
-#include <openssl/pem.h>
 #include <openssl/err.h>
+#include <openssl/pem.h>
+#include <openssl/rsa.h>
 #include <string.h>
 
-RsaCipher::RsaCipher()
-    : rsaCipher(nullptr, &RSA_free)
-{
-}
+RsaCipher::RsaCipher() : rsaCipher(nullptr, &RSA_free) {}
 
-RsaCipher::~RsaCipher() {
-}
+RsaCipher::~RsaCipher() {}
 
 bool RsaCipher::loadKey(const std::vector<uint8_t>& pemKey) {
-	std::unique_ptr<BIO, int(*)(BIO*)> bio(nullptr, &BIO_free);
+	std::unique_ptr<BIO, int (*)(BIO*)> bio(nullptr, &BIO_free);
 
-	bio.reset(BIO_new_mem_buf(const_cast<uint8_t*>(pemKey.data()), (int)pemKey.size()));
+	bio.reset(BIO_new_mem_buf(const_cast<uint8_t*>(pemKey.data()), (int) pemKey.size()));
 	rsaCipher.reset(PEM_read_bio_RSA_PUBKEY(bio.get(), NULL, NULL, NULL));
 
 	if(!rsaCipher) {
@@ -28,14 +24,14 @@ bool RsaCipher::loadKey(const std::vector<uint8_t>& pemKey) {
 
 bool RsaCipher::getPemPublicKey(std::vector<uint8_t>& outKey) {
 	if(rsaCipher) {
-		std::unique_ptr<BIO, decltype(&::BIO_free)> b (BIO_new(BIO_s_mem()), ::BIO_free);
+		std::unique_ptr<BIO, decltype(&::BIO_free)> b(BIO_new(BIO_s_mem()), ::BIO_free);
 		if(!PEM_write_bio_RSA_PUBKEY(b.get(), rsaCipher.get())) {
 			printError();
 			return false;
 		}
 
 		outKey.resize(BIO_get_mem_data(b.get(), nullptr));
-		BIO_read(b.get(), &outKey[0], (int)outKey.size());
+		BIO_read(b.get(), &outKey[0], (int) outKey.size());
 
 		return true;
 	}
@@ -44,7 +40,7 @@ bool RsaCipher::getPemPublicKey(std::vector<uint8_t>& outKey) {
 }
 
 int RsaCipher::generateKey() {
-	std::unique_ptr<BIGNUM, decltype(&::BN_free)> e (BN_new(), ::BN_free);
+	std::unique_ptr<BIGNUM, decltype(&::BN_free)> e(BN_new(), ::BN_free);
 
 	rsaCipher.reset(RSA_new());
 	BN_set_word(e.get(), RSA_F4);
@@ -55,8 +51,7 @@ int RsaCipher::generateKey() {
 	return result;
 }
 
-bool RsaCipher::isInitialized()
-{
+bool RsaCipher::isInitialized() {
 	return rsaCipher.get() != nullptr;
 }
 
@@ -112,10 +107,8 @@ bool RsaCipher::privateDecrypt(const uint8_t* input, size_t input_size, std::vec
 	return true;
 }
 
-void RsaCipher::printError()
-{
+void RsaCipher::printError() {
 	unsigned long errorCode = ERR_get_error();
 	if(errorCode)
 		log(LL_Warning, "AES: error: %s\n", ERR_error_string(errorCode, nullptr));
-
 }

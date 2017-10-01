@@ -2,13 +2,12 @@
 #define DBPASSWORDCIPHER_H
 
 #include "../Extern.h"
-#include <vector>
 #include <string>
+#include <vector>
 
-class RZU_EXTERN DbPasswordCipher
-{
+class RZU_EXTERN DbPasswordCipher {
 public:
 	static std::string decrypt(std::vector<unsigned char> cryptedPassword);
 };
 
-#endif // DBPASSWORDCIPHER_H
+#endif  // DBPASSWORDCIPHER_H

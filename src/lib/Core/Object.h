@@ -1,13 +1,15 @@
 #ifndef OBJECT_H
 #define OBJECT_H
 
-#include <stddef.h>
 #include <stdarg.h>
+#include <stddef.h>
 
 #include "../Extern.h"
 
-//used to count objects, "c" stand for class type, WARNING: declare public block
-//getTrueClassHash: for variable used like this: Object *obj = new Actor();, obj.getTrueClassHash() return hash of class Actor.
+// used to count objects, "c" stand for class type, WARNING: declare public block
+// getTrueClassHash: for variable used like this: Object *obj = new Actor();, obj.getTrueClassHash() return hash of
+// class Actor.
+// clang-format off
 #define DECLARE_CLASS(C) \
 	protected: struct ClassCounter { \
 		unsigned long objectNo; \
@@ -33,33 +35,26 @@
 	public: virtual const char *getClassName() { return #C; } \
 	virtual unsigned int getClassNameSize() { return sizeof(#C); } \
 	virtual unsigned long getObjectNum() { return count; }
+// clang-format on
 
-
-class RZU_EXTERN Object
-{
+class RZU_EXTERN Object {
 	DECLARE_CLASS(Object)
 public:
-	enum Level {
-		LL_Fatal,
-		LL_Error,
-		LL_Warning,
-		LL_Info,
-		LL_Debug,
-		LL_Trace
-	};
+	enum Level { LL_Fatal, LL_Error, LL_Warning, LL_Info, LL_Debug, LL_Trace };
+
 public:
 	Object();
 	virtual ~Object();
 
-	void setObjectName(const char *name);
-	void setObjectName(size_t maxLen, const char *format, ...) PRINTFCHECK(3, 4);
-	const char *getObjectName(size_t *size = nullptr);
+	void setObjectName(const char* name);
+	void setObjectName(size_t maxLen, const char* format, ...) PRINTFCHECK(3, 4);
+	const char* getObjectName(size_t* size = nullptr);
 
-	void log(Level level, const char *message, ...) PRINTFCHECK(3, 4);
-	void logv(Level level, const char *message, va_list args);
+	void log(Level level, const char* message, ...) PRINTFCHECK(3, 4);
+	void logv(Level level, const char* message, va_list args);
 
-	static void logStatic(Level level, const char* className, const char *message, ...) PRINTFCHECK(3, 4);
-	static void logStaticv(Level level, const char* className, const char *message, va_list args);
+	static void logStatic(Level level, const char* className, const char* message, ...) PRINTFCHECK(3, 4);
+	static void logStaticv(Level level, const char* className, const char* message, va_list args);
 
 	virtual void deleteLater();
 	bool isScheduledForDelete() { return scheduledForDelete; }
@@ -69,11 +64,10 @@ protected:
 	virtual void updateObjectName();
 
 private:
-	char *objectName;
+	char* objectName;
 	size_t objectNameSize;
 	bool dirtyName;
 	bool scheduledForDelete;
 };
 
-
-#endif // OBJECT_H
+#endif  // OBJECT_H

@@ -3,8 +3,7 @@
 
 std::vector<uv_work_t*> ThreadWorkBase::freeHandles;
 
-ThreadWorkBase::ThreadWorkBase() : handle(nullptr) {
-}
+ThreadWorkBase::ThreadWorkBase() : handle(nullptr) {}
 
 ThreadWorkBase::~ThreadWorkBase() {
 	if(handle) {
@@ -31,8 +30,7 @@ int ThreadWorkBase::cancel() {
 	return uv_cancel(reinterpret_cast<uv_req_t*>(handle));
 }
 
-void ThreadWorkBase::freeHandle()
-{
+void ThreadWorkBase::freeHandle() {
 	if(handle)
 		freeHandles.push_back(handle);
 	handle = nullptr;

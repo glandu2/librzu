@@ -12,12 +12,15 @@ public:
 };
 
 template<class DbMappingClass, class Session, class DbJobClass>
-class DbQueryJobCallback : public DbQueryJob<DbMappingClass>, public IDbQueryJobCallback, public DbQueryJobCallbackBase
-{
+class DbQueryJobCallback : public DbQueryJob<DbMappingClass>,
+                           public IDbQueryJobCallback,
+                           public DbQueryJobCallbackBase {
 public:
 	typedef void (Session::*DbCallback)(DbJobClass* query);
+
 public:
-	DbQueryJobCallback(Session* session, DbCallback callback) : session(session), callback(callback), dbQueryJobRef(nullptr) {}
+	DbQueryJobCallback(Session* session, DbCallback callback)
+	    : session(session), callback(callback), dbQueryJobRef(nullptr) {}
 
 	void setDbQueryJobRef(DbQueryJobRef* dbQueryJobRef) { this->dbQueryJobRef = dbQueryJobRef; }
 	DbQueryJobRef* getDbQueryJobRef() { return dbQueryJobRef; }
@@ -35,4 +38,4 @@ private:
 
 #include "DbQueryJobCallback.inl"
 
-#endif // DBQUERYJOBCALLBACK_H
+#endif  // DBQUERYJOBCALLBACK_H

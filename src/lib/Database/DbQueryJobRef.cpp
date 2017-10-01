@@ -2,7 +2,7 @@
 #include "IDbQueryJobCallback.h"
 #include <algorithm>
 
-DbQueryJobRef::DbQueryJobRef(DbQueryJobRef &&other) {
+DbQueryJobRef::DbQueryJobRef(DbQueryJobRef&& other) {
 	dbQueryJobs.swap(other.dbQueryJobs);
 
 	auto it = dbQueryJobs.begin();
@@ -22,7 +22,7 @@ DbQueryJobRef::~DbQueryJobRef() {
 	}
 }
 
-void DbQueryJobRef::onQueryDone(IDbQueryJobCallback *query) {
+void DbQueryJobRef::onQueryDone(IDbQueryJobCallback* query) {
 	if(!deleting) {
 		auto it = std::find(dbQueryJobs.begin(), dbQueryJobs.end(), query);
 		if(it != dbQueryJobs.end())

@@ -1,17 +1,17 @@
 #ifndef MESSAGEBUFFER_H
 #define MESSAGEBUFFER_H
 
-#include "StructSerializer.h"
 #include "Core/Object.h"
 #include "Stream/Stream.h"
-#include <vector>
+#include "StructSerializer.h"
 #include <string.h>
 #include <type_traits>
+#include <vector>
 
 class RZU_EXTERN MessageBuffer : public StructSerializer, public Object {
 private:
 	Stream::WriteRequest* buffer;
-	char *p;
+	char* p;
 	bool bufferOverflow;
 	std::string fieldInOverflow;
 
@@ -30,7 +30,6 @@ private:
 	}
 
 public:
-
 	MessageBuffer(size_t size, int version);
 
 	MessageBuffer(const void* data, size_t size, int version);
@@ -42,8 +41,8 @@ public:
 	char* getData() { return buffer->buffer.base; }
 	uint32_t getSize() const { return buffer->buffer.len; }
 	uint32_t getParsedSize() const { return uint32_t(p - getData()); }
-	uint16_t getMessageId() const  { return *reinterpret_cast<const uint16_t*>(buffer->buffer.base + 4); }
-	std::string getFieldInOverflow() const  { return fieldInOverflow; }
+	uint16_t getMessageId() const { return *reinterpret_cast<const uint16_t*>(buffer->buffer.base + 4); }
+	std::string getFieldInOverflow() const { return fieldInOverflow; }
 
 	bool checkFinalSize();
 	bool checkPacketFinalSize();
@@ -69,41 +68,41 @@ public:
 		write<uint8_t>("msg_checksum", getMessageChecksum(size, id));
 	}
 
-	//Primitives
+	// Primitives
 	template<typename T>
-	typename std::enable_if<is_primitive<T>::value, void>::type
-	write(const char* fieldName, T val) {
+	typename std::enable_if<is_primitive<T>::value, void>::type write(const char* fieldName, T val) {
 		if(checkAvailableBuffer(fieldName, sizeof(T))) {
 			*reinterpret_cast<T*>(p) = val;
 			p += sizeof(T);
 		}
 	}
 
-	//Objects
+	// Objects
 	template<typename T>
-	typename std::enable_if<!is_primitive<T>::value, void>::type
-	write(const char* fieldName, const T& val) {
+	typename std::enable_if<!is_primitive<T>::value, void>::type write(const char* fieldName, const T& val) {
 		val.serialize(this);
 	}
 
-	//String
+	// String
 	void writeString(const char* fieldName, const std::string& val, size_t maxSize);
 	void writeDynString(const char* fieldName, const std::string& val, size_t count);
 
-	//Fixed array of primitive
+	// Fixed array of primitive
 	template<typename T>
-	typename std::enable_if<is_primitive<T>::value, void>::type
-	writeArray(const char* fieldName, const T* val, size_t size) {
+	typename std::enable_if<is_primitive<T>::value, void>::type writeArray(const char* fieldName,
+	                                                                       const T* val,
+	                                                                       size_t size) {
 		if(checkAvailableBuffer(fieldName, sizeof(T) * size)) {
 			memcpy(p, val, sizeof(T) * size);
 			p += sizeof(T) * size;
 		}
 	}
 
-	//Fixed array of primitive with cast
+	// Fixed array of primitive with cast
 	template<typename T, typename U>
-	typename std::enable_if<is_castable_primitive<T, U>::value, void>::type
-	writeArray(const char* fieldName, const U* val, size_t size) {
+	typename std::enable_if<is_castable_primitive<T, U>::value, void>::type writeArray(const char* fieldName,
+	                                                                                   const U* val,
+	                                                                                   size_t size) {
 		if(checkAvailableBuffer(fieldName, sizeof(T) * size)) {
 			for(size_t i = 0; i < size; ++i) {
 				*reinterpret_cast<T*>(p) = val[i];
@@ -112,19 +111,21 @@ public:
 		}
 	}
 
-	//Fixed array of object
+	// Fixed array of object
 	template<typename T>
-	typename std::enable_if<!is_primitive<T>::value, void>::type
-	writeArray(const char* fieldName, const T* val, size_t size) {
+	typename std::enable_if<!is_primitive<T>::value, void>::type writeArray(const char* fieldName,
+	                                                                        const T* val,
+	                                                                        size_t size) {
 		for(size_t i = 0; i < size; i++) {
 			write<T>(fieldName, val[i]);
 		}
 	}
 
-	//Dynamic array of primitive
+	// Dynamic array of primitive
 	template<typename T>
-	typename std::enable_if<is_primitive<T>::value, void>::type
-	writeDynArray(const char* fieldName, const std::vector<T>& val, uint32_t count) {
+	typename std::enable_if<is_primitive<T>::value, void>::type writeDynArray(const char* fieldName,
+	                                                                          const std::vector<T>& val,
+	                                                                          uint32_t count) {
 		size_t size = sizeof(T) * count;
 		if(size && checkAvailableBuffer(fieldName, size)) {
 			memcpy(p, &val[0], size);
@@ -132,10 +133,11 @@ public:
 		}
 	}
 
-	//Dynamic array of primitive with cast
+	// Dynamic array of primitive with cast
 	template<typename T, typename U>
-	typename std::enable_if<is_castable_primitive<T, U>::value, void>::type
-	writeDynArray(const char* fieldName, const std::vector<U>& val, uint32_t count) {
+	typename std::enable_if<is_castable_primitive<T, U>::value, void>::type writeDynArray(const char* fieldName,
+	                                                                                      const std::vector<U>& val,
+	                                                                                      uint32_t count) {
 		size_t size = sizeof(T) * count;
 		if(size && checkAvailableBuffer(fieldName, size)) {
 			for(size_t i = 0; i < count; ++i) {
@@ -145,17 +147,17 @@ public:
 		}
 	}
 
-	//Dynamic array of object or primitive with cast
+	// Dynamic array of object or primitive with cast
 	template<typename T>
-	typename std::enable_if<!is_primitive<T>::value, void>::type
-	writeDynArray(const char* fieldName, const std::vector<T>& val, uint32_t count) {
+	typename std::enable_if<!is_primitive<T>::value, void>::type writeDynArray(const char* fieldName,
+	                                                                           const std::vector<T>& val,
+	                                                                           uint32_t count) {
 		for(size_t i = 0; i < count; i++)
 			write<T>(fieldName, val[i]);
 	}
 
 	template<typename T>
-	typename std::enable_if<is_primitive<T>::value, void>::type
-	writeSize(const char* fieldName, T size) {
+	typename std::enable_if<is_primitive<T>::value, void>::type writeSize(const char* fieldName, T size) {
 		write<T>(fieldName, size);
 	}
 
@@ -174,63 +176,61 @@ public:
 		discard("msg_checksum", 1);
 	}
 
-	//Primitives via arg
+	// Primitives via arg
 	template<typename T, typename U>
-	typename std::enable_if<is_primitive<U>::value, void>::type
-	read(const char* fieldName, U& val) {
+	typename std::enable_if<is_primitive<U>::value, void>::type read(const char* fieldName, U& val) {
 		if(checkAvailableBuffer(fieldName, sizeof(T))) {
-			val = (U)*reinterpret_cast<T*>(p);
+			val = (U) * reinterpret_cast<T*>(p);
 			p += sizeof(T);
 		}
 	}
 
-	//Objects
+	// Objects
 	template<typename T>
-	typename std::enable_if<!is_primitive<T>::value, void>::type
-	read(const char* fieldName, T& val) {
+	typename std::enable_if<!is_primitive<T>::value, void>::type read(const char* fieldName, T& val) {
 		val.deserialize(this);
 	}
 
-	//String
+	// String
 	void readString(const char* fieldName, std::string& val, size_t size);
 	void readDynString(const char* fieldName, std::string& val, uint32_t sizeToRead, bool hasNullTerminator);
 	void readEndString(const char* fieldName, std::string& val, bool hasNullTerminator);
 
-	//Fixed array of primitive
+	// Fixed array of primitive
 	template<typename T>
-	typename std::enable_if<is_primitive<T>::value, void>::type
-	readArray(const char* fieldName, T* val, size_t size) {
+	typename std::enable_if<is_primitive<T>::value, void>::type readArray(const char* fieldName, T* val, size_t size) {
 		if(checkAvailableBuffer(fieldName, sizeof(T) * size)) {
 			memcpy(val, p, sizeof(T) * size);
 			p += sizeof(T) * size;
 		}
 	}
 
-	//Fixed array of primitive with cast
+	// Fixed array of primitive with cast
 	template<typename T, typename U>
-	typename std::enable_if<is_castable_primitive<T, U>::value, void>::type
-	readArray(const char* fieldName, U* val, size_t size) {
+	typename std::enable_if<is_castable_primitive<T, U>::value, void>::type readArray(const char* fieldName,
+	                                                                                  U* val,
+	                                                                                  size_t size) {
 		if(checkAvailableBuffer(fieldName, sizeof(T) * size)) {
 			for(size_t i = 0; i < size; i++) {
-				val[i] = (U)*reinterpret_cast<T*>(p);
+				val[i] = (U) * reinterpret_cast<T*>(p);
 				p += sizeof(T);
 			}
 		}
 	}
 
-	//Fixed array of objects
+	// Fixed array of objects
 	template<typename T>
-	typename std::enable_if<!is_primitive<T>::value, void>::type
-	readArray(const char* fieldName, T* val, size_t size) {
+	typename std::enable_if<!is_primitive<T>::value, void>::type readArray(const char* fieldName, T* val, size_t size) {
 		for(size_t i = 0; i < size; i++) {
 			read<T>(fieldName, val[i]);
 		}
 	}
 
-	//Dynamic array of primitive
+	// Dynamic array of primitive
 	template<typename T>
-	typename std::enable_if<is_primitive<T>::value, void>::type
-	readDynArray(const char* fieldName, std::vector<T>& val, uint32_t sizeToRead) {
+	typename std::enable_if<is_primitive<T>::value, void>::type readDynArray(const char* fieldName,
+	                                                                         std::vector<T>& val,
+	                                                                         uint32_t sizeToRead) {
 		size_t size = sizeof(T) * sizeToRead;
 		if(size && checkAvailableBuffer(fieldName, size)) {
 			val.assign(reinterpret_cast<T*>(p), reinterpret_cast<T*>(p) + sizeToRead);
@@ -240,25 +240,27 @@ public:
 		}
 	}
 
-	//Dynamic array of primitive with cast
+	// Dynamic array of primitive with cast
 	template<typename T, typename U>
-	typename std::enable_if<is_castable_primitive<T, U>::value, void>::type
-	readDynArray(const char* fieldName, std::vector<U>& val, uint32_t sizeToRead) {
+	typename std::enable_if<is_castable_primitive<T, U>::value, void>::type readDynArray(const char* fieldName,
+	                                                                                     std::vector<U>& val,
+	                                                                                     uint32_t sizeToRead) {
 		size_t size = sizeof(T) * sizeToRead;
 		val.clear();
 		if(size && checkAvailableBuffer(fieldName, size)) {
 			val.reserve(sizeToRead);
 			for(size_t i = 0; i < sizeToRead; i++) {
-				val.push_back((U)*reinterpret_cast<T*>(p));
+				val.push_back((U) * reinterpret_cast<T*>(p));
 				p += sizeof(T);
 			}
 		}
 	}
 
-	//Dynamic array of object
+	// Dynamic array of object
 	template<typename T>
-	typename std::enable_if<!is_primitive<T>::value, void>::type
-	readDynArray(const char* fieldName, std::vector<T>& val, uint32_t sizeToRead) {
+	typename std::enable_if<!is_primitive<T>::value, void>::type readDynArray(const char* fieldName,
+	                                                                          std::vector<T>& val,
+	                                                                          uint32_t sizeToRead) {
 		val.resize(sizeToRead, T{});
 
 		auto it = val.begin();
@@ -267,9 +269,8 @@ public:
 			read<T>(fieldName, *it);
 	}
 
-	//End array, read to the end of stream
-	template<typename T>
-	void readEndArray(const char* fieldName, std::vector<T>& val) {
+	// End array, read to the end of stream
+	template<typename T> void readEndArray(const char* fieldName, std::vector<T>& val) {
 		// While there are non parsed bytes and the read actually read something, continue
 		uint32_t lastParsedSize = UINT32_MAX;
 		while(lastParsedSize != getParsedSize() && getParsedSize() < getSize()) {
@@ -280,10 +281,9 @@ public:
 		}
 	}
 
-	//read size for objects (std:: containers)
+	// read size for objects (std:: containers)
 	template<typename T>
-	typename std::enable_if<is_primitive<T>::value, void>::type
-	readSize(const char* fieldName, uint32_t& val) {
+	typename std::enable_if<is_primitive<T>::value, void>::type readSize(const char* fieldName, uint32_t& val) {
 		read<T>(fieldName, val);
 	}
 
@@ -294,4 +294,4 @@ public:
 	}
 };
 
-#endif // MESSAGEBUFFER_H
+#endif  // MESSAGEBUFFER_H

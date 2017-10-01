@@ -1,6 +1,6 @@
 #include "ClassCounter.h"
 
-//For detail about this variable, see ClassCounter.h
+// For detail about this variable, see ClassCounter.h
 unsigned int ClassCounter__internal_object_engine_class_counter = 0;
 
 std::map<std::string, unsigned long*>& getObjectsCount() {
@@ -9,8 +9,8 @@ std::map<std::string, unsigned long*>& getObjectsCount() {
 	return objectsCount;
 }
 
-//generated with notepad++ with this pattern: (.*) ->
-//#include "\1.h"\nDECLARE_CLASSCOUNT_STATIC\(\1\)\n
+	// generated with notepad++ with this pattern: (.*) ->
+	// #include "\1.h"\nDECLARE_CLASSCOUNT_STATIC\(\1\)\n
 
 #include "Config/ConfigInfo.h"
 DECLARE_CLASSCOUNT_STATIC(ConfigInfo)

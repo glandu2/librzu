@@ -1,18 +1,16 @@
 #ifndef ILISTENER_H
 #define ILISTENER_H
 
-#include <vector>
 #include "../Extern.h"
 #include <stddef.h>
+#include <vector>
 
 typedef void** DelegateRef;
 
 class RZU_EXTERN IListener {
 public:
 	IListener() {}
-	virtual ~IListener() {
-		invalidateCallbacks();
-	}
+	virtual ~IListener() { invalidateCallbacks(); }
 
 	void reserveCallbackCount(size_t count) {
 		if(count)
@@ -50,4 +48,4 @@ private:
 	std::vector<DelegateRef> callbackValidityPtrs;
 };
 
-#endif // ILISTENER_H
+#endif  // ILISTENER_H

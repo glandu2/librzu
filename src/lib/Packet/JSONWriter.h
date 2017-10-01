@@ -1,9 +1,9 @@
 #ifndef PACKETS_JSONWRITER_H
 #define PACKETS_JSONWRITER_H
 
+#include "EncodedInt.h"
 #include "StructSerializer.h"
 #include <sstream>
-#include "EncodedInt.h"
 
 class JSONWriter : public StructSerializer {
 private:
@@ -20,9 +20,15 @@ public:
 		json << "{";
 	}
 
-	void finalize() { json << (compact ? "}\n" : "\n}\n"); newList = true; }
+	void finalize() {
+		json << (compact ? "}\n" : "\n}\n");
+		newList = true;
+	}
 	void start() { json << "{"; }
-	void clear() { json.str(std::string()); json.clear(); }
+	void clear() {
+		json.str(std::string());
+		json.clear();
+	}
 
 	std::string toString() { return json.str(); }
 
@@ -43,43 +49,39 @@ public:
 
 	// Write functions /////////////////////////
 
-	void writeHeader(uint32_t size, uint16_t id) {
-		write<uint16_t>("id", id);
-	}
+	void writeHeader(uint32_t size, uint16_t id) { write<uint16_t>("id", id); }
 
-	//handle ambiguous << operator for int16_t and int8_t
+	// handle ambiguous << operator for int16_t and int8_t
 	template<typename T>
-	typename std::enable_if<is_primitive<T>::value && sizeof(T) < sizeof(int), void>::type
-	write(const char* fieldName, T val) {
+	typename std::enable_if<is_primitive<T>::value && sizeof(T) < sizeof(int), void>::type write(const char* fieldName,
+	                                                                                             T val) {
 		printIdent(fieldName != nullptr);
 		if(fieldName)
 			json << '\"' << fieldName << getEndFieldSeparator();
-		json << (int)val;
+		json << (int) val;
 	}
 
-	//Primitives
+	// Primitives
 	template<typename T>
-	typename std::enable_if<is_primitive<T>::value && sizeof(T) >= sizeof(int), void>::type
-	write(const char* fieldName, T val) {
+	typename std::enable_if<is_primitive<T>::value && sizeof(T) >= sizeof(int), void>::type write(const char* fieldName,
+	                                                                                              T val) {
 		printIdent(fieldName != nullptr);
 		if(fieldName)
 			json << '\"' << fieldName << getEndFieldSeparator();
 		json << val;
 	}
 
-	//Encoded values
-	template<typename T>
-	void write(const char* fieldName, const EncodedInt<T>& val) {
+	// Encoded values
+	template<typename T> void write(const char* fieldName, const EncodedInt<T>& val) {
 		printIdent(fieldName != nullptr);
 		if(fieldName)
 			json << '\"' << fieldName << getEndFieldSeparator();
-		json << (uint32_t)val;
+		json << (uint32_t) val;
 	}
 
-	//Objects
+	// Objects
 	template<typename T>
-	typename std::enable_if<!is_primitive<T>::value, void>::type
-	write(const char* fieldName, const T& val) {
+	typename std::enable_if<!is_primitive<T>::value, void>::type write(const char* fieldName, const T& val) {
 		printIdent();
 		if(fieldName)
 			json << '\"' << fieldName << getEndFieldSeparator();
@@ -95,7 +97,7 @@ public:
 		json << '}';
 	}
 
-	//String
+	// String
 	void writeString(const char* fieldName, const std::string& val, size_t maxSize) {
 		printIdent();
 		if(fieldName)
@@ -117,9 +119,8 @@ public:
 		json << "\"" << val << "\"";
 	}
 
-	//Fixed array
-	template<typename T>
-	void writeArray(const char* fieldName, const T* val, size_t size) {
+	// Fixed array
+	template<typename T> void writeArray(const char* fieldName, const T* val, size_t size) {
 		printIdent();
 		if(fieldName)
 			json << '\"' << fieldName << getEndFieldSeparator();
@@ -137,16 +138,16 @@ public:
 		json << ']';
 	}
 
-	//Fixed array of primitive with cast
+	// Fixed array of primitive with cast
 	template<typename T, typename U>
-	typename std::enable_if<is_castable_primitive<T, U>::value, void>::type
-	writeArray(const char* fieldName, const U* val, size_t size) {
+	typename std::enable_if<is_castable_primitive<T, U>::value, void>::type writeArray(const char* fieldName,
+	                                                                                   const U* val,
+	                                                                                   size_t size) {
 		writeArray<U>(fieldName, val, size);
 	}
 
-	//Dynamic array
-	template<typename T>
-	void writeDynArray(const char* fieldName, const std::vector<T>& val, uint32_t) {
+	// Dynamic array
+	template<typename T> void writeDynArray(const char* fieldName, const std::vector<T>& val, uint32_t) {
 		printIdent();
 		if(fieldName)
 			json << '\"' << fieldName << getEndFieldSeparator();
@@ -165,91 +166,74 @@ public:
 		json << ']';
 	}
 
-	//Dynamic array of primitive with cast
+	// Dynamic array of primitive with cast
 	template<typename T, typename U>
-	typename std::enable_if<is_castable_primitive<T, U>::value, void>::type
-	writeDynArray(const char* fieldName, const std::vector<U>& val, uint32_t count) {
+	typename std::enable_if<is_castable_primitive<T, U>::value, void>::type writeDynArray(const char* fieldName,
+	                                                                                      const std::vector<U>& val,
+	                                                                                      uint32_t count) {
 		writeDynArray<U>(fieldName, val, count);
 	}
 
 	template<typename T>
-	typename std::enable_if<is_primitive<T>::value, void>::type
-	writeSize(const char* fieldName, T size) {}
+	typename std::enable_if<is_primitive<T>::value, void>::type writeSize(const char* fieldName, T size) {}
 
 	void pad(const char* fieldName, size_t size) {}
 
-
 	// Read functions /////////////////////////
 
-	void readHeader(uint16_t& id) {
-	}
+	void readHeader(uint16_t& id) {}
 
-	//Primitives via arg
+	// Primitives via arg
 	template<typename T, typename U>
-	typename std::enable_if<is_primitive<U>::value, void>::type
-	read(const char* fieldName, U& val) {
-	}
+	typename std::enable_if<is_primitive<U>::value, void>::type read(const char* fieldName, U& val) {}
 
-	//Objects
+	// Objects
 	template<typename T>
-	typename std::enable_if<!is_primitive<T>::value, void>::type
-	read(const char* fieldName, T& val) {
-	}
+	typename std::enable_if<!is_primitive<T>::value, void>::type read(const char* fieldName, T& val) {}
 
-	//String
+	// String
 	void readString(const char* fieldName, std::string& val, size_t size) {}
 	void readDynString(const char* fieldName, std::string& val, size_t sizeToRead, bool hasNullTerminator) {}
 	void readEndString(const char* fieldName, std::string& val, bool hasNullTerminator) {}
 
-	//Fixed array of primitive
+	// Fixed array of primitive
 	template<typename T>
-	typename std::enable_if<is_primitive<T>::value, void>::type
-	readArray(const char* fieldName, T* val, size_t size) {
-	}
+	typename std::enable_if<is_primitive<T>::value, void>::type readArray(const char* fieldName, T* val, size_t size) {}
 
-	//Fixed array of primitive with cast
+	// Fixed array of primitive with cast
 	template<typename T, typename U>
-	typename std::enable_if<is_castable_primitive<T, U>::value, void>::type
-	readArray(const char* fieldName, U* val, size_t size) {
-	}
+	typename std::enable_if<is_castable_primitive<T, U>::value, void>::type readArray(const char* fieldName,
+	                                                                                  U* val,
+	                                                                                  size_t size) {}
 
-	//Fixed array of objects
+	// Fixed array of objects
 	template<typename T>
-	typename std::enable_if<!is_primitive<T>::value, void>::type
-	readArray(const char* fieldName, T* val, size_t size) {
+	typename std::enable_if<!is_primitive<T>::value, void>::type readArray(const char* fieldName, T* val, size_t size) {
 	}
 
-	//Dynamic array of primitive
+	// Dynamic array of primitive
 	template<typename T>
-	typename std::enable_if<is_primitive<T>::value, void>::type
-	readDynArray(const char* fieldName, std::vector<T>& val) {
-	}
+	typename std::enable_if<is_primitive<T>::value, void>::type readDynArray(const char* fieldName,
+	                                                                         std::vector<T>& val) {}
 
-	//Dynamic array of primitive with cast
+	// Dynamic array of primitive with cast
 	template<typename T, typename U>
-	typename std::enable_if<is_castable_primitive<T, U>::value, void>::type
-	readDynArray(const char* fieldName, std::vector<U>& val) {
-	}
+	typename std::enable_if<is_castable_primitive<T, U>::value, void>::type readDynArray(const char* fieldName,
+	                                                                                     std::vector<U>& val) {}
 
-	//Dynamic array of object
+	// Dynamic array of object
 	template<typename T>
-	typename std::enable_if<!is_primitive<T>::value, void>::type
-	readDynArray(const char* fieldName, std::vector<T>& val) {
-	}
+	typename std::enable_if<!is_primitive<T>::value, void>::type readDynArray(const char* fieldName,
+	                                                                          std::vector<T>& val) {}
 
-	//End array, read to the end of stream
+	// End array, read to the end of stream
+	template<typename T> void readEndArray(const char* fieldName, std::vector<T>& val) {}
+
+	// read size for objects (std:: containers)
 	template<typename T>
-	void readEndArray(const char* fieldName, std::vector<T>& val) {
-	}
+	typename std::enable_if<is_primitive<T>::value, void>::type readSize(const char* fieldName, T& val) {}
 
-	//read size for objects (std:: containers)
-	template<typename T>
-	typename std::enable_if<is_primitive<T>::value, void>::type
-	readSize(const char* fieldName, T& val) {
-	}
-
-	void discard(const char* fieldName, size_t size) {
-	}
+	void discard(const char* fieldName, size_t size) {}
 };
 
 #endif /* PACKETS_JSONWRITER_H */

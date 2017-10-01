@@ -3,15 +3,14 @@
 
 #include "Core/Object.h"
 #include "uv.h"
-#include <unordered_map>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 class IWritableConsole;
 class DbConnection;
 
-class RZU_EXTERN DbConnectionPool : public Object
-{
+class RZU_EXTERN DbConnectionPool : public Object {
 	DECLARE_CLASSNAME(DbConnectionPool, 0)
 public:
 	DbConnectionPool();
@@ -24,7 +23,8 @@ public:
 	int closeAllConnections();
 	void* getHenv() { return henv; }
 
-	static bool checkSqlResult(int result, const char* function, void* henv, void* hdbc, void* hstmt, bool silentInfo = false);
+	static bool checkSqlResult(
+	    int result, const char* function, void* henv, void* hdbc, void* hstmt, bool silentInfo = false);
 
 	static DbConnectionPool* getInstance() { return instance; }
 
@@ -35,10 +35,10 @@ protected:
 	static void commandCloseDbConnections(IWritableConsole* console, const std::vector<std::string>& args);
 
 private:
-	static DbConnectionPool *instance;
+	static DbConnectionPool* instance;
 	std::unordered_multimap<std::string, DbConnection*> openedConnections;
 	uv_mutex_t listLock;
 	void* henv;
 };
 
-#endif // DBCONNECTIONPOOL_H
+#endif  // DBCONNECTIONPOOL_H

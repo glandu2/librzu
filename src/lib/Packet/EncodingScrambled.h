@@ -1,22 +1,18 @@
 #ifndef PACKETS_ENCODINGSCRAMBLED_H
 #define PACKETS_ENCODINGSCRAMBLED_H
 
-#include "EncodingRandomized.h"
 #include "../Extern.h"
+#include "EncodingRandomized.h"
 
 class RZU_EXTERN EncodingScrambled {
 public:
-	static uint32_t getSize(int version) {
-		return EncodingRandomized::getSize(version);
-	}
+	static uint32_t getSize(int version) { return EncodingRandomized::getSize(version); }
 
-	template<class T>
-	static void serialize(T* buffer, uint32_t value) {
+	template<class T> static void serialize(T* buffer, uint32_t value) {
 		EncodingRandomized::serialize<T>(buffer, encode(value));
 	}
 
-	template<class T>
-	static void deserialize(T* buffer, uint32_t& value) {
+	template<class T> static void deserialize(T* buffer, uint32_t& value) {
 		uint32_t deserializedValue;
 		EncodingRandomized::deserialize<T>(buffer, deserializedValue);
 
@@ -35,4 +31,4 @@ private:
 	static uint8_t decodeMap[32];
 };
 
-#endif // PACKETS_ENCODINGSCRAMBLED_H
+#endif  // PACKETS_ENCODINGSCRAMBLED_H

@@ -1,22 +1,26 @@
 #include "DbConnectionPool.h"
+#include "Console/ConsoleCommands.h"
 #include "Core/Log.h"
 #include "DbConnection.h"
-#include <stdlib.h>
-#include <sqlext.h>
 #include <list>
-#include "Console/ConsoleCommands.h"
+#include <sqlext.h>
+#include <stdlib.h>
 
 static void outputError(Object::Level errorLevel, SQLHANDLE handle, SQLSMALLINT type, bool discard);
 
-DbConnectionPool *DbConnectionPool::instance = nullptr;
+DbConnectionPool* DbConnectionPool::instance = nullptr;
 
 DbConnectionPool::DbConnectionPool() {
 	SQLRETURN result;
 
 	if(instance == nullptr) {
 		instance = this;
-		ConsoleCommands::get()->addCommand("db.close", "closedb", 0, &commandCloseDbConnections,
-										   "Close all idle database connections (use this to bring a database offline)");
+		ConsoleCommands::get()->addCommand(
+		    "db.close",
+		    "closedb",
+		    0,
+		    &commandCloseDbConnections,
+		    "Close all idle database connections (use this to bring a database offline)");
 	}
 
 	uv_mutex_init(&listLock);
@@ -27,8 +31,10 @@ DbConnectionPool::DbConnectionPool() {
 		abort();
 	}
 	result = checkSqlResult(SQLSetEnvAttr(henv, SQL_ATTR_ODBC_VERSION, (SQLPOINTER) SQL_OV_ODBC3, SQL_IS_INTEGER),
-							"SQLSetEnvAttrODBC3",
-							henv, nullptr, nullptr);
+	                        "SQLSetEnvAttrODBC3",
+	                        henv,
+	                        nullptr,
+	                        nullptr);
 	if(!result)
 		log(LL_Error, "Can\'t use ODBC 3\n");
 }
@@ -79,7 +85,7 @@ DbConnection* DbConnectionPool::getConnection(const char* connectionString, std:
 			}
 		}
 	}
-	//If more than 8 connections are already opened, try to reuse one even if the cached query is not the same
+	// If more than 8 connections are already opened, try to reuse one even if the cached query is not the same
 	if(dbConnection == nullptr && openedConnections.size() >= 8) {
 		it = range.first;
 		itEnd = range.second;
@@ -107,37 +113,41 @@ DbConnection* DbConnectionPool::addConnection(const char* connectionString, bool
 
 	log(LL_Debug, "Connecting to database\n");
 
-	result = checkSqlResult(SQLAllocHandle(SQL_HANDLE_DBC, henv, &hdbc),
-							"SQLAllocHandle",
-							henv, nullptr, nullptr);
+	result = checkSqlResult(SQLAllocHandle(SQL_HANDLE_DBC, henv, &hdbc), "SQLAllocHandle", henv, nullptr, nullptr);
 	if(!result)
 		return nullptr;
 
-	result = checkSqlResult(SQLDriverConnect(hdbc, nullptr, (UCHAR*)connectionString, SQL_NTS, nullptr, 0, nullptr, 0),
-							"SQLDriverConnect",
-							henv, hdbc, nullptr);
+	result = checkSqlResult(SQLDriverConnect(hdbc, nullptr, (UCHAR*) connectionString, SQL_NTS, nullptr, 0, nullptr, 0),
+	                        "SQLDriverConnect",
+	                        henv,
+	                        hdbc,
+	                        nullptr);
 	if(!result) {
 		log(LL_Error, "Failed to connect to %s\n", connectionString);
 		SQLFreeHandle(SQL_HANDLE_DBC, hdbc);
 		return nullptr;
 	}
 
-	result = checkSqlResult(SQLAllocHandle(SQL_HANDLE_STMT, hdbc, &hstmt),
-							"SQLAllocHandle",
-							henv, hdbc, nullptr);
+	result = checkSqlResult(SQLAllocHandle(SQL_HANDLE_STMT, hdbc, &hstmt), "SQLAllocHandle", henv, hdbc, nullptr);
 	if(!result) {
 		log(LL_Error, "Failed to alloc a resultset for %s\n", connectionString);
 		SQLFreeHandle(SQL_HANDLE_DBC, hdbc);
 		return nullptr;
 	}
 
-	//20 sec timeout
-	checkSqlResult(SQLSetStmtAttr(hstmt, SQL_ATTR_QUERY_TIMEOUT, (SQLPOINTER)10, 0),
+	// 20 sec timeout
+	checkSqlResult(SQLSetStmtAttr(hstmt, SQL_ATTR_QUERY_TIMEOUT, (SQLPOINTER) 10, 0),
 	               "SQLSetStmtAttrTimeout (error ignored)",
-				   henv, hdbc, hstmt, true);
-	checkSqlResult(SQLSetConnectAttr(hdbc, SQL_ATTR_CONNECTION_TIMEOUT , (SQLPOINTER)10, 0),
+	               henv,
+	               hdbc,
+	               hstmt,
+	               true);
+	checkSqlResult(SQLSetConnectAttr(hdbc, SQL_ATTR_CONNECTION_TIMEOUT, (SQLPOINTER) 10, 0),
 	               "SQLSetConnectAttrTimeout (error ignored)",
-				   henv, hdbc, hstmt, true);
+	               henv,
+	               hdbc,
+	               hstmt,
+	               true);
 
 	DbConnection* dbConnection = new DbConnection(this, hdbc, hstmt);
 	if(createLocked)
@@ -168,7 +178,7 @@ int DbConnectionPool::closeAllConnections() {
 	std::list<DbConnection*>::iterator itList, itListEnd;
 	std::unordered_multimap<std::string, DbConnection*>::iterator it, itEnd;
 
-	//Retrieve and lock all idle connections
+	// Retrieve and lock all idle connections
 	uv_mutex_lock(&listLock);
 	for(it = openedConnections.begin(), itEnd = openedConnections.end(); it != itEnd; ++it) {
 		const std::pair<std::string, DbConnection*>& data = *it;
@@ -179,16 +189,17 @@ int DbConnectionPool::closeAllConnections() {
 	}
 	uv_mutex_unlock(&listLock);
 
-	//Release and close them
+	// Release and close them
 	for(itList = connectionsToRemove.begin(), itListEnd = connectionsToRemove.end(); itList != itListEnd; ++itList) {
 		DbConnection* connection = *itList;
 		connection->releaseAndClose();
 	}
 
-	return (int)connectionsToRemove.size();
+	return (int) connectionsToRemove.size();
 }
 
-bool DbConnectionPool::checkSqlResult(int result, const char* function, void* henv, void* hdbc, void* hstmt, bool silentInfo) {
+bool DbConnectionPool::checkSqlResult(
+    int result, const char* function, void* henv, void* hdbc, void* hstmt, bool silentInfo) {
 	if(result == SQL_SUCCESS_WITH_INFO) {
 		if(!silentInfo)
 			logStatic(LL_Debug, "ODBC", "%s: additional info:\n", function);
@@ -220,8 +231,8 @@ static void outputError(Object::Level errorLevel, SQLHANDLE handle, SQLSMALLINT 
 
 	do {
 		ret = SQLGetDiagRec(type, handle, ++i, state, &native, text, sizeof(text), &len);
-		if (!discard && SQL_SUCCEEDED(ret)) {
-			Object::logStatic(errorLevel, "ODBC", "%s:%d:%ld:%s\n", state, i, (long)native, text);
+		if(!discard && SQL_SUCCEEDED(ret)) {
+			Object::logStatic(errorLevel, "ODBC", "%s:%d:%ld:%s\n", state, i, (long) native, text);
 		}
 	} while(ret == SQL_SUCCESS);
 }

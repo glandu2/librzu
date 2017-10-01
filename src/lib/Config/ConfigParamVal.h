@@ -2,14 +2,13 @@
 #define CONFIGPARAMVAL_H
 
 #include "ConfigValue.h"
-#include <list>
-#include "uv.h"
 #include "Core/IDelegate.h"
+#include "uv.h"
+#include <list>
 
 //#define NOMUTEX
 
-template<typename T>
-class cval : public ConfigTypedValue<T> {
+template<typename T> class cval : public ConfigTypedValue<T> {
 public:
 	typedef void (*EventCallback)(IListener* instance);
 	typedef void (*EventCallbackWithThis)(IListener* instance, cval<T>* value);
@@ -109,7 +108,10 @@ public:
 	}
 
 	operator T() { return get(); }
-	cval<T>& operator=(const T& val) { set(val); return *this; }
+	cval<T>& operator=(const T& val) {
+		set(val);
+		return *this;
+	}
 
 	bool isDefault() { return _isDefault; }
 
@@ -136,8 +138,8 @@ public:
 	}
 
 	void dispatchValueChanged() {
-		std::list< Callback<EventCallback> > listenersCopy;
-		std::list< Callback<EventCallbackWithThis> > listenersWithThisCopy;
+		std::list<Callback<EventCallback> > listenersCopy;
+		std::list<Callback<EventCallbackWithThis> > listenersWithThisCopy;
 
 #ifndef NOMUTEX
 		uv_mutex_lock(&listenersLock);
@@ -161,8 +163,8 @@ public:
 	}
 
 private:
-	std::list< Callback<EventCallback> > listeners;
-	std::list< Callback<EventCallbackWithThis> > listenersWithThis;
+	std::list<Callback<EventCallback> > listeners;
+	std::list<Callback<EventCallbackWithThis> > listenersWithThis;
 	T value;
 #ifndef NOMUTEX
 	uv_mutex_t lock;
@@ -174,6 +176,4 @@ private:
 	cval(cval&& other);
 };
 
-
-
-#endif // CONFIGPARAMVAL_H
+#endif  // CONFIGPARAMVAL_H
