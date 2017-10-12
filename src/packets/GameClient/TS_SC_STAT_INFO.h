@@ -24,12 +24,18 @@ CREATE_STRUCT(TS_STAT_INFO_BASE);
   _(def)(simple)(int32_t, nAttackPointLeft) \
   _(impl)(simple)(int32_t, nAttackPointLeft, version >= EPIC_9_3) \
   _(impl)(simple)(int16_t, nAttackPointLeft, version < EPIC_9_3) \
-  _(simple)(int16_t, nDefence) \
-  _(simple)(int16_t, nBlockDefence) \
+  _(def)(simple)(int32_t, nDefence) \
+  _(impl)(simple)(int32_t, nDefence, version >= EPIC_9_5_1) \
+  _(impl)(simple)(int16_t, nDefence, version < EPIC_9_5_1) \
+  _(def)(simple)(int32_t, nBlockDefence) \
+  _(impl)(simple)(int32_t, nBlockDefence, version >= EPIC_9_5_1) \
+  _(impl)(simple)(int16_t, nBlockDefence, version < EPIC_9_5_1) \
   _(def)(simple)(int32_t, nMagicPoint) \
   _(impl)(simple)(int32_t, nMagicPoint, version >= EPIC_9_3) \
   _(impl)(simple)(int16_t, nMagicPoint, version < EPIC_9_3) \
-  _(simple)(int16_t, nMagicDefence) \
+  _(def)(simple)(int32_t, nMagicDefence) \
+  _(impl)(simple)(int32_t, nMagicDefence, version >= EPIC_9_5_1) \
+  _(impl)(simple)(int16_t, nMagicDefence, version < EPIC_9_5_1) \
   _(simple)(int16_t, nAccuracyRight) \
   _(simple)(int16_t, nAccuracyLeft) \
   _(simple)(int16_t, nMagicAccuracy) \

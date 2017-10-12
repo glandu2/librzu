@@ -23,6 +23,7 @@
 #define EPIC_9_4 0x090400
 #define EPIC_9_4_AR 0x090401
 #define EPIC_9_5 0x090500
+#define EPIC_9_5_1 0x090501 // 2017/09/26
 
 // Latest released epic
 #define EPIC_LATEST EPIC_9_5
