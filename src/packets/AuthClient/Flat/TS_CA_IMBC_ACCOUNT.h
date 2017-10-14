@@ -11,6 +11,13 @@ struct TS_CA_IMBC_ACCOUNT : public TS_MESSAGE
 	static const uint16_t packetID = 10012;
 };
 
+struct TS_CA_IMBC_ACCOUNT_OLD : public TS_MESSAGE
+{
+	char account[24];
+	unsigned char password[48];
+	static const uint16_t packetID = 10012;
+};
+
 struct TS_CA_IMBC_ACCOUNT_RSA : public TS_MESSAGE
 {
 		char account[61];
