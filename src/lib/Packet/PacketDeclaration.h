@@ -484,9 +484,8 @@ template<typename T> uint32_t getClampedCount(size_t realSize) {
 	uint16_t id;
 
 #define CREATE_PACKET_VER_ID_SERIALIZATION_HEADER(name_) \
-	uint32_t size = getSize(buffer->getVersion()); \
-	uint16_t id; \
-	name_##_ID(SERIALISATION_F_ID); \
+	uint32_t size = getSize(version); \
+	uint16_t id = getId(version); \
 	buffer->writeHeader(size, id);
 
 #define CREATE_PACKET_VER_ID_DESERIALIZATION_HEADER buffer->readHeader(id);
