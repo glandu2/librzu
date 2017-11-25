@@ -20,8 +20,8 @@ CREATE_STRUCT(MOVE_REQUEST_INFO);
 
 #define TS_CS_MOVE_REQUEST_ID(X) \
 	X(5, version < EPIC_9_2) \
-	X(65, version >= EPIC_9_2 && version < EPIC_9_4) \
-	X(63, version >= EPIC_9_4)
+	X(65, version >= EPIC_9_2 && version < EPIC_9_4_2) \
+	X(63, version >= EPIC_9_4_2)
 
 CREATE_PACKET_VER_ID(TS_CS_MOVE_REQUEST);
 
