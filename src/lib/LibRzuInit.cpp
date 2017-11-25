@@ -70,6 +70,13 @@ static void initOpenssl() {
 	ERR_load_crypto_strings();
 }
 
+static void uninitOpenssl() {
+	CRYPTO_set_locking_callback(nullptr);
+	CRYPTO_set_id_callback(nullptr);
+
+	ERR_free_strings();
+}
+
 bool LibRzuInit() {
 	srand((unsigned int) time(NULL));
 
@@ -77,6 +84,12 @@ bool LibRzuInit() {
 	CrashHandler::init();
 
 	initOpenssl();
+
+	return true;
+}
+
+bool LibRzuDeInit() {
+	uninitOpenssl();
 
 	return true;
 }
