@@ -29,6 +29,8 @@ private:
 		return value;
 	}
 
+	void logBadPacketSize();
+
 public:
 	MessageBuffer(size_t size, int version);
 
@@ -45,7 +47,14 @@ public:
 	std::string getFieldInOverflow() const { return fieldInOverflow; }
 
 	bool checkFinalSize();
-	bool checkPacketFinalSize();
+	bool checkPacketFinalSize() {
+		uint32_t msgSize = *reinterpret_cast<const uint32_t*>(buffer->buffer.base);
+		bool ok = !bufferOverflow && msgSize == getSize() && uint32_t(p - buffer->buffer.base) == msgSize;
+		if(!ok) {
+			logBadPacketSize();
+		}
+		return ok;
+	}
 
 	bool checkAvailableBuffer(const char* fieldName, size_t size) {
 		if(bufferOverflow == false) {
