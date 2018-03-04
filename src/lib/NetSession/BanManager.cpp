@@ -2,6 +2,7 @@
 #include "Config/GlobalCoreConfig.h"
 #include "uv.h"
 #include <assert.h>
+#include <memory>
 #include <stdio.h>
 #include <string>
 
@@ -10,11 +11,11 @@ struct BanConfig {
 
 	BanConfig() : banFile(CFG_CREATE("ban.ipfile", "bannedip.txt")) { Utils::autoSetAbsoluteDir(banFile); }
 };
-static BanConfig* config = nullptr;
+static std::unique_ptr<BanConfig> config;
 
 void BanManager::registerConfig() {
 	if(!config)
-		config = new BanConfig;
+		config.reset(new BanConfig);
 }
 
 BanManager::BanManager() {

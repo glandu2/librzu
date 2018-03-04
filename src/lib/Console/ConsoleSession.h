@@ -2,6 +2,7 @@
 #define CONSOLESESSION_H
 
 #include "IWritableConsole.h"
+#include "NetSession/SessionServer.h"
 #include "NetSession/TelnetSession.h"
 
 class ConsoleCommands;
@@ -10,9 +11,6 @@ class ServersManager;
 class RZU_EXTERN ConsoleSession : public TelnetSession, public IWritableConsole {
 	DECLARE_CLASS(ConsoleSession)
 public:
-	static void init();
-	static void start(ServersManager* serverManager);
-
 	ConsoleSession();
 	virtual ~ConsoleSession();
 
@@ -28,6 +26,11 @@ protected:
 
 private:
 	const ConsoleCommands* consoleCommands;
+};
+
+class RZU_EXTERN ConsoleServer : public SessionServer<ConsoleSession> {
+public:
+	ConsoleServer(ServersManager* serverManager);
 };
 
 #endif  // CONSOLESESSION_H

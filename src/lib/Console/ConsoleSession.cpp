@@ -11,14 +11,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-void ConsoleSession::start(ServersManager* serverManager) {
-	static SessionServer<ConsoleSession> adminConsoleServer(GlobalCoreConfig::get()->admin.listener.listenIp,
-	                                                        GlobalCoreConfig::get()->admin.listener.port,
-	                                                        &GlobalCoreConfig::get()->admin.listener.idleTimeout);
-	serverManager->addServer(
-	    "admin.console", &adminConsoleServer, &GlobalCoreConfig::get()->admin.listener.autoStart, true);
-}
-
 ConsoleSession::ConsoleSession() : consoleCommands(ConsoleCommands::get()) {
 	Object::log(LL_Info, "New console session\n");
 }
@@ -96,4 +88,11 @@ void ConsoleSession::onCommand(const std::vector<std::string>& args) {
 	}
 
 	printPrompt();
+}
+
+ConsoleServer::ConsoleServer(ServersManager* serverManager)
+    : SessionServer(GlobalCoreConfig::get()->admin.listener.listenIp,
+                    GlobalCoreConfig::get()->admin.listener.port,
+                    &GlobalCoreConfig::get()->admin.listener.idleTimeout) {
+	serverManager->addServer("admin.console", this, &GlobalCoreConfig::get()->admin.listener.autoStart, true);
 }

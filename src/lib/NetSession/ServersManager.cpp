@@ -9,10 +9,16 @@ ServersManager* ServersManager::instance = nullptr;
 ServersManager::ServersManager() {
 	if(instance == nullptr) {
 		instance = this;
-		ConsoleCommands::get()->addCommand(
-		    "server.list", 0, &commandListServers, "List all available servers", "server.list : list all servers\r\n");
+		ConsoleCommands::get()->addCommand("server.list",
+		                                   std::string(),
+		                                   0,
+		                                   0,
+		                                   &commandListServers,
+		                                   "List all available servers",
+		                                   "server.list : list all servers\r\n");
 		ConsoleCommands::get()->addCommand("server.start",
 		                                   "start",
+		                                   0,
 		                                   1,
 		                                   &commandStartServer,
 		                                   "Start a server (use server.list to get server names)",
@@ -20,6 +26,7 @@ ServersManager::ServersManager() {
 		                                   "server.start all           : Start all servers\r\n");
 		ConsoleCommands::get()->addCommand("server.stop",
 		                                   "stop",
+		                                   0,
 		                                   1,
 		                                   &commandStopServer,
 		                                   "Stop a server (use server.list to get server names)",

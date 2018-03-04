@@ -7,7 +7,7 @@ void EventLoop::initKey() {
 	uv_key_create(&tlsKey);
 }
 
-EventLoop::EventLoop() {
+EventLoop::EventLoop() : deletingObjects(false) {
 	uv_loop_init(&loop);
 	deleteObjectsHandle.data = this;
 	uv_prepare_init(&loop, &deleteObjectsHandle);
@@ -16,9 +16,34 @@ EventLoop::EventLoop() {
 }
 
 EventLoop::~EventLoop() {
-	if(uv_loop_alive(&loop))
-		log(LL_Warning, "Loop still used but delete requested\n");
-	uv_stop(&loop);
+	uv_ref((uv_handle_t*) &deleteObjectsHandle);
+	uv_prepare_stop(&deleteObjectsHandle);
+	uv_close((uv_handle_t*) &deleteObjectsHandle, nullptr);
+
+	// Wait remaining handle to close
+	uv_run(&loop, UV_RUN_DEFAULT);
+
+	if(uv_loop_alive(&loop)) {
+		log(LL_Warning, "Loop still used but delete requested, handles:\n");
+		uv_walk(&loop,
+		        [](uv_handle_t* handle, void* arg) {
+			        EventLoop* self = (EventLoop*) arg;
+			        const char* type;
+			        switch(handle->type) {
+#define X(uc, lc) \
+	case UV_##uc: \
+		type = #lc; \
+		break;
+				        UV_HANDLE_TYPE_MAP(X)
+#undef X
+				        default:
+					        type = "<unknown>";
+			        }
+
+			        self->log(LL_Warning, "  [%08X] %s %p\n", handle->flags, type, handle);
+		        },
+		        this);
+	}
 	uv_loop_close(&loop);
 
 	EventLoop* threadLoop = (EventLoop*) uv_key_get(&tlsKey);
@@ -42,21 +67,34 @@ EventLoop* EventLoop::getInstance() {
 	return threadLocalEventLoop;
 }
 
+void EventLoop::deinit() {
+	EventLoop* threadLocalEventLoop;
+
+	uv_once(&tlsKeyInitOnce, &initKey);
+
+	threadLocalEventLoop = (EventLoop*) uv_key_get(&tlsKey);
+	if(threadLocalEventLoop) {
+		delete threadLocalEventLoop;
+	}
+}
+
 void EventLoop::deleteObjects() {
-	std::list<Object*>::iterator it = objectsToDelete.begin();
-	for(; it != objectsToDelete.end();) {
-		delete *it;
-		it = objectsToDelete.erase(it);
+	if(deletingObjects == false) {
+		deletingObjects = true;
+
+		std::list<Object*>::iterator it = objectsToDelete.begin();
+		for(; it != objectsToDelete.end();) {
+			delete *it;
+			it = objectsToDelete.erase(it);
+		}
+
+		deletingObjects = false;
 	}
 }
 
 void EventLoop::staticDeleteObjects(uv_prepare_t* handle) {
-	static bool deletingObjects = false;
 	EventLoop* thisInstance = (EventLoop*) handle->data;
 
-	if(deletingObjects == false) {
-		deletingObjects = true;
-		thisInstance->deleteObjects();
-		deletingObjects = false;
-	}
+	thisInstance->deleteObjects();
+	uv_unref((uv_handle_t*) handle);
 }

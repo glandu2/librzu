@@ -2,7 +2,9 @@
 #define TIMER_H
 
 #include "../Extern.h"
+#include "UvHandle.h"
 #include "uv.h"
+#include <memory>
 #include <vector>
 
 class RZU_EXTERN TimerBase {
@@ -20,11 +22,7 @@ public:
 	void unref();
 
 protected:
-	uv_timer_t* handle;
-
-	static void onClosedCallback(uv_handle_t* handle);
-
-	static std::vector<uv_timer_t*> freeTimers;
+	UvHandle<uv_timer_t> handle;
 };
 
 class RZU_EXTERN TimerStatic : public TimerBase {

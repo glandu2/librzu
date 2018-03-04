@@ -16,6 +16,7 @@ public:
 
 public:
 	static void init();
+	static void deinit();
 	// Sets exception handlers that work on per-process basis
 	static void setProcessExceptionHandlers();
 

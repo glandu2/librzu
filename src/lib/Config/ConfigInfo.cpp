@@ -33,6 +33,7 @@ void ConfigInfo::init(int argc, char** argv) {
 
 	ConsoleCommands::get()->addCommand("config.set",
 	                                   "set",
+	                                   0,
 	                                   2,
 	                                   &commandSetEnv,
 	                                   "Set a config value",

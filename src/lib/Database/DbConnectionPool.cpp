@@ -19,6 +19,7 @@ DbConnectionPool::DbConnectionPool() {
 		    "db.close",
 		    "closedb",
 		    0,
+		    0,
 		    &commandCloseDbConnections,
 		    "Close all idle database connections (use this to bring a database offline)");
 	}

@@ -1,22 +1,10 @@
 #include "Timer.h"
 #include "EventLoop.h"
 
-std::vector<uv_timer_t*> TimerBase::freeTimers;
-
-TimerBase::TimerBase() {
-	if(freeTimers.empty()) {
-		handle = new uv_timer_t;
-	} else {
-		handle = freeTimers.back();
-		freeTimers.pop_back();
-	}
-	uv_timer_init(EventLoop::getLoop(), handle);
-}
+TimerBase::TimerBase() : handle(&uv_timer_init) {}
 
 TimerBase::~TimerBase() {
 	stop();
-	handle->data = nullptr;
-	uv_close((uv_handle_t*) handle, &onClosedCallback);
 }
 
 int TimerBase::start(uv_timer_cb cb, uint64_t timeout, uint64_t repeat) {
@@ -45,10 +33,6 @@ void TimerBase::ref() {
 
 void TimerBase::unref() {
 	uv_unref((uv_handle_t*) handle);
-}
-
-void TimerBase::onClosedCallback(uv_handle_t* handle) {
-	freeTimers.push_back((uv_timer_t*) handle);
 }
 
 void TimerStatic::setData(void* data) {

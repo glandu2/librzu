@@ -5,8 +5,12 @@ DbBindingLoader* DbBindingLoader::get() {
 	return &dbBindingLoader;
 }
 
-void DbBindingLoader::addBinding(DbBindingLoader::InitBindingFunction initFunction) {
+void DbBindingLoader::addInitBinding(InitBindingFunction initFunction) {
 	dbQueryBindingInits.push_back(initFunction);
+}
+
+void DbBindingLoader::addDeinitBinding(DeinitBindingFunction deinitFunction) {
+	dbQueryBindingDeinits.push_back(deinitFunction);
 }
 
 void DbBindingLoader::initAll(DbConnectionPool* connectionPool) {
@@ -18,4 +22,15 @@ void DbBindingLoader::initAll(DbConnectionPool* connectionPool) {
 
 	std::vector<InitBindingFunction> empty;
 	dbQueryBindingInits.swap(empty);
+}
+
+void DbBindingLoader::deinitAll() {
+	auto it = dbQueryBindingDeinits.begin();
+	for(; it != dbQueryBindingDeinits.end(); ++it) {
+		DeinitBindingFunction deinitFunction = (*it);
+		(*deinitFunction)();
+	}
+
+	std::vector<DeinitBindingFunction> empty;
+	dbQueryBindingDeinits.swap(empty);
 }

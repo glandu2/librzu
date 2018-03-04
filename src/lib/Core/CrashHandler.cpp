@@ -30,22 +30,32 @@ bool CrashHandler::interruptAttemptInProgress = false;
 bool CrashHandler::globalHandlersInitialized = false;
 
 void CrashHandler::init() {
+	uv_async_init(EventLoop::getLoop(), &asyncCallback, &onTerminate);
+	uv_unref((uv_handle_t*) &asyncCallback);
+
 	if(globalHandlersInitialized == false) {
 		globalHandlersInitialized = true;
+
 		setProcessExceptionHandlers();
 
 		ConsoleCommands::get()->addCommand("terminate",
 		                                   "term",
 		                                   0,
+		                                   0,
 		                                   &commandTerminate,
 		                                   "Ask the server to terminate gracefuly",
 		                                   "terminate : terminate the server gracefuly");
 
-		ConsoleCommands::get()->addCommand("mem.list", "mem", 0, &commandListObjectsCount, "List objects count");
+		ConsoleCommands::get()->addCommand("mem.list", "mem", 0, 0, &commandListObjectsCount, "List objects count");
 	}
 	setThreadExceptionHandlers();
 	GlobalCoreConfig::get()->admin.dumpMode.addListener(nullptr, &setDumpMode);
 	setDumpMode(nullptr, &GlobalCoreConfig::get()->admin.dumpMode);
+}
+
+void CrashHandler::deinit() {
+	uv_ref((uv_handle_t*) &asyncCallback);
+	uv_close((uv_handle_t*) &asyncCallback, nullptr);
 }
 
 void CrashHandler::setDumpMode(IListener*, cval<int>*) {
@@ -171,8 +181,6 @@ EXTERNC void* _ReturnAddress(void);
 #endif
 
 void CrashHandler::setProcessExceptionHandlers() {
-	uv_async_init(EventLoop::getLoop(), &asyncCallback, &onTerminate);
-	uv_unref((uv_handle_t*) &asyncCallback);
 	// Install top-level SEH handler
 	SetUnhandledExceptionFilter(&sehHandler);
 	SetConsoleCtrlHandler(&handlerRoutine, TRUE);
@@ -529,9 +537,6 @@ static void onSignal(int sig) {
 
 void CrashHandler::setProcessExceptionHandlers() {
 	struct sigaction sa;
-
-	uv_async_init(EventLoop::getLoop(), &asyncCallback, &onTerminate);
-	uv_unref((uv_handle_t*) &asyncCallback);
 
 	sa.sa_flags = 0;
 	sigemptyset(&sa.sa_mask);

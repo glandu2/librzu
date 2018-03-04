@@ -1,5 +1,6 @@
 #include "LibRzuInit.h"
 #include "Core/CrashHandler.h"
+#include "Core/EventLoop.h"
 #include "Core/Utils.h"
 #include "uv.h"
 #include <openssl/crypto.h>
@@ -74,22 +75,21 @@ static void uninitOpenssl() {
 	CRYPTO_set_locking_callback(nullptr);
 	CRYPTO_set_id_callback(nullptr);
 
+	CRYPTO_cleanup_all_ex_data();
 	ERR_free_strings();
 }
 
-bool LibRzuInit() {
+LibRzuScopedUse::LibRzuScopedUse() {
 	srand((unsigned int) time(NULL));
 
 	disableSigPipe();
 	CrashHandler::init();
 
 	initOpenssl();
-
-	return true;
 }
 
-bool LibRzuDeInit() {
+LibRzuScopedUse::~LibRzuScopedUse() {
+	CrashHandler::deinit();
+	EventLoop::deinit();
 	uninitOpenssl();
-
-	return true;
 }

@@ -12,8 +12,8 @@
 
 #define DECLARE_DB_BINDING(classname_, configname_) \
 	template<> \
-	DbQueryBinding* DbQueryJob<classname_>::dbBinding = \
-	    (DbBindingLoader::get()->addBinding(&DbQueryJob<classname_>::init), nullptr); \
+	std::unique_ptr<DbQueryBinding> DbQueryJob<classname_>::dbBinding( \
+	    (DbBindingLoader::get()->addInitBinding(&DbQueryJob<classname_>::init), nullptr)); \
 	template<> const char* DbQueryJob<classname_>::SQL_CONFIG_NAME = configname_
 
 template<class DbMappingClass> class DbQueryJob : public Object, public IDbQueryJob {
@@ -178,7 +178,7 @@ private:
 	bool done;
 	volatile bool canceled;
 
-	static DbQueryBinding* dbBinding;
+	static std::unique_ptr<DbQueryBinding> dbBinding;
 };
 
 #include "DbQueryJob.inl"
