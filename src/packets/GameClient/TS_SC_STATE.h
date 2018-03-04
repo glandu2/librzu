@@ -13,7 +13,7 @@
 	_(simple)(uint32_t, end_time) \
 	_(simple)(uint32_t, start_time, version >= EPIC_3) \
 	_(simple)(int32_t, state_value, version >= EPIC_4_1) \
-	_(string)(state_string_value, 32, version >= EPIC_4_1)
+	_(string)(state_string_value, 32, version >= EPIC_4_1 && version < EPIC_9_5_2)
 
 CREATE_PACKET(TS_SC_STATE, 505);
 

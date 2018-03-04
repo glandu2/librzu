@@ -43,8 +43,7 @@ public:
 	             uint16_t port,
 	             const std::string& account,
 	             const std::string& password,
-	             AuthCipherMethod method = ACM_DES,
-	             const std::string& version = "205001120");
+	             AuthCipherMethod method = ACM_DES);
 	void close();
 
 	void retreiveServerList();
@@ -52,7 +51,8 @@ public:
 
 	const std::string& getAccountName() { return username; }
 	uint64_t getOnTimePassword() { return oneTimePassword; }
-	const std::string& getVersion() { return version; }
+	const std::string& getAuthVersion() { return authVersion; }
+	const std::string& getGameVersion() { return gameVersion; }
 
 protected:
 	virtual void onAuthDisconnected() = 0;
@@ -87,7 +87,8 @@ protected:
 
 private:
 	AuthCipherMethod cipherMethod;
-	std::string version;
+	std::string authVersion;
+	std::string gameVersion;
 	std::string username;
 	std::string password;
 	std::vector<uint8_t> aesKey;

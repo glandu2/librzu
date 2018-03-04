@@ -2,6 +2,7 @@
 #include "Cipher/AesPasswordCipher.h"
 #include "Cipher/DesPasswordCipher.h"
 #include "ClientGameSession.h"
+#include "Config/GlobalCoreConfig.h"
 #include "Packet/PacketEpics.h"
 #include <memory>
 
@@ -32,11 +33,11 @@ bool ClientAuthSession::connect(const std::string& ip,
                                 uint16_t port,
                                 const std::string& account,
                                 const std::string& password,
-                                AuthCipherMethod method,
-                                const std::string& version) {
+                                AuthCipherMethod method) {
 	this->username = account;
 	this->password = password;
-	this->version = version;
+	this->authVersion = GlobalCoreConfig::get()->client.authVersion;
+	this->gameVersion = GlobalCoreConfig::get()->client.gameVersion;
 	this->cipherMethod = method;
 	//	this->rsaCipher = 0;
 	this->selectedServer = 0;
@@ -134,7 +135,7 @@ EventChain<SocketSession> ClientAuthSession::onConnected() {
 
 	TS_MESSAGE::initMessage<TS_CA_VERSION>(&versionMsg);
 
-	strcpy(versionMsg.szVersion, version.c_str());
+	memcpy(versionMsg.szVersion, authVersion.c_str(), authVersion.size());
 	sendPacket(&versionMsg);
 
 	if(this->cipherMethod == ACM_DES) {

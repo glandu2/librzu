@@ -1,6 +1,8 @@
 #include "ClientGameSession.h"
+#include "Cipher/RzHashReversible256.h"
 #include "ClientAuthSession.h"
 #include "GameClient/TS_CS_ACCOUNT_WITH_AUTH.h"
+#include "GameClient/TS_CS_REPORT.h"
 #include "GameClient/TS_CS_VERSION.h"
 #include "GameClient/TS_SC_RESULT.h"
 
@@ -10,8 +12,15 @@ EventChain<SocketSession> ClientGameSession::onConnected() {
 	TS_CS_VERSION versionMsg;
 
 	// continue server move as we are connected now to game server
-	versionMsg.szVersion = auth->getVersion();
+	versionMsg.szVersion = auth->getGameVersion();
+	RzHashReversible256::generatePayload(versionMsg);
+
 	sendPacket(versionMsg, version);
+
+	TS_CS_REPORT reportMsg;
+	reportMsg.report =
+	    "\x8D\x07\x72\xCA\x29\x47Windows (6.2.9200)|Intel(R) HD Graphics 4000Drv Version : 10.18.10.4425";
+	sendPacket(reportMsg, version);
 
 	TS_CS_ACCOUNT_WITH_AUTH loginInGameServerMsg;
 

@@ -4,7 +4,8 @@
 #include "Packet/PacketDeclaration.h"
 
 #define TS_CS_VERSION_DEF(_) \
-	_(string)(szVersion, 20)
+	_(string)(szVersion, 20) \
+	_(array)(uint8_t, checksum, 256, version >= EPIC_9_5_2)
 
 #define TS_CS_VERSION_ID(X) \
 	X(50, version < EPIC_7_4) \
