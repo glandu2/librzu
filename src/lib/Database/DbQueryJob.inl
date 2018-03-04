@@ -67,11 +67,7 @@ void DbQueryJob<DbMappingClass>::addColumn(const char* columnName,
 	                                  nullIndicator ? (size_t)(&(((OutputType*) 0)->*nullIndicator)) : (size_t) -1));
 }
 
-template<class DbMappingClass> void DbQueryJob<DbMappingClass>::deinit() {
-	//	DbQueryBinding* binding = dbBinding;
-	//	dbBinding = nullptr;
-	//	delete binding;
-}
+template<class DbMappingClass> void DbQueryJob<DbMappingClass>::deinit() {}
 
 template<class DbMappingClass>
 void DbQueryJob<DbMappingClass>::createBinding(DbConnectionPool* dbConnectionPool,

@@ -420,7 +420,9 @@ template<typename T> uint32_t getClampedCount(size_t realSize) {
 #define CREATE_STRUCT_IMPL(name_, size_base_, definition_header_, serialization_header_, deserialization_header_) \
 	struct name_ { \
 		static inline const char* getName() { return #name_; } \
-		definition_header_ name_##_DEF(DEFINITION_F) uint32_t getSize(int version) const { \
+		definition_header_; \
+		name_##_DEF(DEFINITION_F); \
+		uint32_t getSize(int version) const { \
 			uint32_t size = size_base_; \
 			(void) (version); \
 			name_##_DEF(LOCAL_DEFINITION_F); \
@@ -475,7 +477,8 @@ template<typename T> uint32_t getClampedCount(size_t realSize) {
 		id = id_;
 
 #define CREATE_PACKET_VER_ID_HEADER_HEADER(name_) \
-	name_##_ID(HEADER_F_ID) static inline uint16_t getId(int version) { \
+	name_##_ID(HEADER_F_ID); \
+	static inline uint16_t getId(int version) { \
 		uint16_t id; \
 		(void) version; \
 		name_##_ID(SERIALISATION_F_ID); \

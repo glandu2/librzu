@@ -58,7 +58,7 @@ template<class T> class SessionServer : public SessionServerCommon {
 public:
 	SessionServer(cval<std::string>& listenIp,
 	              cval<int>& port,
-	              cval<int>* idleTimeoutSec = nullptr,
+	              cval<int>* idleTimeoutSec,
 	              Log* packetLogger = nullptr,
 	              BanManager* banManager = nullptr)
 	    : SessionServerCommon(listenIp, port, idleTimeoutSec, packetLogger, banManager) {}
