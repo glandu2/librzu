@@ -16,9 +16,18 @@ public:
 	virtual void assignStream(Stream* stream);
 
 	virtual bool connect(const char* url, uint16_t port);
-	void close() { stream->close(); }
-	void abortSession() { stream->abort(); }
-	void closeSession() { stream->close(); }
+	void close() {
+		if(stream)
+			stream->close();
+	}
+	void abortSession() {
+		if(stream)
+			stream->abort();
+	}
+	void closeSession() {
+		if(stream)
+			stream->close();
+	}
 
 	Stream* getStream() { return stream; }
 	virtual size_t read(void* buffer, size_t size) { return stream->read(buffer, size); }
