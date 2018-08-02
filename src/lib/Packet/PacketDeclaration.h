@@ -80,7 +80,7 @@ template<typename T> uint32_t getClampedCount(size_t realSize) {
 	};
 #define DEFINITION_F_padmarker(...)
 #define DEFINITION_F_pad(...)
-#define DEFINITION_F_endstring(name, size, ...) std::string name;
+#define DEFINITION_F_endstring(name, hasNullTerminator, ...) std::string name;
 #define DEFINITION_F_endarray(type, name, ...) std::vector<type> name;
 
 // Local fields
@@ -94,7 +94,7 @@ template<typename T> uint32_t getClampedCount(size_t realSize) {
 #define LOCAL_DEFINITION_F_dynstring(name, hasNullTerminator, ...)
 #define LOCAL_DEFINITION_F_padmarker(...)
 #define LOCAL_DEFINITION_F_pad(...)
-#define LOCAL_DEFINITION_F_endstring(name, size, ...)
+#define LOCAL_DEFINITION_F_endstring(name, hasNullTerminator, ...)
 #define LOCAL_DEFINITION_F_endarray(type, name, ...)
 
 // Size function
