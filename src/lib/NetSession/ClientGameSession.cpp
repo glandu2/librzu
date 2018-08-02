@@ -15,18 +15,18 @@ EventChain<SocketSession> ClientGameSession::onConnected() {
 	versionMsg.szVersion = auth->getGameVersion();
 	RzHashReversible256::generatePayload(versionMsg);
 
-	sendPacket(versionMsg, version);
+	sendPacket(versionMsg);
 
 	TS_CS_REPORT reportMsg;
 	reportMsg.report =
 	    "\x8D\x07\x72\xCA\x29\x47Windows (6.2.9200)|Intel(R) HD Graphics 4000Drv Version : 10.18.10.4425";
-	sendPacket(reportMsg, version);
+	sendPacket(reportMsg);
 
 	TS_CS_ACCOUNT_WITH_AUTH loginInGameServerMsg;
 
 	loginInGameServerMsg.account = auth->getAccountName();
 	loginInGameServerMsg.one_time_key = auth->getOnTimePassword();
-	sendPacket(loginInGameServerMsg, version);
+	sendPacket(loginInGameServerMsg);
 
 	return PacketSession::onConnected();
 }
