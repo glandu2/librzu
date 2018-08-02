@@ -13,8 +13,8 @@ CREATE_STRUCT(TS_ITEM_AWAKEN_OPTION);
 	_(simple) (int32_t, code) \
 	_(simple) (int64_t, uid) \
 	_(def)(simple)(int64_t, count) \
-	_(impl)(simple)(int64_t, count, version >= EPIC_4_1) \
-	_(impl)(simple)(int32_t, count, version < EPIC_4_1) \
+	_(impl)(simple)(int64_t, count, version >= EPIC_5_1) \
+	_(impl)(simple)(int32_t, count, version < EPIC_5_1) \
 	_(simple) (int32_t, ethereal_durability, version >= EPIC_6_3) \
 	_(def)(simple) (uint32_t, endurance) \
 	_(impl)(simple)(uint32_t, endurance, version >= EPIC_4_1) \

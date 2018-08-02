@@ -3,6 +3,7 @@
 
 #include "Packet/PacketDeclaration.h"
 
+// checked with e4
 #define TS_SC_GAME_TIME_DEF(_) \
 	_(simple) (uint32_t, t) \
 	_(def)(simple) (uint64_t, game_time) \

@@ -6,9 +6,10 @@
 #define TS_SC_STATE_DEF(_) \
 	_(simple)(uint32_t, handle) \
 	_(simple)(uint16_t, state_handle) \
-	_(simple)(uint32_t, state_code) \
 	_(def)(simple) (uint16_t, state_level) \
-	_(impl)(simple)(uint16_t, state_level, version >= EPIC_4_1) \
+	_(impl)(simple)(uint16_t, state_level, version >= EPIC_9_5_2) \
+	_(simple)(uint32_t, state_code) \
+	_(impl)(simple)(uint16_t, state_level, version >= EPIC_4_1 && version < EPIC_9_5_2) \
 	_(impl)(simple)(int8_t, state_level, version < EPIC_4_1) \
 	_(simple)(uint32_t, end_time) \
 	_(simple)(uint32_t, start_time, version >= EPIC_3) \

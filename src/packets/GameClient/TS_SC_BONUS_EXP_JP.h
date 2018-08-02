@@ -3,9 +3,10 @@
 
 #include "Packet/PacketDeclaration.h"
 
+// Tested on e4 072007
 #define TS_BONUS_INFO_DEF(_) \
 	_(simple)(int32_t, type) \
-	_(simple)(int32_t, rate) \
+	_(simple)(int32_t, rate, version >= EPIC_5_1) \
 	_(def)(simple) (int64_t, exp) \
 	_(impl)(simple)(int64_t, exp, version >= EPIC_6_1) \
 	_(impl)(simple)(int32_t, exp, version < EPIC_6_1) \
