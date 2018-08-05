@@ -6,8 +6,8 @@
 #define TS_MARKET_ITEM_INFO_DEF(_) \
 	_(simple)(int32_t, code) \
 	_(def)(simple) (int64_t, price) \
-	_(impl)(simple)(int64_t, price, version >= EPIC_5_1) \
-	_(impl)(simple)(int32_t, price, version < EPIC_5_1) \
+	_(impl)(simple)(int64_t, price, version >= EPIC_4_1_1) \
+	_(impl)(simple)(int32_t, price, version < EPIC_4_1_1) \
 	_(simple)(int32_t, huntaholic_point, version >= EPIC_5_2) \
 	_(simple)(int32_t, arena_point, version >= EPIC_8_1)
 

@@ -10,8 +10,8 @@
 	_(simple) (bool, is_number) \
 	_(string) (name, 16) \
 	_(def)(simple)(int64_t, value) \
-	_(impl)(simple)(int64_t, value, version >= EPIC_5_1) \
-	_(impl)(simple)(int32_t, value, version < EPIC_5_1) \
+	_(impl)(simple)(int64_t, value, version >= EPIC_4_1_1) \
+	_(impl)(simple)(int32_t, value, version < EPIC_4_1_1) \
 	_(endstring)(string_value, true)
 
 CREATE_PACKET(TS_SC_PROPERTY, 507);

@@ -13,7 +13,7 @@ CREATE_STRUCT(MOVE_INFO);
 	_(simple)(uint32_t, start_time) \
 	_(simple)(uint32_t, handle) \
 	_(simple)(int8_t, tlayer) \
-	_(simple)(int8_t, speed) \
+	_(simple)(uint8_t, speed) \
 	_(count) (uint16_t, move_infos) \
 	_(dynarray)(MOVE_INFO, move_infos)
 

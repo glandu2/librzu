@@ -4,6 +4,7 @@
 #define EPIC_2 0x020100
 #define EPIC_3 0x030100
 #define EPIC_4_1 0x040100
+#define EPIC_4_1_1 0x040101
 #define EPIC_5_1 0x050100
 #define EPIC_5_2 0x050200
 #define EPIC_6_1 0x060100

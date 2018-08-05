@@ -7,8 +7,8 @@
 #define TS_BOOTH_ITEM_INFO_DEF(_) \
 	_(simple)(TS_ITEM_BASE_INFO, item) \
 	_(def)(simple)(int64_t, gold) \
-	_(impl)(simple)(int64_t, gold, version >= EPIC_5_1) \
-	_(impl)(simple)(int32_t, gold, version < EPIC_5_1)
+	_(impl)(simple)(int64_t, gold, version >= EPIC_4_1_1) \
+	_(impl)(simple)(int32_t, gold, version < EPIC_4_1_1)
 CREATE_STRUCT(TS_BOOTH_ITEM_INFO);
 
 #define TS_SC_WATCH_BOOTH_DEF(_) \
