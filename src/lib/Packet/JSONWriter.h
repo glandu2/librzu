@@ -47,9 +47,37 @@ public:
 		newList = false;
 	}
 
+	void writeEncodedString(const char* source) {
+		char newString[2048];
+		size_t currentSize = 0;
+
+		for(size_t i = 0; currentSize < sizeof(newString) - 1; i++) {
+			const unsigned char c = source[i];
+
+			// Normal visible chars
+			if(c >= 0x20 && c < 0x7F && c != '\"' && c != '\\') {
+				newString[currentSize++] = c;
+
+			} else if(c == '\"' && c == '\\') {
+				newString[currentSize++] = '\\';
+				newString[currentSize++] = c;
+			} else if(c == '\0') {
+				break;
+			} else {
+				int ret = snprintf(&newString[currentSize], sizeof(newString) - currentSize, "\\u%04x", c);
+				if(ret >= 0)
+					currentSize += ret;
+			}
+		}
+
+		newString[currentSize] = '\0';
+
+		json << '\"' << newString << '\"';
+	}
+
 	// Write functions /////////////////////////
 
-	void writeHeader(uint32_t size, uint16_t id) { write<uint16_t>("id", id); }
+	void writeHeader(uint32_t /* size */, uint16_t id) { write<uint16_t>("id", id); }
 
 	// handle ambiguous << operator for int16_t and int8_t
 	template<typename T>
@@ -98,25 +126,25 @@ public:
 	}
 
 	// String
-	void writeString(const char* fieldName, const std::string& val, size_t maxSize) {
+	void writeString(const char* fieldName, const std::string& val, size_t /* maxSize */) {
 		printIdent();
 		if(fieldName)
 			json << '\"' << fieldName << getEndFieldSeparator();
-		json << "\"" << val << "\"";
+		writeEncodedString(val.c_str());
 	}
 
-	void writeDynString(const char* fieldName, const std::string& val, size_t count) {
+	void writeDynString(const char* fieldName, const std::string& val, size_t /* count */) {
 		printIdent();
 		if(fieldName)
 			json << '\"' << fieldName << getEndFieldSeparator();
-		json << "\"" << val << "\"";
+		writeEncodedString(val.c_str());
 	}
 
-	void writeArray(const char* fieldName, const char* val, size_t size) {
+	void writeArray(const char* fieldName, const char* val, size_t /* size */) {
 		printIdent();
 		if(fieldName)
 			json << '\"' << fieldName << getEndFieldSeparator();
-		json << "\"" << val << "\"";
+		writeEncodedString(val);
 	}
 
 	// Fixed array
@@ -175,13 +203,13 @@ public:
 	}
 
 	template<typename T>
-	typename std::enable_if<is_primitive<T>::value, void>::type writeSize(const char* fieldName, T size) {}
+	typename std::enable_if<is_primitive<T>::value, void>::type writeSize(const char* /* fieldName */, T /* size */) {}
 
-	void pad(const char* fieldName, size_t size) {}
+	void pad(const char* /* fieldName */, size_t /* size */) {}
 
 	// Read functions /////////////////////////
 
-	void readHeader(uint16_t& id) {}
+	void readHeader(uint16_t& /* id */) {}
 
 	// Primitives via arg
 	template<typename T, typename U>
