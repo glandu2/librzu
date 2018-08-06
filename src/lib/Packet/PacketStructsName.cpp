@@ -337,7 +337,7 @@ static void initPacketName() {
 	}
 }
 
-const char* getPacketName(unsigned int id, SessionType sessionType, SessionPacketDir packetDir) {
+const char* getPacketName(unsigned int id, SessionType sessionType, SessionPacketOrigin packetDir) {
 	if(gamePacketNamesArray[0] == nullptr)
 		initPacketName();
 
