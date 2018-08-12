@@ -34,12 +34,18 @@ void BanManager::onTimerExpire() {
 
 BanManager::BanManager() {
 	assert(config != nullptr);
+	maxConnectionPerDayPerIp = config->maxConnectionPerDayPerIp.get();
+	maxClientPerIp = config->maxClientPerIp.get();
 	resetConnectionsThisDayTimer.start(this, &BanManager::onTimerExpire, 24 * 60 * 60 * 1000, 24 * 60 * 60 * 1000);
 	resetConnectionsThisDayTimer.unref();
 }
 
 void BanManager::loadFile() {
 	std::string banFileName = config->banFile.get();
+
+	// Cache config
+	maxConnectionPerDayPerIp = config->maxConnectionPerDayPerIp.get();
+	maxClientPerIp = config->maxClientPerIp.get();
 
 	FILE* file = fopen(banFileName.c_str(), "rb");
 	if(!file) {
@@ -98,10 +104,6 @@ void BanManager::loadFile() {
 	}
 
 	bannedIps.swap(newBannedIps);
-
-	// Cache config
-	maxConnectionPerDayPerIp = config->maxConnectionPerDayPerIp.get();
-	maxClientPerIp = config->maxClientPerIp.get();
 
 	fclose(file);
 }

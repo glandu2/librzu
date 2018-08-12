@@ -1,10 +1,10 @@
 #ifndef PACKETS_JSONWRITER_H
 #define PACKETS_JSONWRITER_H
 
+#include "Core/Utils.h"
 #include "EncodedInt.h"
 #include "StructSerializer.h"
 #include <sstream>
-#include <stdio.h>
 
 class JSONWriter : public StructSerializer {
 private:
