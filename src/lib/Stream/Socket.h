@@ -12,8 +12,8 @@ public:
 	Socket(uv_loop_t* uvLoop, bool logPackets = true);
 	virtual ~Socket();
 
-	const char* getRemoteIpStr();
-	const char* getLocalIpStr();
+	virtual StreamAddress getRemoteAddress();
+	virtual StreamAddress getLocalAddress();
 
 	void setKeepAlive(int delay);
 	void setNoDelay(bool enable);
@@ -23,10 +23,13 @@ protected:
 	virtual int bind_impl(const std::string& interfaceIp, uint16_t port);
 	virtual Stream* createStream_impl();
 
-	virtual void retrieveSocketBoundsInfo();
 	virtual void updateObjectName();
 
 	virtual void onStateChanged(State oldState, State newState);
+
+	StreamAddress getAddress(int (*getsockaddrFunction)(const uv_tcp_t* handle,
+	                                                struct sockaddr* name,
+							                        int* namelen) );
 
 private:
 	static void enableFastPath(uv_tcp_t* socket);

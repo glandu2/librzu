@@ -49,6 +49,41 @@ Socket::~Socket() {
 		uv_run(getLoop(), UV_RUN_ONCE);
 }
 
+StreamAddress Socket::getAddress(int (*getsockaddrFunction)(const uv_tcp_t*, sockaddr*, int*)) {
+	StreamAddress address{};
+	union {
+		struct sockaddr common;
+		struct sockaddr_in ipv4;
+		struct sockaddr_in6 ipv6;
+	} sockAddr{};
+	int sockAddrLen = sizeof(sockAddr);
+
+	int ret = getsockaddrFunction(&socket, &sockAddr.common, &sockAddrLen);
+
+	if(ret < 0) {
+		address.type = StreamAddress::ST_SocketIpv4;
+		memset(&address.rawAddress, 0, sizeof(address.rawAddress));
+	} else if(sockAddr.common.sa_family == AF_INET6) {
+		address.type = StreamAddress::ST_SocketIpv6;
+		address.port = ntohs(sockAddr.ipv6.sin6_port);
+		address.rawAddress.ipv6 = sockAddr.ipv6.sin6_addr;
+	} else {
+		address.type = StreamAddress::ST_SocketIpv4;
+		address.port = ntohs(sockAddr.ipv4.sin_port);
+		address.rawAddress.ipv4 = sockAddr.ipv4.sin_addr;
+	}
+
+	return address;
+}
+
+StreamAddress Socket::getRemoteAddress() {
+	return getAddress(&uv_tcp_getpeername);
+}
+
+StreamAddress Socket::getLocalAddress() {
+	return getAddress(&uv_tcp_getsockname);
+}
+
 int Socket::connect_impl(uv_connect_t* connectRequest, const std::string& hostName, uint16_t port) {
 	struct sockaddr_in6 dest6;
 	struct sockaddr_in dest4;
@@ -123,53 +158,6 @@ Stream* Socket::createStream_impl() {
 	return newStream;
 }
 
-void Socket::retrieveSocketBoundsInfo() {
-	// Retrieve remote bound infos
-	struct sockaddr_in sockInfo;
-	int sockAddrLen = sizeof(sockaddr_in);
-	if(uv_tcp_getpeername(&socket, (struct sockaddr*) &sockInfo, &sockAddrLen) >= 0) {
-		if(remoteIp != sockInfo.sin_addr.s_addr) {
-			remoteIp = sockInfo.sin_addr.s_addr;
-			remoteIpStr[0] = 0;
-		}
-		remotePort = ntohs(sockInfo.sin_port);
-	} else {
-		remoteIpStr[0] = 0;
-		remoteIp = 0;
-		remotePort = 0;
-	}
-
-	// Retrieve local bound infos
-	sockAddrLen = sizeof(sockaddr_in);
-	if(uv_tcp_getsockname(&socket, (struct sockaddr*) &sockInfo, &sockAddrLen) >= 0) {
-		if(localIp != sockInfo.sin_addr.s_addr) {
-			localIp = sockInfo.sin_addr.s_addr;
-			localIpStr[0] = 0;
-		}
-		localPort = ntohs(sockInfo.sin_port);
-	} else {
-		localIpStr[0] = 0;
-		localIp = 0;
-		localPort = 0;
-	}
-
-	setDirtyObjectName();
-}
-
-const char* Socket::getRemoteIpStr() {
-	if(remoteIpStr[0] == '\0' && remoteIp)
-		uv_inet_ntop(AF_INET, &remoteIp, remoteIpStr, sizeof(remoteIpStr));
-
-	return remoteIpStr;
-}
-
-const char* Socket::getLocalIpStr() {
-	if(localIpStr[0] == '\0' && localIp)
-		uv_inet_ntop(AF_INET, &localIp, localIpStr, sizeof(localIpStr));
-
-	return localIpStr;
-}
-
 void Socket::setKeepAlive(int delay) {
 	uv_tcp_keepalive(&socket, delay > 0 ? true : false, delay);
 }
@@ -188,17 +176,30 @@ void Socket::onStateChanged(State oldState, State newState) {
 void Socket::updateObjectName() {
 	//	int nameSize = 0;
 	//	nameSize += getClassNameSize(); //name prefix is class name
-	//	nameSize += 1; // "["
+	//	nameSize += 2; // "[["
 	//	nameSize += strlen(localHostName);
-	//	nameSize += 1; // ":"
+	//	nameSize += 2; // "]:"
 	//	nameSize += 5; // localPort
 	//	nameSize += 4; // " <> "
 	//	nameSize += strlen(remoteHostName);
-	//	nameSize += 1; // ":"
+	//	nameSize += 2; // ":["
 	//	nameSize += 5; // remotePort
-	//	nameSize += 2; // "]\0"
-	const char* localhostStr = getLocalIpStr();
-	const char* remotehostStr = getRemoteIpStr();
-	size_t nameSize = getClassNameSize() + strlen(localhostStr) + strlen(remotehostStr) + 19;
-	setObjectName(nameSize, "%s[%s:%u <> %s:%u]", getClassName(), localhostStr, localPort, remotehostStr, remotePort);
+	//	nameSize += 3; // "]]\0"
+	char localhostStr[256];
+	char remotehostStr[256];
+
+	StreamAddress localAddress = getLocalAddress();
+	StreamAddress remoteAddress = getRemoteAddress();
+
+	localAddress.getName(localhostStr, sizeof(localhostStr));
+	remoteAddress.getName(remotehostStr, sizeof(localhostStr));
+
+	size_t nameSize = getClassNameSize() + strlen(localhostStr) + strlen(remotehostStr) + 23;
+	setObjectName(nameSize,
+	              "%s([%s]:%u <> [%s]:%u)",
+	              getClassName(),
+	              localhostStr,
+	              localAddress.port,
+	              remotehostStr,
+	              remoteAddress.port);
 }

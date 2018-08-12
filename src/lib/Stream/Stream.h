@@ -5,6 +5,7 @@
 #include "Core/IListener.h"
 #include "Core/Log.h"
 #include "Core/Object.h"
+#include "StreamAddress.h"
 #include "uv.h"
 #include <stdint.h>
 
@@ -80,12 +81,9 @@ public:
 	virtual void setNoDelay(bool enable) {}
 
 	State getState() { return currentState; }
-	virtual const char* getRemoteIpStr();
-	uint32_t getRemoteIp() { return remoteIp; }
-	uint16_t getRemotePort() { return remotePort; }
-	virtual const char* getLocalIpStr();
-	uint32_t getLocalIp() { return localIp; }
-	uint16_t getLocalPort() { return localPort; }
+
+	virtual StreamAddress getRemoteAddress() = 0;
+	virtual StreamAddress getLocalAddress() = 0;
 
 	void addDataListener(IListener* instance, CallbackOnDataReady listener);
 	void addConnectionListener(IListener* instance, CallbackOnDataReady listener);
@@ -124,17 +122,10 @@ protected:
 	virtual int connect_impl(uv_connect_t* connectRequest, const std::string& hostName, uint16_t port) = 0;
 	virtual int bind_impl(const std::string& interfaceIp, uint16_t port) = 0;
 	virtual Stream* createStream_impl() = 0;
-	virtual void retrieveSocketBoundsInfo() {}
 
 	virtual void onStateChanged(State oldState, State newState) {}
 
 protected:
-	uint32_t remoteIp;
-	uint32_t localIp;
-	uint16_t remotePort;
-	uint16_t localPort;
-	char remoteIpStr[INET6_ADDRSTRLEN];
-	char localIpStr[INET6_ADDRSTRLEN];
 	bool logPackets;  // set to false when logging is done in a derived class
 
 private:

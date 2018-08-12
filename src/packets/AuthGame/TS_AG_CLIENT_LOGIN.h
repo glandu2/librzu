@@ -20,7 +20,7 @@ struct TS_AG_CLIENT_LOGIN : public TS_MESSAGE
 
 struct TS_AG_CLIENT_LOGIN_EXTENDED : public TS_AG_CLIENT_LOGIN
 {
-	uint32_t ip;
+	char ip[INET6_ADDRSTRLEN];
 	uint32_t loginTime;
 
 	static const uint16_t packetID = 60011;

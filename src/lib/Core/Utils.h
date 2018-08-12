@@ -51,6 +51,7 @@ public:
 
 	static bool isalpha(char c) { return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z'); }
 	static bool isdigit(char c) { return c >= '0' && c <= '9'; }
+	static bool ishex(char c) { return isdigit(c) || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F'); }
 	static bool isspace(char c) { return c == ' ' || c == '\t' || c == '\n' || c == '\v' || c == '\f' || c == '\r'; }
 
 private:

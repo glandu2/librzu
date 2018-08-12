@@ -36,7 +36,7 @@ SessionServerCommon::~SessionServerCommon() {
 		    (int) sockets.size());
 
 	for(auto it = sockets.begin(); it != sockets.end(); ++it) {
-		(*it)->setServer(nullptr);
+		it->first->setServer(nullptr);
 	}
 }
 
@@ -82,13 +82,21 @@ void SessionServerCommon::stop() {
 	serverSocket->close();
 	openServer = false;
 	for(auto it = sockets.begin(); it != sockets.end(); ++it) {
-		(*it)->close();
+		it->first->close();
 		// closed socket will cause the SocketSession's to remove themselves from this list
 	}
 }
 
 void SessionServerCommon::socketClosed(SocketSession* socketSession) {
-	sockets.remove(socketSession);
+	auto it = sockets.find(socketSession);
+	if(it == sockets.end()) {
+		log(LL_Error, "Socket closed but cannot find it in socket list\n");
+	} else {
+		if(banManager)
+			banManager->closedClient(it->second);
+
+		sockets.erase(it);
+	}
 }
 
 void SessionServerCommon::onNewConnectionStatic(IListener* instance, Stream* serverSocket) {
@@ -99,15 +107,17 @@ void SessionServerCommon::onNewConnection() {
 		return;
 
 	if(serverSocket->accept(&lastWaitingStreamInstance)) {
-		if(banManager && banManager->isBanned(lastWaitingStreamInstance->getRemoteIp())) {
-			lastWaitingStreamInstance->abort();
-			log(LL_Debug, "Kick banned ip %s\n", lastWaitingStreamInstance->getRemoteIpStr());
-		} else {
+		StreamAddress remoteAddress = lastWaitingStreamInstance->getRemoteAddress();
+
+		if(!banManager || banManager->checkAcceptNewClient(remoteAddress)) {
 			SocketSession* session = createSession();
 			session->assignStream(lastWaitingStreamInstance);
 			session->onConnected();
-			sockets.push_back(session);
+			sockets.emplace(session, remoteAddress);
 			session->setServer(this);
+		} else {
+			lastWaitingStreamInstance->abort();
+			lastWaitingStreamInstance->deleteLater();
 		}
 		GlobalCoreConfig::get()->stats.connectionCount++;
 
@@ -124,14 +134,18 @@ void SessionServerCommon::onCheckIdleSockets() {
 		begin = uv_hrtime();
 
 	for(auto it = sockets.begin(); it != sockets.end();) {
-		SocketSession* session = *it;
+		SocketSession* session = it->first;
 		Stream* socket = session->getStream();
 		++it;  // if the socket is removed from the list (when closed), we keep a valid iterator
 		if(socket && socket->getState() == Stream::ConnectedState) {
 			if(socket->isPacketTransferedSinceLastCheck() == false) {
+				StreamAddress remoteAddress = socket->getRemoteAddress();
+				char ipStr[108];
+				remoteAddress.getName(ipStr, sizeof(ipStr));
+
 				socket->close();
 				kickedConnections++;
-				log(LL_Info, "Kicked idle connection: %s:%d\n", socket->getRemoteIpStr(), socket->getRemotePort());
+				log(LL_Info, "Kicked idle connection: %s:%d\n", ipStr, remoteAddress.port);
 			} else {
 				socket->resetPacketTransferedFlag();
 			}

@@ -10,6 +10,30 @@ Pipe::~Pipe() {
 		uv_run(getLoop(), UV_RUN_ONCE);
 }
 
+StreamAddress Pipe::getAddress(int (*getsockaddrFunction)(const uv_pipe_t*, char*, size_t*)) {
+	StreamAddress address{};
+	char sockAddr[108] = {0};
+	size_t sockAddrLen = sizeof(address.rawAddress);
+
+	int ret = getsockaddrFunction(&pipe, sockAddr, &sockAddrLen);
+
+	address.type = StreamAddress::ST_Pipe;
+
+	if(ret >= 0) {
+		address.pipeAddress = sockAddr;
+	}
+
+	return address;
+}
+
+StreamAddress Pipe::getRemoteAddress() {
+	return getAddress(&uv_pipe_getpeername);
+}
+
+StreamAddress Pipe::getLocalAddress() {
+	return getAddress(&uv_pipe_getsockname);
+}
+
 int Pipe::connect_impl(uv_connect_t* connectRequest, const std::string& hostName, uint16_t port) {
 	uv_pipe_init(getLoop(), &pipe, false);
 

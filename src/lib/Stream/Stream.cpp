@@ -49,9 +49,6 @@ Stream::Stream(uv_loop_t* uvLoop, uv_stream_t* handle, bool logPackets)
       packetLogger(Log::getDefaultPacketLogger()),
       packetTransferedSinceLastCheck(true),
       closeCausedByRemote(false) {
-	remoteIpStr[0] = localIpStr[0] = 0;
-	remoteIp = localIp = 0;
-	remotePort = localPort = 0;
 	connectRequest.data = this;
 	handle->data = this;
 }
@@ -111,8 +108,6 @@ bool Stream::connect(const std::string& hostName, uint16_t port) {
 		return false;
 	}
 
-	strncpy(remoteIpStr, hostName.c_str(), sizeof(remoteIpStr));
-	remotePort = port;
 	setState(ConnectingState);
 
 	int result = connect_impl(&connectRequest, hostName, port);
@@ -131,8 +126,6 @@ bool Stream::listen(const std::string& interfaceIp, uint16_t port) {
 		return false;
 	}
 
-	strncpy(localIpStr, interfaceIp.c_str(), sizeof(localIpStr));
-	localPort = port;
 	setState(BindingState);
 
 	int result = bind_impl(interfaceIp, port);
@@ -141,6 +134,8 @@ bool Stream::listen(const std::string& interfaceIp, uint16_t port) {
 		onStreamError(result);
 		return false;
 	}
+
+	setDirtyObjectName();
 
 	result = uv_listen(handle, 20000, &onNewConnection);
 	if(result < 0) {
@@ -280,49 +275,28 @@ void Stream::abort(bool causedByRemote) {
 	uv_close((uv_handle_t*) handle, &onConnectionClosed);
 }
 
-const char* Stream::getRemoteIpStr() {
-	return remoteIpStr;
-}
-
-const char* Stream::getLocalIpStr() {
-	return localIpStr;
-}
-
 void Stream::setState(State state, bool causedByRemote) {
 	if(state == currentState)
 		return;
 
-	if(state == ConnectedState || state == ListeningState) {
-		retrieveSocketBoundsInfo();
-	}
-
 	State oldState = currentState;
 	currentState = state;
-
-	const char* oldStateStr = (oldState < (sizeof(STATES) / sizeof(const char*))) ? STATES[oldState] : "Unknown";
-	const char* newStateStr = (state < (sizeof(STATES) / sizeof(const char*))) ? STATES[state] : "Unknown";
-	log(LL_Trace, "Stream state changed from %s to %s\n", oldStateStr, newStateStr);
-	packetLog(LL_Info, nullptr, 0, "Stream state changed from %s to %s\n", oldStateStr, newStateStr);
 
 	DELEGATE_CALL(eventListeners, this, oldState, state, causedByRemote);
 
 	if(state == ClosingState) {
 		closeCausedByRemote = causedByRemote;
-	} else if(state == UnconnectedState) {
-		remoteIpStr[0] = 0;
-		remoteIp = 0;
-		remotePort = 0;
-		localIpStr[0] = 0;
-		localIp = 0;
-		localPort = 0;
-
-		setDirtyObjectName();
 	} else if(state == ConnectedState) {
 		uv_read_start(handle, &onAllocReceiveBuffer, &onReadCompleted);
 		packetTransferedSinceLastCheck = true;
 	}
 
 	onStateChanged(oldState, state);
+
+	const char* oldStateStr = (oldState < (sizeof(STATES) / sizeof(const char*))) ? STATES[oldState] : "Unknown";
+	const char* newStateStr = (state < (sizeof(STATES) / sizeof(const char*))) ? STATES[state] : "Unknown";
+	log(LL_Trace, "Stream state changed from %s to %s\n", oldStateStr, newStateStr);
+	packetLog(LL_Info, nullptr, 0, "Stream state changed from %s to %s\n", oldStateStr, newStateStr);
 }
 
 void Stream::packetLog(Object::Level level, const unsigned char* rawData, int size, const char* format, ...) {
@@ -440,6 +414,7 @@ void Stream::onConnected(uv_connect_t* req, int status) {
 		thisInstance->onStreamError(status);
 		return;
 	}
+	thisInstance->setDirtyObjectName();
 
 	thisInstance->setState(ConnectedState);
 }

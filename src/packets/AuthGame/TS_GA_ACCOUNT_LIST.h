@@ -12,7 +12,7 @@ struct TS_GA_ACCOUNT_LIST : public TS_MESSAGE_WNA
 		char nPCBangUser;
 		int32_t nEventCode;
 		int32_t nAge;
-		uint32_t ip;
+		char ip[INET6_ADDRSTRLEN];
 		uint32_t loginTime;
 	};
 

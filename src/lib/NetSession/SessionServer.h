@@ -29,6 +29,7 @@ public:
 
 	Stream::State getState() { return serverSocket ? serverSocket->getState() : Stream::UnconnectedState; }
 	Stream* getServerStream() { return serverSocket; }
+	BanManager* getBanManager() { return banManager; }
 
 	void socketClosed(SocketSession* socketSession);
 
@@ -45,7 +46,7 @@ private:
 	bool openServer;
 	Stream* serverSocket;
 	Stream* lastWaitingStreamInstance;
-	std::list<SocketSession*> sockets;
+	std::unordered_map<SocketSession*, StreamAddress> sockets;
 	BanManager* banManager;
 	Log* packetLogger;
 	Timer<SessionServerCommon> checkIdleSocketTimer;
