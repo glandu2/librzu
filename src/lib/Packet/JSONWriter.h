@@ -4,6 +4,7 @@
 #include "EncodedInt.h"
 #include "StructSerializer.h"
 #include <sstream>
+#include <stdio.h>
 
 class JSONWriter : public StructSerializer {
 private:
