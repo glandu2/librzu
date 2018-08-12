@@ -1,6 +1,9 @@
 #ifndef PACKETDECLARATION_H
 #define PACKETDECLARATION_H
 
+// To see the generated C++ code, use:
+// gcc -E TS_*.h -DDEBUG_PREPROCESSOR -I../../lib | clang-format-6.0 -style llvm -
+
 #ifndef DEBUG_PREPROCESSOR
 #include "PacketEpics.h"
 #include <limits>
