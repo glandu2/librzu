@@ -1,7 +1,5 @@
 #include "UvHandle.h"
 
-template class UvHandle<uv_timer_t>;
-
 template<class HandleType> struct UvHandleInitializerMap {};
 template<> struct UvHandleInitializerMap<uv_timer_t> {
 	template<typename... Args> static int call(Args... args) { return uv_timer_init(args...); }
@@ -32,3 +30,5 @@ template<typename HandleType> HandleType* UvHandle<HandleType>::get() {
 		return handle;
 	}
 }
+
+template class UvHandle<uv_timer_t>;
