@@ -21,6 +21,16 @@ public:
 		query->execute(&input, 1);
 	}
 
+	template<class DbMappingClass, class DbJobClass, class Session>
+	void executeDbQuery(Session* session,
+	                    typename DbJobClass::DbCallback callback,
+	                    const std::vector<typename DbMappingClass::Input>& inputs) {
+		auto query = new DbJobClass(session, callback);
+		query->setDbQueryJobRef(this);
+		dbQueryJobs.push_back(query);
+		query->execute(inputs.data(), inputs.size());
+	}
+
 	template<class DbMappingClass, class Session>
 	void executeDbQuery(
 	    Session* session,
@@ -29,6 +39,16 @@ public:
 		executeDbQuery<DbMappingClass,
 		               DbQueryJobCallback<DbMappingClass, Session, DbQueryJob<DbMappingClass> >,
 		               Session>(session, callback, input);
+	}
+
+	template<class DbMappingClass, class Session>
+	void executeDbQuery(
+	    Session* session,
+	    typename DbQueryJobCallback<DbMappingClass, Session, DbQueryJob<DbMappingClass> >::DbCallback callback,
+	    const std::vector<typename DbMappingClass::Input>& inputs) {
+		executeDbQuery<DbMappingClass,
+		               DbQueryJobCallback<DbMappingClass, Session, DbQueryJob<DbMappingClass> >,
+		               Session>(session, callback, inputs);
 	}
 
 	void onQueryDone(IDbQueryJobCallback* query);
