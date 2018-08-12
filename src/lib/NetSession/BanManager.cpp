@@ -71,25 +71,12 @@ void BanManager::loadFile() {
 		if(line[0]) {
 			StreamAddress inet;
 			inet.port = 0;
-			if(isIpv6) {
-				inet.type = StreamAddress::ST_SocketIpv6;
-				if(uv_inet_pton(AF_INET6, line, &inet.rawAddress.ipv6) >= 0) {
-					newBannedIps.insert(inet);
-					if(bannedIps.erase(inet) == 0) {
-						char realIp[INET6_ADDRSTRLEN];
-						inet.getName(realIp, sizeof(realIp));
-						log(LL_Info, "Add banned ip: %s\n", realIp);
-					}
-				}
-			} else {
-				inet.type = StreamAddress::ST_SocketIpv4;
-				if(uv_inet_pton(AF_INET, line, &inet.rawAddress.ipv4) >= 0) {
-					newBannedIps.insert(inet);
-					if(bannedIps.erase(inet) == 0) {
-						char realIp[INET6_ADDRSTRLEN];
-						inet.getName(realIp, sizeof(realIp));
-						log(LL_Info, "Add banned ip: %s\n", realIp);
-					}
+			if(inet.setFromName(line) >= 0) {
+				newBannedIps.insert(inet);
+				if(bannedIps.erase(inet) == 0) {
+					char realIp[INET6_ADDRSTRLEN];
+					inet.getName(realIp, sizeof(realIp));
+					log(LL_Info, "Add banned ip: %s\n", realIp);
 				}
 			}
 		}
@@ -159,4 +146,12 @@ void BanManager::closedClient(StreamAddress ip) {
 			log(LL_Warning, "IP %s has more disconnection than connection\n", ipStr);
 		}
 	}
+}
+
+void BanManager::banIp(StreamAddress ip) {
+	char ipStr[INET6_ADDRSTRLEN];
+	ip.getName(ipStr, sizeof(ipStr));
+
+	bannedIps.insert(ip);
+	log(LL_Warning, "Banned ip %s\n", ipStr);
 }

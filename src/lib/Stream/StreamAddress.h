@@ -15,6 +15,7 @@ public:
 
 public:
 	int getName(char* outStr, int maxSize) const;
+	int setFromName(const char* ipStr);
 	bool operator==(const StreamAddress& other) const;
 
 	AddressType type;

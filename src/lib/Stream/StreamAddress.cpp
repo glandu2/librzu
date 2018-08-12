@@ -17,6 +17,20 @@ int StreamAddress::getName(char* outStr, int maxSize) const {
 	return 0;
 }
 
+int StreamAddress::setFromName(const char* ipStr) {
+	if(strncmp(ipStr, "pipe:", 5) == 0) {
+		type = StreamAddress::ST_Pipe;
+		pipeAddress = std::string(ipStr + 5);
+		return 0;
+	} else if(strchr(ipStr, ':')) {
+		type = StreamAddress::ST_SocketIpv6;
+		return uv_inet_pton(AF_INET6, ipStr, &rawAddress.ipv6);
+	} else {
+		type = StreamAddress::ST_SocketIpv4;
+		return uv_inet_pton(AF_INET, ipStr, &rawAddress.ipv4);
+	}
+}
+
 bool StreamAddress::operator==(const StreamAddress& other) const {
 	if(type != other.type || port != other.port)
 		return false;

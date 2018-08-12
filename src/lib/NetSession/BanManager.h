@@ -16,6 +16,7 @@ public:
 	void loadFile();
 	bool checkAcceptNewClient(StreamAddress ip);
 	void closedClient(StreamAddress ip);
+	void banIp(StreamAddress ip);
 
 	static void registerConfig();
 
