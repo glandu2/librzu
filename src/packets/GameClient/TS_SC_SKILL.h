@@ -3,6 +3,7 @@
 
 #include "Packet/PacketDeclaration.h"
 
+// Some enum with specified underlying type (after ":")
 enum TS_SKILL__TYPE : uint8_t
 {
 	ST_Fire = 0,
@@ -54,6 +55,7 @@ enum TS_SKILL_RESULT_SUCESS_TYPE : int32_t {
 	SRST_RespawnMonster = 41
 };
 
+// Structure definitions
 #define TS_SC_SKILL__HIT_DAMAGE_INFO_DEF(_) \
 	_(simple) (int32_t, target_hp) \
 	_(simple) (TS_SKILL__DAMAGE_TYPE, damage_type) \
@@ -153,6 +155,7 @@ CREATE_STRUCT(TS_SC_SKILL__FIRE);
 	_(simple) (uint16_t, nErrorCode)
 CREATE_STRUCT(TS_SC_SKILL__CAST);
 
+// Packet definition
 #define TS_SC_SKILL_DEF(_) \
 	_(simple) (uint16_t, skill_id) \
 	_(simple) (uint8_t, skill_level) \
