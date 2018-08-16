@@ -1,3 +1,17 @@
+# Table of Contents
+
+   * [Packet description format](#packet-description-format)
+      * [Plain structures](#plain-structures)
+      * [Packet declarative descriptions](#packet-declarative-descriptions)
+         * [Basic packet](#basic-packet)
+         * [More complex packet](#more-complex-packet)
+      * [Field description reference](#field-description-reference)
+         * [Field metatypes](#field-metatypes)
+         * [`(def)`/`(impl)` indicators](#defimpl-indicators)
+         * [Example of complex generated structure and packet (TS_SC_SKILL)](#example-of-complex-generated-structure-and-packet-ts_sc_skill)
+            * [Packet declaration](#packet-declaration)
+            * [Generated code](#generated-code)
+
 # Packet description format
 This folder contains packets descriptions in two different format:
  - Plain structures
@@ -34,9 +48,9 @@ Packet defined like this respect these rules:
     #pragma pack(pop)
     ```
     Here, file_contents has a dynamic size. In some packets, `[0]` can be `[]` instead.
-- The header file includes `Packet/PacketBaseMessage.h` to make `TS_MESSAGE`  and  `TS_MESSAGE_WNA`  available
-- The struct is enclosed inside `#pragma pack(push, 1)` and `#pragma pack(pop)`
-- The struct contains a special variable `static const uint16_t packetID` containing the packet ID
+- The header file includes `Packet/PacketBaseMessage.h` to make `TS_MESSAGE`  and  `TS_MESSAGE_WNA` available.
+- The struct is enclosed inside `#pragma pack(push, 1)` and `#pragma pack(pop)`.
+- The struct contains a special variable `static const uint16_t packetID` containing the packet ID.
 
 ## Packet declarative descriptions
 Declarative description allow to use a serializer class to iterate over fields. Serializing a packet is slower than with plain structures but much more powerful.
