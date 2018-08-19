@@ -25,30 +25,57 @@
 #ifndef DEBUG_PREPROCESSOR
 namespace PacketDeclaration {
 
+// These functions allow to handle differents types the same way
+
+/**
+ * @brief Copy value val2 to val1.
+ * This overload is used for non array types.
+ */
 template<typename T, typename U> inline void copyDefaultValue(T& val1, U val2) {
 	val1 = val2;
 }
 
+/**
+ * @brief Copy value val2 to val1.
+ * This overload is used for fixed array of POD types.
+ */
 template<typename T> inline void copyDefaultValue(T val1[], const T val2[], size_t size) {
 	memcpy(val1, val2, size);
 }
 
+/**
+ * @brief Copy value val2 to val1.
+ * This overload is used for vectors.
+ */
 template<typename T> inline void copyDefaultValue(std::vector<T> val1, const T val2[], size_t size) {
 	val1.assign(val2, val2 + size);
 }
 
+/**
+ * @brief Return the size of an object given the version.
+ * This calls the getSize function of the object.
+ * The object need to be declared with CREATE_STRUCT / CREATE_PACKET or the likes.
+ */
 template<class T>
 inline typename std::enable_if<!std::is_fundamental<T>::value && !std::is_enum<T>::value, int>::type getSizeOf(
     const T& value, int version) {
 	return value.getSize(version);
 }
 
+/**
+ * @brief Return the size of an basic type or enum.
+ */
 template<typename T>
 inline typename std::enable_if<std::is_fundamental<T>::value || std::is_enum<T>::value, int>::type getSizeOf(
     const T& value, int version) {
 	return sizeof(value);
 }
 
+/**
+ * @brief Return a clamped size for the given type T.
+ * For example, if the type T is a uint8_t, the maximum size the type can store is 255.
+ * @return the maximum supported size that the type T can contains or realSize if it is smaller.
+ */
 template<typename T> uint32_t getClampedCount(size_t realSize) {
 	static_assert(sizeof(T) <= sizeof(uint32_t),
 	              "Maximum supported size is uint32_t because a packet is limited to 16k bytes");
@@ -59,32 +86,87 @@ template<typename T> uint32_t getClampedCount(size_t realSize) {
 }  // namespace PacketDeclaration
 #endif
 
-// Dispatch declarations
+/** @defgroup dispatch Dispatch macros to metatype macros
+ *  These macros will will call the matching metatype macro
+ *  like DEFINITION_F_simple().
+ *  \see definitions
+ *  \see local_definitions
+ *  \see sizes
+ *  \see serializations
+ *  \see deserializations
+ *  @{
+ */
+/** @def Dispatch declarations to \ref definitions. */
 #define DEFINITION_F(x) DEFINITION_F_##x
+/** @def Dispatch declarations to \ref local_definitions. */
 #define LOCAL_DEFINITION_F(x) LOCAL_DEFINITION_F_##x
+/** @def Dispatch declarations to \ref sizes. */
 #define SIZE_F(x) SIZE_F_##x
+/** @def Dispatch declarations to \ref serializations. */
 #define SERIALIZATION_F(x) SERIALIZATION_F_##x
+/** @def Dispatch declarations to \ref deserializations. */
 #define DESERIALIZATION_F(x) DESERIALIZATION_F_##x
+///@}
 
-// Body fields
+/** @defgroup definitions Body fields metatype macros
+ * These macros define the fields of the generated structs given the metatype of the field.
+ * They are formated like this: DEFINITION_F_<metatype>(...).
+ * They are called from #DEFINITION_F.
+ * The arguments come from the packet definition.
+ * For example, `_(simple)(uint8_t, n)` will cause a call to `DEFINITION_F_simple(uint8_t, n)`.
+ *  @{
+ */
+/** @brief Generate a simple field. For example: `uint8_t n;` */
 #define DEFINITION_F_simple(type, name, ...) type name;
+
+/** @brief Generate a fixed array field. For example: `uint8_t n[5];` */
 #define DEFINITION_F_array(type, name, size, ...) type name[size];
+
+/** @brief Generate a dynamic array field. For example: `std::vector<uint8_t> n;`
+ * Also generate a metadata struct containing an enum (this will take no place in the generated struct).
+ * The enum allows dynamically sized fields to behave generically like `dynstring` metatype for the `count` metatype.
+ */
 #define DEFINITION_F_dynarray(type, name, ...) \
 	std::vector<type> name; \
 	struct _metadata_##name { \
 		enum { addNullTerminator = 0 }; \
 	};
+
+/** @brief No field is generated for a `count` metatype.
+ * The underlying value is read from `ref.size()`
+ * and written as `ref.resize()` instead.
+ */
 #define DEFINITION_F_count(type, ref, ...)
+
+/** @brief Generate a fixed string field. For example: `std::string n;`
+ * The generated field is not a char n[size] as std::string is easier to handle
+ * and abstract the difference with a dynamic sized string.
+ */
 #define DEFINITION_F_string(name, size, ...) std::string name;
+
+/** @brief Generate a fixed string field. For example: `std::string n;`.
+ * Also generate a metadata struct containing an enum (this will take no place in the generated struct).
+ * The enum allows dynamically sized fields to behave generically like `dynarray` metatype for the `count` metatype.
+ * The enum indicate if the serialized string also contains the null terminator (\0) or not.
+ */
 #define DEFINITION_F_dynstring(name, hasNullTerminator, ...) \
 	std::string name; \
 	struct _metadata_##name { \
 		enum { addNullTerminator = !!hasNullTerminator }; \
 	};
+
+/** @brief No field is generated for a `padmarker` metatype. */
 #define DEFINITION_F_padmarker(...)
+
+/** @brief No field is generated for a `pad` metatype. */
 #define DEFINITION_F_pad(...)
+
+/** @brief Generate a string field. For example: `std::string n;`. */
 #define DEFINITION_F_endstring(name, hasNullTerminator, ...) std::string name;
+
+/** @brief Generate a dynamic array field. For example: `std::vector<uint8_t> n;`. */
 #define DEFINITION_F_endarray(type, name, ...) std::vector<type> name;
+/** @} */
 
 // Local fields
 #define LOCAL_DEFINITION_F_simple(type, name, ...)
