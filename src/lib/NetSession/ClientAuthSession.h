@@ -15,6 +15,8 @@ struct TS_AC_SERVER_LIST;
 struct TS_AC_SELECT_SERVER;
 struct TS_AC_AES_KEY_IV;
 struct TS_SC_RESULT;
+struct TS_AC_RESULT;
+struct TS_AC_RESULT_WITH_STRING;
 
 class ClientGameSession;
 
@@ -29,22 +31,18 @@ public:
 		int32_t serverPort;
 		uint16_t userRatio;
 	};
-	enum AuthCipherMethod {
-		ACM_DES,
-		ACM_RSA_AES  // Since mid epic 8.1
-	};
 
 public:
 	ClientAuthSession(ClientGameSession* gameSession, int packetVersion);
 	~ClientAuthSession();
 
 	using EncryptedSession<PacketSession>::connect;
-	bool connect(const std::string& ip,
-	             uint16_t port,
-	             const std::string& account,
-	             const std::string& password,
-	             AuthCipherMethod method = ACM_DES);
+	bool connect(const std::string& ip, uint16_t port, const std::string& account, const std::string& password);
 	void close();
+
+	template<class T> typename std::enable_if<!std::is_pointer<T>::value, void>::type sendPacket(const T& data) {
+		EncryptedSession<PacketSession>::sendPacket(data, packetVersion);
+	}
 
 	void retreiveServerList();
 	bool selectServer(uint16_t serverId);
@@ -71,6 +69,8 @@ private:
 	void onPacketServerList(const TS_AC_SERVER_LIST* packet);
 	void onPacketSelectServerResult(const TS_AC_SELECT_SERVER* packet);
 	void onPacketGameAuthResult(const TS_SC_RESULT* packet);
+	void onPacketAuthResult(const TS_AC_RESULT* packet);
+	void onPacketAuthStringResult(const TS_AC_RESULT_WITH_STRING* packet);
 
 private:
 	EventChain<PacketSession> onPacketReceived(const TS_MESSAGE* packetData);
@@ -86,6 +86,11 @@ protected:
 	ClientGameSession* gameSession;
 
 private:
+	enum AuthCipherMethod {
+		ACM_DES,
+		ACM_RSA_AES  // Since mid epic 8.1
+	};
+
 	AuthCipherMethod cipherMethod;
 	std::string authVersion;
 	std::string gameVersion;
@@ -97,7 +102,7 @@ private:
 	uint64_t oneTimePassword;
 	bool normalDisconnect;
 
-	int packetVersion;
+	const int packetVersion;
 
 	static DesPasswordCipher desCipher;
 	static RsaCipher rsaCipher;
