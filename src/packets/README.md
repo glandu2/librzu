@@ -8,6 +8,8 @@
       * [Field description reference](#field-description-reference)
          * [Field metatypes](#field-metatypes)
          * [`(def)`/`(impl)` indicators](#defimpl-indicators)
+         * [Packet with multiple IDs](#packet-with-multiple-ids)
+         * [Ways to use packet IDs (getId, packetID, id)](#ways-to-use-packet-ids-getid-packetid-id)
          * [Complex generated code](#complex-generated-code)
 
 # Packet description format
