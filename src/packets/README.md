@@ -306,6 +306,16 @@ CREATE_PACKET_VER_ID(TS_CS_VERSION);
 
 Packets defined with `CREATE_PACKET_VER_ID` will have the function `uint16_t getId(int version)` returns the packet's ID for the given version.
 
+### Ways to use packet IDs (getId, packetID, id)
+
+- `T::packetID`: this is the ID we expect to get for that packet type. Only available if that ID never changed accross epics
+- `T::getId(int version)`: this retrieve the packet ID for the given epic (that function is always available). It will return 50 or 51 for TS_CS_VERSION for example.
+- `packet.id` field: this field contains the ID as received in the real packet
+
+So to reply to a packet and retrieve the ID the client used, use `packet->id`.
+To use the ID in a switch/case, use `case T::packetID:` or, when the packet can use different IDs for different epics, use `case_packet_is(T)` without colon `:` in place of a normal case `case T::packetID:`.
+When you need the packet version in other part of the code, use `T::getId(EPIC_X_Y)` if possible.
+
 ### Complex generated code
 
 To see a complex case (TS_SC_SKILL) of generated code, see [Packet_generated_code.md].
