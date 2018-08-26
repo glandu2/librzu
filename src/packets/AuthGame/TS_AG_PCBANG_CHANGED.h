@@ -7,7 +7,9 @@
 struct TS_AG_PCBANG_EXPIRE : public TS_MESSAGE
 {
 	char account[61];
-	static const uint16_t packetID = 20021;
+	int nPCBangMode;
+
+	static const uint16_t packetID = 20022;
 };
 #pragma pack(pop)
 
