@@ -47,14 +47,29 @@ template<> struct DbTypeBinding<bool> {
 template<> struct DbTypeBinding<char> {
 	enum { C_TYPE = SQL_C_TINYINT, SQL_TYPE = SQL_TINYINT, SQL_SIZE = 3, SQL_PRECISION = 0 };
 };
-template<> struct DbTypeBinding<short> {
+template<> struct DbTypeBinding<int8_t> {
+	enum { C_TYPE = SQL_C_STINYINT, SQL_TYPE = SQL_TINYINT, SQL_SIZE = 3, SQL_PRECISION = 0 };
+};
+template<> struct DbTypeBinding<uint8_t> {
+	enum { C_TYPE = SQL_C_UTINYINT, SQL_TYPE = SQL_TINYINT, SQL_SIZE = 3, SQL_PRECISION = 0 };
+};
+template<> struct DbTypeBinding<int16_t> {
 	enum { C_TYPE = SQL_C_SHORT, SQL_TYPE = SQL_SMALLINT, SQL_SIZE = 5, SQL_PRECISION = 0 };
 };
-template<> struct DbTypeBinding<int> {
+template<> struct DbTypeBinding<uint16_t> {
+	enum { C_TYPE = SQL_C_USHORT, SQL_TYPE = SQL_SMALLINT, SQL_SIZE = 5, SQL_PRECISION = 0 };
+};
+template<> struct DbTypeBinding<int32_t> {
 	enum { C_TYPE = SQL_C_LONG, SQL_TYPE = SQL_INTEGER, SQL_SIZE = 10, SQL_PRECISION = 0 };
 };
-template<> struct DbTypeBinding<long long> {
+template<> struct DbTypeBinding<uint32_t> {
+	enum { C_TYPE = SQL_C_ULONG, SQL_TYPE = SQL_INTEGER, SQL_SIZE = 10, SQL_PRECISION = 0 };
+};
+template<> struct DbTypeBinding<int64_t> {
 	enum { C_TYPE = SQL_C_SBIGINT, SQL_TYPE = SQL_BIGINT, SQL_SIZE = 19, SQL_PRECISION = 0 };
+};
+template<> struct DbTypeBinding<uint64_t> {
+	enum { C_TYPE = SQL_C_UBIGINT, SQL_TYPE = SQL_BIGINT, SQL_SIZE = 19, SQL_PRECISION = 0 };
 };
 template<> struct DbTypeBinding<float> {
 	enum { C_TYPE = SQL_C_FLOAT, SQL_TYPE = SQL_REAL, SQL_SIZE = 7, SQL_PRECISION = 0 };
@@ -67,14 +82,6 @@ template<> struct DbTypeBinding<SQL_TIMESTAMP_STRUCT> {
 	enum { C_TYPE = SQL_C_TIMESTAMP, SQL_TYPE = SQL_TYPE_TIMESTAMP, SQL_SIZE = 23, SQL_PRECISION = 3 };
 };
 template<> struct DbTypeBinding<DbDateTime> : public DbTypeBinding<SQL_TIMESTAMP_STRUCT> {};
-
-template<> struct DbTypeBinding<signed char> : public DbTypeBinding<char> {};
-template<> struct DbTypeBinding<unsigned char> : public DbTypeBinding<char> {};
-template<> struct DbTypeBinding<unsigned short> : public DbTypeBinding<short> {};
-template<> struct DbTypeBinding<unsigned int> : public DbTypeBinding<int> {};
-template<> struct DbTypeBinding<long> : public DbTypeBinding<long long> {};
-template<> struct DbTypeBinding<unsigned long long> : public DbTypeBinding<long long> {};
-template<> struct DbTypeBinding<unsigned long> : public DbTypeBinding<unsigned long long> {};
 
 template<int ARRAY_SIZE> struct DbTypeBinding<char[ARRAY_SIZE]> {
 	enum { C_TYPE = SQL_C_CHAR, SQL_TYPE = SQL_VARCHAR, SQL_SIZE = ARRAY_SIZE, SQL_PRECISION = 0 };
