@@ -2,6 +2,7 @@
 #define DBPASSWORDCIPHER_H
 
 #include "../Extern.h"
+#include <stdint.h>
 #include <string>
 #include <vector>
 
