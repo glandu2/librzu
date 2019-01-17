@@ -1,6 +1,7 @@
 #include "ZlibCipher.h"
 #include "zlib.h"
 #include <stdint.h>
+#include <uv.h>
 
 int32_t ZlibCipher::getMagic(uint32_t checksum, uint32_t compressedSize) {
 	int32_t magic = (((checksum & 0xFFF0) + 1) % compressedSize) / 2 - 2;
@@ -33,7 +34,7 @@ int32_t ZlibCipher::getMagic(uint32_t checksum, uint32_t compressedSize) {
 	return magic;
 }
 
-std::string ZlibCipher::decrypt(std::vector<unsigned char> encryptedData) {
+std::string ZlibCipher::decrypt(std::vector<uint8_t> encryptedData) {
 	if(encryptedData.size() < 8)
 		return std::string();
 
@@ -70,4 +71,46 @@ std::string ZlibCipher::decrypt(std::vector<unsigned char> encryptedData) {
 
 	decrypted.resize(uncompressedSize);
 	return decrypted;
+}
+
+std::vector<uint8_t> ZlibCipher::encrypt(std::string plainData) {
+	if(plainData.size() <= 0)
+		return std::vector<uint8_t>();
+
+	unsigned long compressedSize = compressBound(plainData.size());
+	std::string compressed;
+	compressed.resize(compressedSize);
+
+	int result = compress((Bytef*) &compressed[0], &compressedSize, (const Bytef*) plainData.data(), plainData.size());
+	if(result != Z_OK)
+		return std::vector<uint8_t>();
+
+	compressed.resize(compressedSize);
+
+	uint32_t checksum = 0;
+	for(char c : plainData) {
+		checksum += uint32_t(c) * 65539;
+	}
+
+	uint32_t magic = getMagic(checksum, compressedSize);
+	std::vector<unsigned char> encryptedData;
+
+	encryptedData.resize(compressedSize + 8);
+	unsigned char lastChar = 0;
+	uint32_t idx = checksum % compressedSize;
+	for(unsigned int i = 0; i < compressedSize; i++) {
+		encryptedData[idx] = compressed[i] - lastChar;
+		idx = (idx + magic) % compressedSize;
+		lastChar = compressed[i];
+	}
+
+	*(reinterpret_cast<uint32_t*>(&encryptedData[compressedSize])) = htonl(plainData.size());
+
+	for(uint32_t i = 0; i < compressedSize + 4; i++) {
+		encryptedData[i] ^= checksum;
+	}
+
+	*(reinterpret_cast<uint32_t*>(&encryptedData[compressedSize + 4])) = htonl(checksum);
+
+	return encryptedData;
 }

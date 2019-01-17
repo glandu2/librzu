@@ -38,7 +38,7 @@ public:
 	static std::vector<unsigned char> convertToDataArray(const unsigned char* data, int maxSize, int usedSize);
 	static std::vector<unsigned char> convertToDataArray(const unsigned char* data, int size);
 
-	static void convertDataToHex(const void* data, int size, char* outHex);
+	static void convertDataToHex(const void* data, size_t size, char* outHex);
 	static std::vector<unsigned char> convertHexToData(const std::string& hex);
 
 	static unsigned long getPid();
