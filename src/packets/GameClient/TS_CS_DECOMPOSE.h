@@ -5,7 +5,7 @@
 
 #define TS_DECOMPOSE_ITEM_INFO_DEF(_) \
 	_(simple)(uint32_t, items_handle) \
-	_(simple)(uint32_t, count, version >= EPIC_8_3, 1)
+	_(simple)(uint32_t, count, version >= EPIC_8_2, 1)
 CREATE_STRUCT(TS_DECOMPOSE_ITEM_INFO);
 
 #define TS_CS_DECOMPOSE_DEF(_) \

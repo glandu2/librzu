@@ -21,7 +21,7 @@ CREATE_STRUCT(TS_ITEM_AWAKEN_OPTION);
 	_(impl)(simple)(uint16_t, endurance, version < EPIC_4_1) \
 	_(simple) (uint8_t, enhance) \
 	_(simple) (uint8_t, level) \
-	_(simple) (uint16_t, unknown3, version >= EPIC_9_2) \
+	_(simple) (uint16_t, enhance_chance, version >= EPIC_9_2) \
 	_(simple) (uint32_t, flag) \
 	_(array)  (int32_t, socket, 4) \
 	_(array)  (int32_t, dummy_socket, 2, version < EPIC_6_1, {0}) \

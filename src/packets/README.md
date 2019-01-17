@@ -210,7 +210,7 @@ The following list describe the available metatype and their arguments.
 	- Fixed size string generated as `std::string name`
 	  The `size` argument indicate the size of the serialized fixed string.
 	  If the string + null terminator (`\0`) is larger that the given argument `size`, it will be truncated.
- - `(dynstring)(name, hasNullTerminator, condition?, defaultValue?)`
+- `(dynstring)(name, hasNullTerminator, condition?, defaultValue?)`
 	- Dynamic sized string generated as `std::string name`.
 	  The size is stored in the matching `(count)` metatype field.
 	  The `hasNullTerminator` argument is a boolean indicating if the serialized string must include the null terminator `\0`.

@@ -105,6 +105,7 @@
 #include "GameClient/TS_CS_REGION_UPDATE.h"
 #include "GameClient/TS_CS_REPAIR_SOULSTONE.h"
 #include "GameClient/TS_CS_REPORT.h"
+#include "GameClient/TS_CS_REQUEST.h"
 #include "GameClient/TS_CS_REQUEST_FARM_INFO.h"
 #include "GameClient/TS_CS_REQUEST_FARM_MARKET.h"
 #include "GameClient/TS_CS_REQUEST_LOGOUT.h"
@@ -565,7 +566,7 @@ template<class T> void PacketIterator<T>::printGamePacketJson(const TS_MESSAGE* 
 		PACKET_TO_JSON(TS_SC_MARKET);
 		PACKET_TO_JSON(TS_SC_MIX_RESULT);
 		PACKET_TO_JSON(TS_SC_MOUNT_SUMMON);
-		PACKET_TO_JSON(TS_SC_MOVE_ACK);
+		PACKET_TO_JSON_2(TS_SC_MOVE_ACK);
 		PACKET_TO_JSON(TS_SC_MOVE);
 		PACKET_TO_JSON(TS_SC_NPC_TRADE_INFO);
 		PACKET_TO_JSON(TS_SC_OPEN_GUILD_WINDOW);

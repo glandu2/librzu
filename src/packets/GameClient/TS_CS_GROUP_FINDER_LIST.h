@@ -20,7 +20,7 @@ enum TS_GROUP_FINDER_REQUEST_TYPE : int32_t
 	_(simple)(uint32_t, group_handle) /* only with GFRT_Add */ \
 	_(simple)(int16_t, zone) /* only with GFRT_List and GFRT_Add */ \
 	_(simple)(int16_t, min_level) /* only with GFRT_Add */ \
-	_(simple)(int16_t, unknown3) \
+	_(simple)(int16_t, player_number) \
 	_(simple)(uint16_t, max_player_number) /* only with GFRT_Add */ \
 	_(string)(description, 32) /* only with GFRT_Add */
 
