@@ -111,7 +111,11 @@ void MessageBuffer::readDynString(const char* fieldName,
 }
 
 void MessageBuffer::readEndString(const char* fieldName, std::string& val, bool hasNullTerminator) {
-	size_t remainingSize = getSize() - getParsedSize();
+	size_t remainingSize = 0;
+
+	if(getSize() > getParsedSize())
+		remainingSize = getSize() - getParsedSize();
+
 	if(checkAvailableBuffer(fieldName, remainingSize)) {
 		if(remainingSize > 0)
 			val.assign(p, remainingSize - hasNullTerminator);

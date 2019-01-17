@@ -266,13 +266,13 @@ template<typename T> uint32_t getClampedCount(size_t realSize) {
 	if(cond && size < marker + (_size)) \
 		size = marker + (_size);
 
-#define SIZE_F_ENDSTRING2(name, hasNullTerminator) size += (uint32_t) name.size();
+#define SIZE_F_ENDSTRING2(name, hasNullTerminator) size += (uint32_t) name.size() + hasNullTerminator;
 #define SIZE_F_ENDSTRING3(name, hasNullTerminator, cond) \
 	if(cond) \
-		size += (uint32_t) name.size();
+		size += (uint32_t) name.size() + hasNullTerminator;
 #define SIZE_F_ENDSTRING4(name, hasNullTerminator, cond, defaultval) \
 	if(cond) \
-		size += (uint32_t) name.size();
+		size += (uint32_t) name.size() + hasNullTerminator;
 
 #define SIZE_F_ENDARRAY2(type, name) \
 	for(size_t i = 0; i < name.size(); i++) \
@@ -362,13 +362,14 @@ template<typename T> uint32_t getClampedCount(size_t realSize) {
 	if(cond && buffer->getParsedSize() < marker + (_size)) \
 		buffer->pad("pad_" #marker, marker + (_size) -buffer->getParsedSize());
 
-#define SERIALIZATION_F_ENDSTRING2(name, hasNullTerminator) buffer->writeDynString(#name, name, (uint32_t) name.size());
+#define SERIALIZATION_F_ENDSTRING2(name, hasNullTerminator) \
+	buffer->writeDynString(#name, name, (uint32_t) name.size() + hasNullTerminator);
 #define SERIALIZATION_F_ENDSTRING3(name, hasNullTerminator, cond) \
 	if(cond) \
-		buffer->writeDynString(#name, name, (uint32_t) name.size());
+		buffer->writeDynString(#name, name, (uint32_t) name.size() + hasNullTerminator);
 #define SERIALIZATION_F_ENDSTRING4(name, hasNullTerminator, cond, defaultval) \
 	if(cond) \
-		buffer->writeDynString(#name, name, (uint32_t) name.size());
+		buffer->writeDynString(#name, name, (uint32_t) name.size() + hasNullTerminator);
 
 #define SERIALIZATION_F_ENDARRAY2(type, name) buffer->template writeDynArray<type>(#name, name, (uint32_t) name.size());
 #define SERIALIZATION_F_ENDARRAY3(type, name, cond) \
