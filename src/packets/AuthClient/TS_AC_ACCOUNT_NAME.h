@@ -5,7 +5,7 @@
 
 #define TS_AC_ACCOUNT_NAME_DEF(_) \
 	_(string)(account, 61) \
-	_(simple)(uint32_t, unknown_id)
+	_(simple)(uint32_t, account_id)
 CREATE_PACKET(TS_AC_ACCOUNT_NAME, 10014);
 
 #endif // PACKETS_TS_AC_ACCOUNT_NAME_H
