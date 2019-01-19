@@ -54,6 +54,10 @@ public:
 	static bool ishex(char c) { return isdigit(c) || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F'); }
 	static bool isspace(char c) { return c == ' ' || c == '\t' || c == '\n' || c == '\v' || c == '\f' || c == '\r'; }
 
+	template<class T> static const T& clamp(const T& v, const T& lo, const T& hi) {
+		return (v <= lo) ? lo : ((v >= hi) ? hi : v);
+	}
+
 private:
 	static void autoSetAbsoluteDirConfigValue(IListener*, cval<std::string>* value);
 	static void getApplicationFilePath();
