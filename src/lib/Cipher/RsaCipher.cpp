@@ -56,6 +56,12 @@ bool RsaCipher::isInitialized() {
 }
 
 bool RsaCipher::publicEncrypt(const uint8_t* input, size_t input_size, std::vector<uint8_t>& output) {
+	if(!isInitialized()) {
+		output.clear();
+		log(LL_Warning, "RSA: error: cipher not initialized\n");
+		return false;
+	}
+
 	output.resize(RSA_size(rsaCipher.get()));
 	int result = RSA_public_encrypt(input_size, input, output.data(), rsaCipher.get(), RSA_PKCS1_PADDING);
 	if(result < 0) {
@@ -69,6 +75,12 @@ bool RsaCipher::publicEncrypt(const uint8_t* input, size_t input_size, std::vect
 }
 
 bool RsaCipher::publicDecrypt(const uint8_t* input, size_t input_size, std::vector<uint8_t>& output) {
+	if(!isInitialized()) {
+		output.clear();
+		log(LL_Warning, "RSA: error: cipher not initialized\n");
+		return false;
+	}
+
 	output.resize(RSA_size(rsaCipher.get()));
 	int result = RSA_public_decrypt(input_size, input, output.data(), rsaCipher.get(), RSA_PKCS1_PADDING);
 	if(result < 0) {
@@ -82,6 +94,12 @@ bool RsaCipher::publicDecrypt(const uint8_t* input, size_t input_size, std::vect
 }
 
 bool RsaCipher::privateEncrypt(const uint8_t* input, size_t input_size, std::vector<uint8_t>& output) {
+	if(!isInitialized()) {
+		output.clear();
+		log(LL_Warning, "RSA: error: cipher not initialized\n");
+		return false;
+	}
+
 	output.resize(RSA_size(rsaCipher.get()));
 	int result = RSA_private_encrypt(input_size, input, output.data(), rsaCipher.get(), RSA_PKCS1_PADDING);
 	if(result < 0) {
@@ -95,6 +113,12 @@ bool RsaCipher::privateEncrypt(const uint8_t* input, size_t input_size, std::vec
 }
 
 bool RsaCipher::privateDecrypt(const uint8_t* input, size_t input_size, std::vector<uint8_t>& output) {
+	if(!isInitialized()) {
+		output.clear();
+		log(LL_Warning, "RSA: error: cipher not initialized\n");
+		return false;
+	}
+
 	output.resize(RSA_size(rsaCipher.get()));
 	int result = RSA_private_decrypt(input_size, input, output.data(), rsaCipher.get(), RSA_PKCS1_PADDING);
 	if(result < 0) {
@@ -110,5 +134,5 @@ bool RsaCipher::privateDecrypt(const uint8_t* input, size_t input_size, std::vec
 void RsaCipher::printError() {
 	unsigned long errorCode = ERR_get_error();
 	if(errorCode)
-		log(LL_Warning, "AES: error: %s\n", ERR_error_string(errorCode, nullptr));
+		log(LL_Warning, "RSA: error: %s\n", ERR_error_string(errorCode, nullptr));
 }
