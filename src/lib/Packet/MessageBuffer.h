@@ -278,14 +278,38 @@ public:
 			read<T>(fieldName, *it);
 	}
 
+	// End array with primitive, read to the end of stream
+	template<typename T>
+	typename std::enable_if<is_primitive<T>::value, void>::type readEndArray(const char* fieldName,
+	                                                                         std::vector<T>& val) {
+		size_t remainingSize = 0;
+
+		if(getSize() > getParsedSize())
+			remainingSize = getSize() - getParsedSize();
+
+		if(checkAvailableBuffer(fieldName, remainingSize)) {
+			if(remainingSize > 0)
+				val.assign(p, remainingSize);
+			else
+				val.clear();
+			p += remainingSize;
+		}
+	}
+
 	// End array, read to the end of stream
-	template<typename T> void readEndArray(const char* fieldName, std::vector<T>& val) {
+	template<typename T>
+	typename std::enable_if<!is_primitive<T>::value, void>::type readEndArray(const char* fieldName,
+	                                                                          std::vector<T>& val) {
 		// While there are non parsed bytes and the read actually read something, continue
 		uint32_t lastParsedSize = UINT32_MAX;
+
+		if(getSize() > getParsedSize())
+			val.reserve(getSize() - getParsedSize());
+
 		while(lastParsedSize != getParsedSize() && getParsedSize() < getSize()) {
 			lastParsedSize = getParsedSize();
-			auto it = val.insert(val.end(), T());
-			T& newItem = *it;
+			val.emplace_back();
+			T& newItem = val.back();
 			read<T>(fieldName, newItem);
 		}
 	}
