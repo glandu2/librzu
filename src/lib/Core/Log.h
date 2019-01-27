@@ -69,7 +69,7 @@ protected:
 
 private:
 	struct Message {
-		time_t time;
+		uint64_t time_ms;
 		std::string objectName;
 		std::string message;
 		Level level;

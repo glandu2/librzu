@@ -20,20 +20,15 @@ bool Utils::applicationFilePathInitialized;
 
 uint64_t Utils::getTimeInMsec() {
 #ifdef _WIN32
-	static const uint64_t EPOCH = 116444736000000000;
+	static const uint64_t EPOCH = 116444736000000000 / 10000;
 	FILETIME fileTime;
-	SYSTEMTIME systemTime;
-	ULARGE_INTEGER ularge;
 
-	GetSystemTime(&systemTime);
-	SystemTimeToFileTime(&systemTime, &fileTime);
-	ularge.LowPart = fileTime.dwLowDateTime;
-	ularge.HighPart = fileTime.dwHighDateTime;
+	GetSystemTimeAsFileTime(&fileTime);
 
-	return (ularge.QuadPart - EPOCH) / 10000L;
+	return (uint64_t(fileTime.dwLowDateTime) + (uint64_t(fileTime.dwHighDateTime) << 32)) / 10000L - EPOCH;
 #else
 	struct timeval tp;
-	gettimeofday(&tp, NULL);
+	gettimeofday(&tp, nullptr);
 	return (uint64_t) tp.tv_sec * 1000 + (uint64_t) tp.tv_usec / 1000;
 #endif
 }

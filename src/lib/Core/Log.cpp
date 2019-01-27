@@ -223,7 +223,7 @@ void Log::logv(Level level, const char* objectName, size_t objectNameSize, const
 		return;
 
 	Message* msg = new Message;
-	msg->time = time(NULL);
+	msg->time_ms = Utils::getTimeInMsec();
 	msg->level = level;
 	msg->writeToConsole = level <= consoleMaxLevel;
 	msg->writeToFile = level <= fileMaxLevel;
@@ -340,9 +340,9 @@ void Log::logWritterThread() {
 
 		// Check if the date changed, if so, update the log file to us a new one (filename has timestamp)
 		if(size > 0 && messageUseFile) {
-			time_t firstMsgTime = messagesToWrite->at(0)->time;
+			uint64_t firstMsgTime = messagesToWrite->at(0)->time_ms;
 
-			Utils::getGmTime(firstMsgTime, &localtm);
+			Utils::getGmTime(firstMsgTime / 1000, &localtm);
 
 			if(localtm.tm_year != lastYear) {
 				willUpdateFile = true;
@@ -375,20 +375,22 @@ void Log::logWritterThread() {
 
 		for(i = 0; i < size; i++) {
 			const Message* const msg = messagesToWrite->at(i);
+			uint64_t messageTimeMs = msg->time_ms;
 
-			Utils::getGmTime(msg->time, &localtm);
+			Utils::getGmTime(messageTimeMs / 1000, &localtm);
 
-			// 26 char to %-5s included
-			logHeader.resize(27 + msg->objectName.size() + 3);
+			// 30 char to %-5s included
+			logHeader.resize(31 + msg->objectName.size() + 3);
 			size_t strLen = snprintf(&logHeader[0],
 			                         logHeader.size(),
-			                         "%4d-%02d-%02d %02d:%02d:%02d %-5s %s: ",
+			                         "%4d-%02d-%02d %02d:%02d:%02d.%03d %-5s %s: ",
 			                         localtm.tm_year,
 			                         localtm.tm_mon,
 			                         localtm.tm_mday,
 			                         localtm.tm_hour,
 			                         localtm.tm_min,
 			                         localtm.tm_sec,
+			                         (unsigned int) (messageTimeMs % 1000),
 			                         LEVELSTRINGS[msg->level],
 			                         msg->objectName.c_str());
 			if(strLen >= logHeader.size()) {
