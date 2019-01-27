@@ -41,7 +41,7 @@ struct RZU_EXTERN GlobalCoreConfig : public IListener {
 
 		Client()
 		    : authVersion(CFG_CREATE("client.auth_version", "201507080")),
-		      gameVersion(CFG_CREATE("client.game_version", "20180117")) {}
+		      gameVersion(CFG_CREATE("client.game_version", "20190102")) {}
 	} client;
 
 	struct AdminConfig {

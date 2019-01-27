@@ -187,13 +187,19 @@ void ClientAuthSession::onPacketAuthPasswordKey(const TS_AC_AES_KEY_IV* packet) 
 		return;
 	}
 
+	if(encryptedPassword.size() > sizeof(accountMsg.passwordAes.password)) {
+		log(LL_Warning, "onPacketAuthPasswordKey: encrypted password too large !\n");
+		closeSession();
+		return;
+	}
+
 	memcpy(accountMsg.passwordAes.password, encryptedPassword.data(), encryptedPassword.size());
 
 	// password.fill(0);
 	password.clear();
 
 	accountMsg.account = username;
-	accountMsg.passwordAes.password_size = encryptedPassword.size();
+	accountMsg.passwordAes.password_size = (int) encryptedPassword.size();
 	sendPacket(accountMsg);
 }
 
@@ -239,13 +245,25 @@ void ClientAuthSession::onPacketSelectServerResult(const TS_AC_SELECT_SERVER* pa
 		// pendingTimeBeforeServerMove = packet->v1.pending_time;
 	} else if(this->cipherMethod == ACM_RSA_AES) {
 		std::vector<uint8_t> decryptedData;
+		size_t encryptedSize = packet->encrypted_data_size;
 
 		AesPasswordCipher aesCipher;
 		aesCipher.init(aesKey.data());
 
-		if(!aesCipher.decrypt(packet->encrypted_data, sizeof(packet->encrypted_data), decryptedData) ||
-		   decryptedData.size() < sizeof(uint64_t)) {
+		if(encryptedSize > sizeof(packet->encrypted_data))
+			encryptedSize = sizeof(packet->encrypted_data);
+
+		if(!aesCipher.decrypt(packet->encrypted_data, encryptedSize, decryptedData)) {
 			log(LL_Warning, "onPacketSelectServerResult: Could not decrypt TS_AC_SELECT_SERVER\n");
+			closeSession();
+			return;
+		}
+
+		if(decryptedData.size() < sizeof(uint64_t)) {
+			log(LL_Warning,
+			    "onPacketSelectServerResult: OTP size %d, expected <= %d\n",
+			    (int) decryptedData.size(),
+			    sizeof(uint64_t));
 			closeSession();
 			return;
 		}
