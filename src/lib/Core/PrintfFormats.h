@@ -1,7 +1,7 @@
 #ifndef PRINTFFORMATS_H
 #define PRINTFFORMATS_H
 
-#ifdef _MSC_VER
+#if defined(_MSC_VER) && _MSC_VER < 1900
 #define PRId8 "d"
 #define PRId16 "d"
 #define PRId32 "I32d"
