@@ -1,7 +1,7 @@
 #include "Cipher/ZlibCipher.h"
-#include <iostream>
+#include "gtest/gtest.h"
 
-int main() {
+TEST(ZlibCipher, simple_loop_random) {
 	std::string randomString;
 	std::vector<uint8_t> encryptedString;
 	std::string decryptedString;
@@ -15,13 +15,6 @@ int main() {
 		encryptedString = ZlibCipher::encrypt(randomString);
 		decryptedString = ZlibCipher::decrypt(encryptedString);
 
-		if(decryptedString != randomString) {
-			printf("Failed to find original string, got \"%s\", expected \"%s\"\n",
-			       decryptedString.c_str(),
-			       randomString.c_str());
-			return 1;
-		}
+		ASSERT_STREQ(randomString.c_str(), decryptedString.c_str());
 	}
-
-	return 0;
 }

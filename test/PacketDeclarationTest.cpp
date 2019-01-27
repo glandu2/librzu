@@ -226,7 +226,7 @@ struct TEST_SIMPLE_PRIMITIVE_PLAIN : public TS_MESSAGE {
 };
 #pragma pack(pop)
 
-TEST(packet, simple_primitive) {
+TEST(PacketDeclaration, simple_primitive) {
 	TEST_SIMPLE_PRIMITIVE_PLAIN s;
 	TS_MESSAGE::initMessage(&s);
 

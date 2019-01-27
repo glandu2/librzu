@@ -1,8 +1,9 @@
 #include "AuthClient/TS_AC_SERVER_LIST.h"
+#include "Core/Utils.h"
 #include "Packet/MessageBuffer.h"
-#include <iostream>
+#include "gtest/gtest.h"
 
-int main() {
+TEST(PerfTest, PacketSerialization) {
 	TS_AC_SERVER_LIST packet;
 	TS_SERVER_INFO serverInfo[2];
 
@@ -30,13 +31,27 @@ int main() {
 	uint64_t beginTime = uv_hrtime();
 	int i;
 	int version = EPIC_4_1;
-	for(i = 0; i < 10000000; i++) {
+	for(i = 0; i < 10000; i++) {
 		MessageBuffer buffer(packet.getSize(version), version);
 		packet.serialize(&buffer);
 	}
 
 	uint64_t duration = uv_hrtime() - beginTime;
-	printf("Serialization duration: %f ns\n", (double) duration / i);
+	Object::logStatic(Object::LL_Info, "TS_AC_SERVER_LIST", "Serialization duration: %f ns\n", (double) duration / i);
+}
 
-	return 0;
+TEST(PerfTest, getTimeInMsec) {
+	int i;
+	uint64_t beginTime;
+	uint64_t duration;
+
+	Utils::getTimeInMsec();
+
+	beginTime = uv_hrtime();
+	for(i = 0; i < 100000000; i++) {
+		Utils::getTimeInMsec();
+	}
+
+	duration = uv_hrtime() - beginTime;
+	Object::logStatic(Object::LL_Info, "Utils::getTimeInMsec", "Test duration: %f ns\n", (double) duration / i);
 }
