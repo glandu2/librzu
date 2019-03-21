@@ -28,9 +28,9 @@
 #define EPIC_9_5_1 0x090501  // 2017/09/26
 #define EPIC_9_5_2 0x090502  // GS Version packet modified, 2018 02 27
 #define EPIC_9_5_3 0x090503  // GS Version packet modified, 20181211
-#define EPIC_10_1 0x100100
+#define EPIC_9_6 0x090600    // GS Version packet modified, 20190102
 
 // Latest released epic
-#define EPIC_LATEST EPIC_9_5_3
+#define EPIC_LATEST EPIC_9_6
 
 #endif  // PACKETS_EPICS_H
