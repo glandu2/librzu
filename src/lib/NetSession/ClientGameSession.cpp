@@ -32,8 +32,8 @@ EventChain<SocketSession> ClientGameSession::onConnected() {
 }
 
 EventChain<SocketSession> ClientGameSession::onDisconnected(bool causedByRemote) {
-	onGameDisconnected();
-	auth->onGameDisconnected();
+	onGameDisconnected(causedByRemote);
+	auth->onGameDisconnected(causedByRemote);
 
 	return PacketSession::onDisconnected(causedByRemote);
 }

@@ -80,7 +80,7 @@ bool ClientAuthSession::selectServer(uint16_t serverId) {
 
 EventChain<SocketSession> ClientAuthSession::onDisconnected(bool causedByRemote) {
 	if(normalDisconnect == false) {
-		onAuthDisconnected();
+		onAuthDisconnected(causedByRemote);
 	} else {
 		normalDisconnect = false;
 	}

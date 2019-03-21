@@ -21,7 +21,7 @@ public:
 protected:
 	virtual void onGameConnected() = 0;
 	virtual void onGamePacketReceived(const TS_MESSAGE* packet) = 0;
-	virtual void onGameDisconnected() = 0;
+	virtual void onGameDisconnected(bool causedByRemote) = 0;
 
 private:
 	EventChain<SocketSession> onConnected();

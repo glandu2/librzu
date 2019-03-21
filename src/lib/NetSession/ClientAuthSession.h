@@ -53,11 +53,11 @@ public:
 	const std::string& getGameVersion() { return gameVersion; }
 
 protected:
-	virtual void onAuthDisconnected() = 0;
+	virtual void onAuthDisconnected(bool causedByRemote) = 0;
 	virtual void onAuthResult(TS_ResultCode result, const std::string& resultString) = 0;
 	virtual void onServerList(const std::vector<ServerInfo>& servers, uint16_t lastSelectedServerId) = 0;
 
-	virtual void onGameDisconnected() = 0;
+	virtual void onGameDisconnected(bool causedByRemote) = 0;
 	virtual void onGameResult(TS_ResultCode result) = 0;
 
 	friend class ClientGameSession;
