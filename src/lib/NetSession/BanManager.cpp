@@ -58,11 +58,8 @@ void BanManager::loadFile() {
 	std::unordered_set<StreamAddress, StreamAddressHasher> newBannedIps;
 
 	while(fgets(line, 512, file)) {
-		bool isIpv6 = false;
 		char* p = line;
 		while(*p && (Utils::ishex(*p) || *p == '.' || *p == ':')) {
-			if(*p == ':')
-				isIpv6 = true;
 			p++;
 		}
 		*p = '\0';
