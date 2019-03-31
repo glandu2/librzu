@@ -13,6 +13,12 @@
 #define PRIu32 "I32u"
 #define PRIu64 "I64u"
 #define PRIuS "Iu"
+
+#define PRIx8 "x"
+#define PRIx16 "x"
+#define PRIx32 "I32x"
+#define PRIx64 "I64x"
+#define PRIxS "Ix"
 #else
 #include <inttypes.h>
 #ifndef PRIdS
