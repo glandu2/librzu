@@ -11,7 +11,9 @@
 CREATE_STRUCT(TS_BATTLE_ARENA_TEAM_SCORE);
 
 #define TS_BATTLE_ARENA_PLAYER_SCORE_DEF(_) \
-	_(string)(szName, 19) \
+	_(def)(string)(name, 20) \
+	  _(impl)(string)(name, 19, version < EPIC_9_6) \
+	  _(impl)(string)(name, 20, version >= EPIC_9_6) \
 	_(simple)(int16_t, nKillCount) \
 	_(simple)(int16_t, nDeathCount) \
 	_(simple)(int16_t, nPropActivateCount) \

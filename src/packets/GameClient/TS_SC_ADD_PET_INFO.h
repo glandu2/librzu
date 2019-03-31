@@ -6,7 +6,9 @@
 #define TS_SC_ADD_PET_INFO_DEF(_) \
 	_(simple)(uint32_t, cage_handle) \
 	_(simple)(uint32_t, pet_handle) \
-	_(string)(name, 19) \
+	_(def)(string)(name, 20) \
+	  _(impl)(string)(name, 19, version < EPIC_9_6) \
+	  _(impl)(string)(name, 20, version >= EPIC_9_6) \
 	_(simple)(int32_t, code)
 
 CREATE_PACKET(TS_SC_ADD_PET_INFO, 351);

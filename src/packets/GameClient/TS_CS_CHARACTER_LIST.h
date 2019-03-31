@@ -4,9 +4,10 @@
 #include "Packet/PacketDeclaration.h"
 
 #define TS_CS_CHARACTER_LIST_DEF(_) \
-	_(def)(string)(account, 61) \
-	_(impl)(string)(account, 61, version >= EPIC_5_2) \
-	_(impl)(string)(account, 19, version <  EPIC_5_2)
+	_(def)(string)(account, 64) \
+	  _(impl)(string)(account, 64, version >= EPIC_9_6) \
+	  _(impl)(string)(account, 61, version >= EPIC_5_2 && version < EPIC_9_6) \
+	  _(impl)(string)(account, 19, version <  EPIC_5_2) \
 
 // test server use packet id 2008 ?
 #define TS_CS_CHARACTER_LIST_ID(X) \

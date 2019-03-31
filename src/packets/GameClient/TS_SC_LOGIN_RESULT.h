@@ -30,7 +30,9 @@
 	_(simple) (uint32_t, skin_color, version >= EPIC_4_1) \
 	_(simple) (int32_t, faceId) \
 	_(simple) (int32_t, hairId) \
-	_(string) (name, 19) \
+	_(def)(string)(name, 20) \
+	  _(impl)(string)(name, 19, version < EPIC_9_6) \
+	  _(impl)(string)(name, 20, version >= EPIC_9_6) \
 	_(simple) (int32_t, cell_size) \
 	_(simple) (int32_t, guild_id) \
 	_(simple) (int32_t, unknown, version >= EPIC_9_2)

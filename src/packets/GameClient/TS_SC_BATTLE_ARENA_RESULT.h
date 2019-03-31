@@ -22,7 +22,9 @@ enum TS_ARENA_REWARD_TYPE : int32_t
 };
 
 #define TS_ARENA_MVP_DEF(_) \
-	_(string)(name, 19)
+	_(def)(string)(name, 20) \
+	  _(impl)(string)(name, 19, version < EPIC_9_6) \
+	  _(impl)(string)(name, 20, version >= EPIC_9_6)
 CREATE_STRUCT(TS_ARENA_MVP);
 
 #define TS_SC_BATTLE_ARENA_RESULT_DEF(_) \

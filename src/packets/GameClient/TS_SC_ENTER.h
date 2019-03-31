@@ -74,7 +74,9 @@ CREATE_STRUCT(TS_SC_ENTER__MONSTER_INFO);
 	_(simple) (TS_SC_ENTER__CREATURE_INFO, creatureInfo) \
 	_(simple) (uint32_t, master_handle) \
 	_(simple) (EncodedInt<EncodingRandomized>, summon_code) \
-	_(string) (szName, 19, version >= EPIC_3) \
+	_(def)(string)(name, 20) \
+	  _(impl)(string)(name, 19, version >= EPIC_3 && version < EPIC_9_6) \
+	  _(impl)(string)(name, 20, version >= EPIC_9_6) \
 	_(simple) (uint8_t, enhance, version >= EPIC_7_1)
 CREATE_STRUCT(TS_SC_ENTER__SUMMON_INFO);
 
@@ -92,7 +94,9 @@ CREATE_STRUCT(TS_SC_ENTER__NPC_INFO);
 	_(simple) (uint32_t, hairColorIndex, version >= EPIC_7_1) \
 	_(simple) (uint32_t, hairColorRGB, version >= EPIC_7_1) \
 	_(simple) (uint32_t, hideEquipFlag, version >= EPIC_7_1) \
-	_(string) (szName, 19) \
+	_(def)(string)(name, 20) \
+	  _(impl)(string)(name, 19, version < EPIC_9_6) \
+	  _(impl)(string)(name, 20, version >= EPIC_9_6) \
 	_(simple) (uint16_t, job_id) \
 	_(simple) (uint32_t, ride_handle) \
 	_(simple) (uint32_t, guild_id) \
@@ -105,7 +109,9 @@ CREATE_STRUCT(TS_SC_ENTER__PLAYER_INFO);
 	_(simple) (TS_SC_ENTER__CREATURE_INFO, creatureInfo) \
 	_(simple) (uint32_t, master_handle) \
 	_(simple) (EncodedInt<EncodingRandomized>, pet_code) \
-	_(string) (szName, 19)
+	_(def)(string)(name, 20) \
+	  _(impl)(string)(name, 19, version < EPIC_9_6) \
+	  _(impl)(string)(name, 20, version >= EPIC_9_6)
 CREATE_STRUCT(TS_SC_ENTER__PET_INFO);
 
 #define TS_SC_ENTER_DEF(_) \

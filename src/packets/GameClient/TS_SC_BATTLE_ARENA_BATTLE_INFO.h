@@ -15,7 +15,9 @@ enum TS_BATTLE_GRADE : int32_t
 #define TS_BATTLE_ARENA_PLAYER_INFO_DEF(_) \
 	_(simple)(uint32_t, handle) \
 	_(simple)(int32_t, nJobID) \
-	_(string)(szName, 19)
+	_(def)(string)(name, 20) \
+	  _(impl)(string)(name, 19, version < EPIC_9_6) \
+	  _(impl)(string)(name, 20, version >= EPIC_9_6)
 
 CREATE_STRUCT(TS_BATTLE_ARENA_PLAYER_INFO);
 

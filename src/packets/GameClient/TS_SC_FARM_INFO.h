@@ -7,7 +7,9 @@
 #define TS_FARM_SUMMON_INFO_DEF(_) \
 	_(simple)(int32_t, index) \
 	_(simple)(int64_t, exp) \
-	_(string)(name, 19) \
+	_(def)(string)(name, 20) \
+	  _(impl)(string)(name, 19, version < EPIC_9_6) \
+	  _(impl)(string)(name, 20, version >= EPIC_9_6) \
 	_(simple)(int32_t, duration) \
 	_(simple)(int32_t, elasped_time) \
 	_(simple)(int32_t, refresh_time) \

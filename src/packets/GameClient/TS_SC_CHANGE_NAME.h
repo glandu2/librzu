@@ -5,7 +5,9 @@
 
 #define TS_SC_CHANGE_NAME_DEF(_) \
 	_(simple)(uint32_t, handle) \
-	_(string) (name, 19)
+	_(def)(string)(name, 20) \
+	  _(impl)(string)(name, 19, version < EPIC_9_6) \
+	  _(impl)(string)(name, 20, version >= EPIC_9_6)
 
 CREATE_PACKET(TS_SC_CHANGE_NAME, 30);
 

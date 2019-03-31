@@ -4,7 +4,9 @@
 #include "Packet/PacketDeclaration.h"
 
 #define TS_SC_BATTLE_ARENA_RECONNECT_BATTLE_DEF(_) \
-	_(string)(szName, 19) \
+	_(def)(string)(name, 20) \
+	  _(impl)(string)(name, 19, version < EPIC_9_6) \
+	  _(impl)(string)(name, 20, version >= EPIC_9_6) \
 	_(simple)(uint32_t, newHandle)
 
 // Since EPIC_8_1
