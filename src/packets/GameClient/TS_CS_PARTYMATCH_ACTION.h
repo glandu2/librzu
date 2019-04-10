@@ -1,5 +1,5 @@
-#ifndef PACKETS_TS_CS_GROUP_FINDER_LIST_H
-#define PACKETS_TS_CS_GROUP_FINDER_LIST_H
+#ifndef PACKETS_TS_CS_PARTYMATCH_ACTION_H
+#define PACKETS_TS_CS_PARTYMATCH_ACTION_H
 
 #include "Packet/PacketDeclaration.h"
 
@@ -12,7 +12,7 @@ enum TS_GROUP_FINDER_REQUEST_TYPE : int32_t
 	GFRT_Apply = 4
 };
 
-#define TS_CS_GROUP_FINDER_LIST_DEF(_) \
+#define TS_CS_PARTYMATCH_ACTION_DEF(_) \
 	_(simple)(int32_t, flag) \
 	_(simple)(int32_t, page_num) /* only with GFRT_List */ \
 	_(simple)(int32_t, index) \
@@ -24,6 +24,6 @@ enum TS_GROUP_FINDER_REQUEST_TYPE : int32_t
 	_(simple)(uint16_t, max_player_number) /* only with GFRT_Add */ \
 	_(string)(description, 32) /* only with GFRT_Add */
 
-CREATE_PACKET(TS_CS_GROUP_FINDER_LIST, 7000);
+CREATE_PACKET(TS_CS_PARTYMATCH_ACTION, 7000);
 
-#endif // PACKETS_TS_CS_GROUP_FINDER_LIST_H
+#endif // PACKETS_TS_CS_PARTYMATCH_ACTION_H
