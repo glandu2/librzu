@@ -1,0 +1,33 @@
+#ifndef PACKETITERATOR_H
+#define PACKETITERATOR_H
+
+#include "Packet/PacketStructsName.h"
+
+@INCLUDE_PART@
+
+#define PACKET_CASE(type_) \
+	case type_::packetID: \
+		(void) (sizeof(&type_::getSize)); \
+		result = Functor<type_>()(args...); \
+		return true;
+
+#define PACKET_CASE_2(type_) \
+	case_packet_is(type_) result = Functor<type_>()(args...); \
+	return true;
+
+#define PACKET_CALL(type_) \
+	Functor<type_>()(args...)
+
+
+template<template<typename> class Functor, typename Result, typename... Args>
+bool processPacket(SessionType type, SessionPacketOrigin origin, int packetId, Result& result, Args... args) {
+@FUNCTION_SWITCH_PART@
+    return false;
+}
+
+template<template<typename> class Functor, typename... Args>
+void iteratePackets(Args... args) {
+@FUNCTION_ITERATE_PART@
+}
+
+#endif
