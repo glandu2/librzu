@@ -17,7 +17,8 @@ private:
 	const char* getEndFieldSeparator() { return compact ? "\":" : "\": "; }
 
 public:
-	JSONWriter(int version, bool compact) : StructSerializer(version), depth(1), newList(true), compact(compact) {
+	JSONWriter(packet_version_t version, bool compact)
+	    : StructSerializer(version), depth(1), newList(true), compact(compact) {
 		json << "{";
 	}
 

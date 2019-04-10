@@ -1,6 +1,7 @@
 #ifndef PACKETS_ENCODEDINT_H
 #define PACKETS_ENCODEDINT_H
 
+#include "PacketEpics.h"
 #include <stdint.h>
 
 template<class Encoder> class EncodedInt {
@@ -22,7 +23,7 @@ public:
 
 	operator uint32_t() const { return value; }
 
-	uint32_t getSize(int version) const { return Encoder::getSize(version); }
+	uint32_t getSize(packet_version_t version) const { return Encoder::getSize(version); }
 
 	template<class T> void serialize(T* buffer) const { Encoder::template serialize<T>(buffer, value); }
 

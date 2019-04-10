@@ -1,6 +1,7 @@
 #ifndef PACKETS_ENCODINGRANDOMIZED_H
 #define PACKETS_ENCODINGRANDOMIZED_H
 
+#include "PacketEpics.h"
 #include <stdint.h>
 
 class EncodingRandomized {
@@ -11,7 +12,7 @@ private:
 	};
 
 public:
-	static uint32_t getSize(int version) { return sizeof(uint64_t); }
+	static uint32_t getSize(packet_version_t version) { return sizeof(uint64_t); }
 
 	template<class T> static void serialize(T* buffer, uint32_t value) {
 		SerializedValue sv;

@@ -5,7 +5,6 @@
 // gcc -E TS_*.h -DDEBUG_PREPROCESSOR -I../../lib | clang-format-6.0 -style llvm -
 
 #ifndef DEBUG_PREPROCESSOR
-#include "PacketEpics.h"
 #include <limits>
 #include <stdint.h>
 #include <string.h>
@@ -13,6 +12,8 @@
 #include <type_traits>
 #include <vector>
 #endif
+
+#include "PacketEpics.h"
 
 #define _ARG5(_0, _1, _2, _3, _4, _5, ...) _5
 #define _EXPAND(x) x
@@ -58,7 +59,7 @@ template<typename T> inline void copyDefaultValue(std::vector<T> val1, const T v
  */
 template<class T>
 inline typename std::enable_if<!std::is_fundamental<T>::value && !std::is_enum<T>::value, int>::type getSizeOf(
-    const T& value, int version) {
+    const T& value, packet_version_t version) {
 	return value.getSize(version);
 }
 
@@ -67,7 +68,8 @@ inline typename std::enable_if<!std::is_fundamental<T>::value && !std::is_enum<T
  */
 template<typename T>
 inline typename std::enable_if<std::is_fundamental<T>::value || std::is_enum<T>::value, int>::type getSizeOf(
-    const T& value, int version) {
+    const T& value, packet_version_t version) {
+	(void) version;
 	return sizeof(value);
 }
 
@@ -509,7 +511,7 @@ template<typename T> uint32_t getClampedCount(size_t realSize) {
 		definition_header_; \
 		name_##_DEF(DEFINITION_F); \
 		inline uint16_t getReceivedId() const { return receivedId; }; \
-		uint32_t getSize(int version) const { \
+		uint32_t getSize(const packet_version_t version) const { \
 			uint32_t size = size_base_; \
 			(void) (version); \
 			name_##_DEF(LOCAL_DEFINITION_F); \
@@ -517,14 +519,14 @@ template<typename T> uint32_t getClampedCount(size_t realSize) {
 			return size; \
 		} \
 		template<class T> void serialize(T* buffer) const { \
-			const int version = buffer->getVersion(); \
+			const packet_version_t version = buffer->getVersion(); \
 			(void) (version); \
 			serialization_header_; \
 			name_##_DEF(LOCAL_DEFINITION_F); \
 			name_##_DEF(SERIALIZATION_F); \
 		} \
 		template<class T> void deserialize(T* buffer) { \
-			const int version = buffer->getVersion(); \
+			const packet_version_t version = buffer->getVersion(); \
 			(void) (version); \
 			deserialization_header_; \
 			name_##_DEF(LOCAL_DEFINITION_F); \
@@ -539,8 +541,8 @@ template<typename T> uint32_t getClampedCount(size_t realSize) {
 
 #define CREATE_PACKET_DEFINITION_HEADER(id_) \
 	static const uint16_t packetID = id_; \
-	static inline uint16_t getId(int version) { \
-		(void) version; \
+	static inline uint16_t getId(packet_version_t version) { \
+		(void) (version); \
 		return id_; \
 	}
 
@@ -567,9 +569,9 @@ template<typename T> uint32_t getClampedCount(size_t realSize) {
 
 #define CREATE_PACKET_VER_ID_HEADER_HEADER(name_) \
 	name_##_ID(HEADER_F_ID); \
-	static inline uint16_t getId(int version) { \
+	static inline uint16_t getId(packet_version_t version) { \
 		uint16_t id; \
-		(void) version; \
+		(void) (version); \
 		name_##_ID(SERIALISATION_F_ID); \
 		return id; \
 	};

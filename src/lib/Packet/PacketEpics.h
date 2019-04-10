@@ -1,6 +1,50 @@
 #ifndef PACKETS_EPICS_H
 #define PACKETS_EPICS_H
 
+class packet_version_t {
+public:
+	packet_version_t(unsigned int version) : version(version) {}
+	packet_version_t(packet_version_t const& other) : version(other.version) {}
+
+	int compare(unsigned int epic) const { return (this->version & 0x00FFFFFF) - epic; }
+	int compare(packet_version_t other) const { return this->version - other.version; }
+
+	bool operator==(unsigned int epic) const { return compare(epic) == 0; }
+	bool operator==(packet_version_t other) const { return compare(other) == 0; }
+
+	bool operator!=(unsigned int epic) const { return !operator==(epic); }
+	bool operator!=(packet_version_t other) const { return !operator==(other); }
+
+	bool operator>=(unsigned int epic) const { return compare(epic) >= 0; }
+	bool operator>=(packet_version_t other) const { return compare(other) >= 0; }
+
+	bool operator>(unsigned int epic) const { return compare(epic) > 0; }
+	bool operator>(packet_version_t other) const { return compare(other) > 0; }
+
+	bool operator<=(unsigned int epic) const { return compare(epic) <= 0; }
+	bool operator<=(packet_version_t other) const { return compare(other) <= 0; }
+
+	bool operator<(unsigned int epic) const { return compare(epic) < 0; }
+	bool operator<(packet_version_t other) const { return compare(other) < 0; }
+
+	int flag(unsigned int flag) const { return (version >> 24) & flag; }
+
+	packet_version_t& operator=(unsigned int epic) {
+		this->version = epic;
+		return *this;
+	}
+
+	packet_version_t& operator=(packet_version_t other) {
+		this->version = other.version;
+		return *this;
+	}
+
+private:
+	unsigned int version;
+};
+
+// Epics
+
 #define EPIC_2 0x020100
 #define EPIC_3 0x030100
 #define EPIC_4_1 0x040100
@@ -32,5 +76,9 @@
 
 // Latest released epic
 #define EPIC_LATEST EPIC_9_6
+
+// Flags
+
+#define EPIC_FLAG_TESTSERVER 1
 
 #endif  // PACKETS_EPICS_H

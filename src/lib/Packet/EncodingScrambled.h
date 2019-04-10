@@ -6,7 +6,7 @@
 
 class RZU_EXTERN EncodingScrambled {
 public:
-	static uint32_t getSize(int version) { return EncodingRandomized::getSize(version); }
+	static uint32_t getSize(packet_version_t version) { return EncodingRandomized::getSize(version); }
 
 	template<class T> static void serialize(T* buffer, uint32_t value) {
 		EncodingRandomized::serialize<T>(buffer, encode(value));

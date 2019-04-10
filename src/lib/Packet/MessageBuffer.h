@@ -32,9 +32,9 @@ private:
 	void logBadPacketSize();
 
 public:
-	MessageBuffer(size_t size, int version);
+	MessageBuffer(size_t size, packet_version_t version);
 
-	MessageBuffer(const void* data, size_t size, int version);
+	MessageBuffer(const void* data, size_t size, packet_version_t version);
 
 	~MessageBuffer();
 

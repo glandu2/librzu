@@ -2,17 +2,18 @@
 #define PACKET_STRUCTSERIALIZER_H
 
 #include "../Extern.h"
+#include "PacketEpics.h"
 #include <type_traits>
 #include <vector>
 
 class RZU_EXTERN StructSerializer {
 private:
-	int version;
+	packet_version_t version;
 
 public:
-	StructSerializer(int version) { this->version = version; }
+	StructSerializer(packet_version_t version) : version(version) {}
 
-	int getVersion() const { return version; }
+	packet_version_t getVersion() const { return version; }
 
 	// Type checking /////////////////////////
 
