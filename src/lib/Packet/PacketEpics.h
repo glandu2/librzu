@@ -28,6 +28,7 @@ public:
 	bool operator<(packet_version_t other) const { return compare(other) < 0; }
 
 	int flag(unsigned int flag) const { return (version >> 24) & flag; }
+	unsigned int getAsInt() { return version; }
 
 	packet_version_t& operator=(unsigned int epic) {
 		this->version = epic;

@@ -263,7 +263,7 @@ void ClientAuthSession::onPacketSelectServerResult(const TS_AC_SELECT_SERVER* pa
 			log(LL_Warning,
 			    "onPacketSelectServerResult: OTP size %d, expected <= %d\n",
 			    (int) decryptedData.size(),
-			    sizeof(uint64_t));
+			    (int) sizeof(uint64_t));
 			closeSession();
 			return;
 		}

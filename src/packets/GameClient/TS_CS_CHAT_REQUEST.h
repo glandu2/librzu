@@ -36,7 +36,7 @@ enum TS_CHAT_TYPE : uint8_t
 	CHAT_FRIEND_SYSTEM = 0x8C,
 	CHAT_ALLIANCE_SYSTEM = 0x96,
 	CHAT_HUNTAHOLIC_SYSTEM = 0xA0,
-	CHAT_DUNGEON_SYSTEM = 0xAA,
+	CHAT_DUNGEON_SYSTEM = 0xAA
 };
 
 // No check of packet size and message size

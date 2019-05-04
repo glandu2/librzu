@@ -30,7 +30,7 @@ bool MessageBuffer::checkFinalSize() {
 	if(bufferOverflow) {
 		log(LL_Error,
 		    "Serialization overflow: version: 0x%x, buffer size: %d, offset: %d, field: %s\n",
-		    getVersion(),
+		    getVersion().getAsInt(),
 		    getSize(),
 		    uint32_t(p - buffer->buffer.base),
 		    getFieldInOverflow().c_str());

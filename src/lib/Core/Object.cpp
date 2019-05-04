@@ -28,7 +28,7 @@ void Object::setObjectName(const char* name) {
 		strcpy(objectName, name);
 	} else {
 		objectNameSize = 0;
-		objectName = NULL;
+		objectName = nullptr;
 	}
 
 	dirtyName = false;
@@ -51,7 +51,7 @@ void Object::setObjectName(size_t maxLen, const char* format, ...) {
 		objectName[maxLen] = 0;
 	} else {
 		objectNameSize = 0;
-		objectName = NULL;
+		objectName = nullptr;
 	}
 
 	dirtyName = false;
@@ -86,7 +86,7 @@ void Object::updateObjectName() {
 
 static void defaultLog(const char* suffix, const char* objectName, const char* message, va_list args) {
 	struct tm localtm;
-	Utils::getGmTime(time(NULL), &localtm);
+	Utils::getGmTime(time(nullptr), &localtm);
 
 	fprintf(stdout,
 	        "%4d-%02d-%02d %02d:%02d:%02d %-5s %s: ",
