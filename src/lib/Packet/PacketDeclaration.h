@@ -510,7 +510,6 @@ template<typename T> uint32_t getClampedCount(size_t realSize) {
 		static inline const char* getName() { return #name_; } \
 		definition_header_; \
 		name_##_DEF(DEFINITION_F); \
-		inline uint16_t getReceivedId() const { return receivedId; }; \
 		uint32_t getSize(const packet_version_t version) const { \
 			uint32_t size = size_base_; \
 			(void) (version); \
@@ -532,9 +531,6 @@ template<typename T> uint32_t getClampedCount(size_t realSize) {
 			name_##_DEF(LOCAL_DEFINITION_F); \
 			name_##_DEF(DESERIALIZATION_F); \
 		} \
-\
-	private: \
-		uint16_t receivedId; \
 	}
 
 #define CREATE_STRUCT(name_) CREATE_STRUCT_IMPL(name_, 0, /* empty */, /* empty */, /* empty */)
@@ -544,7 +540,13 @@ template<typename T> uint32_t getClampedCount(size_t realSize) {
 	static inline uint16_t getId(packet_version_t version) { \
 		(void) (version); \
 		return id_; \
-	}
+	} \
+	inline uint16_t getReceivedId() const { return receivedId; }; \
+\
+private: \
+	uint16_t receivedId; \
+\
+public:
 
 #define CREATE_PACKET_SERIALIZATION_HEADER \
 	uint32_t size = getSize(buffer->getVersion()); \
@@ -574,7 +576,13 @@ template<typename T> uint32_t getClampedCount(size_t realSize) {
 		(void) (version); \
 		name_##_ID(SERIALISATION_F_ID); \
 		return id; \
-	};
+	}; \
+	inline uint16_t getReceivedId() const { return receivedId; }; \
+\
+private: \
+	uint16_t receivedId; \
+\
+public:
 
 #define CREATE_PACKET_VER_ID_SERIALIZATION_HEADER(name_) \
 	uint32_t size = getSize(version); \
