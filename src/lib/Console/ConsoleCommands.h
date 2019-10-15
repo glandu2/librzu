@@ -9,7 +9,7 @@
 #include <vector>
 
 class RZU_EXTERN ConsoleCommands : public Object {
-	// DECLARE_CLASS(ConsoleCommands)
+	DECLARE_CLASSNAME(ConsoleCommands, 0)
 public:
 	typedef void (*CommandFunction)(IWritableConsole* console, const std::vector<std::string>& args);
 
