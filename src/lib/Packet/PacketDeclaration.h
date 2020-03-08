@@ -11,9 +11,9 @@
 #include <string>
 #include <type_traits>
 #include <vector>
-#endif
 
 #include "PacketEpics.h"
+#endif
 
 #define _ARG5(_0, _1, _2, _3, _4, _5, ...) _5
 #define _EXPAND(x) x

@@ -122,3 +122,5 @@ if(CMAKE_SYSTEM_NAME MATCHES "Windows")
 		install(PROGRAMS ${OPENSSL_LIBEAY32_DLL} DESTINATION ./ COMPONENT "deps")
 	endif()
 endif()
+
+add_subdirectory(packet_preprocessing_targets)
