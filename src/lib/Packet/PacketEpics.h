@@ -75,8 +75,22 @@ private:
 #define EPIC_9_5_3 0x090503  // GS Version packet modified, 20181211
 #define EPIC_9_6 0x090600    // GS Version packet modified, 20190102
 
+// KTS 9.6 20190123 doesn't support the changes in TS_SC_INVENTORY, so remap them as 9.6.1 instead of 9.6
+#define EPIC_9_6_1 0x090601
+
+// Defined from FR version on 2020-03-07
+// Tested packets: 0, 2, 3, 8, 9, 11, 12, 13, 20, 22, 23, 25, 26, 27, 51, 55, 56, 62, 63, 64, 67, 71, 72, 100, 101, 102,
+// 150, 200, 201, 202, 204, 207, 210, 211, 212, 216, 217, 221, 222, 223, 240, 250, 251, 253, 255, 256, 257, 264, 282,
+// 283, 286, 287, 301, 303, 305, 324, 351, 400, 401, 402, 403, 404, 406, 407, 500, 503, 505, 507, 508, 509, 511, 514,
+// 516, 517, 600, 604, 625, 626, 627, 629, 631, 636, 702, 703, 704, 707, 708, 900, 901, 902, 1000, 1001, 1002, 1003,
+// 1004, 1005, 1100, 1101, 1300, 1301, 2004, 2005, 2007, 3000, 3001, 3002, 4250, 4251, 4252, 4253, 4700, 5000, 5001,
+// 7000, 7001, 7002, 8000, 9001, 9999, 10000, 10001, 10003, 10004, 10010, 10014, 10021, 10022, 10023, 10024
+// Notes: some items have new ID now, which breaks old client that doesn't know how to handle these.
+//        also, NPC dialogs are broken: the text is ok but there is no choice available
+#define EPIC_9_6_2 0x090602
+
 // Latest released epic
-#define EPIC_LATEST EPIC_9_6
+#define EPIC_LATEST EPIC_9_6_2
 
 // Flags
 

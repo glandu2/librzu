@@ -24,14 +24,14 @@
 	  _(impl)(array)(uint8_t, elemental_effect_type, 24, version >= EPIC_6_1 && version < EPIC_9_5) \
 	  _(impl)(array)(uint8_t, elemental_effect_type, 28, version >= EPIC_9_5 && version < EPIC_9_6) \
 	  _(impl)(array)(uint8_t, elemental_effect_type, 32, version >= EPIC_9_6) \
-	_(def)(array)(uint32_t, appearance_code, 30) \
+	_(def)(array)(uint32_t, appearance_code, 32) \
 	  _(impl)(array)(uint32_t, appearance_code, 24, version >= EPIC_7_4 && version < EPIC_9_5) \
-	  _(impl)(array)(uint32_t, appearance_code, 26, version >= EPIC_9_5 && version < EPIC_9_6) \
-	  _(impl)(array)(uint32_t, appearance_code, 30, version >= EPIC_9_6) \
-	_(simple)(uint8_t, booster_code, version >= EPIC_9_3) \
-	_(simple)(uint32_t, emblem_code, version >= EPIC_9_3) \
-	_(simple)(uint8_t, unknown1, version >= EPIC_9_3) \
-	_(simple)(uint16_t, unknown2, version >= EPIC_9_3)
+	  _(impl)(array)(uint32_t, appearance_code, 28, version >= EPIC_9_5 && version < EPIC_9_6) \
+	  _(impl)(array)(uint32_t, appearance_code, 32, version >= EPIC_9_6) \
+	_(padmarker)(padding) \
+	_(simple)(uint8_t, booster_code, version >= EPIC_9_3 && version < EPIC_9_5, 0) \
+	_(simple)(uint8_t, emblem_code, version >= EPIC_9_3 && version < EPIC_9_5, 0) \
+	_(pad)(8, padding, version >= EPIC_9_3 && version < EPIC_9_5)
 
 CREATE_PACKET(TS_SC_WEAR_INFO, 202);
 

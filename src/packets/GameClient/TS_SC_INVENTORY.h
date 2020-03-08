@@ -27,14 +27,14 @@ CREATE_STRUCT(TS_ITEM_AWAKEN_OPTION);
 	_(array)  (int32_t, dummy_socket, 2, version < EPIC_6_1, {0}) \
 	_(simple) (TS_ITEM_AWAKEN_OPTION, awaken_option, version >= EPIC_8_1) \
 	_(def)(array) (uint32_t, random_type, 10) \
-	  _(impl)(array)(uint32_t, random_type, 10, version >= EPIC_8_2 && version < EPIC_9_6) \
-	  _(impl)(array)(uint32_t, random_type, 7, version >= EPIC_9_6) \
+	  _(impl)(array)(uint32_t, random_type, 10, version >= EPIC_8_2 && version < EPIC_9_6_1) \
+	  _(impl)(array)(uint32_t, random_type, 7, version >= EPIC_9_6_1) \
 	_(def)(array) (int64_t, random_value_1, 10) \
-	  _(impl)(array)(int64_t, random_value_1, 10, version >= EPIC_8_2 && version < EPIC_9_6) \
-	  _(impl)(array)(int64_t, random_value_1, 7, version >= EPIC_9_6) \
+	  _(impl)(array)(int64_t, random_value_1, 10, version >= EPIC_8_2 && version < EPIC_9_6_1) \
+	  _(impl)(array)(int64_t, random_value_1, 7, version >= EPIC_9_6_1) \
 	_(def)(array) (int64_t, random_value_2, 10) \
-	  _(impl)(array)(int64_t, random_value_2, 10, version >= EPIC_8_2 && version < EPIC_9_6) \
-	  _(impl)(array)(int64_t, random_value_2, 7, version >= EPIC_9_6) \
+	  _(impl)(array)(int64_t, random_value_2, 10, version >= EPIC_8_2 && version < EPIC_9_6_1) \
+	  _(impl)(array)(int64_t, random_value_2, 7, version >= EPIC_9_6_1) \
 	_(simple) (int32_t, remain_time) \
 	_(simple) (uint8_t, elemental_effect_type, version >= EPIC_6_1) \
 	_(simple) (int32_t, elemental_effect_remain_time, version >= EPIC_6_1) \
@@ -42,7 +42,7 @@ CREATE_STRUCT(TS_ITEM_AWAKEN_OPTION);
 	_(simple) (int32_t, elemental_effect_magic_point, version >= EPIC_6_1) \
 	_(simple) (int32_t, appearance_code, version >= EPIC_7_4) \
 	_(simple) (uint32_t, summon_code, version >= EPIC_8_2) \
-	_(simple) (uint32_t, item_effect_id, version >= EPIC_9_6)
+	_(simple) (uint32_t, item_effect_id, version >= EPIC_9_6_1, 0)
 CREATE_STRUCT(TS_ITEM_BASE_INFO);
 
 #define TS_ITEM_INFO_DEF(_) \

@@ -6,7 +6,9 @@
 // len does not include null terminator
 // packet does not include null terminator
 #define TS_SC_URL_LIST_DEF(_) \
-	_(count)(uint16_t, url_list) \
+	_(def)(count)(uint32_t, url_list) \
+	  _(impl)(count)(uint32_t, url_list, version >= EPIC_9_6_2) \
+	  _(impl)(count)(uint16_t, url_list, version < EPIC_9_6_2) \
 	_(dynstring)(url_list, false)
 
 CREATE_PACKET(TS_SC_URL_LIST, 9001);

@@ -19,6 +19,7 @@ enum ATTACK_EVENT__ATTACK_ACTION : uint8_t {
 };
 
 enum ATTACK_INFO__FLAG : int8_t {
+	AIF_None = 0,
 	AIF_PerfectBlock = 1,
 	AIF_Block = 2,
 	AIF_Miss = 4,
@@ -32,7 +33,9 @@ enum ATTACK_INFO__FLAG : int8_t {
 	_(def)(simple)(int32_t, mp_damage) \
 	  _(impl)(simple)(int32_t, mp_damage, version >= EPIC_7_3) \
 	  _(impl)(simple)(int16_t, mp_damage, version < EPIC_7_3) \
+	_(padmarker)(flag_padding) \
 	_(simple) (ATTACK_INFO__FLAG, flag) \
+	_(pad) (4, flag_padding, version >= EPIC_9_6_2) \
 	_(def)(array)(int32_t, elemental_damage, 7) \
 	  _(impl)(array)(int32_t, elemental_damage, 7, version >= EPIC_7_3) \
 	  _(impl)(array)(uint16_t, elemental_damage, 7, version < EPIC_7_3) \

@@ -101,7 +101,7 @@ CREATE_STRUCT(TS_SC_ENTER__NPC_INFO);
 	_(simple) (uint32_t, ride_handle) \
 	_(simple) (uint32_t, guild_id) \
 	_(simple) (uint32_t, title_code, version >= EPIC_8_1) \
-	_(simple) (uint32_t, emblem_code, version >= EPIC_9_3) \
+	_(simple) (uint32_t, back_board, version >= EPIC_9_3) \
 	_(simple) (int32_t, energy, version < EPIC_4_1)
 CREATE_STRUCT(TS_SC_ENTER__PLAYER_INFO);
 

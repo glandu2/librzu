@@ -3,11 +3,11 @@
 
 #include "Packet/PacketDeclaration.h"
 
-// "unknown" is unconditionaly set to 0 by client
 #define TS_CS_LOGIN_DEF(_) \
-	_(string)(name, 19) \
-	_(simple)(uint8_t, race) \
-	_(simple)(uint32_t, unknown, version >= EPIC_9_3, 0) \
+	_(def)(string)(name, 24) \
+	_(impl)(string)(name, 24, version >= EPIC_9_3) \
+	_(impl)(string)(name, 19, version < EPIC_9_3) \
+	_(simple)(uint8_t, race, version < EPIC_9_3, 0) \
 	_(array)(uint8_t, checksum, 256, version >= EPIC_9_5_2)
 
 #define TS_CS_LOGIN_ID(X) \
