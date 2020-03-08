@@ -23,7 +23,8 @@ protected:
 	    : public std::integral_constant<
 	          bool,
 	          std::is_fundamental<FieldType>::value || std::is_same<FieldType, SQL_TIMESTAMP_STRUCT>::value ||
-	              std::is_same<FieldType, DbDateTime>::value || std::is_same<FieldType, std::string>::value> {};
+	              std::is_same<FieldType, DbDateTime>::value || is_DbString<FieldType>::value ||
+	              std::is_same<FieldType, std::string>::value> {};
 
 public:
 	typedef typename DbMappingClass::Input InputType;
@@ -148,6 +149,7 @@ public:
 	InputType* getInput(size_t i = 0) { return &input[i]; }
 
 	virtual void* getInputPointer(size_t i) { return &input[i]; }
+	virtual size_t getInputSize() { return sizeof(InputType); }
 	virtual size_t getInputNumber() { return input.size(); }
 
 protected:

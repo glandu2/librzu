@@ -30,7 +30,7 @@ public:
 		SQLSMALLINT dbType;  // one of SQL_* values
 		SQLLEN dbSize;
 		SQLSMALLINT dbPrecision;
-		bool isStdString;
+		DbValueType isStdString;
 		size_t bufferOffset;  // use offsetof
 		size_t infoPtr;
 
@@ -42,7 +42,7 @@ public:
 		                 SQLSMALLINT dbType,
 		                 SQLULEN dbSize,
 		                 SQLSMALLINT dbPrecision,
-		                 bool isStdString,
+		                 DbValueType isStdString,
 		                 size_t bufferOffset,
 		                 size_t infoPtr)
 		    : name(name),
@@ -62,14 +62,14 @@ public:
 	struct ColumnBinding {
 		cval<std::string>* name;
 		SQLSMALLINT cType;
-		bool isStdString;
+		DbValueType isStdString;
 		size_t bufferOffset;  // use offsetof
 		SQLLEN bufferSize;
 		size_t isNullPtr;
 
 		ColumnBinding(cval<std::string>& name,
 		              SQLSMALLINT cType,
-		              bool isStdString,
+		              DbValueType isStdString,
 		              size_t bufferOffset,
 		              SQLLEN bufferSize,
 		              size_t isNullPtr)
@@ -95,6 +95,8 @@ protected:
 	template<class T> friend class DbQueryJob;
 
 	bool process(IDbQueryJob* queryJob);
+
+	bool processBatch(IDbQueryJob* queryJob);
 	static void setString(DbConnection* connection,
 	                      const ParameterBinding& paramBinding,
 	                      SQLLEN* StrLen_or_Ind,

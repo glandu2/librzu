@@ -2,6 +2,7 @@
 #define DBTYPEHELPERS_H
 
 #include "../Extern.h"
+#include "DbString.h"
 #include <sstream>
 #include <string>
 #include <uv.h>
@@ -23,9 +24,14 @@ template<typename T>
 struct DbPrintableTypeBinding<T, typename std::enable_if<IfValidPrintableType<T>::value, void>::type> {
 	static void print(std::ostringstream& stream, void* data) { stream << *(reinterpret_cast<T*>(data)); }
 };
-template<typename T>
-struct DbPrintableTypeBinding<T, typename std::enable_if<!IfValidPrintableType<T>::value, void>::type> {
-	static void print(std::ostringstream& stream, void* data) { stream << "<complex data>"; }
+template<size_t N> struct DbPrintableTypeBinding<DbString<N>, void> {
+	static void print(std::ostringstream& stream, void* data) {
+		const DbString<N>* strData = reinterpret_cast<const DbString<N>*>(data);
+		stream << strData->c_str();
+	}
+};
+template<size_t ARRAY_SIZE> struct DbPrintableTypeBinding<char[ARRAY_SIZE], void> {
+	static void print(std::ostringstream& stream, void* data) { stream << "complex data"; }
 };
 
 template<> struct DbPrintableTypeBinding<char> {
@@ -89,15 +95,17 @@ template<int ARRAY_SIZE> struct DbTypeBinding<char[ARRAY_SIZE]> {
 template<> struct DbTypeBinding<std::string> {
 	enum { C_TYPE = SQL_C_WCHAR, SQL_TYPE = SQL_WVARCHAR, SQL_SIZE = -1, SQL_PRECISION = 0 };
 };
+template<size_t N> struct DbTypeBinding<DbString<N>> {
+	enum { C_TYPE = SQL_C_WCHAR, SQL_TYPE = SQL_WVARCHAR, SQL_SIZE = -1, SQL_PRECISION = 0 };
+};
 
 template<int ARRAY_SIZE>
 struct DbTypeBinding<unsigned char[ARRAY_SIZE]> : public DbTypeBinding<char (&)[ARRAY_SIZE]> {};
 
-template<typename T> struct IsStdString {
-	enum { value = false };
-};
-template<> struct IsStdString<std::string> {
-	enum { value = true };
-};
+enum DbValueType { DVT_Primitive, DVT_StdString, DVT_DbString };
+
+template<typename T> struct IsStdString { static constexpr DbValueType value = DVT_Primitive; };
+template<> struct IsStdString<std::string> { static constexpr DbValueType value = DVT_StdString; };
+template<size_t N> struct IsStdString<DbString<N>> { static constexpr DbValueType value = DVT_DbString; };
 
 #endif  // DBTYPEHELPERS_H

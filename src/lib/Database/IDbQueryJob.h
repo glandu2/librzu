@@ -24,6 +24,7 @@ public:  // events
 private:
 	friend class DbQueryBinding;
 	virtual void* getInputPointer(size_t i) = 0;
+	virtual size_t getInputSize() = 0;
 	virtual size_t getInputNumber() = 0;
 	virtual void* createNextLineInstance() = 0;
 };

@@ -74,6 +74,10 @@ bool DbConnection::bindParameter(SQLUSMALLINT ipar,
 	    "SQLBindParameter");
 }
 
+bool DbConnection::setAttribute(SQLINTEGER attribute, SQLPOINTER value, SQLINTEGER stringLength) {
+	return checkResult(SQLSetStmtAttr(hstmt, attribute, value, stringLength), "SQLSetStmtAttr");
+}
+
 bool DbConnection::execute(const char* query) {
 	assert(isUsed);
 	if(strcmp(lastQuery.c_str(), query)) {

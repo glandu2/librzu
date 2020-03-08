@@ -78,7 +78,7 @@ std::string DbQueryBinding::logParameters(void* inputInstance) {
 		if(*paramBinding.index > 0) {
 			logData << " - " << paramBinding.name << ": ";
 
-			if(paramBinding.isStdString) {
+			if(paramBinding.isStdString == DVT_StdString) {
 				std::string* str = (std::string*) ((char*) inputInstance + paramBinding.bufferOffset);
 				logData << "\"" << *str << "\"\n";
 			} else {
@@ -103,7 +103,15 @@ bool DbQueryBinding::process(IDbQueryJob* queryJob) {
 
 	if(enabled.get() == false) {
 		errorCount = 0;
-		return true;
+		return false;
+	}
+
+	// If NoRow and no std::string row, use processBatch
+	if(mode == EM_NoRow &&
+	   std::count_if(parameterBindings.begin(), parameterBindings.end(), [](const ParameterBinding& param) {
+		   return param.isStdString == DVT_StdString;
+	   }) == 0) {
+		return processBatch(queryJob);
 	}
 
 	std::string queryStr = query.get();
@@ -168,7 +176,7 @@ bool DbQueryBinding::process(IDbQueryJob* queryJob) {
 				    queryStr.c_str(),
 				    logParameters(inputInstance).c_str());
 			errorCount++;
-			if(errorCount > 10) {
+			if(errorCount > 100) {
 				enabled.setBool(false);
 				log(LL_Error, "Disabled query: %s, too many errors\n", queryStr.c_str());
 
@@ -240,6 +248,205 @@ bool DbQueryBinding::process(IDbQueryJob* queryJob) {
 	if(getDataErrorOccured) {
 		log(LL_Error, "Errors occured while retrieving data for query %s\n", queryStr.c_str());
 	}
+
+	return true;
+}
+
+bool DbQueryBinding::processBatch(IDbQueryJob* queryJob) {
+	DbConnection* connection;
+	std::vector<SQLUSMALLINT> paramStatus;
+	SQLULEN paramsProcessed;
+
+	std::string queryStr = query.get();
+
+	connection = dbConnectionPool->getConnection(connectionString.get().c_str(), queryStr);
+	if(!connection) {
+		log(LL_Warning, "Could not retrieve a DB connection from pool\n");
+		return false;
+	}
+
+	connection->setAutoCommit(false);
+
+	size_t inputNumber = queryJob->getInputNumber();
+	paramStatus.resize(inputNumber, SQL_PARAM_UNUSED);
+	connection->setAttribute(SQL_ATTR_PARAM_BIND_TYPE, (void*) queryJob->getInputSize(), 0);
+	connection->setAttribute(SQL_ATTR_PARAMSET_SIZE, (void*) inputNumber, 0);
+	connection->setAttribute(SQL_ATTR_PARAM_STATUS_PTR, (void*) paramStatus.data(), 0);
+	connection->setAttribute(SQL_ATTR_PARAMS_PROCESSED_PTR, (void*) &paramsProcessed, 0);
+
+	// Convert all DbString to unicode
+	{
+		std::string unicodeStr;
+		for(size_t inputIndex = 0; inputIndex < inputNumber; inputIndex++) {
+			void* inputInstance = queryJob->getInputPointer(inputIndex);
+
+			for(const ParameterBinding& paramBinding : parameterBindings) {
+				if(paramBinding.isStdString == DVT_DbString) {
+					DbStringBase* str = (DbStringBase*) ((char*) inputInstance + paramBinding.bufferOffset);
+
+					unicodeStr.clear();
+					CharsetConverter localToUtf16(CharsetConverter::getEncoding().c_str(), "UTF-16LE");
+					localToUtf16.convert(str->to_string(), unicodeStr, 2);
+					str->assign(unicodeStr);
+				}
+			}
+		}
+	}
+
+	// Bind first row
+	void* inputInstance = queryJob->getInputPointer(0);
+	for(const ParameterBinding& paramBinding : parameterBindings) {
+		if(*paramBinding.index > 0) {
+			SQLLEN* StrLen_or_Ind = nullptr;
+
+			if(paramBinding.infoPtr != (size_t) -1)
+				StrLen_or_Ind = (SQLLEN*) ((char*) inputInstance + paramBinding.infoPtr);
+
+			if(paramBinding.isStdString == DVT_DbString) {
+				DbStringBase* str = (DbStringBase*) ((char*) inputInstance + paramBinding.bufferOffset);
+
+				if(!StrLen_or_Ind)
+					StrLen_or_Ind = str->sql_size_ptr();
+
+				SQLLEN strLen = str->size();
+
+				// If the string is empty, put a size of 1 else SQL server complains about invalid precision
+				connection->bindParameter(*paramBinding.index,
+				                          paramBinding.way,
+				                          paramBinding.cType,
+				                          paramBinding.dbType,
+				                          strLen > 0 ? strLen : 1,
+				                          paramBinding.dbPrecision,
+				                          str->data(),
+				                          str->max_size(),
+				                          StrLen_or_Ind);
+			} else {
+				connection->bindParameter(*paramBinding.index,
+				                          paramBinding.way,
+				                          paramBinding.cType,
+				                          paramBinding.dbType,
+				                          paramBinding.dbSize,
+				                          paramBinding.dbPrecision,
+				                          (char*) inputInstance + paramBinding.bufferOffset,
+				                          0,
+				                          StrLen_or_Ind);
+			}
+		}
+	}
+
+	log(LL_Trace, "Executing: %s\n", queryStr.c_str());
+
+	if(!connection->execute(queryStr.c_str())) {
+		if(parameterBindings.empty()) {
+			log(LL_Error, "DB query failed: %s\n", queryStr.c_str());
+		} else {
+			for(size_t i = 0; i < paramStatus.size(); i++) {
+				SQLRETURN result;
+				const char* statusStr;
+
+				switch(paramStatus[i]) {
+					case SQL_PARAM_SUCCESS:
+						result = SQL_SUCCESS;
+						statusStr = "success";
+						break;
+					case SQL_PARAM_SUCCESS_WITH_INFO:
+						result = SQL_SUCCESS_WITH_INFO;
+						statusStr = "success with info";
+						break;
+
+					case SQL_PARAM_ERROR:
+						result = SQL_ERROR;
+						statusStr = "error";
+						break;
+
+					case SQL_PARAM_UNUSED:
+						result = SQL_SUCCESS;
+						statusStr = "result unused";
+						break;
+
+					case SQL_PARAM_DIAG_UNAVAILABLE:
+						result = SQL_ERROR;
+						statusStr = "status unavailable";
+						break;
+
+					default:
+						result = SQL_ERROR;
+						statusStr = "status unknown";
+						break;
+				}
+
+				if(!connection->checkResult(paramStatus[i], "SQLExecute")) {
+					log(LL_Error,
+					    "DB query %s: %s\nParameters:\n%s",
+					    queryStr.c_str(),
+					    statusStr,
+					    logParameters(queryJob->getInputPointer(i)).c_str());
+				}
+			}
+		}
+
+		errorCount++;
+		if(errorCount > 100) {
+			enabled.setBool(false);
+			log(LL_Error, "Disabled query: %s, too many errors\n", queryStr.c_str());
+
+			errorCount = 0;
+		}
+		connection->releaseWithError();
+		return false;
+	} else {
+		for(size_t i = 0; i < paramStatus.size(); i++) {
+			SQLRETURN result;
+			const char* statusStr;
+
+			switch(paramStatus[i]) {
+				case SQL_PARAM_SUCCESS:
+					result = SQL_SUCCESS;
+					statusStr = "success";
+					break;
+				case SQL_PARAM_SUCCESS_WITH_INFO:
+					result = SQL_SUCCESS_WITH_INFO;
+					statusStr = "success with info";
+					break;
+
+				case SQL_PARAM_ERROR:
+					result = SQL_ERROR;
+					statusStr = "error";
+					break;
+
+				case SQL_PARAM_UNUSED:
+					result = SQL_ERROR;
+					statusStr = "result unused";
+					break;
+
+				case SQL_PARAM_DIAG_UNAVAILABLE:
+					result = SQL_ERROR;
+					statusStr = "status unavailable";
+					break;
+
+				default:
+					result = SQL_ERROR;
+					statusStr = "status unknown";
+					break;
+			}
+
+			if(!connection->checkResult(paramStatus[i], "SQLExecute")) {
+				if(parameterBindings.empty()) {
+					log(LL_Error, "DB query failed at input %d: %s\n", queryStr.c_str(), i);
+				} else {
+					log(LL_Error,
+					    "DB query %s: %s\nParameters:\n%s",
+					    queryStr.c_str(),
+					    statusStr,
+					    logParameters(queryJob->getInputPointer(i)).c_str());
+				}
+			}
+		}
+	}
+
+	connection->closeCursor();
+	connection->endTransaction(true);
+	connection->release();
 
 	return true;
 }

@@ -36,6 +36,8 @@ public:
 	                   SQLLEN cbValueMax,
 	                   SQLLEN* pcbValue);
 
+	bool setAttribute(SQLINTEGER attribute, SQLPOINTER value, SQLINTEGER stringLength);
+
 	bool execute(const char* query);
 	bool fetch();
 	bool closeCursor();
@@ -53,7 +55,6 @@ public:
 
 	const std::string& getCachedQuery() { return lastQuery; }
 
-protected:
 	bool checkResult(SQLRETURN result, const char* function, bool silentInfo = false);
 
 private:

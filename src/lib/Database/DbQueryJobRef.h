@@ -3,6 +3,7 @@
 
 #include "DbQueryJob.h"
 #include "DbQueryJobCallback.h"
+#include "DbQueryJobLambda.h"
 
 class RZU_EXTERN DbQueryJobRef {
 public:
@@ -34,21 +35,29 @@ public:
 	template<class DbMappingClass, class Session>
 	void executeDbQuery(
 	    Session* session,
-	    typename DbQueryJobCallback<DbMappingClass, Session, DbQueryJob<DbMappingClass> >::DbCallback callback,
+	    typename DbQueryJobCallback<DbMappingClass, Session, DbQueryJob<DbMappingClass>>::DbCallback callback,
 	    const typename DbMappingClass::Input& input) {
 		executeDbQuery<DbMappingClass,
-		               DbQueryJobCallback<DbMappingClass, Session, DbQueryJob<DbMappingClass> >,
+		               DbQueryJobCallback<DbMappingClass, Session, DbQueryJob<DbMappingClass>>,
 		               Session>(session, callback, input);
 	}
 
 	template<class DbMappingClass, class Session>
 	void executeDbQuery(
 	    Session* session,
-	    typename DbQueryJobCallback<DbMappingClass, Session, DbQueryJob<DbMappingClass> >::DbCallback callback,
+	    typename DbQueryJobCallback<DbMappingClass, Session, DbQueryJob<DbMappingClass>>::DbCallback callback,
 	    const std::vector<typename DbMappingClass::Input>& inputs) {
 		executeDbQuery<DbMappingClass,
-		               DbQueryJobCallback<DbMappingClass, Session, DbQueryJob<DbMappingClass> >,
+		               DbQueryJobCallback<DbMappingClass, Session, DbQueryJob<DbMappingClass>>,
 		               Session>(session, callback, inputs);
+	}
+
+	template<class DbMappingClass, class Lambda>
+	void executeDbQuery(Lambda callback, const std::vector<typename DbMappingClass::Input>& inputs) {
+		auto query = new DbQueryJobLambda<DbMappingClass, Lambda>(callback);
+		query->setDbQueryJobRef(this);
+		dbQueryJobs.push_back(query);
+		query->execute(inputs.data(), inputs.size());
 	}
 
 	void onQueryDone(IDbQueryJobCallback* query);
