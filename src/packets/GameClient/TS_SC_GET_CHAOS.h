@@ -7,8 +7,12 @@
 	_(simple)(uint32_t, hPlayer) \
 	_(simple)(uint32_t, hCorpse) \
 	_(simple)(int32_t, nChaos) \
-	_(simple)(int8_t, nBonusType, version >= EPIC_4_1) \
-	_(simple)(int8_t, nBonusPercent, version >= EPIC_4_1) \
+	_(def)(simple)(int32_t, nBonusType) \
+	  _(impl)(simple)(int8_t, nBonusType, version >= EPIC_4_1 && version < EPIC_9_6_2) \
+	  _(impl)(simple)(int32_t, nBonusType, version >= EPIC_9_6_2) \
+	_(def)(simple)(int32_t, nBonusPercent) \
+	  _(impl)(simple)(int8_t, nBonusPercent, version >= EPIC_4_1 && version < EPIC_9_6_2) \
+	  _(impl)(simple)(int32_t, nBonusPercent, version >= EPIC_9_6_2) \
 	_(simple)(int32_t, nBonus, version >= EPIC_4_1)
 
 CREATE_PACKET(TS_SC_GET_CHAOS, 213);
