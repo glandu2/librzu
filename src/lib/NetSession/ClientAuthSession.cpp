@@ -22,7 +22,8 @@
 DesPasswordCipher ClientAuthSession::desCipher("MERONG");
 
 ClientAuthSession::ClientAuthSession(ClientGameSession* gameSession, int packetVersion)
-    : gameSession(gameSession), packetVersion(packetVersion) {
+    : EncryptedSession<PacketSession>(SessionType::AuthClient, SessionPacketOrigin::Client, packetVersion),
+      gameSession(gameSession) {
 	if(gameSession)
 		gameSession->setAuthSession(this);
 }

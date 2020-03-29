@@ -358,3 +358,18 @@ const char* getPacketName(unsigned int id, SessionType sessionType, SessionPacke
 
 	return name;
 }
+
+SessionPacketOrigin getPacketOriginFromDirection(bool outgoing, SessionPacketOrigin selfSessionPacketOrigin) {
+	if(selfSessionPacketOrigin == SessionPacketOrigin::Any)
+		return SessionPacketOrigin::Any;
+
+	if(outgoing)
+		return selfSessionPacketOrigin;
+
+	// If ingoing, return opposite origin
+
+	if(selfSessionPacketOrigin == SessionPacketOrigin::Client)
+		return SessionPacketOrigin::Server;
+
+	return SessionPacketOrigin::Client;
+}

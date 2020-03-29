@@ -1,6 +1,7 @@
 #ifndef PACKETS_PACKETBASEMESSAGE_H
 #define PACKETS_PACKETBASEMESSAGE_H
 
+#include "Packet/PacketEpics.h"
 #include <stdint.h>
 #include <string.h>
 #include <type_traits>
@@ -51,12 +52,16 @@ struct TS_MESSAGE {
 
 	static void destroy(TS_MESSAGE* msg) { delete[](char*) msg; }
 
-	template<class T, class U> void process(U* instance, void (U::*processFunction)(const T*), int version) const;
+	template<class T, class U>
+	void process(U* instance, void (U::*processFunction)(const T*), packet_version_t version) const;
 
 	template<class T, class U, typename... Args>
-	void process(U* instance, void (U::*processFunction)(const T*, Args...), int version, Args... args) const;
+	void process(U* instance,
+	             void (U::*processFunction)(const T*, Args...),
+	             packet_version_t version,
+	             Args... args) const;
 
-	template<class T> bool process(T& packet, int version) const;
+	template<class T> bool process(T& packet, packet_version_t version) const;
 };
 
 // Special struct to prevent copy of server->client packet structs
@@ -90,7 +95,7 @@ private:
 #include "MessageBuffer.h"
 
 template<class T, class U>
-void TS_MESSAGE::process(U* instance, void (U::*processFunction)(const T*), int version) const {
+void TS_MESSAGE::process(U* instance, void (U::*processFunction)(const T*), packet_version_t version) const {
 	T packet;
 	MessageBuffer buffer((void*) this, this->size, version);
 
@@ -101,7 +106,10 @@ void TS_MESSAGE::process(U* instance, void (U::*processFunction)(const T*), int 
 }
 
 template<class T, class U, typename... Args>
-void TS_MESSAGE::process(U* instance, void (U::*processFunction)(const T*, Args...), int version, Args... args) const {
+void TS_MESSAGE::process(U* instance,
+                         void (U::*processFunction)(const T*, Args...),
+                         packet_version_t version,
+                         Args... args) const {
 	T packet;
 	MessageBuffer buffer((void*) this, this->size, version);
 
@@ -111,7 +119,7 @@ void TS_MESSAGE::process(U* instance, void (U::*processFunction)(const T*, Args.
 	}
 }
 
-template<class T> bool TS_MESSAGE::process(T& packet, int version) const {
+template<class T> bool TS_MESSAGE::process(T& packet, packet_version_t version) const {
 	MessageBuffer buffer((void*) this, this->size, version);
 
 	packet.deserialize(&buffer);

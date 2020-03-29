@@ -40,10 +40,6 @@ public:
 	bool connect(const std::string& ip, uint16_t port, const std::string& account, const std::string& password);
 	void close();
 
-	template<class T> typename std::enable_if<!std::is_pointer<T>::value, void>::type sendPacket(const T& data) {
-		EncryptedSession<PacketSession>::sendPacket(data, packetVersion);
-	}
-
 	void retreiveServerList();
 	bool selectServer(uint16_t serverId);
 
@@ -101,8 +97,6 @@ private:
 	int selectedServer;
 	uint64_t oneTimePassword;
 	bool normalDisconnect;
-
-	const int packetVersion;
 
 	static DesPasswordCipher desCipher;
 	static RsaCipher rsaCipher;

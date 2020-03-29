@@ -9,7 +9,7 @@ class Stream;
 
 template<class SessionClass> class EncryptedSession : public SessionClass {
 public:
-	EncryptedSession() { initRC4Cipher(); }
+	template<class... Args> EncryptedSession(Args... args) : SessionClass(args...) { initRC4Cipher(); }
 
 	virtual ~EncryptedSession() {}
 

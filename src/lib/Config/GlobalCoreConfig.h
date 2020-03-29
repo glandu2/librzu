@@ -73,6 +73,14 @@ struct RZU_EXTERN GlobalCoreConfig : public IListener {
 		static void updateConsoleLevel(IListener* instance);
 	} log;
 
+	struct PacketLog {
+		cval<bool>& dumpRaw;
+		cval<bool>& dumpJson;
+
+		PacketLog()
+		    : dumpRaw(CFG_CREATE("packetdump.dump_raw", false)), dumpJson(CFG_CREATE("packetdump.dump_json", true)) {}
+	} packetLog;
+
 	struct Statistics {
 		cstatval<int>&connectionCount, &disconnectionCount;
 

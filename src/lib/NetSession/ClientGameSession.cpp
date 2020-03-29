@@ -6,7 +6,8 @@
 #include "GameClient/TS_CS_VERSION.h"
 #include "GameClient/TS_SC_RESULT.h"
 
-ClientGameSession::ClientGameSession(int version) : version(version) {}
+ClientGameSession::ClientGameSession(int version)
+    : EncryptedSession<PacketSession>(SessionType::GameClient, SessionPacketOrigin::Client, version) {}
 
 EventChain<SocketSession> ClientGameSession::onConnected() {
 	TS_CS_VERSION versionMsg;
@@ -42,7 +43,7 @@ EventChain<PacketSession> ClientGameSession::onPacketReceived(const TS_MESSAGE* 
 	switch(packet->id) {
 		case TS_SC_RESULT::packetID: {
 			TS_SC_RESULT resultMsg;
-			bool deserializationOk = packet->process(resultMsg, version);
+			bool deserializationOk = packet->process(resultMsg, packetVersion);
 
 			if(deserializationOk && resultMsg.request_msg_id == TS_CS_ACCOUNT_WITH_AUTH::packetID) {
 				auth->onGameResult((TS_ResultCode) resultMsg.result);
