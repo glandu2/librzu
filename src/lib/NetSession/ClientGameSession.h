@@ -19,9 +19,9 @@ protected:
 	virtual void onGameDisconnected(bool causedByRemote) = 0;
 
 private:
-	EventChain<SocketSession> onConnected();
-	EventChain<PacketSession> onPacketReceived(const TS_MESSAGE* packet);
-	EventChain<SocketSession> onDisconnected(bool causedByRemote);
+	virtual EventChain<SocketSession> onConnected() override final;
+	virtual EventChain<PacketSession> onPacketReceived(const TS_MESSAGE* packet) override final;
+	virtual EventChain<SocketSession> onDisconnected(bool causedByRemote) override final;
 
 protected:
 	ClientAuthSession* auth;
