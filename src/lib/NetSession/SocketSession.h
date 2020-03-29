@@ -47,6 +47,8 @@ public:
 
 	virtual bool hasCustomPacketLogger() { return false; }  // used for packet logging
 	static bool hasCustomPacketLoggerStatic() { return false; }
+	void setPacketLogger(Log* packetLogger) { this->packetLogger = packetLogger; }
+	Log* getPacketLogger() { return stream ? stream->getPacketLogger() : packetLogger; }
 
 protected:
 	virtual ~SocketSession();  // deleted when disconnected by SessionServer
@@ -66,6 +68,7 @@ private:
 	Stream* stream;
 	SessionServerCommon* server;
 	bool autoDelete;
+	Log* packetLogger;
 };
 
 #endif  // SOCKETSESSION_H

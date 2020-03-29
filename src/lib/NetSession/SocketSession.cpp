@@ -5,7 +5,7 @@
 #include "Stream/Pipe.h"
 #include "Stream/Socket.h"
 
-SocketSession::SocketSession() : stream(nullptr), server(nullptr), autoDelete(false) {}
+SocketSession::SocketSession() : stream(nullptr), server(nullptr), autoDelete(false), packetLogger(nullptr) {}
 
 void SocketSession::assignStream(Stream* stream) {
 	this->stream = stream;
@@ -23,6 +23,9 @@ bool SocketSession::connect(const char* url, uint16_t port) {
 
 	if(changed)
 		assignStream(newStream);
+
+	if(packetLogger)
+		stream->setPacketLogger(packetLogger);
 
 	return stream->connect(target, port);
 }
