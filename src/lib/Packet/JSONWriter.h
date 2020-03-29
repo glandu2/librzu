@@ -60,7 +60,7 @@ public:
 			if(c >= 0x20 && c < 0x7F && c != '\"' && c != '\\') {
 				newString[currentSize++] = c;
 
-			} else if(c == '\"' && c == '\\') {
+			} else if(c == '\"' || c == '\\') {
 				newString[currentSize++] = '\\';
 				newString[currentSize++] = c;
 			} else if(c == '\0') {
@@ -160,6 +160,10 @@ public:
 		depth++;
 		for(size_t i = 0; i < size; i++) {
 			write(nullptr, val[i]);
+			if(((i + 1) % 16) == 0 && (i + 1) < size) {
+				printIdent(true);
+				newList = true;
+			}
 		}
 		depth--;
 
@@ -187,8 +191,17 @@ public:
 		depth++;
 		auto it = val.begin();
 		auto itEnd = val.end();
-		for(; it != itEnd; ++it)
+		int i = 0;
+		for(; it != itEnd;) {
 			write(nullptr, *it);
+			i++;
+			++it;
+
+			if((i % 16) == 0 && it != itEnd) {
+				printIdent(true);
+				newList = true;
+			}
+		}
 		depth--;
 
 		newList = true;
