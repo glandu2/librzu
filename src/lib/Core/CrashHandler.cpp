@@ -223,13 +223,6 @@ void CrashHandler::setThreadExceptionHandlers() {
 	// http://msdn.microsoft.com/en-us/library/t6fk7h29.aspx
 	std::set_terminate(&terminateHandler);
 
-	// Catch unexpected() calls.
-	// In a multithreaded environment, unexpected functions are maintained
-	// separately for each thread. Each new thread needs to install its own
-	// unexpected function. Thus, each thread is in charge of its own unexpected handling.
-	// http://msdn.microsoft.com/en-us/library/h46t5b69.aspx
-	std::set_unexpected(&unexpectedHandler);
-
 	// Catch a floating point error
 	typedef void (*sigh)(int);
 	signal(SIGFPE, (sigh) sigfpeHandler);
@@ -527,7 +520,7 @@ static BOOL WINAPI handlerRoutine(DWORD dwCtrlType) {
 
 #else /* _WIN32 */
 
-	// UNIX
+// UNIX
 
 #include <signal.h>
 
