@@ -77,7 +77,7 @@ CREATE_STRUCT(TEST_OBJECT_SUB);
 	_(simple)(EnumNoClass,                    v2_enc,     version == 2, ENC_Item2) \
 	_(simple)(EncodedInt<EncodingRandomized>, v2_er ,     version == 2, UINT32_MAX) \
 	_(simple)(EncodedInt<EncodingScrambled>,  v2_es ,     version == 2, UINT32_MAX) \
-	_(simple)(TEST_OBJECT_SUB,                v2_obj,     version == 2, ((TEST_OBJECT_SUB){true, 42})) \
+	_(simple)(TEST_OBJECT_SUB,                v2_obj,     version == 2, (TEST_OBJECT_SUB{true, 42})) \
 	_(string)(                                v2_str, 20, version == 2, "test string")
 CREATE_STRUCT(TEST_SIMPLE_SUB);
 
