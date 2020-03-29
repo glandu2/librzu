@@ -6,6 +6,8 @@
 #include "Packet/EncodingScrambled.h"
 #include "Packet/PacketDeclaration.h"
 
+#include "TS_SC_STATUS_CHANGE.h"
+
 enum TS_SC_ENTER__OBJ_TYPE : uint8_t {
 	EOT_Player = 0,
 	EOT_NPC = 1,
@@ -15,6 +17,12 @@ enum TS_SC_ENTER__OBJ_TYPE : uint8_t {
 	EOT_Skill = 5,
 	EOT_FieldProp = 6,
 	EOT_Pet = 7
+};
+
+enum TS_SC_ENTER__TYPE : uint8_t {
+	ET_Player = 0,
+	ET_NPC = 1,
+	ET_StaticObject = 2,
 };
 
 #define TS_SC_ENTER__ITEM_PICK_UP_ORDER_DEF(_) \
@@ -51,7 +59,7 @@ CREATE_STRUCT(TS_SC_ENTER__SKILL_INFO);
 CREATE_STRUCT(TS_SC_ENTER__FIELD_PROP_INFO);
 
 #define TS_SC_ENTER__CREATURE_INFO_DEF(_) \
-	_(simple) (uint32_t, status) \
+	_(simple) (TS_CREATURE_STATUS, status) \
 	_(simple) (float, face_direction) \
 	_(simple) (int32_t, hp) \
 	_(simple) (int32_t, max_hp) \
@@ -115,7 +123,7 @@ CREATE_STRUCT(TS_SC_ENTER__PLAYER_INFO);
 CREATE_STRUCT(TS_SC_ENTER__PET_INFO);
 
 #define TS_SC_ENTER_DEF(_) \
-	_(simple) (uint8_t, type) /* 0 = static object, 1 = movable object, 2 = client object (ArObject::ObjectType) */ \
+	_(simple) (TS_SC_ENTER__TYPE, type) \
 	_(simple) (ar_handle_t, handle) \
 	_(simple) (float, x) \
 	_(simple) (float, y) \
