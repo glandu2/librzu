@@ -4,7 +4,7 @@
 #include "Packet/PacketDeclaration.h"
 
 #define TS_SC_SP_DEF(_) \
-	_(simple)(uint32_t, handle) \
+	_(simple)(ar_handle_t, handle) \
 	_(simple)(int16_t, sp) \
 	_(simple)(int16_t, max_sp)
 

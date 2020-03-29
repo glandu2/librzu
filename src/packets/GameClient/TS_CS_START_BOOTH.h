@@ -4,7 +4,7 @@
 #include "Packet/PacketDeclaration.h"
 
 #define TS_BOOTH_OPEN_ITEM_INFO_DEF(_) \
-	_(simple)(uint32_t, item_handle) \
+	_(simple)(ar_handle_t, item_handle) \
 	_(simple)(int32_t, cnt) \
 	_(def)(simple) (int64_t, gold) \
 	_(impl)(simple)(int64_t, gold, version >= EPIC_4_1_1) \

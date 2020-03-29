@@ -4,7 +4,7 @@
 #include "Packet/PacketDeclaration.h"
 
 #define TS_SC_AURA_DEF(_) \
-	_(simple)(uint32_t, caster) \
+	_(simple)(ar_handle_t, caster) \
 	_(simple)(uint16_t, skill_id) \
 	_(simple)(bool, status)
 

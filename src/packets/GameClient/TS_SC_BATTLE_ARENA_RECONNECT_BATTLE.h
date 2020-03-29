@@ -7,7 +7,7 @@
 	_(def)(string)(name, 20) \
 	  _(impl)(string)(name, 19, version < EPIC_9_6) \
 	  _(impl)(string)(name, 20, version >= EPIC_9_6) \
-	_(simple)(uint32_t, newHandle)
+	_(simple)(ar_handle_t, newHandle)
 
 // Since EPIC_8_1
 CREATE_PACKET(TS_SC_BATTLE_ARENA_RECONNECT_BATTLE, 4715);

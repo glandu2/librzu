@@ -12,7 +12,7 @@
 CREATE_STRUCT(TS_BOOTH_ITEM_INFO);
 
 #define TS_SC_WATCH_BOOTH_DEF(_) \
-	_(simple)(uint32_t, target) \
+	_(simple)(ar_handle_t, target) \
 	_(simple)(uint8_t, type) \
 	_(count) (uint16_t, items) \
 	_(dynarray)(TS_BOOTH_ITEM_INFO, items)

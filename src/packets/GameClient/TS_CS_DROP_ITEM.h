@@ -4,7 +4,7 @@
 #include "Packet/PacketDeclaration.h"
 
 #define TS_CS_DROP_ITEM_DEF(_) \
-	_(simple)(uint32_t, item_handle) \
+	_(simple)(ar_handle_t, item_handle) \
 	_(def)(simple) (int32_t, count) \
 	_(impl)(simple)(int32_t, count, version >= EPIC_4_1) \
 	_(impl)(simple)(uint16_t, count, version < EPIC_4_1)

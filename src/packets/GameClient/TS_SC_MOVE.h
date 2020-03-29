@@ -10,8 +10,8 @@
 CREATE_STRUCT(MOVE_INFO);
 
 #define TS_SC_MOVE_DEF(_) \
-	_(simple)(uint32_t, start_time) \
-	_(simple)(uint32_t, handle) \
+	_(simple)(ar_time_t, start_time) \
+	_(simple)(ar_handle_t, handle) \
 	_(simple)(int8_t, tlayer) \
 	_(simple)(uint8_t, speed) \
 	_(count) (uint16_t, move_infos) \

@@ -10,7 +10,7 @@
 CREATE_STRUCT(TS_ADDED_SKILL_LIST);
 
 #define TS_SC_ADDED_SKILL_LIST_DEF(_) \
-	_(simple)  (uint32_t, target) \
+	_(simple)  (ar_handle_t, target) \
 	_(count)   (uint16_t, skills) \
 	_(dynarray)(TS_ADDED_SKILL_LIST, skills)
 

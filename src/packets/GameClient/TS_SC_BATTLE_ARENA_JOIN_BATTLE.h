@@ -5,7 +5,7 @@
 
 #define TS_SC_BATTLE_ARENA_JOIN_BATTLE_DEF(_) \
 	_(simple)(int32_t, nTeamNo) \
-	_(simple)(uint32_t, handle) \
+	_(simple)(ar_handle_t, handle) \
 	_(simple)(int32_t, nJobID) \
 	_(def)(string)(name, 20) \
 	  _(impl)(string)(name, 19, version < EPIC_9_6) \

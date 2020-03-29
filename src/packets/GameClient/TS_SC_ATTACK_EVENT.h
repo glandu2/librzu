@@ -57,8 +57,8 @@ enum ATTACK_INFO__FLAG : int8_t {
 CREATE_STRUCT(ATTACK_INFO);
 
 #define TS_SC_ATTACK_EVENT_DEF(_) \
-	_(simple)   (uint32_t, attacker_handle) \
-	_(simple)   (uint32_t, target_handle) \
+	_(simple)   (ar_handle_t, attacker_handle) \
+	_(simple)   (ar_handle_t, target_handle) \
 	_(simple)   (uint16_t, attack_speed) \
 	_(simple)   (uint16_t, attack_delay) \
 	_(simple)   (ATTACK_EVENT__ATTACK_ACTION, attack_action) \

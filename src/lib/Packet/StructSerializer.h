@@ -2,6 +2,7 @@
 #define PACKET_STRUCTSERIALIZER_H
 
 #include "../Extern.h"
+#include "GameTypes.h"
 #include "PacketEpics.h"
 #include <type_traits>
 #include <vector>
@@ -19,7 +20,10 @@ public:
 
 	// Primitives
 	template<typename T>
-	struct is_primitive : public std::integral_constant<bool, std::is_fundamental<T>::value || std::is_enum<T>::value> {
+	struct is_primitive
+	    : public std::integral_constant<bool,
+	                                    std::is_fundamental<T>::value || std::is_enum<T>::value ||
+	                                        std::is_same<T, ar_handle_t>::value || std::is_same<T, ar_time_t>::value> {
 	};
 
 	// Primitives with cast

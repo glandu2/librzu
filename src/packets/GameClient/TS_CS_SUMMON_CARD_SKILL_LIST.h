@@ -4,7 +4,7 @@
 #include "Packet/PacketDeclaration.h"
 
 #define TS_CS_SUMMON_CARD_SKILL_LIST_DEF(_) \
-	_(simple)(uint32_t, item_handle)
+	_(simple)(ar_handle_t, item_handle)
 
 // Since EPIC_7_3
 CREATE_PACKET(TS_CS_SUMMON_CARD_SKILL_LIST, 452);

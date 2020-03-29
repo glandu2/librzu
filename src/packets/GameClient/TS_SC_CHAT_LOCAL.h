@@ -7,7 +7,7 @@
 // Message len include null terminator
 // Message must have null terminator
 #define TS_SC_CHAT_LOCAL_DEF(_) \
-	_(simple)(uint32_t, handle) \
+	_(simple)(ar_handle_t, handle) \
 	_(count)(uint8_t, message) \
 	_(simple)(TS_CHAT_TYPE, type) \
 	_(dynstring)(message, true)

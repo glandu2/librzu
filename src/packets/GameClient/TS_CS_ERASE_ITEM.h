@@ -4,7 +4,7 @@
 #include "Packet/PacketDeclaration.h"
 
 #define TS_ERASE_ITEM_INFO_DEF(_) \
-	_(simple)(uint32_t, item_handle) \
+	_(simple)(ar_handle_t, item_handle) \
 	_(simple)(int64_t, count, version >= EPIC_7_2) \
 	_(simple)(bool, is_in_storage, version >= EPIC_7_4)
 

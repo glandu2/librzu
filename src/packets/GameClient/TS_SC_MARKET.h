@@ -14,7 +14,7 @@
 CREATE_STRUCT(TS_MARKET_ITEM_INFO);
 
 #define TS_SC_MARKET_DEF(_) \
-	_(simple)(uint32_t, npc_handle) \
+	_(simple)(ar_handle_t, npc_handle) \
 	_(count)(uint16_t, items) \
 	_(dynarray)(TS_MARKET_ITEM_INFO, items) \
 	_(padmarker)(item_list_marker) \

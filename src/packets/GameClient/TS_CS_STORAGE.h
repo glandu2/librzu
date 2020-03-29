@@ -4,7 +4,7 @@
 #include "Packet/PacketDeclaration.h"
 
 #define TS_CS_STORAGE_DEF(_) \
-	_(simple)(uint32_t, item_handle) \
+	_(simple)(ar_handle_t, item_handle) \
 	_(simple)(int8_t, mode) \
 	_(def)(simple) (int64_t, count) \
 	_(impl)(simple)(int64_t, count, version >= EPIC_4_1_1) \

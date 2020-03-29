@@ -5,7 +5,7 @@
 #include "TS_SC_INVENTORY.h"
 
 #define TS_TRADE_DEF(_) \
-	_(simple)(uint32_t, target_player) \
+	_(simple)(ar_handle_t, target_player) \
 	_(simple)(int8_t, mode) \
 	_(simple)(TS_ITEM_INFO, item_info)
 

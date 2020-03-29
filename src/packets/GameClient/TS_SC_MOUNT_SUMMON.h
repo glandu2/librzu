@@ -4,8 +4,8 @@
 #include "Packet/PacketDeclaration.h"
 
 #define TS_SC_MOUNT_SUMMON_DEF(_) \
-	_(simple)(uint32_t, handle) \
-	_(simple)(uint32_t, summon_handle) \
+	_(simple)(ar_handle_t, handle) \
+	_(simple)(ar_handle_t, summon_handle) \
 	_(simple)(float, x) \
 	_(simple)(float, y) \
 	_(simple)(bool, success)

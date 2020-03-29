@@ -8,7 +8,7 @@
 	_(def)(simple)(uint16_t, result) \
 	  _(impl)(simple)(uint16_t, result, version >= EPIC_7_1) \
 	  _(impl)(simple)(uint8_t, result, version <  EPIC_7_1) \
-	_(simple) (uint32_t, handle) \
+	_(simple) (ar_handle_t, handle) \
 	_(simple) (float, x) \
 	_(simple) (float, y) \
 	_(simple) (float, z) \

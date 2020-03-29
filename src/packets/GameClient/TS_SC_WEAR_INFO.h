@@ -4,7 +4,7 @@
 #include "Packet/PacketDeclaration.h"
 
 #define TS_SC_WEAR_INFO_DEF(_) \
-	_(simple) (uint32_t, handle) \
+	_(simple) (ar_handle_t, handle) \
 	_(def)(array)(uint32_t, item_code, 32) \
 	  _(impl)(array)(uint32_t, item_code, 14, version < EPIC_4_1) \
 	  _(impl)(array)(uint32_t, item_code, 24, version >= EPIC_4_1 && version < EPIC_9_5) \

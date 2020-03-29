@@ -4,9 +4,9 @@
 #include "Packet/PacketDeclaration.h"
 
 #define TS_CS_PUTON_ITEM_SET_DEF(_) \
-	_(def)(array) (uint32_t, handle, 24) \
-	_(impl)(array)(uint32_t, handle, 24, version >= EPIC_4_1) \
-	_(impl)(array)(uint32_t, handle, 14, version < EPIC_4_1)
+	_(def)(array) (ar_handle_t, handle, 24) \
+	  _(impl)(array)(ar_handle_t, handle, 24, version >= EPIC_4_1) \
+	  _(impl)(array)(ar_handle_t, handle, 14, version < EPIC_4_1)
 
 CREATE_PACKET(TS_CS_PUTON_ITEM_SET, 281);
 

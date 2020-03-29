@@ -4,7 +4,7 @@
 #include "Packet/PacketDeclaration.h"
 
 #define TS_TIMESYNC_DEF(_) \
-	_(simple) (uint32_t, time)
+	_(simple) (ar_time_t, time)
 
 CREATE_PACKET(TS_TIMESYNC, 2);
 

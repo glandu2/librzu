@@ -4,8 +4,8 @@
 #include "Packet/PacketDeclaration.h"
 
 #define TS_SC_SKILL_CASTING_TIME_DEF(_) \
-	_(simple)(uint32_t, caster) \
-	_(simple)(uint32_t, tm)
+	_(simple)(ar_handle_t, caster) \
+	_(simple)(ar_time_t, tm)
 
 CREATE_PACKET(TS_SC_SKILL_CASTING_TIME, 405);
 

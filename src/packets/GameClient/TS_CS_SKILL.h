@@ -5,8 +5,8 @@
 
 #define TS_CS_SKILL_DEF(_) \
 	_(simple)(uint16_t, skill_id) \
-	_(simple)(uint32_t, caster) \
-	_(simple)(uint32_t, target) \
+	_(simple)(ar_handle_t, caster) \
+	_(simple)(ar_handle_t, target) \
 	_(simple)(float, x) \
 	_(simple)(float, y) \
 	_(simple)(float, z) \

@@ -4,7 +4,7 @@
 #include "Packet/PacketDeclaration.h"
 
 #define TS_SC_HAIR_INFO_DEF(_) \
-	_(simple)(uint32_t, hPlayer) \
+	_(simple)(ar_handle_t, hPlayer) \
 	_(simple)(int32_t, nHairID) \
 	_(simple)(int32_t, nHairColorIndex) \
 	_(simple)(uint32_t, nHairColorRGB)

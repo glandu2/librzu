@@ -15,7 +15,7 @@
 CREATE_STRUCT(TS_BONUS_INFO);
 
 #define TS_SC_BONUS_EXP_JP_DEF(_) \
-	_(simple)(uint32_t, handle) \
+	_(simple)(ar_handle_t, handle) \
 	_(count)(uint16_t, bonus) \
 	_(dynarray)(TS_BONUS_INFO, bonus)
 

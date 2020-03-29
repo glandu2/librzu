@@ -4,7 +4,7 @@
 #include "Packet/PacketDeclaration.h"
 
 #define TS_SC_HPMP_DEF(_) \
-	_(simple)(uint32_t, handle) \
+	_(simple)(ar_handle_t, handle) \
 	_(simple)(int32_t, add_hp) \
 	_(simple)(int32_t, hp) \
 	_(simple)(int32_t, max_hp) \

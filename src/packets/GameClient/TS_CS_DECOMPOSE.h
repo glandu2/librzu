@@ -4,7 +4,7 @@
 #include "Packet/PacketDeclaration.h"
 
 #define TS_DECOMPOSE_ITEM_INFO_DEF(_) \
-	_(simple)(uint32_t, items_handle) \
+	_(simple)(ar_handle_t, items_handle) \
 	_(simple)(uint32_t, count, version >= EPIC_8_2, 1)
 CREATE_STRUCT(TS_DECOMPOSE_ITEM_INFO);
 

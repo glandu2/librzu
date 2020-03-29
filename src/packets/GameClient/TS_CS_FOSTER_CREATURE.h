@@ -4,19 +4,19 @@
 #include "Packet/PacketDeclaration.h"
 
 #define TS_TICKET_INFO_DEF(_) \
-	_(simple)(uint32_t, ticket_handle) \
+	_(simple)(ar_handle_t, ticket_handle) \
 	_(simple)(int32_t, ticket_count)
 
 CREATE_STRUCT(TS_TICKET_INFO);
 
 #define TS_CRACKER_INFO_DEF(_) \
-	_(simple)(uint32_t, cracker_handle) \
+	_(simple)(ar_handle_t, cracker_handle) \
 	_(simple)(int32_t, cracker_count)
 
 CREATE_STRUCT(TS_CRACKER_INFO);
 
 #define TS_CS_FOSTER_CREATURE_DEF(_) \
-	_(simple)(uint32_t, creature_card_handle) \
+	_(simple)(ar_handle_t, creature_card_handle) \
 	_(count)(int32_t, ticket_info) \
 	_(count)(int32_t, cracker_info) \
 	_(dynarray)(TS_TICKET_INFO, ticket_info) \

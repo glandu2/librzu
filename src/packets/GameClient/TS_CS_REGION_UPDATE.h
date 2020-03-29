@@ -4,7 +4,7 @@
 #include "Packet/PacketDeclaration.h"
 
 #define TS_CS_REGION_UPDATE_DEF(_) \
-	_(simple)(uint32_t, update_time) \
+	_(simple)(ar_time_t, update_time) \
 	_(simple)(float, x) \
 	_(simple)(float, y) \
 	_(simple)(float, z) \

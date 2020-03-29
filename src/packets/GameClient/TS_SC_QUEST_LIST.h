@@ -11,7 +11,7 @@
 	_(impl)(array)(uint32_t, status, 6, version >= EPIC_6_1) \
 	_(impl)(array)(uint32_t, status, 3, version < EPIC_6_1) \
 	_(simple) (uint8_t, progress, version >= EPIC_6_3) \
-	_(simple) (uint32_t, timeLimit, version >= EPIC_6_3)
+	_(simple) (ar_time_t, timeLimit, version >= EPIC_6_3)
 CREATE_STRUCT(TS_QUEST_INFO);
 
 #define TS_QUEST_PENDING_DEF(_) \

@@ -10,7 +10,7 @@
 	_(simple)(int64_t, price) \
 	_(simple)(int32_t, huntaholic_point, version >= EPIC_5_2) \
 	_(simple)(int32_t, arena_point, version >= EPIC_8_1) \
-	_(simple)(uint32_t, target)
+	_(simple)(ar_handle_t, target)
 
 CREATE_PACKET(TS_SC_NPC_TRADE_INFO, 240);
 

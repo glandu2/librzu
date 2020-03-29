@@ -4,7 +4,7 @@
 #include "Packet/PacketDeclaration.h"
 
 #define TS_SC_REGEN_HPMP_DEF(_) \
-	_(simple)(uint32_t, handle) \
+	_(simple)(ar_handle_t, handle) \
 	_(def)(simple)(int32_t, hp_regen) \
 	_(impl)(simple)(int32_t, hp_regen, version >= EPIC_7_3) \
 	_(impl)(simple)(uint16_t, hp_regen, version < EPIC_7_3) \

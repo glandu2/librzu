@@ -6,7 +6,7 @@
 // No string size field
 // String value include null terminator
 #define TS_SC_PROPERTY_DEF(_) \
-	_(simple) (uint32_t, handle) \
+	_(simple) (ar_handle_t, handle) \
 	_(simple) (bool, is_number) \
 	_(string) (name, 16) \
 	_(def)(simple)(int64_t, value) \

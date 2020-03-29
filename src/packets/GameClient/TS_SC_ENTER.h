@@ -18,8 +18,8 @@ enum TS_SC_ENTER__OBJ_TYPE : uint8_t {
 };
 
 #define TS_SC_ENTER__ITEM_PICK_UP_ORDER_DEF(_) \
-	_(simple) (uint32_t, drop_time) \
-	_(array)  (uint32_t, hPlayer, 3) \
+	_(simple) (ar_time_t, drop_time) \
+	_(array)  (ar_handle_t, hPlayer, 3) \
 	_(array)  (int32_t, nPartyID, 3)
 CREATE_STRUCT(TS_SC_ENTER__ITEM_PICK_UP_ORDER);
 
@@ -32,8 +32,8 @@ CREATE_STRUCT(TS_SC_ENTER__ITEM_PICK_UP_ORDER);
 CREATE_STRUCT(TS_SC_ENTER__ITEM_INFO);
 
 #define TS_SC_ENTER__SKILL_INFO_DEF(_) \
-	_(simple) (uint32_t, casterHandle, version >= EPIC_4_1) \
-	_(simple) (uint32_t, startTime) \
+	_(simple) (ar_handle_t, casterHandle, version >= EPIC_4_1) \
+	_(simple) (ar_time_t, startTime) \
 	_(simple) (uint32_t, skillId)
 CREATE_STRUCT(TS_SC_ENTER__SKILL_INFO);
 
@@ -72,7 +72,7 @@ CREATE_STRUCT(TS_SC_ENTER__MONSTER_INFO);
 
 #define TS_SC_ENTER__SUMMON_INFO_DEF(_) \
 	_(simple) (TS_SC_ENTER__CREATURE_INFO, creatureInfo) \
-	_(simple) (uint32_t, master_handle) \
+	_(simple) (ar_handle_t, master_handle) \
 	_(simple) (EncodedInt<EncodingRandomized>, summon_code) \
 	_(def)(string)(name, 20) \
 	  _(impl)(string)(name, 19, version >= EPIC_3 && version < EPIC_9_6) \
@@ -98,7 +98,7 @@ CREATE_STRUCT(TS_SC_ENTER__NPC_INFO);
 	  _(impl)(string)(name, 19, version < EPIC_9_6) \
 	  _(impl)(string)(name, 20, version >= EPIC_9_6) \
 	_(simple) (uint16_t, job_id) \
-	_(simple) (uint32_t, ride_handle) \
+	_(simple) (ar_handle_t, ride_handle) \
 	_(simple) (uint32_t, guild_id) \
 	_(simple) (uint32_t, title_code, version >= EPIC_8_1) \
 	_(simple) (uint32_t, back_board, version >= EPIC_9_3) \
@@ -107,7 +107,7 @@ CREATE_STRUCT(TS_SC_ENTER__PLAYER_INFO);
 
 #define TS_SC_ENTER__PET_INFO_DEF(_) \
 	_(simple) (TS_SC_ENTER__CREATURE_INFO, creatureInfo) \
-	_(simple) (uint32_t, master_handle) \
+	_(simple) (ar_handle_t, master_handle) \
 	_(simple) (EncodedInt<EncodingRandomized>, pet_code) \
 	_(def)(string)(name, 20) \
 	  _(impl)(string)(name, 19, version < EPIC_9_6) \
@@ -116,7 +116,7 @@ CREATE_STRUCT(TS_SC_ENTER__PET_INFO);
 
 #define TS_SC_ENTER_DEF(_) \
 	_(simple) (uint8_t, type) /* 0 = static object, 1 = movable object, 2 = client object (ArObject::ObjectType) */ \
-	_(simple) (uint32_t, handle) \
+	_(simple) (ar_handle_t, handle) \
 	_(simple) (float, x) \
 	_(simple) (float, y) \
 	_(simple) (float, z) \

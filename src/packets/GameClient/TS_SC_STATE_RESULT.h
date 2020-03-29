@@ -13,8 +13,8 @@ enum TS_STATE_RESULT_TYPE : uint16_t {
 };
 
 #define TS_SC_STATE_RESULT_DEF(_) \
-	_(simple)(uint32_t, caster_handle) \
-	_(simple)(uint32_t, target_handle) \
+	_(simple)(ar_handle_t, caster_handle) \
+	_(simple)(ar_handle_t, target_handle) \
 	_(simple)(int32_t, code) \
 	_(simple)(uint16_t, level) \
 	_(simple)(TS_STATE_RESULT_TYPE, result_type) \

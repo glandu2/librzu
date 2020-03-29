@@ -73,7 +73,7 @@ CREATE_STRUCT(TS_SC_SKILL__HIT_DAMAGE);
 	_(simple) (float, x) \
 	_(simple) (float, y) \
 	_(simple)(int8_t, speed) \
-	_(simple) (uint32_t, knock_back_time)
+	_(simple) (ar_time_t, knock_back_time)
 CREATE_STRUCT(TS_SC_SKILL__HIT_DAMAGE_WITH_KNOCKBACK);
 
 #define TS_SC_SKILL__HIT_RESULT_DEF(_) \
@@ -116,18 +116,18 @@ CREATE_STRUCT(TS_SC_SKILL__HIT_RUSH);
 
 #define TS_SC_SKILL__HIT_CHAIN_DAMAGE_DEF(_) \
 	_(simple) (TS_SC_SKILL__HIT_DAMAGE_INFO, damage) \
-	_(simple) (uint32_t, hFrom)
+	_(simple) (ar_handle_t, hFrom)
 CREATE_STRUCT(TS_SC_SKILL__HIT_CHAIN_DAMAGE);
 
 #define TS_SC_SKILL__HIT_CHAIN_HEAL_DEF(_) \
 	_(simple) (int32_t, target_hp) \
 	_(simple) (int32_t, nIncHP) \
-	_(simple) (uint32_t, hFrom)
+	_(simple) (ar_handle_t, hFrom)
 CREATE_STRUCT(TS_SC_SKILL__HIT_CHAIN_HEAL);
 
 #define TS_SC_SKILL__HIT_DETAILS_DEF(_) \
 	_(simple) (TS_SKILL__HIT_TYPE, type) \
-	_(simple) (uint32_t, hTarget) \
+	_(simple) (ar_handle_t, hTarget) \
 	_(simple) (TS_SC_SKILL__HIT_DAMAGE               , hitDamage             , type == SHT_DAMAGE || type == SHT_MAGIC_DAMAGE) \
 	_(simple) (TS_SC_SKILL__HIT_DAMAGE_WITH_KNOCKBACK, hitDamageWithKnockBack, type == SHT_DAMAGE_WITH_KNOCK_BACK) \
 	_(simple) (TS_SC_SKILL__HIT_RESULT               , hitResult             , type == SHT_RESULT) \
@@ -151,7 +151,7 @@ CREATE_STRUCT(TS_SC_SKILL__HIT_DETAILS);
 CREATE_STRUCT(TS_SC_SKILL__FIRE);
 
 #define TS_SC_SKILL__CAST_DEF(_) \
-	_(simple) (uint32_t, tm) \
+	_(simple) (ar_time_t, tm) \
 	_(simple) (uint16_t, nErrorCode)
 CREATE_STRUCT(TS_SC_SKILL__CAST);
 
@@ -159,8 +159,8 @@ CREATE_STRUCT(TS_SC_SKILL__CAST);
 #define TS_SC_SKILL_DEF(_) \
 	_(simple) (uint16_t, skill_id) \
 	_(simple) (uint8_t, skill_level) \
-	_(simple) (uint32_t, caster) \
-	_(simple) (uint32_t, target) \
+	_(simple) (ar_handle_t, caster) \
+	_(simple) (ar_handle_t, target) \
 	_(simple) (float, x) \
 	_(simple) (float, y) \
 	_(simple) (float, z) \

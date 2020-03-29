@@ -4,7 +4,7 @@
 #include "Packet/PacketDeclaration.h"
 
 #define TS_MIX_INFO_DEF(_) \
-	_(simple)(uint32_t, handle) \
+	_(simple)(ar_handle_t, handle) \
 	_(simple)(uint16_t, count)
 
 CREATE_STRUCT(TS_MIX_INFO);

@@ -4,7 +4,7 @@
 #include "Packet/PacketDeclaration.h"
 
 #define TS_SC_ENERGY_DEF(_) \
-	_(simple)(uint32_t, handle) \
+	_(simple)(ar_handle_t, handle) \
 	_(simple)(int16_t, energy)
 
 CREATE_PACKET(TS_SC_ENERGY, 515);

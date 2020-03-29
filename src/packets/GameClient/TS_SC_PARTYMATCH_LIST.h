@@ -5,7 +5,7 @@
 
 #define TS_GROUP_FINDER_GROUP_DEF(_) \
 	_(simple)(int32_t, index) \
-	_(simple)(int32_t, group_handle) \
+	_(simple)(ar_handle_t, group_handle) \
 	_(simple)(int16_t, zone) \
 	_(simple)(int16_t, min_level) \
 	_(simple)(int16_t, player_num) \

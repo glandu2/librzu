@@ -10,7 +10,7 @@
 CREATE_STRUCT(TS_BOOTH_TRADE_ITEM_INFO);
 
 #define TS_SC_BOOTH_TRADE_INFO_DEF(_) \
-	_(simple)(uint32_t, target) \
+	_(simple)(ar_handle_t, target) \
 	_(simple)(bool, is_sell) \
 	_(count)(uint16_t, trades) \
 	_(dynarray)(TS_BOOTH_TRADE_ITEM_INFO, trades)

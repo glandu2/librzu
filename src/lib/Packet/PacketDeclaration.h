@@ -12,7 +12,9 @@
 #include <type_traits>
 #include <vector>
 
+#include "GameTypes.h"
 #include "PacketEpics.h"
+#include "StructSerializer.h"
 #endif
 
 #define _ARG5(_0, _1, _2, _3, _4, _5, ...) _5
@@ -58,7 +60,7 @@ template<typename T> inline void copyDefaultValue(std::vector<T> val1, const T v
  * The object need to be declared with CREATE_STRUCT / CREATE_PACKET or the likes.
  */
 template<class T>
-inline typename std::enable_if<!std::is_fundamental<T>::value && !std::is_enum<T>::value, int>::type getSizeOf(
+inline typename std::enable_if<!StructSerializer::is_primitive<T>::value, int>::type getSizeOf(
     const T& value, packet_version_t version) {
 	return value.getSize(version);
 }
@@ -67,7 +69,7 @@ inline typename std::enable_if<!std::is_fundamental<T>::value && !std::is_enum<T
  * @brief Return the size of an basic type or enum.
  */
 template<typename T>
-inline typename std::enable_if<std::is_fundamental<T>::value || std::is_enum<T>::value, int>::type getSizeOf(
+inline typename std::enable_if<StructSerializer::is_primitive<T>::value, int>::type getSizeOf(
     const T& value, packet_version_t version) {
 	(void) version;
 	return sizeof(value);

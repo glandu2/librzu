@@ -4,8 +4,8 @@
 #include "Packet/PacketDeclaration.h"
 
 #define TS_SC_DOUBLE_WEAPON_ATTACK_EVENT_DEF(_) \
-	_(simple)(uint32_t, attacker_handle) \
-	_(simple)(uint32_t, target_handle) \
+	_(simple)(ar_handle_t, attacker_handle) \
+	_(simple)(ar_handle_t, target_handle) \
 	_(simple)(int16_t, right_hand_damage) \
 	_(simple)(int16_t, left_hand_damage) \
 	_(simple)(uint16_t, attack_speed) \

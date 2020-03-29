@@ -17,7 +17,7 @@ enum TS_GROUP_FINDER_REQUEST_TYPE : int32_t
 	_(simple)(int32_t, page_num) /* only with GFRT_List */ \
 	_(simple)(int32_t, index) \
 	_(simple)(uint32_t, requested_group_id) /* only with GFRT_Detail and GFRT_Apply */ \
-	_(simple)(uint32_t, group_handle) /* only with GFRT_Add */ \
+	_(simple)(ar_handle_t, group_handle) /* only with GFRT_Add */ \
 	_(simple)(int16_t, zone) /* only with GFRT_List and GFRT_Add */ \
 	_(simple)(int16_t, min_level) /* only with GFRT_Add */ \
 	_(simple)(int16_t, player_number) \

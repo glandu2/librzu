@@ -13,7 +13,7 @@ enum TS_BATTLE_GRADE : int32_t
 };
 
 #define TS_BATTLE_ARENA_PLAYER_INFO_DEF(_) \
-	_(simple)(uint32_t, handle) \
+	_(simple)(ar_handle_t, handle) \
 	_(simple)(int32_t, nJobID) \
 	_(def)(string)(name, 20) \
 	  _(impl)(string)(name, 19, version < EPIC_9_6) \
@@ -23,10 +23,10 @@ CREATE_STRUCT(TS_BATTLE_ARENA_PLAYER_INFO);
 
 #define TS_SC_BATTLE_ARENA_BATTLE_INFO_DEF(_) \
 	_(simple)(int32_t, nArenaID) \
-	_(simple)(uint32_t, nForceEnterTime) \
-	_(simple)(uint32_t, nStartTime) \
+	_(simple)(ar_time_t, nForceEnterTime) \
+	_(simple)(ar_time_t, nStartTime) \
 	_(simple)(TS_BATTLE_GRADE, eGrade) \
-	_(simple)(uint32_t, nEndTime) \
+	_(simple)(ar_time_t, nEndTime) \
 	_(count)(int8_t, team_1) \
 	_(count)(int8_t, team_2) \
 	_(dynarray)(TS_BATTLE_ARENA_PLAYER_INFO, team_1) \

@@ -7,7 +7,7 @@
 // Server does not include null terminator in strings
 #define TS_SC_DIALOG_DEF(_) \
 	_(simple)(int32_t, type) \
-	_(simple)(uint32_t, npc_handle) \
+	_(simple)(ar_handle_t, npc_handle) \
 	_(count)(uint16_t, title) \
 	_(count)(uint16_t, text) \
 	_(count)(uint16_t, menu) \

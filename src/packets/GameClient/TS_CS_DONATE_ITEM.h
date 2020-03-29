@@ -4,7 +4,7 @@
 #include "Packet/PacketDeclaration.h"
 
 #define TS_DONATE_ITEM_INFO_DEF(_) \
-	_(simple)(uint32_t, handle) \
+	_(simple)(ar_handle_t, handle) \
 	_(def)(simple) (int64_t, count) \
 	_(impl)(simple)(int64_t, count, version >= EPIC_6_3) \
 	_(impl)(simple)(uint16_t, count, version < EPIC_6_3)

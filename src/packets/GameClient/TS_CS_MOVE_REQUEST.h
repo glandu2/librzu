@@ -10,10 +10,10 @@
 CREATE_STRUCT(MOVE_REQUEST_INFO);
 
 #define TS_CS_MOVE_REQUEST_DEF(_) \
-	_(simple)(uint32_t, handle) \
+	_(simple)(ar_handle_t, handle) \
 	_(simple)(float, x) \
 	_(simple)(float, y) \
-	_(simple)(uint32_t, cur_time) \
+	_(simple)(ar_time_t, cur_time) \
 	_(simple)(bool, speed_sync) \
 	_(count) (uint16_t, move_infos) \
 	_(dynarray)(MOVE_REQUEST_INFO, move_infos)

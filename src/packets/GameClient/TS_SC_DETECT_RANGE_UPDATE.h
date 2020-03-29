@@ -4,7 +4,7 @@
 #include "Packet/PacketDeclaration.h"
 
 #define TS_SC_DETECT_RANGE_UPDATE_DEF(_) \
-	_(simple) (uint32_t, handle) \
+	_(simple) (ar_handle_t, handle) \
 	_(simple) (float, detect_range)
 
 // Since EPIC_8_1

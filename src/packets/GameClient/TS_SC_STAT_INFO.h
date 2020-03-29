@@ -67,7 +67,7 @@ CREATE_STRUCT(TS_STAT_INFO_BASE);
 CREATE_STRUCT(TS_STAT_INFO_ATTRIB);
 
 #define TS_SC_STAT_INFO_DEF(_) \
-	_(simple) (uint32_t, handle) \
+	_(simple) (ar_handle_t, handle) \
 	_(simple) (TS_STAT_INFO_BASE, stat) \
 	_(simple) (TS_STAT_INFO_ATTRIB, attribute) \
 	_(simple) (uint8_t, type)
