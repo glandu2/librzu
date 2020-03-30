@@ -508,7 +508,7 @@ template<typename T> uint32_t getClampedCount(size_t realSize) {
 #define DESERIALIZATION_F_impl(x) DESERIALIZATION_F_##x
 
 #define CREATE_STRUCT_IMPL(name_, size_base_, definition_header_, serialization_header_, deserialization_header_) \
-	struct name_ { \
+	struct RZU_EXTERN name_ { \
 		static inline const char* getName() { return #name_; } \
 		definition_header_; \
 		name_##_DEF(DEFINITION_F); \

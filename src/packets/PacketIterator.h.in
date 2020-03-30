@@ -21,12 +21,12 @@
 
 template<template<typename> class Functor, typename Result, typename... Args>
 bool processPacket(SessionType type, SessionPacketOrigin origin, int packetId, Result& result, Args... args) {
-    // Ignore dummy packet
-    if(packetId == 9999)
-        return true;
+	// Ignore dummy packet
+	if(packetId == 9999)
+		return true;
 
 @FUNCTION_SWITCH_PART@
-    return false;
+	return false;
 }
 
 template<template<typename> class Functor, typename... Args>

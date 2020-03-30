@@ -375,7 +375,7 @@ bool DbQueryBinding::processBatch(IDbQueryJob* queryJob) {
 						break;
 				}
 
-				if(!connection->checkResult(paramStatus[i], "SQLExecute")) {
+				if(!connection->checkResult(result, "SQLExecute")) {
 					log(LL_Error,
 					    "DB query %s: %s\nParameters:\n%s",
 					    queryStr.c_str(),
@@ -430,9 +430,9 @@ bool DbQueryBinding::processBatch(IDbQueryJob* queryJob) {
 					break;
 			}
 
-			if(!connection->checkResult(paramStatus[i], "SQLExecute")) {
+			if(!connection->checkResult(result, "SQLExecute")) {
 				if(parameterBindings.empty()) {
-					log(LL_Error, "DB query failed at input %d: %s\n", queryStr.c_str(), i);
+					log(LL_Error, "DB query %s failed at input %d: %s\n", queryStr.c_str(), (int) i, statusStr);
 				} else {
 					log(LL_Error,
 					    "DB query %s: %s\nParameters:\n%s",
