@@ -4,12 +4,15 @@
 #ifdef _WIN32
 #define SYMBOL_IMPORT __declspec(dllimport)
 #define SYMBOL_EXPORT __declspec(dllexport)
+#define STRUCT_DEFAULT_VISIBILITY
 #elif __GNUC__ >= 4
 #define SYMBOL_IMPORT __attribute__((visibility("default")))
 #define SYMBOL_EXPORT __attribute__((visibility("default")))
+#define STRUCT_DEFAULT_VISIBILITY __attribute__((visibility("default")))
 #else
 #define SYMBOL_IMPORT
 #define SYMBOL_EXPORT
+#define STRUCT_DEFAULT_VISIBILITY
 #endif
 
 #ifdef _MSC_VER
