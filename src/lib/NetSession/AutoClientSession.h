@@ -101,6 +101,9 @@ private:
 	virtual void onGamePacketReceived(const TS_MESSAGE* packet) override final;
 	virtual void onGameDisconnected(bool causedByRemote) override final;
 
+	// Prevent using direct connect
+	using ClientGameSession::connect;
+
 private:
 	void onUpdatePacketExpired();
 

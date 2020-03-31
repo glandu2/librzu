@@ -1,8 +1,8 @@
 #ifndef GAME_TYPES_H
 #define GAME_TYPES_H
 
+#include <functional>
 #include <stdint.h>
-#include <type_traits>
 
 template<class Tag, typename T> class strong_typedef {
 public:
