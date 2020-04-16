@@ -50,6 +50,8 @@ public:
 	static bool stringWildcardMatch(const char* input, const char* pWildText);
 
 	static std::vector<std::string> parseCommand(const std::string& data);
+	static std::vector<std::string> stringSplit(const std::string& data, char delim);
+
 	static bool isalpha(char c) { return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z'); }
 	static bool isdigit(char c) { return c >= '0' && c <= '9'; }
 	static bool ishex(char c) { return isdigit(c) || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F'); }

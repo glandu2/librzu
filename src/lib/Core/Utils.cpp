@@ -441,6 +441,20 @@ std::vector<std::string> Utils::parseCommand(const std::string& data) {
 	return args;
 }
 
+std::vector<std::string> Utils::stringSplit(const std::string& data, char delim) {
+	std::vector<std::string> result;
+	size_t startOffset = 0;
+	size_t endOffset;
+	while((endOffset = data.find_first_of(delim, startOffset)) != std::string::npos) {
+		result.push_back(data.substr(startOffset, endOffset - startOffset));
+		startOffset = endOffset + 1;
+	}
+	if(startOffset < data.size())
+		result.push_back(data.substr(startOffset, std::string::npos));
+
+	return result;
+}
+
 void Utils::stringFormat(std::string& dest, const char* message, ...) {
 	va_list args;
 	va_start(args, message);
