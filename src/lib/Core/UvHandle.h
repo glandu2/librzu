@@ -23,6 +23,9 @@ public:
 	const uv_handle_t* operator->() const { return (uv_handle_t*) handle; }
 
 private:
+	UvHandle(UvHandle&) = delete;
+	UvHandle& operator=(UvHandle&) = delete;
+
 	static HandleType* get();
 	static void closeCallback(uv_handle_t* handle) { freeHandles.emplace_back((HandleType*) handle); }
 

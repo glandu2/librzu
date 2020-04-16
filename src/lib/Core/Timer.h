@@ -46,6 +46,9 @@ public:
 	}
 
 private:
+	Timer(Timer&) = delete;
+	Timer& operator=(Timer&) = delete;
+
 	CallbackClass* instance;
 	TimeoutCallback callback;
 
