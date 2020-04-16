@@ -17,6 +17,7 @@ public:
 	int again();
 	void setRepeat(uint64_t repeat);
 	uint64_t getRepeat() const;
+	bool isRunning() const;
 
 	void ref();
 	void unref();

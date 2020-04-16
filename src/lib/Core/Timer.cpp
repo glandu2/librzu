@@ -27,6 +27,10 @@ uint64_t TimerBase::getRepeat() const {
 	return uv_timer_get_repeat(handle);
 }
 
+bool TimerBase::isRunning() const {
+	return uv_is_active((const uv_handle_t*) handle) != 0;
+}
+
 void TimerBase::ref() {
 	uv_ref((uv_handle_t*) handle);
 }
