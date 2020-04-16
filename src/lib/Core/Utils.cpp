@@ -2,6 +2,7 @@
 #include "Config/ConfigParamVal.h"
 #include <algorithm>
 #include <ctype.h>
+#include <sstream>
 #include <stdarg.h>
 #include <string.h>
 
@@ -407,6 +408,37 @@ bool Utils::stringWildcardMatch(const char* pTameText, const char* pWildText) {
 			return false;  // "x" doesn't match "xy"
 		}
 	}
+}
+
+std::vector<std::string> Utils::parseCommand(const std::string& data) {
+	std::vector<std::string> args;
+	std::ostringstream arg;
+
+	const char* p;
+	bool insideQuotes = false;
+
+	for(p = data.c_str(); p < data.c_str() + data.size(); p++) {
+		if(*p == '\"') {
+			if(p + 1 < data.c_str() + data.size() && *(p + 1) == '\"') {
+				p++;
+				arg << '\"';
+			} else {
+				insideQuotes = !insideQuotes;
+			}
+		} else if(insideQuotes == false && (*p == ' ' || *p == '\t' || *p == '\r' || *p == '\n')) {
+			if(arg.tellp()) {
+				args.push_back(arg.str());
+				arg.str("");
+				arg.clear();
+			}
+		} else {
+			arg << *p;
+		}
+	}
+	if(arg.tellp())
+		args.push_back(arg.str());
+
+	return args;
 }
 
 void Utils::stringFormat(std::string& dest, const char* message, ...) {

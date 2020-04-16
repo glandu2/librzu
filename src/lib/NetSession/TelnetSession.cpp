@@ -30,32 +30,7 @@ void TelnetSession::parseData(const std::vector<char>& data) {
 }
 
 void TelnetSession::parseCommand(const std::string& data) {
-	std::vector<std::string> args;
-	std::ostringstream arg;
-
-	const char* p;
-	bool insideQuotes = false;
-
-	for(p = data.c_str(); p < data.c_str() + data.size(); p++) {
-		if(*p == '\"') {
-			if(p + 1 < data.c_str() + data.size() && *(p + 1) == '\"') {
-				p++;
-				arg << '\"';
-			} else {
-				insideQuotes = !insideQuotes;
-			}
-		} else if(insideQuotes == false && (*p == ' ' || *p == '\t' || *p == '\r' || *p == '\n')) {
-			if(arg.tellp()) {
-				args.push_back(arg.str());
-				arg.str("");
-				arg.clear();
-			}
-		} else {
-			arg << *p;
-		}
-	}
-	if(arg.tellp())
-		args.push_back(arg.str());
+	std::vector<std::string> args = Utils::parseCommand(data);
 
 	onCommand(args);
 }
