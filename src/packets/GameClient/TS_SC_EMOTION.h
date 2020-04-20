@@ -8,5 +8,6 @@
 	_(simple)(int32_t, emotion)
 
 CREATE_PACKET(TS_SC_EMOTION, 1201);
+#undef TS_SC_EMOTION_DEF
 
 #endif // PACKETS_TS_SC_EMOTION_H

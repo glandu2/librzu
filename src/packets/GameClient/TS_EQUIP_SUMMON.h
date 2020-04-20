@@ -8,5 +8,6 @@
 	_(array) (ar_handle_t, card_handle, 6)
 
 CREATE_PACKET(TS_EQUIP_SUMMON, 303);
+#undef TS_EQUIP_SUMMON_DEF
 
 #endif // PACKETS_TS_EQUIP_SUMMON_H

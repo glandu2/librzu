@@ -18,6 +18,7 @@
 	_(simple)(TS_ITEM_BASE_INFO, card_info)
 
 CREATE_STRUCT(TS_FARM_SUMMON_INFO);
+#undef TS_FARM_SUMMON_INFO_DEF
 
 #define TS_SC_FARM_INFO_DEF(_) \
 	_(count)(int8_t, summons) \
@@ -25,5 +26,6 @@ CREATE_STRUCT(TS_FARM_SUMMON_INFO);
 
 // Since EPIC_7_3
 CREATE_PACKET(TS_SC_FARM_INFO, 6001);
+#undef TS_SC_FARM_INFO_DEF
 
 #endif // PACKETS_TS_SC_FARM_INFO_H

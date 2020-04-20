@@ -10,5 +10,6 @@
 	_(simple)(int32_t, reserved)
 
 CREATE_PACKET(TS_SC_CHAT_RESULT, 24);
+#undef TS_SC_CHAT_RESULT_DEF
 
 #endif // PACKETS_TS_SC_CHAT_RESULT_H

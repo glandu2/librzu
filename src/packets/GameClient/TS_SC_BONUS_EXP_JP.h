@@ -13,6 +13,7 @@
 	_(simple)(int32_t, jp)
 
 CREATE_STRUCT(TS_BONUS_INFO);
+#undef TS_BONUS_INFO_DEF
 
 #define TS_SC_BONUS_EXP_JP_DEF(_) \
 	_(simple)(ar_handle_t, handle) \
@@ -20,5 +21,6 @@ CREATE_STRUCT(TS_BONUS_INFO);
 	_(dynarray)(TS_BONUS_INFO, bonus)
 
 CREATE_PACKET(TS_SC_BONUS_EXP_JP, 1004);
+#undef TS_SC_BONUS_EXP_JP_DEF
 
 #endif // PACKETS_TS_SC_BONUS_EXP_JP_H

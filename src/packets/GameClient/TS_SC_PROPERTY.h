@@ -15,5 +15,6 @@
 	_(endstring)(string_value, true)
 
 CREATE_PACKET(TS_SC_PROPERTY, 507);
+#undef TS_SC_PROPERTY_DEF
 
 #endif // PACKETS_TS_SC_PROPERTY_H

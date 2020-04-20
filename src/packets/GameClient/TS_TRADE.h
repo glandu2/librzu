@@ -10,5 +10,6 @@
 	_(simple)(TS_ITEM_INFO, item_info)
 
 CREATE_PACKET(TS_TRADE, 280);
+#undef TS_TRADE_DEF
 
 #endif // PACKETS_TS_TRADE_H

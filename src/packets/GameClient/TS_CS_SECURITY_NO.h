@@ -8,5 +8,6 @@
 	_(string)(security_no, 19)
 
 CREATE_PACKET(TS_CS_SECURITY_NO, 9005);
+#undef TS_CS_SECURITY_NO_DEF
 
 #endif // PACKETS_TS_CS_SECURITY_NO_H

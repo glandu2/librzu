@@ -8,12 +8,14 @@
 	_(simple)(int32_t, ticket_count)
 
 CREATE_STRUCT(TS_TICKET_INFO);
+#undef TS_TICKET_INFO_DEF
 
 #define TS_CRACKER_INFO_DEF(_) \
 	_(simple)(ar_handle_t, cracker_handle) \
 	_(simple)(int32_t, cracker_count)
 
 CREATE_STRUCT(TS_CRACKER_INFO);
+#undef TS_CRACKER_INFO_DEF
 
 #define TS_CS_FOSTER_CREATURE_DEF(_) \
 	_(simple)(ar_handle_t, creature_card_handle) \
@@ -24,5 +26,6 @@ CREATE_STRUCT(TS_CRACKER_INFO);
 
 // Since EPIC_7_3
 CREATE_PACKET(TS_CS_FOSTER_CREATURE, 6002);
+#undef TS_CS_FOSTER_CREATURE_DEF
 
 #endif // PACKETS_TS_CS_FOSTER_CREATURE_H

@@ -63,10 +63,12 @@ enum TS_SKILL_RESULT_SUCESS_TYPE : int32_t {
 	_(simple) (int32_t, flag) \
 	_(array)  (uint16_t, elemental_damage, 7)
 CREATE_STRUCT(TS_SC_SKILL__HIT_DAMAGE_INFO);
+#undef TS_SC_SKILL__HIT_DAMAGE_INFO_DEF
 
 #define TS_SC_SKILL__HIT_DAMAGE_DEF(_) \
 	_(simple) (TS_SC_SKILL__HIT_DAMAGE_INFO, damage)
 CREATE_STRUCT(TS_SC_SKILL__HIT_DAMAGE);
+#undef TS_SC_SKILL__HIT_DAMAGE_DEF
 
 #define TS_SC_SKILL__HIT_DAMAGE_WITH_KNOCKBACK_DEF(_) \
 	_(simple) (TS_SC_SKILL__HIT_DAMAGE_INFO, damage) \
@@ -75,16 +77,19 @@ CREATE_STRUCT(TS_SC_SKILL__HIT_DAMAGE);
 	_(simple)(int8_t, speed) \
 	_(simple) (ar_time_t, knock_back_time)
 CREATE_STRUCT(TS_SC_SKILL__HIT_DAMAGE_WITH_KNOCKBACK);
+#undef TS_SC_SKILL__HIT_DAMAGE_WITH_KNOCKBACK_DEF
 
 #define TS_SC_SKILL__HIT_RESULT_DEF(_) \
 	_(simple) (bool, bResult) \
 	_(simple) (TS_SKILL_RESULT_SUCESS_TYPE, success_type)
 CREATE_STRUCT(TS_SC_SKILL__HIT_RESULT);
+#undef TS_SC_SKILL__HIT_RESULT_DEF
 
 #define TS_SC_SKILL__HIT_ADD_STAT_DEF(_) \
 	_(simple) (int32_t, target_stat) \
 	_(simple) (int32_t, nIncStat)
 CREATE_STRUCT(TS_SC_SKILL__HIT_ADD_STAT);
+#undef TS_SC_SKILL__HIT_ADD_STAT_DEF
 
 #define TS_SC_SKILL__HIT_ADDHPMPSP_DEF(_) \
 	_(simple) (int32_t, target_hp) \
@@ -95,6 +100,7 @@ CREATE_STRUCT(TS_SC_SKILL__HIT_ADD_STAT);
 	  _(impl)(simple)(int32_t, target_mp, version >= EPIC_7_1) \
 	  _(impl)(simple)(int16_t, target_mp, version < EPIC_7_1)
 CREATE_STRUCT(TS_SC_SKILL__HIT_ADDHPMPSP);
+#undef TS_SC_SKILL__HIT_ADDHPMPSP_DEF
 
 #define TS_SC_SKILL__HIT_REBIRTH_DEF(_) \
 	_(simple) (int32_t, target_hp) \
@@ -105,6 +111,7 @@ CREATE_STRUCT(TS_SC_SKILL__HIT_ADDHPMPSP);
 	  _(impl)(simple)(int32_t, target_mp, version >= EPIC_7_1) \
 	  _(impl)(simple)(int16_t, target_mp, version < EPIC_7_1)
 CREATE_STRUCT(TS_SC_SKILL__HIT_REBIRTH);
+#undef TS_SC_SKILL__HIT_REBIRTH_DEF
 
 #define TS_SC_SKILL__HIT_RUSH_DEF(_) \
 	_(simple) (bool, bResult) \
@@ -113,17 +120,20 @@ CREATE_STRUCT(TS_SC_SKILL__HIT_REBIRTH);
 	_(simple) (float, face) \
 	_(simple) (int8_t, speed)
 CREATE_STRUCT(TS_SC_SKILL__HIT_RUSH);
+#undef TS_SC_SKILL__HIT_RUSH_DEF
 
 #define TS_SC_SKILL__HIT_CHAIN_DAMAGE_DEF(_) \
 	_(simple) (TS_SC_SKILL__HIT_DAMAGE_INFO, damage) \
 	_(simple) (ar_handle_t, hFrom)
 CREATE_STRUCT(TS_SC_SKILL__HIT_CHAIN_DAMAGE);
+#undef TS_SC_SKILL__HIT_CHAIN_DAMAGE_DEF
 
 #define TS_SC_SKILL__HIT_CHAIN_HEAL_DEF(_) \
 	_(simple) (int32_t, target_hp) \
 	_(simple) (int32_t, nIncHP) \
 	_(simple) (ar_handle_t, hFrom)
 CREATE_STRUCT(TS_SC_SKILL__HIT_CHAIN_HEAL);
+#undef TS_SC_SKILL__HIT_CHAIN_HEAL_DEF
 
 #define TS_SC_SKILL__HIT_DETAILS_DEF(_) \
 	_(simple) (TS_SKILL__HIT_TYPE, type) \
@@ -138,6 +148,7 @@ CREATE_STRUCT(TS_SC_SKILL__HIT_CHAIN_HEAL);
 	_(simple) (TS_SC_SKILL__HIT_CHAIN_DAMAGE         , hitChainDamage        , type == SHT_CHAIN_DAMAGE || type == SHT_CHAIN_MAGIC_DAMAGE) \
 	_(simple) (TS_SC_SKILL__HIT_CHAIN_HEAL           , hitChainHeal          , type == SHT_CHAIN_HEAL)
 CREATE_STRUCT(TS_SC_SKILL__HIT_DETAILS);
+#undef TS_SC_SKILL__HIT_DETAILS_DEF
 
 #define TS_SC_SKILL__FIRE_DEF(_) \
 	_(simple) (bool, bMultiple) \
@@ -149,11 +160,13 @@ CREATE_STRUCT(TS_SC_SKILL__HIT_DETAILS);
 	_(dynarray)(TS_SC_SKILL__HIT_DETAILS, hits) \
 	_(pad)    (45*(uint32_t)hits.size(), before_hit_marker) /* weird fixed padding with fire struct in assembleMessage */
 CREATE_STRUCT(TS_SC_SKILL__FIRE);
+#undef TS_SC_SKILL__FIRE_DEF
 
 #define TS_SC_SKILL__CAST_DEF(_) \
 	_(simple) (ar_time_t, tm) \
 	_(simple) (uint16_t, nErrorCode)
 CREATE_STRUCT(TS_SC_SKILL__CAST);
+#undef TS_SC_SKILL__CAST_DEF
 
 // Packet definition
 #define TS_SC_SKILL_DEF(_) \
@@ -182,5 +195,6 @@ CREATE_STRUCT(TS_SC_SKILL__CAST);
 	_(pad)    (9, skill_type_marker) /* padding to match fire size */
 
 CREATE_PACKET(TS_SC_SKILL, 401);
+#undef TS_SC_SKILL_DEF
 
 #endif // PACKETS_TS_SC_ENTER_H

@@ -7,5 +7,6 @@
 	_(simple)(ar_handle_t, summon_handle)
 
 CREATE_PACKET(TS_SC_UNSUMMON, 305);
+#undef TS_SC_UNSUMMON_DEF
 
 #endif // PACKETS_TS_SC_UNSUMMON_H

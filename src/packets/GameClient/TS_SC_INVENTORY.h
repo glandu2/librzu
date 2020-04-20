@@ -7,6 +7,7 @@
 	_(array) (uint32_t, value, 5) \
 	_(array) (int32_t, data, 5)
 CREATE_STRUCT(TS_ITEM_AWAKEN_OPTION);
+#undef TS_ITEM_AWAKEN_OPTION_DEF
 
 #define TS_ITEM_BASE_INFO_DEF(_) \
 	_(simple) (ar_handle_t, handle) \
@@ -44,6 +45,7 @@ CREATE_STRUCT(TS_ITEM_AWAKEN_OPTION);
 	_(simple) (uint32_t, summon_code, version >= EPIC_8_2) \
 	_(simple) (uint32_t, item_effect_id, version >= EPIC_9_6_1, 0)
 CREATE_STRUCT(TS_ITEM_BASE_INFO);
+#undef TS_ITEM_BASE_INFO_DEF
 
 #define TS_ITEM_INFO_DEF(_) \
 	_(simple) (TS_ITEM_BASE_INFO, base_info) \
@@ -51,11 +53,13 @@ CREATE_STRUCT(TS_ITEM_BASE_INFO);
 	_(simple) (ar_handle_t, own_summon_handle) \
 	_(simple) (int32_t , index, version >= EPIC_4_1_1)
 CREATE_STRUCT(TS_ITEM_INFO);
+#undef TS_ITEM_INFO_DEF
 
 #define TS_SC_INVENTORY_DEF(_) \
 	_(count) (uint16_t, items) \
 	_(dynarray) (TS_ITEM_INFO, items)
 
 CREATE_PACKET(TS_SC_INVENTORY, 207);
+#undef TS_SC_INVENTORY_DEF
 
 #endif // PACKETS_TS_SC_INVENTORY_H

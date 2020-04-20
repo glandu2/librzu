@@ -17,5 +17,6 @@ enum TS_QUEST_PROGRESS : int32_t
 	_(simple)(uint16_t, trigger_length)
 
 CREATE_PACKET(TS_SC_QUEST_INFOMATION, 602);
+#undef TS_SC_QUEST_INFOMATION_DEF
 
 #endif // PACKETS_TS_SC_QUEST_INFOMATION_H

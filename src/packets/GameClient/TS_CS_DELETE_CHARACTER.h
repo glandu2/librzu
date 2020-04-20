@@ -10,5 +10,6 @@
 	_(impl)(string)(name, 19, version <  EPIC_8_1)
 
 CREATE_PACKET(TS_CS_DELETE_CHARACTER, 2003);
+#undef TS_CS_DELETE_CHARACTER_DEF
 
 #endif // PACKETS_TS_CS_DELETE_CHARACTER_H

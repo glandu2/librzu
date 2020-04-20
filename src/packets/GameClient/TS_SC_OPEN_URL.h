@@ -11,5 +11,6 @@
 	_(dynstring)(url, false)
 
 CREATE_PACKET(TS_SC_OPEN_URL, 9000);
+#undef TS_SC_OPEN_URL_DEF
 
 #endif // PACKETS_TS_SC_OPEN_URL_H

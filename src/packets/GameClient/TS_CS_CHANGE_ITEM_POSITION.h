@@ -9,5 +9,6 @@
 	_(simple)(ar_handle_t, item_handle_2)
 
 CREATE_PACKET(TS_CS_CHANGE_ITEM_POSITION, 218);
+#undef TS_CS_CHANGE_ITEM_POSITION_DEF
 
 #endif // PACKETS_TS_CS_CHANGE_ITEM_POSITION_H

@@ -7,5 +7,6 @@
 	_(simple)(ar_handle_t, handle)
 
 CREATE_PACKET(TS_SC_LEAVE, 9);
+#undef TS_SC_LEAVE_DEF
 
 #endif // PACKETS_TS_SC_LEAVE_H

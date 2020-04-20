@@ -26,6 +26,7 @@ enum TS_ARENA_REWARD_TYPE : int32_t
 	  _(impl)(string)(name, 19, version < EPIC_9_6) \
 	  _(impl)(string)(name, 20, version >= EPIC_9_6)
 CREATE_STRUCT(TS_ARENA_MVP);
+#undef TS_ARENA_MVP_DEF
 
 #define TS_SC_BATTLE_ARENA_RESULT_DEF(_) \
 	_(simple)(TS_ARENA_END_TYPE, eEndType) \
@@ -36,5 +37,6 @@ CREATE_STRUCT(TS_ARENA_MVP);
 
 // Since EPIC_8_1
 CREATE_PACKET(TS_SC_BATTLE_ARENA_RESULT, 4716);
+#undef TS_SC_BATTLE_ARENA_RESULT_DEF
 
 #endif // PACKETS_TS_SC_BATTLE_ARENA_RESULT_H

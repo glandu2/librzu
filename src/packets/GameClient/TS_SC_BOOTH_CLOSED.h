@@ -7,5 +7,6 @@
 	_(simple)(ar_handle_t, target)
 
 CREATE_PACKET(TS_SC_BOOTH_CLOSED, 709);
+#undef TS_SC_BOOTH_CLOSED_DEF
 
 #endif // PACKETS_TS_SC_BOOTH_CLOSED_H

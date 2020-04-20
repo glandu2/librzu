@@ -8,5 +8,6 @@
 	_(string)(competitor, 31)
 
 CREATE_PACKET(TS_SC_COMPETE_START, 4505);
+#undef TS_SC_COMPETE_START_DEF
 
 #endif // PACKETS_TS_SC_COMPETE_START_H

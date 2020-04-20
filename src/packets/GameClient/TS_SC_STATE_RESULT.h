@@ -24,5 +24,6 @@ enum TS_STATE_RESULT_TYPE : uint16_t {
 	_(simple)(int32_t, total_amount)
 
 CREATE_PACKET(TS_SC_STATE_RESULT, 406);
+#undef TS_SC_STATE_RESULT_DEF
 
 #endif // TS_SC_STATE_RESULT_H

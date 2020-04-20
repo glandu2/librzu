@@ -15,5 +15,6 @@ enum TS_MIX_TYPE : int8_t
 	_(dynarray)(ar_handle_t, handles)
 
 CREATE_PACKET(TS_SC_MIX_RESULT, 257);
+#undef TS_SC_MIX_RESULT_DEF
 
 #endif // PACKETS_TS_SC_MIX_RESULT_H

@@ -8,5 +8,6 @@
 	_(array)(ar_handle_t, soulstone_handle, 4)
 
 CREATE_PACKET(TS_CS_SOULSTONE_CRAFT, 260);
+#undef TS_CS_SOULSTONE_CRAFT_DEF
 
 #endif // PACKETS_TS_CS_SOULSTONE_CRAFT_H

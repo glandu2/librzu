@@ -12,5 +12,6 @@
 	_(simple)(int32_t, code)
 
 CREATE_PACKET(TS_SC_ADD_PET_INFO, 351);
+#undef TS_SC_ADD_PET_INFO_DEF
 
 #endif // PACKETS_TS_SC_ADD_PET_INFO_H

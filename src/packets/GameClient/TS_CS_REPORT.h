@@ -11,5 +11,6 @@
 	_(dynstring)(report, false)
 
 CREATE_PACKET(TS_CS_REPORT, 8000);
+#undef TS_CS_REPORT_DEF
 
 #endif // PACKETS_TS_CS_REPORT_H

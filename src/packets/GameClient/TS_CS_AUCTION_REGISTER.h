@@ -11,5 +11,6 @@
 	_(simple)(int8_t, duration_type)
 
 CREATE_PACKET(TS_CS_AUCTION_REGISTER, 1309);
+#undef TS_CS_AUCTION_REGISTER_DEF
 
 #endif // PACKETS_TS_CS_AUCTION_REGISTER_H

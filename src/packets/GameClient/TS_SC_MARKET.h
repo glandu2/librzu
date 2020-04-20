@@ -12,6 +12,7 @@
 	_(simple)(int32_t, arena_point, version >= EPIC_8_1)
 
 CREATE_STRUCT(TS_MARKET_ITEM_INFO);
+#undef TS_MARKET_ITEM_INFO_DEF
 
 #define TS_SC_MARKET_DEF(_) \
 	_(simple)(ar_handle_t, npc_handle) \
@@ -21,5 +22,6 @@ CREATE_STRUCT(TS_MARKET_ITEM_INFO);
 	_(pad)(4 * (uint32_t)items.size(), item_list_marker)
 
 CREATE_PACKET(TS_SC_MARKET, 250);
+#undef TS_SC_MARKET_DEF
 
 #endif // PACKETS_TS_SC_MARKET_H

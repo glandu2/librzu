@@ -12,5 +12,6 @@
 	_(simple)(int32_t, appearance_code, version >= EPIC_7_4)
 
 CREATE_PACKET(TS_SC_ITEM_WEAR_INFO, 287);
+#undef TS_SC_ITEM_WEAR_INFO_DEF
 
 #endif // PACKETS_TS_SC_ITEM_WEAR_INFO_H

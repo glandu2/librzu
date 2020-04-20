@@ -10,5 +10,6 @@
 	_(impl)(simple)(int32_t, count, version < EPIC_4_1)
 
 CREATE_PACKET(TS_SC_UPDATE_ITEM_COUNT, 255);
+#undef TS_SC_UPDATE_ITEM_COUNT_DEF
 
 #endif // PACKETS_TS_SC_UPDATE_ITEM_COUNT_H

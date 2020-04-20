@@ -8,5 +8,6 @@
 	_(simple)(ar_time_t, unsummon_duration)
 
 CREATE_PACKET(TS_SC_UNSUMMON_NOTICE, 306);
+#undef TS_SC_UNSUMMON_NOTICE_DEF
 
 #endif // PACKETS_TS_SC_UNSUMMON_NOTICE_H

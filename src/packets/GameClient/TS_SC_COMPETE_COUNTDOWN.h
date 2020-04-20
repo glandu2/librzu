@@ -9,5 +9,6 @@
 	_(simple)(ar_handle_t, handle_competitor)
 
 CREATE_PACKET(TS_SC_COMPETE_COUNTDOWN, 4504);
+#undef TS_SC_COMPETE_COUNTDOWN_DEF
 
 #endif // PACKETS_TS_SC_COMPETE_COUNTDOWN_H

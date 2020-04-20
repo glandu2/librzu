@@ -8,5 +8,6 @@
 	_(simple)(ar_handle_t, item_handle)
 
 CREATE_PACKET(TS_CS_PUTON_CARD, 214);
+#undef TS_CS_PUTON_CARD_DEF
 
 #endif // PACKETS_TS_CS_PUTON_CARD_H

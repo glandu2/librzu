@@ -10,6 +10,7 @@
 	_(simple)(int16_t, skill_level, version >= EPIC_4_1_1) // not in epic 4.0
 
 CREATE_PACKET(TS_CS_LEARN_SKILL, 402);
+#undef TS_CS_LEARN_SKILL_DEF
 
 /*
  * When a pet is random based (not classical fixed pet skills and stat) :

@@ -12,5 +12,6 @@
 	_(simple)(ar_time_t, nTimeLimit, version >= EPIC_6_3)
 
 CREATE_PACKET(TS_SC_QUEST_STATUS, 601);
+#undef TS_SC_QUEST_STATUS_DEF
 
 #endif // PACKETS_TS_SC_QUEST_STATUS_H

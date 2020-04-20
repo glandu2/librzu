@@ -15,5 +15,6 @@
 	_(array) (uint8_t, left_hand_elemental_damage, 7) \
 
 CREATE_PACKET(TS_SC_DOUBLE_WEAPON_ATTACK_EVENT, 103);
+#undef TS_SC_DOUBLE_WEAPON_ATTACK_EVENT_DEF
 
 #endif // PACKETS_TS_SC_DOUBLE_WEAPON_ATTACK_EVENT_H

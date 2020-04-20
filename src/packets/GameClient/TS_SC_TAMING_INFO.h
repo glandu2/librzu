@@ -9,5 +9,6 @@
 	_(simple)(ar_handle_t, target_handle)
 
 CREATE_PACKET(TS_SC_TAMING_INFO, 310);
+#undef TS_SC_TAMING_INFO_DEF
 
 #endif // PACKETS_TS_SC_TAMING_INFO_H

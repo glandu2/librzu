@@ -9,5 +9,6 @@
 	_(simple)(int32_t, value)
 
 CREATE_PACKET(TS_SC_RESULT, 0);
+#undef TS_SC_RESULT_DEF
 
 #endif // PACKETS_TS_SC_RESULT_H

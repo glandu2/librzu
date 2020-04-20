@@ -7,5 +7,6 @@
 	_(simple)(ar_handle_t , target)
 
 CREATE_PACKET(TS_CS_WATCH_BOOTH, 702);
+#undef TS_CS_WATCH_BOOTH_DEF
 
 #endif // PACKETS_TS_CS_WATCH_BOOTH_H

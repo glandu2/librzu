@@ -18,5 +18,6 @@
 	_(dynstring)(script, false, version >= EPIC_9_6_2)
 
 CREATE_PACKET(TS_SC_DIALOG, 3000);
+#undef TS_SC_DIALOG_DEF
 
 #endif // PACKETS_TS_SC_DIALOG_H

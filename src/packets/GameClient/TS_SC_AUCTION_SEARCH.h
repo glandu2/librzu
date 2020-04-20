@@ -11,12 +11,14 @@
 	_(simple) (uint64_t, bidded_price) \
 	_(simple) (uint64_t, instant_purchase_price)
 CREATE_STRUCT(TS_AUCTION_INFO);
+#undef TS_AUCTION_INFO_DEF
 
 #define TS_SEARCHED_AUCTION_INFO_DEF(_) \
 	_(simple) (TS_AUCTION_INFO, auction_details) \
 	_(string) (seller_name, 31) \
 	_(simple) (uint8_t, flag)
 CREATE_STRUCT(TS_SEARCHED_AUCTION_INFO);
+#undef TS_SEARCHED_AUCTION_INFO_DEF
 
 #define TS_SC_AUCTION_SEARCH_DEF(_) \
 	_(simple)(int32_t, page_num) \
@@ -25,5 +27,6 @@ CREATE_STRUCT(TS_SEARCHED_AUCTION_INFO);
 	_(array) (TS_SEARCHED_AUCTION_INFO, auction_info, 40)
 
 CREATE_PACKET(TS_SC_AUCTION_SEARCH, 1301);
+#undef TS_SC_AUCTION_SEARCH_DEF
 
 #endif // PACKETS_TS_SC_AUCTION_SEARCH_H

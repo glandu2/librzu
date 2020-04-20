@@ -9,5 +9,6 @@
 	_(simple)(ar_handle_t, card_handle)
 
 CREATE_PACKET(TS_CS_SUMMON, 304);
+#undef TS_CS_SUMMON_DEF
 
 #endif // PACKETS_TS_CS_SUMMON_H

@@ -9,5 +9,6 @@
 	_(simple)(bool, status)
 
 CREATE_PACKET(TS_SC_AURA, 407);
+#undef TS_SC_AURA_DEF
 
 #endif // PACKETS_TS_SC_AURA_H

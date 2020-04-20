@@ -8,5 +8,6 @@
 	_(simple)(ar_handle_t, target_handle)
 
 CREATE_PACKET(TS_CS_ATTACK_REQUEST, 100);
+#undef TS_CS_ATTACK_REQUEST_DEF
 
 #endif // PACKETS_TS_CS_ATTACK_REQUEST_H

@@ -8,5 +8,6 @@
 	_(simple)(int32_t, nSkinColor)
 
 CREATE_PACKET(TS_SC_SKIN_INFO, 224);
+#undef TS_SC_SKIN_INFO_DEF
 
 #endif // PACKETS_TS_SC_SKIN_INFO_H

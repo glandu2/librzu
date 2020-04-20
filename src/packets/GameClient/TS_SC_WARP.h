@@ -10,5 +10,6 @@
 	_(simple)(int8_t, layer)
 
 CREATE_PACKET(TS_SC_WARP, 12);
+#undef TS_SC_WARP_DEF
 
 #endif // PACKETS_TS_SC_WARP_H

@@ -7,5 +7,6 @@
 	_(simple)(uint32_t, nHideEquipFlag)
 
 CREATE_PACKET(TS_CS_HIDE_EQUIP_INFO, 221);
+#undef TS_CS_HIDE_EQUIP_INFO_DEF
 
 #endif // PACKETS_TS_CS_HIDE_EQUIP_INFO_H

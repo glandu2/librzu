@@ -8,6 +8,7 @@
 	_(simple)(int8_t, skill_level)
 
 CREATE_STRUCT(TS_SKILL_LEVEL_INFO);
+#undef TS_SKILL_LEVEL_INFO_DEF
 
 #define TS_SC_SKILL_LEVEL_LIST_DEF(_) \
 	_(count)(uint16_t, skill_levels) \
@@ -15,5 +16,6 @@ CREATE_STRUCT(TS_SKILL_LEVEL_INFO);
 
 // Since EPIC_7_3
 CREATE_PACKET(TS_SC_SKILL_LEVEL_LIST, 451);
+#undef TS_SC_SKILL_LEVEL_LIST_DEF
 
 #endif // PACKETS_TS_SC_SKILL_LEVEL_LIST_H

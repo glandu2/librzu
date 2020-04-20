@@ -9,5 +9,6 @@
 	_(simple) (int32_t, job_level)
 
 CREATE_PACKET(TS_SC_LEVEL_UPDATE, 1002);
+#undef TS_SC_LEVEL_UPDATE_DEF
 
 #endif // PACKETS_TS_SC_LEVEL_UPDATE_H

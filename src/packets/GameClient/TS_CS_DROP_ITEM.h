@@ -10,5 +10,6 @@
 	_(impl)(simple)(uint16_t, count, version < EPIC_4_1)
 
 CREATE_PACKET(TS_CS_DROP_ITEM, 203);
+#undef TS_CS_DROP_ITEM_DEF
 
 #endif // PACKETS_TS_CS_DROP_ITEM_H

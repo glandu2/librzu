@@ -10,5 +10,6 @@
 	_(string)(loser, 31)
 
 CREATE_PACKET(TS_SC_COMPETE_END, 4506);
+#undef TS_SC_COMPETE_END_DEF
 
 #endif // PACKETS_TS_SC_COMPETE_END_H

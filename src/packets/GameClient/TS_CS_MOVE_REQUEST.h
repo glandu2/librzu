@@ -8,6 +8,7 @@
 	_(simple)(float, ty)
 
 CREATE_STRUCT(MOVE_REQUEST_INFO);
+#undef MOVE_REQUEST_INFO_DEF
 
 #define TS_CS_MOVE_REQUEST_DEF(_) \
 	_(simple)(ar_handle_t, handle) \
@@ -24,5 +25,6 @@ CREATE_STRUCT(MOVE_REQUEST_INFO);
 	X(63, version >= EPIC_9_4_2)
 
 CREATE_PACKET_VER_ID(TS_CS_MOVE_REQUEST);
+#undef TS_CS_MOVE_REQUEST_DEF
 
 #endif // PACKETS_TS_CS_MOVE_REQUEST_H

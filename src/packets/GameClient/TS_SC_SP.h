@@ -9,5 +9,6 @@
 	_(simple)(int16_t, max_sp)
 
 CREATE_PACKET(TS_SC_SP, 514);
+#undef TS_SC_SP_DEF
 
 #endif // PACKETS_TS_SC_SP_H

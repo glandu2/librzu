@@ -19,6 +19,7 @@ enum TS_STAT_INFO__TYPE : uint8_t
   _(simple)(int16_t, mentality) \
   _(simple)(int16_t, luck)
 CREATE_STRUCT(TS_STAT_INFO_BASE);
+#undef TS_STAT_INFO_BASE_DEF
 
 // Attacks changed to 32 bits on 14/06/2016 (during epic 9.3)
 #define TS_STAT_INFO_ATTRIB_DEF(_) \
@@ -71,6 +72,7 @@ CREATE_STRUCT(TS_STAT_INFO_BASE);
   _(simple)(int16_t, nPhysicalPenetration, version >= EPIC_7_3, 0) \
   _(simple)(int16_t, nPhysicalPenetrationRatio, version >= EPIC_7_3, 0)
 CREATE_STRUCT(TS_STAT_INFO_ATTRIB);
+#undef TS_STAT_INFO_ATTRIB_DEF
 
 #define TS_SC_STAT_INFO_DEF(_) \
 	_(simple) (ar_handle_t, handle) \
@@ -79,5 +81,6 @@ CREATE_STRUCT(TS_STAT_INFO_ATTRIB);
 	_(simple) (TS_STAT_INFO__TYPE, type)
 
 CREATE_PACKET(TS_SC_STAT_INFO, 1000);
+#undef TS_SC_STAT_INFO_DEF
 
 #endif // PACKETS_TS_SC_STAT_INFO_H

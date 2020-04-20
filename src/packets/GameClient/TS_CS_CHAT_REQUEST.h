@@ -49,5 +49,6 @@ enum TS_CHAT_TYPE : uint8_t
 	_(dynstring)(message, false)
 
 CREATE_PACKET(TS_CS_CHAT_REQUEST, 20);
+#undef TS_CS_CHAT_REQUEST_DEF
 
 #endif // PACKETS_TS_CS_CHAT_REQUEST_H

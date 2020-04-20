@@ -10,5 +10,6 @@
 	_(string)(raw_server_name, 32)
 
 CREATE_PACKET(TS_SC_OPEN_ITEM_SHOP, 10001);
+#undef TS_SC_OPEN_ITEM_SHOP_DEF
 
 #endif // PACKETS_TS_SC_OPEN_ITEM_SHOP_H

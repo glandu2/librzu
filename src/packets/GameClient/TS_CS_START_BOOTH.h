@@ -10,6 +10,7 @@
 	_(impl)(simple)(int64_t, gold, version >= EPIC_4_1_1) \
 	_(impl)(simple)(int32_t, gold, version < EPIC_4_1_1)
 CREATE_STRUCT(TS_BOOTH_OPEN_ITEM_INFO);
+#undef TS_BOOTH_OPEN_ITEM_INFO_DEF
 
 #define TS_CS_START_BOOTH_DEF(_) \
 	_(string)(name, 49) \
@@ -18,5 +19,6 @@ CREATE_STRUCT(TS_BOOTH_OPEN_ITEM_INFO);
 	_(dynarray)(TS_BOOTH_OPEN_ITEM_INFO, items)
 
 CREATE_PACKET(TS_CS_START_BOOTH, 700);
+#undef TS_CS_START_BOOTH_DEF
 
 #endif // PACKETS_TS_CS_START_BOOTH_H

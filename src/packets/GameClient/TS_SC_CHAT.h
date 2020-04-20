@@ -13,5 +13,6 @@
 	_(dynstring)(message, true)
 
 CREATE_PACKET(TS_SC_CHAT, 22);
+#undef TS_SC_CHAT_DEF
 
 #endif // PACKETS_TS_SC_CHAT_H

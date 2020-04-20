@@ -8,5 +8,6 @@
 	_(array)(uint8_t, byBuffer, 400)
 
 CREATE_PACKET(TS_SC_ANTI_HACK, 53);
+#undef TS_SC_ANTI_HACK_DEF
 
 #endif // PACKETS_TS_SC_ANTI_HACK_H

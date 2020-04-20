@@ -8,5 +8,6 @@
 	_(simple)(int16_t, energy)
 
 CREATE_PACKET(TS_SC_ENERGY, 515);
+#undef TS_SC_ENERGY_DEF
 
 #endif // PACKETS_TS_SC_ENERGY_H

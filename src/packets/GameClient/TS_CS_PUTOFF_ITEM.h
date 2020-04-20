@@ -8,5 +8,6 @@
 	_(simple) (ar_handle_t, target_handle)
 
 CREATE_PACKET(TS_CS_PUTOFF_ITEM, 201);
+#undef TS_CS_PUTOFF_ITEM_DEF
 
 #endif // PACKETS_TS_CS_PUTOFF_ITEM_H

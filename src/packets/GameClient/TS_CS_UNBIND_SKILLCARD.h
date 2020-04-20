@@ -8,5 +8,6 @@
 	_(simple)(ar_handle_t, target_handle)
 
 CREATE_PACKET(TS_CS_UNBIND_SKILLCARD, 285);
+#undef TS_CS_UNBIND_SKILLCARD_DEF
 
 #endif // PACKETS_TS_CS_UNBIND_SKILLCARD_H

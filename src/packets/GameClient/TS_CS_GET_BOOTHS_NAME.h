@@ -8,5 +8,6 @@
 	_(dynarray)(ar_handle_t, handles)
 
 CREATE_PACKET(TS_CS_GET_BOOTHS_NAME, 707);
+#undef TS_CS_GET_BOOTHS_NAME_DEF
 
 #endif // PACKETS_TS_CS_GET_BOOTHS_NAME_H

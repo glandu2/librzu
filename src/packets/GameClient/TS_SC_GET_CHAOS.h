@@ -16,5 +16,6 @@
 	_(simple)(int32_t, nBonus, version >= EPIC_4_1)
 
 CREATE_PACKET(TS_SC_GET_CHAOS, 213);
+#undef TS_SC_GET_CHAOS_DEF
 
 #endif // PACKETS_TS_SC_GET_CHAOS_H

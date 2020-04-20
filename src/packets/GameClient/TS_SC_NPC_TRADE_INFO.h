@@ -13,5 +13,6 @@
 	_(simple)(ar_handle_t, target)
 
 CREATE_PACKET(TS_SC_NPC_TRADE_INFO, 240);
+#undef TS_SC_NPC_TRADE_INFO_DEF
 
 #endif // PACKETS_TS_SC_NPC_TRADE_INFO_H

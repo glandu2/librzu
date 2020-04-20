@@ -55,6 +55,7 @@ enum ATTACK_INFO__FLAG : int8_t {
 	  _(impl)(simple)(uint16_t, attacker_mp, version < EPIC_7_3)
 
 CREATE_STRUCT(ATTACK_INFO);
+#undef ATTACK_INFO_DEF
 
 #define TS_SC_ATTACK_EVENT_DEF(_) \
 	_(simple)   (ar_handle_t, attacker_handle) \
@@ -67,5 +68,6 @@ CREATE_STRUCT(ATTACK_INFO);
 	_(dynarray) (ATTACK_INFO, attack)
 
 CREATE_PACKET(TS_SC_ATTACK_EVENT, 101);
+#undef TS_SC_ATTACK_EVENT_DEF
 
 #endif // PACKETS_TS_SC_ATTACK_EVENT_H

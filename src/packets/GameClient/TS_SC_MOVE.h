@@ -8,6 +8,7 @@
 	_(simple)(float, ty)
 
 CREATE_STRUCT(MOVE_INFO);
+#undef MOVE_INFO_DEF
 
 #define TS_SC_MOVE_DEF(_) \
 	_(simple)(ar_time_t, start_time) \
@@ -18,5 +19,6 @@ CREATE_STRUCT(MOVE_INFO);
 	_(dynarray)(MOVE_INFO, move_infos)
 
 CREATE_PACKET(TS_SC_MOVE, 8);
+#undef TS_SC_MOVE_DEF
 
 #endif // PACKETS_TS_SC_MOVE_H

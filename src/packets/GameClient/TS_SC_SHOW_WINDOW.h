@@ -12,5 +12,6 @@
 	_(dynstring)(trigger, false)
 
 CREATE_PACKET(TS_SC_SHOW_WINDOW, 3003);
+#undef TS_SC_SHOW_WINDOW_DEF
 
 #endif // PACKETS_TS_SC_SHOW_WINDOW_H

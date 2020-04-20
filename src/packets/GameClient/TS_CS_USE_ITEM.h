@@ -9,5 +9,6 @@
 	_(string) (szParameter, 32, version >= EPIC_4_1)
 
 CREATE_PACKET(TS_CS_USE_ITEM, 253);
+#undef TS_CS_USE_ITEM_DEF
 
 #endif // PACKETS_TS_CS_USE_ITEM_H

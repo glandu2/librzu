@@ -13,11 +13,13 @@
 	_(simple) (uint8_t, progress, version >= EPIC_6_3) \
 	_(simple) (ar_time_t, timeLimit, version >= EPIC_6_3)
 CREATE_STRUCT(TS_QUEST_INFO);
+#undef TS_QUEST_INFO_DEF
 
 #define TS_QUEST_PENDING_DEF(_) \
 	_(simple) (uint32_t, code) \
 	_(simple) (uint32_t, startID)
 CREATE_STRUCT(TS_QUEST_PENDING);
+#undef TS_QUEST_PENDING_DEF
 
 #define TS_SC_QUEST_LIST_DEF(_) \
 	_(count) (uint16_t, activeQuests) \
@@ -26,5 +28,6 @@ CREATE_STRUCT(TS_QUEST_PENDING);
 	_(dynarray)(TS_QUEST_PENDING, pendingQuests, version >= EPIC_6_3)
 
 CREATE_PACKET(TS_SC_QUEST_LIST, 600);
+#undef TS_SC_QUEST_LIST_DEF
 
 #endif // PACKETS_TS_SC_QUEST_LIST_H

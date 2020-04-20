@@ -8,5 +8,6 @@
 	_(simple)(bool, isAccepted)
 
 CREATE_PACKET(TS_SC_DROP_RESULT, 205);
+#undef TS_SC_DROP_RESULT_DEF
 
 #endif // PACKETS_TS_SC_DROP_RESULT_H

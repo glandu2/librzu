@@ -19,5 +19,6 @@ enum TS_RESURRECTION_TYPE : int8_t
 	_(simple)(bool, use_potion, version >= EPIC_4_1 && version < EPIC_6_1)
 
 CREATE_PACKET(TS_CS_RESURRECTION, 513);
+#undef TS_CS_RESURRECTION_DEF
 
 #endif // PACKETS_TS_CS_RESURRECTION_H

@@ -11,5 +11,6 @@
 	_(impl)(simple)(uint32_t, count, version < EPIC_4_1_1)
 
 CREATE_PACKET(TS_CS_STORAGE, 212);
+#undef TS_CS_STORAGE_DEF
 
 #endif // PACKETS_TS_CS_STORAGE_H

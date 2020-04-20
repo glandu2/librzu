@@ -9,5 +9,6 @@
 	_(simple)(int32_t, cnt)
 
 CREATE_PACKET(TS_CS_SELL_TO_BOOTH, 706);
+#undef TS_CS_SELL_TO_BOOTH_DEF
 
 #endif // PACKETS_TS_CS_SELL_TO_BOOTH_H

@@ -8,5 +8,6 @@
 	_(simple)(ar_handle_t, item_handle)
 
 CREATE_PACKET(TS_SC_ITEM_DROP_INFO, 282);
+#undef TS_SC_ITEM_DROP_INFO_DEF
 
 #endif // PACKETS_TS_SC_ITEM_DROP_INFO_H

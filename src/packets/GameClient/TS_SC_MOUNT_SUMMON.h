@@ -11,5 +11,6 @@
 	_(simple)(bool, success)
 
 CREATE_PACKET(TS_SC_MOUNT_SUMMON, 320);
+#undef TS_SC_MOUNT_SUMMON_DEF
 
 #endif // PACKETS_TS_SC_MOUNT_SUMMON_H

@@ -9,5 +9,6 @@
 	_(simple)(int8_t, flag)
 
 CREATE_PACKET(TS_SC_UNMOUNT_SUMMON, 321);
+#undef TS_SC_UNMOUNT_SUMMON_DEF
 
 #endif // PACKETS_TS_SC_UNMOUNT_SUMMON_H

@@ -7,5 +7,6 @@
 	_(simple)(ar_handle_t, item_handle)
 
 CREATE_PACKET(TS_SC_DESTROY_ITEM, 254);
+#undef TS_SC_DESTROY_ITEM_DEF
 
 #endif // PACKETS_TS_SC_DESTROY_ITEM_H

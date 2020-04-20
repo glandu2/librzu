@@ -13,6 +13,7 @@
 	_(simple) (int32_t, related_item_enhance) \
 	_(simple) (int32_t, related_item_level)
 CREATE_STRUCT(TS_ITEM_KEEPING_INFO);
+#undef TS_ITEM_KEEPING_INFO_DEF
 
 #define TS_SC_ITEM_KEEPING_LIST_DEF(_) \
 	_(simple)(int32_t, page_num) \
@@ -21,5 +22,6 @@ CREATE_STRUCT(TS_ITEM_KEEPING_INFO);
 	_(array) (TS_ITEM_KEEPING_INFO, keeping_info, 40)
 
 CREATE_PACKET(TS_SC_ITEM_KEEPING_LIST, 1351);
+#undef TS_SC_ITEM_KEEPING_LIST_DEF
 
 #endif // PACKETS_TS_SC_ITEM_KEEPING_LIST_H

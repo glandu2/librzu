@@ -9,6 +9,7 @@
 	_(simple)(int64_t, score)
 
 CREATE_STRUCT(TS_RANKING_RECORD);
+#undef TS_RANKING_RECORD_DEF
 
 #define TS_SC_RANKING_TOP_RECORD_DEF(_) \
 	_(simple)(int8_t, ranking_type) \
@@ -18,5 +19,6 @@ CREATE_STRUCT(TS_RANKING_RECORD);
 	_(dynarray)(TS_RANKING_RECORD, records)
 
 CREATE_PACKET(TS_SC_RANKING_TOP_RECORD, 5001);
+#undef TS_SC_RANKING_TOP_RECORD_DEF
 
 #endif // PACKETS_TS_SC_RANKING_TOP_RECORD_H

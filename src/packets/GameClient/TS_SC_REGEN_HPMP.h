@@ -17,5 +17,6 @@
 	_(impl)(simple)(uint16_t, mp, version < EPIC_7_3) \
 
 CREATE_PACKET(TS_SC_REGEN_HPMP, 516);
+#undef TS_SC_REGEN_HPMP_DEF
 
 #endif // PACKETS_TS_SC_REGEN_HPMP_H
