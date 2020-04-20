@@ -1,6 +1,5 @@
 #include "CharsetConverter.h"
 #include "Config/GlobalCoreConfig.h"
-#include "Log.h"
 #include "iconv.h"
 #include <errno.h>
 #include <memory>

@@ -2,7 +2,6 @@
 #define TELNETSESSION_H
 
 #include "SocketSession.h"
-#include <sstream>
 #include <string>
 
 class RZU_EXTERN TelnetSession : public SocketSession {

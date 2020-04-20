@@ -1,8 +1,8 @@
 #ifndef CONSOLECOMMANDS_H
 #define CONSOLECOMMANDS_H
 
+#include "Console/IWritableConsole.h"
 #include "Core/Object.h"
-#include "IWritableConsole.h"
 #include <memory>
 #include <string>
 #include <unordered_map>

@@ -4,7 +4,6 @@
 #include "EncryptedSession.h"
 #include "PacketSession.h"
 
-class ClientAuthSessionCommon;
 class ClientAuthSession;
 
 class RZU_EXTERN ClientGameSession : public EncryptedSession<PacketSession> {

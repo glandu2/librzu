@@ -1,5 +1,8 @@
 #include "RsaCipher.h"
+#include <openssl/bio.h>
+#include <openssl/bn.h>
 #include <openssl/err.h>
+#include <openssl/ossl_typ.h>
 #include <openssl/pem.h>
 #include <openssl/rsa.h>
 #include <string.h>

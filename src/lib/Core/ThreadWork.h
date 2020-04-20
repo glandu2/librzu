@@ -2,6 +2,7 @@
 #define THREADWORK_H
 
 #include "../Extern.h"
+#include "errno.h"
 #include "uv.h"
 #include <vector>
 

@@ -1,4 +1,5 @@
 #include "ConsoleCommands.h"
+#include "IWritableConsole.h"
 #include <map>
 
 ConsoleCommands* ConsoleCommands::get() {

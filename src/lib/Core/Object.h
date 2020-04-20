@@ -4,7 +4,7 @@
 #include <stdarg.h>
 #include <stddef.h>
 
-#include "../Extern.h"
+#include "../Extern.h"  // IWYU pragma: export
 
 // used to count objects, "c" stand for class type, WARNING: declare public block
 // getTrueClassHash: for variable used like this: Object *obj = new Actor();, obj.getTrueClassHash() return hash of

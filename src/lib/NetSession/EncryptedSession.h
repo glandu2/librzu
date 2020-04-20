@@ -5,8 +5,6 @@
 #include "Stream/Stream.h"
 #include <stdint.h>
 
-class Stream;
-
 template<class SessionClass> class EncryptedSession : public SessionClass {
 public:
 	template<class... Args> EncryptedSession(Args... args) : SessionClass(args...) { initRC4Cipher(); }

@@ -3,6 +3,7 @@
 
 #include "../Extern.h"
 #include <memory>
+#include <stddef.h>  // for size_t
 #include <stdint.h>
 #include <vector>
 

@@ -4,6 +4,7 @@
 #include <string.h>
 
 #include "Core/EventLoop.h"
+#include "Core/Log.h"
 #include "Pipe.h"
 #include "Socket.h"
 

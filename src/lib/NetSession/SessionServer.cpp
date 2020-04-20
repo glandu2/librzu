@@ -2,11 +2,9 @@
 #include "BanManager.h"
 #include "Config/ConfigParamVal.h"
 #include "Config/GlobalCoreConfig.h"
-#include "Core/EventLoop.h"
+#include "Core/Log.h"
 #include "Core/PrintfFormats.h"
 #include "SocketSession.h"
-#include "Stream/Pipe.h"
-#include "Stream/Socket.h"
 
 SessionServerCommon::SessionServerCommon(
     cval<std::string>& listenIp, cval<int>& port, cval<int>* idleTimeoutSec, Log* packetLogger, BanManager* banManager)

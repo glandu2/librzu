@@ -1,17 +1,16 @@
 #include "ClientAuthSession.h"
 #include "Cipher/AesPasswordCipher.h"
 #include "Cipher/DesPasswordCipher.h"
+#include "Cipher/RsaCipher.h"
 #include "ClientGameSession.h"
 #include "Config/GlobalCoreConfig.h"
 #include "Packet/PacketEpics.h"
-#include <memory>
 
 #include "AuthClient/TS_AC_AES_KEY_IV.h"
 #include "AuthClient/TS_AC_RESULT.h"
 #include "AuthClient/TS_AC_RESULT_WITH_STRING.h"
 #include "AuthClient/TS_AC_SELECT_SERVER.h"
 #include "AuthClient/TS_AC_SERVER_LIST.h"
-#include "GameClient/TS_SC_RESULT.h"
 
 #include "AuthClient/TS_CA_ACCOUNT.h"
 #include "AuthClient/TS_CA_RSA_PUBLIC_KEY.h"

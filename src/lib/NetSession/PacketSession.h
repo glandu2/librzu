@@ -1,14 +1,12 @@
 #ifndef PACKETSESSION_H
 #define PACKETSESSION_H
 
+#include "Config/ConfigParamVal.h"
 #include "Packet/MessageBuffer.h"
 #include "Packet/PacketBaseMessage.h"
 #include "Packet/PacketEpics.h"
 #include "Packet/PacketStructsName.h"
 #include "SocketSession.h"
-#include "Stream/Stream.h"
-
-class SessionServerCommon;
 
 class RZU_EXTERN PacketSession : public SocketSession {
 	DECLARE_CLASS(PacketSession)

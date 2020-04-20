@@ -1,8 +1,6 @@
 #ifndef CLIENTAUTHSESSION_H
 #define CLIENTAUTHSESSION_H
 
-#include "Cipher/DesPasswordCipher.h"
-#include "Cipher/RsaCipher.h"
 #include "EncryptedSession.h"
 #include "PacketEnums.h"
 #include "PacketSession.h"
@@ -19,6 +17,8 @@ struct TS_AC_RESULT;
 struct TS_AC_RESULT_WITH_STRING;
 
 class ClientGameSession;
+class DesPasswordCipher;
+class RsaCipher;
 
 class RZU_EXTERN ClientAuthSession : public EncryptedSession<PacketSession> {
 	DECLARE_CLASS(ClientAuthSession)

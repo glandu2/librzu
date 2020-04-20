@@ -4,7 +4,6 @@
 #include "Core/Utils.h"
 #include <map>
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 
 ConfigInfo::~ConfigInfo() {

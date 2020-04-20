@@ -4,8 +4,7 @@
 #include "../Extern.h"
 #include "UvHandle.h"
 #include "uv.h"
-#include <memory>
-#include <vector>
+#include <stdint.h>
 
 class RZU_EXTERN TimerBase {
 public:

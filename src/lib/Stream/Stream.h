@@ -2,8 +2,6 @@
 #define STREAM_H
 
 #include "Core/IDelegate.h"
-#include "Core/IListener.h"
-#include "Core/Log.h"
 #include "Core/Object.h"
 #include "StreamAddress.h"
 #include "uv.h"
@@ -11,6 +9,9 @@
 
 #include <string>
 #include <vector>
+
+class IListener;
+class Log;
 
 class RZU_EXTERN Stream : public Object {
 public:

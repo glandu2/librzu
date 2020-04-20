@@ -1,28 +1,19 @@
 #include "AutoClientSession.h"
 #include "Cipher/RzHashReversible256.h"
-#include "Core/EventLoop.h"
-#include "Core/Utils.h"
 #include "NetSession/ClientAuthSession.h"
-#include "Packet/PacketEpics.h"
-#include <algorithm>
 #include <time.h>
 
 #include "GameClient/TS_CS_CHARACTER_LIST.h"
-#include "GameClient/TS_CS_CHAT_REQUEST.h"
 #include "GameClient/TS_CS_GAME_TIME.h"
 #include "GameClient/TS_CS_LOGIN.h"
 #include "GameClient/TS_CS_LOGOUT.h"
 #include "GameClient/TS_CS_UPDATE.h"
 #include "GameClient/TS_SC_CHARACTER_LIST.h"
-#include "GameClient/TS_SC_CHAT.h"
-#include "GameClient/TS_SC_CHAT_LOCAL.h"
 #include "GameClient/TS_SC_DISCONNECT_DESC.h"
-#include "GameClient/TS_SC_ENTER.h"
 #include "GameClient/TS_SC_GAME_TIME.h"
 #include "GameClient/TS_SC_LOGIN_RESULT.h"
 #include "GameClient/TS_SC_SET_TIME.h"
 #include "GameClient/TS_TIMESYNC.h"
-#include "Packet/PacketEpics.h"
 
 AutoAuthSession::AutoAuthSession(AutoClientSession* gameSession,
                                  const std::string& ip,

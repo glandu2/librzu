@@ -1,5 +1,4 @@
 #include "ServersManager.h"
-#include "BanManager.h"
 #include "Config/ConfigParamVal.h"
 #include "Console/ConsoleCommands.h"
 #include "StartableObject.h"

@@ -1,6 +1,5 @@
 #include "DbConnectionPool.h"
 #include "Console/ConsoleCommands.h"
-#include "Core/Log.h"
 #include "DbConnection.h"
 #include <list>
 #include <sqlext.h>

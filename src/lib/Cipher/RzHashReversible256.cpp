@@ -1,8 +1,9 @@
 #include "RzHashReversible256.h"
 #include <algorithm>
 #include <stdlib.h>
+#include <string.h>  // for memcpy
+#include <string>    // for string
 
-#include "Core/Object.h"
 #include "GameClient/TS_CS_LOGIN.h"
 #include "GameClient/TS_CS_VERSION.h"
 

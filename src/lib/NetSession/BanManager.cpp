@@ -1,6 +1,5 @@
 #include "BanManager.h"
 #include "Config/GlobalCoreConfig.h"
-#include "uv.h"
 #include <assert.h>
 #include <memory>
 #include <stdio.h>

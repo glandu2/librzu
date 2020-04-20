@@ -4,8 +4,6 @@
 #include "Object.h"
 #include "uv.h"
 #include <list>
-#include <memory>
-#include <vector>
 
 class RZU_EXTERN EventLoop : public Object {
 	DECLARE_CLASS(EventLoop)

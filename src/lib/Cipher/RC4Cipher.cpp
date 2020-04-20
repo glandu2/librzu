@@ -1,4 +1,5 @@
 #include "RC4Cipher.h"
+#include <openssl/opensslconf.h>  // for RC4_INT
 #include <openssl/rc4.h>
 #include <string.h>
 

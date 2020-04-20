@@ -6,7 +6,6 @@
 #include <unordered_map>
 #include <vector>
 
-class BanManager;
 class StartableObject;
 class IWritableConsole;
 template<typename T> class cval;

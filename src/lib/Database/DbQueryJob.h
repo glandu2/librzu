@@ -5,6 +5,7 @@
 #include "Core/Object.h"
 #include "DbBindingLoader.h"
 #include "DbQueryBinding.h"
+#include "DbString.h"
 #include "IDbQueryJob.h"
 #include "uv.h"
 #include <memory>

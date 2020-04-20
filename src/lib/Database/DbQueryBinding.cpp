@@ -1,11 +1,12 @@
 #include "DbQueryBinding.h"
 #include "Config/ConfigParamVal.h"
-#include "Config/GlobalCoreConfig.h"
 #include "Core/CharsetConverter.h"
 #include "Core/PrintfFormats.h"
 #include "DbConnection.h"
 #include "DbConnectionPool.h"
+#include "DbString.h"
 #include "IDbQueryJob.h"
+#include <algorithm>
 #include <string.h>
 
 DbQueryBinding::DbQueryBinding(DbConnectionPool* dbConnectionPool,

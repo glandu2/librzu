@@ -1,6 +1,6 @@
 #include "AesPasswordCipher.h"
-#include "Core/ScopeGuard.h"
 #include <openssl/evp.h>
+#include <stdint.h>  // for uint8_t
 #include <stdlib.h>
 #include <string.h>
 

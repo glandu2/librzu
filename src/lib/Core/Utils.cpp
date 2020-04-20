@@ -1,7 +1,7 @@
 #include "Utils.h"
 #include "Config/ConfigParamVal.h"
 #include <algorithm>
-#include <ctype.h>
+#include <errno.h>
 #include <sstream>
 #include <stdarg.h>
 #include <string.h>

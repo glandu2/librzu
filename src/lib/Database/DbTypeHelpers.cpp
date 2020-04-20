@@ -1,5 +1,6 @@
 #include "DbTypeHelpers.h"
 #include "Core/Utils.h"
+#include <stdio.h>
 
 void DbDateTime::setUnixTime(time_t t, uint32_t nanoFraction) {
 	struct tm date;

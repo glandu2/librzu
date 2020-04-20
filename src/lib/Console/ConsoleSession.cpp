@@ -1,14 +1,10 @@
 #include "ConsoleSession.h"
 #include "../NetSession/SessionServer.h"
-#include "ClassCounter.h"
-#include "Config/ConfigInfo.h"
+#include "Config/ConfigParamVal.h"
 #include "Config/GlobalCoreConfig.h"
 #include "ConsoleCommands.h"
-#include "Core/CrashHandler.h"
 #include "Core/Utils.h"
-#include "Database/DbConnectionPool.h"
 #include "NetSession/ServersManager.h"
-#include <stdlib.h>
 #include <string.h>
 
 ConsoleSession::ConsoleSession() : consoleCommands(ConsoleCommands::get()) {

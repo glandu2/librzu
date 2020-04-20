@@ -4,6 +4,8 @@
 #include "EventLoop.h"
 #include "Extern.h"
 #include "uv.h"
+#include <memory>
+#include <vector>
 
 template<typename HandleType> class RZU_EXTERN UvHandle {
 public:

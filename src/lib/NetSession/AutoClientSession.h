@@ -1,21 +1,16 @@
 #ifndef AUTOCLIENTSESSION_H
 #define AUTOCLIENTSESSION_H
 
-#include "Core/ThreadWork.h"
 #include "Core/Timer.h"
 #include "NetSession/ClientAuthSession.h"
 #include "NetSession/ClientGameSession.h"
-#include "NetSession/PacketSession.h"
 #include "Packet/GameTypes.h"
 #include <string>
 #include <time.h>
-#include <unordered_map>
 #include <vector>
 
-struct TS_CS_CHAT_REQUEST;
 struct TS_SC_CHARACTER_LIST;
 struct TS_SC_LOGIN_RESULT;
-struct TS_SC_ENTER;
 struct TS_TIMESYNC;
 struct TS_SC_GAME_TIME;
 struct TS_SC_SET_TIME;

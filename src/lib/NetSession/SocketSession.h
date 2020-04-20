@@ -5,7 +5,6 @@
 #include "Core/IListener.h"
 #include "Core/Object.h"
 #include "Stream/Stream.h"
-#include <list>
 
 class SessionServerCommon;
 

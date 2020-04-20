@@ -1,7 +1,5 @@
 #include "TelnetSession.h"
 #include "Core/Utils.h"
-#include <sstream>
-#include <stdio.h>
 #include <string.h>
 #include <string>
 

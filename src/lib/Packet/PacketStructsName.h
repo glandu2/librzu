@@ -2,7 +2,6 @@
 #define PACKETSTRUCTSNAME_H
 
 #include "../Extern.h"
-#include <stddef.h>
 
 enum class SessionType { Any, AuthClient, AuthGame, GameClient, UploadClient, UploadGame };
 enum class SessionPacketOrigin { Any, Server, Client };

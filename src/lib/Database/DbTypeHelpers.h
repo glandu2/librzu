@@ -2,12 +2,13 @@
 #define DBTYPEHELPERS_H
 
 #include "../Extern.h"
-#include "DbString.h"
 #include <sstream>
 #include <string>
 #include <uv.h>
 
 #include <sqlext.h>
+
+template<size_t N> class DbString;
 
 struct RZU_EXTERN DbDateTime : public SQL_TIMESTAMP_STRUCT {
 	void setUnixTime(time_t t, uint32_t nanoFraction = 0);

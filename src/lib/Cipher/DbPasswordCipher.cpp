@@ -1,6 +1,7 @@
 #include "DbPasswordCipher.h"
 #include "DesPasswordCipher.h"
 #include "ZlibCipher.h"
+#include <stdint.h>  // for uint8_t
 #include <string.h>
 
 static const unsigned char zlibPasswordHeader[] = {0x45, 0x56, 0x00, 0x00, 0x03, 0x00};

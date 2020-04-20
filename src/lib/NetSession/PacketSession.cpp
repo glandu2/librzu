@@ -1,7 +1,7 @@
 #include "PacketSession.h"
 
 #include "Config/GlobalCoreConfig.h"
-#include "GameClient/TS_SC_RESULT.h"
+#include "Core/Log.h"
 #include "Packet/JSONWriter.h"
 #include "Packet/PacketBaseMessage.h"
 #include "Packet/PacketStructsName.h"

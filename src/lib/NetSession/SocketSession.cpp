@@ -2,9 +2,6 @@
 #include "Config/GlobalCoreConfig.h"
 #include "SessionServer.h"
 
-#include "Stream/Pipe.h"
-#include "Stream/Socket.h"
-
 SocketSession::SocketSession() : stream(nullptr), server(nullptr), autoDelete(false), packetLogger(nullptr) {}
 
 void SocketSession::assignStream(Stream* stream) {

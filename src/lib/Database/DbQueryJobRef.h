@@ -1,9 +1,10 @@
 #ifndef DBQUERYJOBREF_H
 #define DBQUERYJOBREF_H
 
-#include "DbQueryJob.h"
 #include "DbQueryJobCallback.h"
 #include "DbQueryJobLambda.h"
+
+template<class DbMappingClass> class DbQueryJob;
 
 class RZU_EXTERN DbQueryJobRef {
 public:

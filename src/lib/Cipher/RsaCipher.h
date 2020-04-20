@@ -4,6 +4,7 @@
 #include "../Extern.h"
 #include "Core/Object.h"
 #include <memory>
+#include <stddef.h>  // for size_t
 #include <stdint.h>
 #include <vector>
 
