@@ -2,11 +2,11 @@
 #include "Config/GlobalCoreConfig.h"
 #include <string.h>
 
+#ifdef _WIN32
 #ifndef SIO_LOOPBACK_FAST_PATH
 #define SIO_LOOPBACK_FAST_PATH 0x98000010
 #endif
 
-#ifdef _WIN32
 #if defined(__MINGW32__) && !defined(__MINGW64_VERSION_MAJOR)
 typedef struct _OSVERSIONINFOW RTL_OSVERSIONINFOW, *PRTL_OSVERSIONINFOW;
 #endif

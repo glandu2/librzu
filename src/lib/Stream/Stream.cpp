@@ -8,10 +8,6 @@
 #include "Pipe.h"
 #include "Socket.h"
 
-#ifndef SHUT_RDWR
-#define SHUT_RDWR 2
-#endif
-
 struct ReadBuffer {
 	char data[1024];
 	bool isUsed;

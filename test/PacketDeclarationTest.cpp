@@ -21,6 +21,7 @@ enum EnumNoClass : uint16_t {
 	_(simple)(bool,     b) \
 	_(simple)(uint32_t, i)
 CREATE_STRUCT(TEST_OBJECT_SUB);
+#undef TEST_OBJECT_SUB_DEF
 
 #define TEST_SIMPLE_SUB_DEF(_) \
 	_(simple)(bool,                           b                       ) \
@@ -80,6 +81,7 @@ CREATE_STRUCT(TEST_OBJECT_SUB);
 	_(simple)(TEST_OBJECT_SUB,                v2_obj,     version == 2, (TEST_OBJECT_SUB{true, 42})) \
 	_(string)(                                v2_str, 20, version == 2, "test string")
 CREATE_STRUCT(TEST_SIMPLE_SUB);
+#undef TEST_SIMPLE_SUB_DEF
 
 #define TEST_ARRAY_SUB_DEF(_) \
 	_(array) (bool,                           b    , 4               ) \
@@ -118,6 +120,7 @@ CREATE_STRUCT(TEST_SIMPLE_SUB);
 	_(array)(EncodedInt<EncodingScrambled>,   v1_es , 5,  version == 1) \
 	_(array)(TEST_OBJECT_SUB,                 v1_obj, 5,  version == 1) \
 CREATE_STRUCT(TEST_ARRAY_SUB);
+#undef TEST_ARRAY_SUB_DEF
 
 #define TEST_DYNARRAY_SUB_DEF(_) \
 	_(count) (int8_t,                            b                      ) \
@@ -200,9 +203,11 @@ CREATE_STRUCT(TEST_ARRAY_SUB);
 	_(dynstring)(v1_strNT,                       true     ,  version == 1) \
 	_(dynstring)(v1_str,                         false    ,  version == 1)
 CREATE_STRUCT(TEST_DYNARRAY_SUB);
+#undef TEST_DYNARRAY_SUB_DEF
 
 #define TEST_SIMPLE_DEF(_) \
 CREATE_PACKET(TEST_SIMPLE, 21);
+#undef TEST_SIMPLE_DEF
 
 #pragma pack(push, 1)
 struct TEST_SIMPLE_PRIMITIVE_PLAIN : public TS_MESSAGE {
