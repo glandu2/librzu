@@ -1,6 +1,7 @@
 #include "DbConnection.h"
 #include "DbConnectionPool.h"
 #include <assert.h>
+#include <string.h>
 
 DbConnection::DbConnection(DbConnectionPool* conPool, void* hdbc, void* hstmt)
     : conPool(conPool), hdbc(hdbc), hstmt(hstmt), isUsed(false) {

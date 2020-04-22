@@ -1,4 +1,5 @@
 #include "PacketStructsName.h"
+#include <stddef.h>
 
 struct PacketNameInfo {
 	unsigned short id;
