@@ -1,5 +1,4 @@
-#ifndef PACKETS_TS_SC_COMPETE_ANSWER_H
-#define PACKETS_TS_SC_COMPETE_ANSWER_H
+#pragma once
 
 #include "Packet/PacketDeclaration.h"
 
@@ -11,4 +10,3 @@
 CREATE_PACKET(TS_SC_COMPETE_ANSWER, 4503);
 #undef TS_SC_COMPETE_ANSWER_DEF
 
-#endif // PACKETS_TS_SC_COMPETE_ANSWER_H

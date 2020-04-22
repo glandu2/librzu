@@ -1,5 +1,4 @@
-#ifndef PACKETS_TS_CA_OTP_ACCOUNT_H
-#define PACKETS_TS_CA_OTP_ACCOUNT_H
+#pragma once
 
 #include "Packet/PacketBaseMessage.h"
 
@@ -12,4 +11,3 @@ struct TS_CA_OTP_ACCOUNT : public TS_MESSAGE
 };
 #pragma pack(pop)
 
-#endif // PACKETS_TS_CA_OTP_ACCOUNT_H

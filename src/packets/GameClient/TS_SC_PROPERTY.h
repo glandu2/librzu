@@ -1,5 +1,4 @@
-#ifndef PACKETS_TS_SC_PROPERTY_H
-#define PACKETS_TS_SC_PROPERTY_H
+#pragma once
 
 #include "Packet/PacketDeclaration.h"
 
@@ -17,4 +16,3 @@
 CREATE_PACKET(TS_SC_PROPERTY, 507);
 #undef TS_SC_PROPERTY_DEF
 
-#endif // PACKETS_TS_SC_PROPERTY_H

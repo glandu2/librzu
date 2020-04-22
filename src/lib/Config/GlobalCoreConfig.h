@@ -1,5 +1,4 @@
-#ifndef GLOBALCORECONFIG_H
-#define GLOBALCORECONFIG_H
+#pragma once
 
 #include "ConfigInfo.h"
 #include "Core/Utils.h"
@@ -96,4 +95,3 @@ struct RZU_EXTERN GlobalCoreConfig : public IListener {
 	static void updateOtherFile(IListener* instance);
 };
 
-#endif  // GLOBALCORECONFIG_H

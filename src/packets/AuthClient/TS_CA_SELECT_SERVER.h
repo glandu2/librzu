@@ -1,5 +1,4 @@
-#ifndef PACKETS_TS_CA_SELECT_SERVER_H
-#define PACKETS_TS_CA_SELECT_SERVER_H
+#pragma once
 
 #include "Packet/PacketDeclaration.h"
 
@@ -7,4 +6,3 @@
 	_(simple)   (uint16_t, server_idx)
 CREATE_PACKET(TS_CA_SELECT_SERVER, 10023);
 
-#endif // PACKETS_TS_CA_SELECT_SERVER_H

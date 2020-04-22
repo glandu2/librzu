@@ -1,5 +1,4 @@
-#ifndef PACKETS_TS_SC_SHOW_WINDOW_H
-#define PACKETS_TS_SC_SHOW_WINDOW_H
+#pragma once
 
 #include "Packet/PacketDeclaration.h"
 
@@ -14,4 +13,3 @@
 CREATE_PACKET(TS_SC_SHOW_WINDOW, 3003);
 #undef TS_SC_SHOW_WINDOW_DEF
 
-#endif // PACKETS_TS_SC_SHOW_WINDOW_H

@@ -1,5 +1,4 @@
-#ifndef PACKETS_TS_CA_IMBC_ACCOUNT_H
-#define PACKETS_TS_CA_IMBC_ACCOUNT_H
+#pragma once
 
 #include "Packet/PacketBaseMessage.h"
 
@@ -22,4 +21,3 @@ CREATE_STRUCT(TS_IMBC_ACCOUNT_PASSWORD_AES);
 	_(simple)(TS_IMBC_ACCOUNT_PASSWORD_AES, passwordAes, version >= EPIC_8_1_1_RSA)
 CREATE_PACKET(TS_CA_IMBC_ACCOUNT, 10012);
 
-#endif // PACKETS_TS_CA_IMBC_ACCOUNT_H

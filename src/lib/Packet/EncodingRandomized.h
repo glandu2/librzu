@@ -1,5 +1,4 @@
-#ifndef PACKETS_ENCODINGRANDOMIZED_H
-#define PACKETS_ENCODINGRANDOMIZED_H
+#pragma once
 
 #include "PacketEpics.h"
 #include <stdint.h>
@@ -44,4 +43,3 @@ private:
 	EncodingRandomized();
 };
 
-#endif  // PACKETS_ENCODINGRANDOMIZED_H

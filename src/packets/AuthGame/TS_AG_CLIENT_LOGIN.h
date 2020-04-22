@@ -1,5 +1,4 @@
-#ifndef PACKETS_TS_AG_CLIENT_LOGIN_H
-#define PACKETS_TS_AG_CLIENT_LOGIN_H
+#pragma once
 
 #include "Packet/PacketBaseMessage.h"
 
@@ -28,4 +27,3 @@ struct TS_AG_CLIENT_LOGIN_EXTENDED : public TS_AG_CLIENT_LOGIN
 
 #pragma pack(pop)
 
-#endif // PACKETS_TS_AG_CLIENT_LOGIN_H

@@ -1,5 +1,4 @@
-#ifndef UTILS_H
-#define UTILS_H
+#pragma once
 
 #include "../Extern.h"
 #include <stdint.h>
@@ -70,4 +69,3 @@ private:
 	static bool applicationFilePathInitialized;
 };
 
-#endif  // UTILS_H

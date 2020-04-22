@@ -1,5 +1,4 @@
-#ifndef PACKETS_TS_SC_SKILL_CASTING_TIME_H
-#define PACKETS_TS_SC_SKILL_CASTING_TIME_H
+#pragma once
 
 #include "Packet/PacketDeclaration.h"
 
@@ -10,4 +9,3 @@
 CREATE_PACKET(TS_SC_SKILL_CASTING_TIME, 405);
 #undef TS_SC_SKILL_CASTING_TIME_DEF
 
-#endif // PACKETS_TS_SC_SKILL_CASTING_TIME_H

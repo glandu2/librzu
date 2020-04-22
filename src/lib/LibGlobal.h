@@ -1,5 +1,4 @@
-#ifndef LIBGLOBAL_H
-#define LIBGLOBAL_H
+#pragma once
 
 #ifdef _WIN32
 #define SYMBOL_IMPORT __declspec(dllimport)
@@ -31,4 +30,3 @@
 #define override
 #endif
 
-#endif  // LIBGLOBAL_H

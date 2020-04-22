@@ -1,5 +1,4 @@
-#ifndef PACKETS_TS_CS_GAME_TIME_H
-#define PACKETS_TS_CS_GAME_TIME_H
+#pragma once
 
 #include "Packet/PacketDeclaration.h"
 
@@ -8,4 +7,3 @@
 CREATE_PACKET(TS_CS_GAME_TIME, 1100);
 #undef TS_CS_GAME_TIME_DEF
 
-#endif // PACKETS_TS_CS_GAME_TIME_H

@@ -1,5 +1,4 @@
-#ifndef PACKETS_TS_CS_ACCOUNT_WITH_AUTH_H
-#define PACKETS_TS_CS_ACCOUNT_WITH_AUTH_H
+#pragma once
 
 #include "Packet/PacketDeclaration.h"
 
@@ -12,4 +11,3 @@
 CREATE_PACKET(TS_CS_ACCOUNT_WITH_AUTH, 2005);
 #undef TS_CS_ACCOUNT_WITH_AUTH_DEF
 
-#endif // PACKETS_TS_CS_ACCOUNT_WITH_AUTH_H

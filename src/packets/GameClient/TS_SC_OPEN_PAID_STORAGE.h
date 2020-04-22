@@ -1,5 +1,4 @@
-#ifndef PACKETS_TS_SC_OPEN_PAID_STORAGE_H
-#define PACKETS_TS_SC_OPEN_PAID_STORAGE_H
+#pragma once
 
 #include "Packet/PacketDeclaration.h"
 
@@ -8,4 +7,3 @@
 CREATE_PACKET(TS_SC_OPEN_PAID_STORAGE, 10002);
 #undef TS_SC_OPEN_PAID_STORAGE_DEF
 
-#endif // PACKETS_TS_SC_OPEN_PAID_STORAGE_H

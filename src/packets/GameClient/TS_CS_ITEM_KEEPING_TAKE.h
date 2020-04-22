@@ -1,5 +1,4 @@
-#ifndef PACKETS_TS_CS_ITEM_KEEPING_TAKE_H
-#define PACKETS_TS_CS_ITEM_KEEPING_TAKE_H
+#pragma once
 
 #include "Packet/PacketDeclaration.h"
 
@@ -9,4 +8,3 @@
 CREATE_PACKET(TS_CS_ITEM_KEEPING_TAKE, 1352);
 #undef TS_CS_ITEM_KEEPING_TAKE_DEF
 
-#endif // PACKETS_TS_CS_ITEM_KEEPING_TAKE_H

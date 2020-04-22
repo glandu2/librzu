@@ -1,5 +1,4 @@
-#ifndef LIBRZUINIT_H
-#define LIBRZUINIT_H
+#pragma once
 
 #include "Extern.h"
 
@@ -13,4 +12,3 @@ public:
 	~LibRzuScopedUse();
 };
 
-#endif  // LIBRZUINIT_H

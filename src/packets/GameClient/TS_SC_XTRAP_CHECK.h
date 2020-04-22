@@ -1,5 +1,4 @@
-#ifndef PACKETS_TS_SC_XTRAP_CHECK_H
-#define PACKETS_TS_SC_XTRAP_CHECK_H
+#pragma once
 
 #include "Packet/PacketDeclaration.h"
 
@@ -9,4 +8,3 @@
 CREATE_PACKET(TS_SC_XTRAP_CHECK, 58);
 #undef TS_SC_XTRAP_CHECK_DEF
 
-#endif // PACKETS_TS_SC_XTRAP_CHECK_H

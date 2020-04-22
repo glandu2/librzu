@@ -1,5 +1,4 @@
-#ifndef ISTARTABLESESSION_H
-#define ISTARTABLESESSION_H
+#pragma once
 
 #include "../Extern.h"
 
@@ -19,4 +18,3 @@ private:
 	char* name;
 };
 
-#endif  // ISTARTABLESESSION_H

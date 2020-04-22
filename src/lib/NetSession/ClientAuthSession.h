@@ -1,5 +1,4 @@
-#ifndef CLIENTAUTHSESSION_H
-#define CLIENTAUTHSESSION_H
+#pragma once
 
 #include "EncryptedSession.h"
 #include "PacketEnums.h"
@@ -102,4 +101,3 @@ private:
 	static RsaCipher rsaCipher;
 };
 
-#endif  // CLIENTAUTHSESSION_H

@@ -1,5 +1,4 @@
-#ifndef PACKETS_TS_CS_PUTON_ITEM_SET_H
-#define PACKETS_TS_CS_PUTON_ITEM_SET_H
+#pragma once
 
 #include "Packet/PacketDeclaration.h"
 
@@ -11,4 +10,3 @@
 CREATE_PACKET(TS_CS_PUTON_ITEM_SET, 281);
 #undef TS_CS_PUTON_ITEM_SET_DEF
 
-#endif // PACKETS_TS_CS_PUTON_ITEM_SET_H

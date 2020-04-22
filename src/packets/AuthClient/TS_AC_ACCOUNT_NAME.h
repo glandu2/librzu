@@ -1,5 +1,4 @@
-#ifndef PACKETS_TS_AC_ACCOUNT_NAME_H
-#define PACKETS_TS_AC_ACCOUNT_NAME_H
+#pragma once
 
 #include "Packet/PacketDeclaration.h"
 
@@ -8,4 +7,3 @@
 	_(simple)(uint32_t, account_id)
 CREATE_PACKET(TS_AC_ACCOUNT_NAME, 10014);
 
-#endif // PACKETS_TS_AC_ACCOUNT_NAME_H

@@ -1,5 +1,4 @@
-#ifndef PACKETS_TS_CA_ACCOUNT_H
-#define PACKETS_TS_CA_ACCOUNT_H
+#pragma once
 
 #include "Packet/PacketDeclaration.h"
 
@@ -35,4 +34,3 @@ CREATE_STRUCT(TS_ACCOUNT_PASSWORD_AES);
 	_(endarray)(TS_ACCOUNT_ADDITIONAL_INFO, additionalInfos)
 CREATE_PACKET(TS_CA_ACCOUNT, 10010);
 
-#endif // PACKETS_TS_CA_ACCOUNT_H

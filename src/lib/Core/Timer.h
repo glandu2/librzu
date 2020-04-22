@@ -1,5 +1,4 @@
-#ifndef TIMER_H
-#define TIMER_H
+#pragma once
 
 #include "../Extern.h"
 #include "UvHandle.h"
@@ -63,4 +62,3 @@ private:
 	}
 };
 
-#endif  // TIMER_H

@@ -1,5 +1,4 @@
-#ifndef PACKETS_TS_SC_STAT_INFO_H
-#define PACKETS_TS_SC_STAT_INFO_H
+#pragma once
 
 #include "Packet/PacketDeclaration.h"
 
@@ -83,4 +82,3 @@ CREATE_STRUCT(TS_STAT_INFO_ATTRIB);
 CREATE_PACKET(TS_SC_STAT_INFO, 1000);
 #undef TS_SC_STAT_INFO_DEF
 
-#endif // PACKETS_TS_SC_STAT_INFO_H

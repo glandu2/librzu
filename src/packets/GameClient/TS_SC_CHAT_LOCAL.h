@@ -1,5 +1,4 @@
-#ifndef PACKETS_TS_SC_CHAT_LOCAL_H
-#define PACKETS_TS_SC_CHAT_LOCAL_H
+#pragma once
 
 #include "Packet/PacketDeclaration.h"
 #include "TS_CS_CHAT_REQUEST.h"
@@ -15,4 +14,3 @@
 CREATE_PACKET(TS_SC_CHAT_LOCAL, 21);
 #undef TS_SC_CHAT_LOCAL_DEF
 
-#endif // PACKETS_TS_SC_CHAT_LOCAL_H

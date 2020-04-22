@@ -1,5 +1,4 @@
-#ifndef PACKETS_TS_SC_REMOVE_SUMMON_INFO_H
-#define PACKETS_TS_SC_REMOVE_SUMMON_INFO_H
+#pragma once
 
 #include "Packet/PacketDeclaration.h"
 
@@ -9,4 +8,3 @@
 CREATE_PACKET(TS_SC_REMOVE_SUMMON_INFO, 302);
 #undef TS_SC_REMOVE_SUMMON_INFO_DEF
 
-#endif // PACKETS_TS_SC_REMOVE_SUMMON_INFO_H

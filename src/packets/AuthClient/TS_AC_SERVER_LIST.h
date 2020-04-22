@@ -1,5 +1,4 @@
-#ifndef PACKETS_TS_AC_SERVER_LIST_H
-#define PACKETS_TS_AC_SERVER_LIST_H
+#pragma once
 
 #include "Packet/PacketDeclaration.h"
 
@@ -22,4 +21,3 @@ CREATE_STRUCT(TS_SERVER_INFO);
 CREATE_PACKET(TS_AC_SERVER_LIST, 10022);
 
 
-#endif // PACKETS_TS_AC_SERVER_LIST_H

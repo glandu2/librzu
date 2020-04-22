@@ -1,5 +1,4 @@
-#ifndef DBPASSWORDCIPHER_H
-#define DBPASSWORDCIPHER_H
+#pragma once
 
 #include "../Extern.h"
 #include <stdint.h>
@@ -12,4 +11,3 @@ public:
 	static std::vector<uint8_t> encrypt(std::string password);
 };
 
-#endif  // DBPASSWORDCIPHER_H

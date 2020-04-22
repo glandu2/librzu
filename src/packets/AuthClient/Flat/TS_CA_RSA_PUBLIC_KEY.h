@@ -1,5 +1,4 @@
-#ifndef PACKETS_TS_CA_RSA_PUBLIC_KEY_H
-#define PACKETS_TS_CA_RSA_PUBLIC_KEY_H
+#pragma once
 
 #include "Packet/PacketBaseMessage.h"
 
@@ -12,4 +11,3 @@ struct TS_CA_RSA_PUBLIC_KEY : public TS_MESSAGE_WNA
 };
 #pragma pack(pop)
 
-#endif // PACKETS_TS_CA_RSA_PUBLIC_KEY_H

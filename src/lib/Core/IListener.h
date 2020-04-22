@@ -1,5 +1,4 @@
-#ifndef ILISTENER_H
-#define ILISTENER_H
+#pragma once
 
 #include "../Extern.h"
 #include <stddef.h>
@@ -48,4 +47,3 @@ private:
 	std::vector<DelegateRef> callbackValidityPtrs;
 };
 
-#endif  // ILISTENER_H

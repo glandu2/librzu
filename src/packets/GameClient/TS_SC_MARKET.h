@@ -1,5 +1,4 @@
-#ifndef PACKETS_TS_SC_MARKET_H
-#define PACKETS_TS_SC_MARKET_H
+#pragma once
 
 #include "Packet/PacketDeclaration.h"
 
@@ -24,4 +23,3 @@ CREATE_STRUCT(TS_MARKET_ITEM_INFO);
 CREATE_PACKET(TS_SC_MARKET, 250);
 #undef TS_SC_MARKET_DEF
 
-#endif // PACKETS_TS_SC_MARKET_H

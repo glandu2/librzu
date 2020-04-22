@@ -1,5 +1,4 @@
-#ifndef PACKETS_TS_CS_DECOMPOSE_H
-#define PACKETS_TS_CS_DECOMPOSE_H
+#pragma once
 
 #include "Packet/PacketDeclaration.h"
 
@@ -17,4 +16,3 @@ CREATE_STRUCT(TS_DECOMPOSE_ITEM_INFO);
 CREATE_PACKET(TS_CS_DECOMPOSE, 265);
 #undef TS_CS_DECOMPOSE_DEF
 
-#endif // PACKETS_TS_CS_DECOMPOSE_H

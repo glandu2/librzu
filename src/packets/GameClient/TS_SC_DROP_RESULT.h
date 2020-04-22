@@ -1,5 +1,4 @@
-#ifndef PACKETS_TS_SC_DROP_RESULT_H
-#define PACKETS_TS_SC_DROP_RESULT_H
+#pragma once
 
 #include "Packet/PacketDeclaration.h"
 
@@ -10,4 +9,3 @@
 CREATE_PACKET(TS_SC_DROP_RESULT, 205);
 #undef TS_SC_DROP_RESULT_DEF
 
-#endif // PACKETS_TS_SC_DROP_RESULT_H

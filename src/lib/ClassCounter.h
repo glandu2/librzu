@@ -1,5 +1,4 @@
-#ifndef CLASSCOUNTER_H
-#define CLASSCOUNTER_H
+#pragma once
 
 #include "Extern.h"
 #include <map>
@@ -21,4 +20,3 @@ std::map<std::string, unsigned long*> RZU_EXTERN& getObjectsCount();
 	    (getObjectsCount().insert(std::pair<std::string, unsigned long*>(#classname, &classname::__objectCount)), \
 	     ClassCounter__internal_object_engine_class_counter++);
 
-#endif  // CLASSCOUNTER_H

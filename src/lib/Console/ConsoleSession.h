@@ -1,5 +1,4 @@
-#ifndef CONSOLESESSION_H
-#define CONSOLESESSION_H
+#pragma once
 
 #include "IWritableConsole.h"
 #include "NetSession/SessionServer.h"
@@ -33,4 +32,3 @@ public:
 	ConsoleServer(ServersManager* serverManager);
 };
 
-#endif  // CONSOLESESSION_H

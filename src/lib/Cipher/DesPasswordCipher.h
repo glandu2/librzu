@@ -1,5 +1,4 @@
-#ifndef DESPASSWORDCIPHER_H
-#define DESPASSWORDCIPHER_H
+#pragma once
 
 #include "../Extern.h"
 
@@ -16,4 +15,3 @@ private:
 	void* const keySchedule;
 };
 
-#endif  // DESPASSWORDCIPHER_H

@@ -1,5 +1,4 @@
-#ifndef ENCRYPTEDSESSION_H
-#define ENCRYPTEDSESSION_H
+#pragma once
 
 #include "Cipher/RC4Cipher.h"
 #include "Stream/Stream.h"
@@ -62,4 +61,3 @@ template<class T> size_t EncryptedSession<T>::write(const void* buffer, size_t s
 	return ret;
 }
 
-#endif  // ENCRYPTEDSESSION_H

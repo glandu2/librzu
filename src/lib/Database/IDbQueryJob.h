@@ -1,5 +1,4 @@
-#ifndef IDBQUERYJOB_H
-#define IDBQUERYJOB_H
+#pragma once
 
 #include <stdint.h>
 
@@ -29,4 +28,3 @@ private:
 	virtual void* createNextLineInstance() = 0;
 };
 
-#endif  // IDBQUERYJOB_H

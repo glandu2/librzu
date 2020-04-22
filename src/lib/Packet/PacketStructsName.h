@@ -1,5 +1,4 @@
-#ifndef PACKETSTRUCTSNAME_H
-#define PACKETSTRUCTSNAME_H
+#pragma once
 
 #include "../Extern.h"
 
@@ -10,4 +9,3 @@ SessionPacketOrigin getPacketOriginFromDirection(bool outgoing, SessionPacketOri
 
 RZU_EXTERN const char* getPacketName(unsigned int id, SessionType sessionType, SessionPacketOrigin packetDir);
 
-#endif

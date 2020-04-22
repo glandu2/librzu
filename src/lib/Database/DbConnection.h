@@ -1,5 +1,4 @@
-#ifndef DBCONNECTION_H
-#define DBCONNECTION_H
+#pragma once
 
 #include "Core/Object.h"
 #include "uv.h"
@@ -66,4 +65,3 @@ private:
 	bool isUsed;  // workaround trylock in valgrind ...
 };
 
-#endif  // DBCONNECTION_H

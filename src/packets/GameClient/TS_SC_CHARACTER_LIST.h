@@ -1,5 +1,4 @@
-#ifndef PACKETS_TS_SC_CHARACTER_LIST_H
-#define PACKETS_TS_SC_CHARACTER_LIST_H
+#pragma once
 
 #include "Packet/PacketDeclaration.h"
 #include "PacketEnums.h"
@@ -62,4 +61,3 @@ CREATE_STRUCT(LOBBY_CHARACTER_INFO);
 CREATE_PACKET(TS_SC_CHARACTER_LIST, 2004);
 #undef TS_SC_CHARACTER_LIST_DEF
 
-#endif // PACKETS_TS_SC_CHARACTER_LIST_H

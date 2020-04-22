@@ -1,5 +1,4 @@
-#ifndef STREAM_H
-#define STREAM_H
+#pragma once
 
 #include "Core/IDelegate.h"
 #include "Core/Object.h"
@@ -151,4 +150,3 @@ private:
 	bool closeCausedByRemote;
 };
 
-#endif  // STREAM_H

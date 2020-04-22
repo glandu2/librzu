@@ -1,5 +1,4 @@
-#ifndef PACKETS_TS_CA_DISTRIBUTION_INFO_H
-#define PACKETS_TS_CA_DISTRIBUTION_INFO_H
+#pragma once
 
 #include "Packet/PacketDeclaration.h"
 
@@ -7,4 +6,3 @@
 	_(endstring)(distributionInfo, true)
 CREATE_PACKET(TS_CA_DISTRIBUTION_INFO, 10026);
 
-#endif // PACKETS_TS_CA_DISTRIBUTION_INFO_H

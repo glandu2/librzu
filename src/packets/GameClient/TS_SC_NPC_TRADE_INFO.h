@@ -1,5 +1,4 @@
-#ifndef PACKETS_TS_SC_NPC_TRADE_INFO_H
-#define PACKETS_TS_SC_NPC_TRADE_INFO_H
+#pragma once
 
 #include "Packet/PacketDeclaration.h"
 
@@ -15,4 +14,3 @@
 CREATE_PACKET(TS_SC_NPC_TRADE_INFO, 240);
 #undef TS_SC_NPC_TRADE_INFO_DEF
 
-#endif // PACKETS_TS_SC_NPC_TRADE_INFO_H

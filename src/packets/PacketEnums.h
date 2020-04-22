@@ -1,5 +1,4 @@
-#ifndef PACKETS_PACKETENUMS_H
-#define PACKETS_PACKETENUMS_H
+#pragma once
 
 enum TS_ResultCode
 {
@@ -80,4 +79,3 @@ enum TS_ResultCode
 	TS_RESULT_CLIENT_SIDE_ERROR = 0xFFFF
 };
 
-#endif // PACKETS_PACKETENUMS_H

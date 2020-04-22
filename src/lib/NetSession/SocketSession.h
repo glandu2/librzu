@@ -1,5 +1,4 @@
-#ifndef SOCKETSESSION_H
-#define SOCKETSESSION_H
+#pragma once
 
 #include "Core/EventChain.h"
 #include "Core/IListener.h"
@@ -70,4 +69,3 @@ private:
 	Log* packetLogger;
 };
 
-#endif  // SOCKETSESSION_H

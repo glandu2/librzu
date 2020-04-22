@@ -1,5 +1,4 @@
-#ifndef CLIENTGAMESESSION_H
-#define CLIENTGAMESESSION_H
+#pragma once
 
 #include "EncryptedSession.h"
 #include "PacketSession.h"
@@ -26,4 +25,3 @@ protected:
 	ClientAuthSession* auth;
 };
 
-#endif  // CLIENTGAMESESSION_H

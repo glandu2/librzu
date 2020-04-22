@@ -1,5 +1,4 @@
-#ifndef PACKETS_TS_CS_REQUEST_H
-#define PACKETS_TS_CS_REQUEST_H
+#pragma once
 
 #include "Packet/PacketDeclaration.h"
 
@@ -10,4 +9,3 @@
 CREATE_PACKET(TS_CS_REQUEST, 60);
 #undef TS_CS_REQUEST_DEF
 
-#endif // PACKETS_TS_CS_REQUEST_H

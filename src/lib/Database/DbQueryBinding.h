@@ -1,5 +1,4 @@
-#ifndef DBQUERYBINDING_H
-#define DBQUERYBINDING_H
+#pragma once
 
 #include "Core/Object.h"
 #include "DbTypeHelpers.h"
@@ -123,4 +122,3 @@ private:
 	bool columnMappingErrorsShown;
 };
 
-#endif  // DBQUERYBINDING_H

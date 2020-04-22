@@ -1,5 +1,4 @@
-#ifndef PACKETS_TS_SC_MIX_RESULT_H
-#define PACKETS_TS_SC_MIX_RESULT_H
+#pragma once
 
 #include "Packet/PacketDeclaration.h"
 
@@ -17,4 +16,3 @@ enum TS_MIX_TYPE : int8_t
 CREATE_PACKET(TS_SC_MIX_RESULT, 257);
 #undef TS_SC_MIX_RESULT_DEF
 
-#endif // PACKETS_TS_SC_MIX_RESULT_H

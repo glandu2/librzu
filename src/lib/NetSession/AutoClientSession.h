@@ -1,5 +1,4 @@
-#ifndef AUTOCLIENTSESSION_H
-#define AUTOCLIENTSESSION_H
+#pragma once
 
 #include "Core/Timer.h"
 #include "NetSession/ClientAuthSession.h"
@@ -124,4 +123,3 @@ private:
 	Timer<AutoClientSession> updateTimer;
 };
 
-#endif

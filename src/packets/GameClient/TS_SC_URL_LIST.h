@@ -1,5 +1,4 @@
-#ifndef PACKETS_TS_SC_URL_LIST_H
-#define PACKETS_TS_SC_URL_LIST_H
+#pragma once
 
 #include "Packet/PacketDeclaration.h"
 
@@ -15,4 +14,3 @@ CREATE_PACKET(TS_SC_URL_LIST, 9001);
 #undef TS_SC_URL_LIST_DEF
 	
 
-#endif // PACKETS_TS_SC_URL_LIST_H

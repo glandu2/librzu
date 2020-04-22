@@ -1,5 +1,4 @@
-#ifndef RSACIPHER_H
-#define RSACIPHER_H
+#pragma once
 
 #include "../Extern.h"
 #include "Core/Object.h"
@@ -32,4 +31,3 @@ private:
 	std::unique_ptr<RSA, void (*)(RSA*)> rsaCipher;
 };
 
-#endif  // RSACIPHER_H

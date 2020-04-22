@@ -1,5 +1,4 @@
-#ifndef PACKETS_TS_SC_MOVE_ACK_H
-#define PACKETS_TS_SC_MOVE_ACK_H
+#pragma once
 
 #include "Packet/PacketDeclaration.h"
 
@@ -14,4 +13,3 @@
 CREATE_PACKET_VER_ID(TS_SC_MOVE_ACK);
 #undef TS_SC_MOVE_ACK_DEF
 
-#endif // PACKETS_TS_SC_MOVE_ACK_H

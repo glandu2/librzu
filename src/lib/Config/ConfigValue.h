@@ -1,5 +1,4 @@
-#ifndef CONFIGVALUE_H
-#define CONFIGVALUE_H
+#pragma once
 
 #include "Core/Object.h"
 #include <string>
@@ -105,4 +104,3 @@ public:
 	virtual void setString(const std::string& val) { return set(val); }
 };
 
-#endif  // CONFIGVALUE_H

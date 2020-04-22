@@ -1,5 +1,4 @@
-#ifndef PACKET_STRUCTSERIALIZER_H
-#define PACKET_STRUCTSERIALIZER_H
+#pragma once
 
 #include "../Extern.h"
 #include "GameTypes.h"
@@ -33,4 +32,3 @@ public:
 	                                                                 !std::is_same<T, U>::value> {};
 };
 
-#endif  // PACKET_STRUCTSERIALIZER_H

@@ -1,5 +1,4 @@
-#ifndef PACKETSESSION_H
-#define PACKETSESSION_H
+#pragma once
 
 #include "Config/ConfigParamVal.h"
 #include "Packet/MessageBuffer.h"
@@ -86,4 +85,3 @@ private:
 	cval<bool>& dumpJsonPackets;
 };
 
-#endif  // PACKETSESSION_H

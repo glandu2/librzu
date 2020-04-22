@@ -1,5 +1,4 @@
-#ifndef PACKETS_TS_CS_TAKE_ITEM_H
-#define PACKETS_TS_CS_TAKE_ITEM_H
+#pragma once
 
 #include "Packet/PacketDeclaration.h"
 
@@ -10,4 +9,3 @@
 CREATE_PACKET(TS_CS_TAKE_ITEM, 204);
 #undef TS_CS_TAKE_ITEM_DEF
 
-#endif // PACKETS_TS_CS_TAKE_ITEM_H

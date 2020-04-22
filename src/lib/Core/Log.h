@@ -1,5 +1,4 @@
-#ifndef LOG_H
-#define LOG_H
+#pragma once
 
 #include "IListener.h"
 #include "Object.h"
@@ -103,4 +102,3 @@ private:
 	size_t maxQueueSizeReached;
 };
 
-#endif  // LOG_H

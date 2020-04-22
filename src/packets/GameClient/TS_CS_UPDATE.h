@@ -1,5 +1,4 @@
-#ifndef PACKETS_TS_CS_UPDATE_H
-#define PACKETS_TS_CS_UPDATE_H
+#pragma once
 
 #include "Packet/PacketDeclaration.h"
 
@@ -11,4 +10,3 @@
 CREATE_PACKET(TS_CS_UPDATE, 503);
 #undef TS_CS_UPDATE_DEF
 
-#endif // PACKETS_TS_CS_UPDATE_H

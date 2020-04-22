@@ -1,5 +1,4 @@
-#ifndef PACKETS_TS_SC_UNSUMMON_PET_H
-#define PACKETS_TS_SC_UNSUMMON_PET_H
+#pragma once
 
 #include "Packet/PacketDeclaration.h"
 
@@ -9,4 +8,3 @@
 CREATE_PACKET(TS_SC_UNSUMMON_PET, 350);
 #undef TS_SC_UNSUMMON_PET_DEF
 
-#endif // PACKETS_TS_SC_UNSUMMON_PET_H

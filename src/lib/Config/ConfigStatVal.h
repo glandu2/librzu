@@ -1,5 +1,4 @@
-#ifndef CONFIGSTATVAL_H
-#define CONFIGSTATVAL_H
+#pragma once
 
 #include "ConfigValue.h"
 
@@ -60,4 +59,3 @@ private:
 };
 #endif  // _WIN32
 
-#endif  // CONFIGSTATVAL_H

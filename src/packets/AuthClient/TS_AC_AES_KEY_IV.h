@@ -1,5 +1,4 @@
-#ifndef PACKETS_TS_AC_AES_KEY_IV_H
-#define PACKETS_TS_AC_AES_KEY_IV_H
+#pragma once
 
 #include "Packet/PacketDeclaration.h"
 
@@ -8,4 +7,3 @@
 	_(dynarray)(uint8_t, data)
 CREATE_PACKET(TS_AC_AES_KEY_IV, 72);
 
-#endif // PACKETS_TS_AC_AES_KEY_IV_H

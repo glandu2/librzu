@@ -1,5 +1,4 @@
-#ifndef PACKETS_TS_GA_CLIENT_LOGGED_LIST_H
-#define PACKETS_TS_GA_CLIENT_LOGGED_LIST_H
+#pragma once
 
 #include "Packet/PacketBaseMessage.h"
 
@@ -25,4 +24,3 @@ struct TS_GA_ACCOUNT_LIST : public TS_MESSAGE_WNA
 
 #pragma pack(pop)
 
-#endif // PACKETS_TS_GA_CLIENT_LOGGED_LIST_H

@@ -1,5 +1,4 @@
-#ifndef PACKETDECLARATION_H
-#define PACKETDECLARATION_H
+#pragma once
 
 // To see the generated C++ code, use:
 // gcc -E TS_*.h -DDEBUG_PREPROCESSOR -I../../lib | clang-format-6.0 -style llvm -
@@ -606,4 +605,3 @@ public:
 
 #define case_packet_is(name_) name_##_ID(CREATE_PACKET_VER_ID_SWITCH_CASES(name_))
 
-#endif  // PACKETDECLARATION_H

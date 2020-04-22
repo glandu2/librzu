@@ -1,9 +1,7 @@
-#ifndef PACKETS_TS_CA_SERVER_LIST_H
-#define PACKETS_TS_CA_SERVER_LIST_H
+#pragma once
 
 #include "Packet/PacketDeclaration.h"
 
 #define TS_CA_SERVER_LIST_DEF(_)
 CREATE_PACKET(TS_CA_SERVER_LIST, 10021);
 
-#endif // PACKETS_TS_CA_SERVER_LIST_H

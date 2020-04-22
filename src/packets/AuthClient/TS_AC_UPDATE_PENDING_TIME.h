@@ -1,5 +1,4 @@
-#ifndef PACKETS_TS_AC_UPDATE_PENDING_TIME_H
-#define PACKETS_TS_AC_UPDATE_PENDING_TIME_H
+#pragma once
 
 #include "Packet/PacketDeclaration.h"
 
@@ -8,4 +7,3 @@
 	_(simple)(uint32_t, pending_time)
 CREATE_PACKET(TS_AC_UPDATE_PENDING_TIME, 10025);
 
-#endif // PACKETS_TS_AC_UPDATE_PENDING_TIME_H

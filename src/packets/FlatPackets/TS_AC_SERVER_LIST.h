@@ -1,5 +1,4 @@
-#ifndef PACKETS_FLAT_TS_AC_SERVER_LIST_H
-#define PACKETS_FLAT_TS_AC_SERVER_LIST_H
+#pragma once
 
 #include "Packet/PacketBaseMessage.h"
 
@@ -40,4 +39,3 @@ struct TS_AC_SERVER_LIST_EPIC2 : public TS_MESSAGE_WNA
 };
 #pragma pack(pop)
 
-#endif // PACKETS_FLAT_TS_AC_SERVER_LIST_H

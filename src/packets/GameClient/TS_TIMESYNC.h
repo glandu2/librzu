@@ -1,5 +1,4 @@
-#ifndef PACKETS_TS_TIMESYNC_H
-#define PACKETS_TS_TIMESYNC_H
+#pragma once
 
 #include "Packet/PacketDeclaration.h"
 
@@ -9,4 +8,3 @@
 CREATE_PACKET(TS_TIMESYNC, 2);
 #undef TS_TIMESYNC_DEF
 
-#endif // PACKETS_TS_TIMESYNC_H

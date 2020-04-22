@@ -1,5 +1,4 @@
-#ifndef PACKETS_TS_CS_SECURITY_NO_H
-#define PACKETS_TS_CS_SECURITY_NO_H
+#pragma once
 
 #include "Packet/PacketDeclaration.h"
 
@@ -10,4 +9,3 @@
 CREATE_PACKET(TS_CS_SECURITY_NO, 9005);
 #undef TS_CS_SECURITY_NO_DEF
 
-#endif // PACKETS_TS_CS_SECURITY_NO_H

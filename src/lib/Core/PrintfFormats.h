@@ -1,5 +1,4 @@
-#ifndef PRINTFFORMATS_H
-#define PRINTFFORMATS_H
+#pragma once
 
 #if defined(_MSC_VER) && _MSC_VER < 1900
 #define PRId8 "d"
@@ -29,4 +28,3 @@
 #endif
 #endif
 
-#endif  // PRINTFFORMATS_H

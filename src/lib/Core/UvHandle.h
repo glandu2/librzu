@@ -1,5 +1,4 @@
-#ifndef UVHANDLE_H
-#define UVHANDLE_H
+#pragma once
 
 #include "EventLoop.h"
 #include "Extern.h"
@@ -34,4 +33,3 @@ private:
 	static std::vector<std::unique_ptr<HandleType>> freeHandles;
 };
 
-#endif

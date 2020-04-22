@@ -1,5 +1,4 @@
-#ifndef PACKETS_TS_SC_REGEN_INFO_H
-#define PACKETS_TS_SC_REGEN_INFO_H
+#pragma once
 
 #include "Packet/PacketDeclaration.h"
 
@@ -18,4 +17,3 @@
 CREATE_PACKET(TS_SC_REGEN_INFO, 510);
 #undef TS_SC_REGEN_INFO_DEF
 
-#endif // PACKETS_TS_SC_REGEN_INFO_H

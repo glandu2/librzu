@@ -1,5 +1,4 @@
-#ifndef PIPE_H
-#define PIPE_H
+#pragma once
 
 #include "Stream.h"
 #include "uv.h"
@@ -28,4 +27,3 @@ private:
 	uv_pipe_t pipe;
 };
 
-#endif  // PIPE_H

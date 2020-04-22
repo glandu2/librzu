@@ -1,5 +1,4 @@
-#ifndef SOCKET_H
-#define SOCKET_H
+#pragma once
 
 #include "Stream.h"
 #include "uv.h"
@@ -38,4 +37,3 @@ private:
 	uv_tcp_t socket;
 };
 
-#endif  // SOCKET_H

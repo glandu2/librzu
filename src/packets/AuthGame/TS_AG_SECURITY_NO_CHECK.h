@@ -1,5 +1,4 @@
-#ifndef PACKETS_TS_AG_SECURITY_NO_CHECK_H
-#define PACKETS_TS_AG_SECURITY_NO_CHECK_H
+#pragma once
 
 #include "Packet/PacketBaseMessage.h"
 
@@ -23,4 +22,3 @@ struct TS_AG_SECURITY_NO_CHECK_EPIC5 : public TS_MESSAGE
 };
 #pragma pack(pop)
 
-#endif // PACKETS_TS_AG_SECURITY_NO_CHECK_H

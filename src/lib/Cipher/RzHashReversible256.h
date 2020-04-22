@@ -1,5 +1,4 @@
-#ifndef RZHASHREVERSIBLE256_H
-#define RZHASHREVERSIBLE256_H
+#pragma once
 
 #include "../Extern.h"
 #include <stdint.h>
@@ -21,4 +20,3 @@ public:
 	static void generatePayload(TS_CS_LOGIN& versionPkt);
 };
 
-#endif

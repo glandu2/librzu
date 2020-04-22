@@ -1,5 +1,4 @@
-#ifndef PACKETS_TS_AC_SELECT_SERVER_H
-#define PACKETS_TS_AC_SELECT_SERVER_H
+#pragma once
 
 #include "Packet/PacketBaseMessage.h"
 
@@ -24,4 +23,3 @@ struct TS_AC_SELECT_SERVER_RSA : public TS_MESSAGE
 };
 #pragma pack(pop)
 
-#endif // PACKETS_TS_AC_SELECT_SERVER_H

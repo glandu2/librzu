@@ -1,5 +1,4 @@
-#ifndef THREADWORK_H
-#define THREADWORK_H
+#pragma once
 
 #include "../Extern.h"
 #include "errno.h"
@@ -69,4 +68,3 @@ private:
 	}
 };
 
-#endif  // THREADWORK_H

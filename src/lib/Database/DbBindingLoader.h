@@ -1,5 +1,4 @@
-#ifndef DBBINDINGLOADER_H
-#define DBBINDINGLOADER_H
+#pragma once
 
 #include "../Extern.h"
 #include <vector>
@@ -24,4 +23,3 @@ private:
 	std::vector<DeinitBindingFunction> dbQueryBindingDeinits;
 };
 
-#endif  // DBBINDINGLOADER_H

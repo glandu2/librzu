@@ -1,5 +1,4 @@
-#ifndef DBQUERYJOBCALLBACK_H
-#define DBQUERYJOBCALLBACK_H
+#pragma once
 
 #include "DbQueryJob.h"
 #include "IDbQueryJobCallback.h"
@@ -38,4 +37,3 @@ private:
 
 #include "DbQueryJobCallback.inl"
 
-#endif  // DBQUERYJOBCALLBACK_H

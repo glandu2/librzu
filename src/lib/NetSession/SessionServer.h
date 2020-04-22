@@ -1,5 +1,4 @@
-#ifndef SESSIONSERVER_H
-#define SESSIONSERVER_H
+#pragma once
 
 #include "Config/ConfigParamVal.h"
 #include "Core/Object.h"
@@ -95,4 +94,3 @@ private:
 	Param parameter;
 };
 
-#endif  // SESSIONSERVER_H

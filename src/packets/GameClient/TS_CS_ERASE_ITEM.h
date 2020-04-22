@@ -1,5 +1,4 @@
-#ifndef PACKETS_TS_CS_ERASE_ITEM_H
-#define PACKETS_TS_CS_ERASE_ITEM_H
+#pragma once
 
 #include "Packet/PacketDeclaration.h"
 
@@ -18,4 +17,3 @@ CREATE_STRUCT(TS_ERASE_ITEM_INFO);
 CREATE_PACKET(TS_CS_ERASE_ITEM, 208);
 #undef TS_CS_ERASE_ITEM_DEF
 
-#endif // PACKETS_TS_CS_ERASE_ITEM_H

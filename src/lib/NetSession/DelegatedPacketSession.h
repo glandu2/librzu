@@ -1,5 +1,4 @@
-#ifndef DELEGATEDPACKETSESSION_H
-#define DELEGATEDPACKETSESSION_H
+#pragma once
 
 #include "Core/IDelegate.h"
 #include "PacketSession.h"
@@ -20,4 +19,3 @@ private:
 	IDelegateHash<uint16_t, CallbackFunction> packetListeners;
 };
 
-#endif  // DELEGATEDPACKETSESSION_H

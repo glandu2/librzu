@@ -1,5 +1,4 @@
-#ifndef TELNETSESSION_H
-#define TELNETSESSION_H
+#pragma once
 
 #include "SocketSession.h"
 #include <string>
@@ -31,4 +30,3 @@ private:
 	std::vector<char> buffer;
 };
 
-#endif  // TELNETSESSION_H

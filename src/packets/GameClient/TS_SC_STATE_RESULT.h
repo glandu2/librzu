@@ -1,5 +1,4 @@
-#ifndef TS_SC_STATE_RESULT_H
-#define TS_SC_STATE_RESULT_H
+#pragma once
 
 #include "Packet/PacketDeclaration.h"
 
@@ -26,4 +25,3 @@ enum TS_STATE_RESULT_TYPE : uint16_t {
 CREATE_PACKET(TS_SC_STATE_RESULT, 406);
 #undef TS_SC_STATE_RESULT_DEF
 
-#endif // TS_SC_STATE_RESULT_H

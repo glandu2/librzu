@@ -1,5 +1,4 @@
-#ifndef CONFIGPARAMVAL_H
-#define CONFIGPARAMVAL_H
+#pragma once
 
 #include "ConfigValue.h"
 #include "Core/IDelegate.h"
@@ -176,4 +175,3 @@ private:
 	cval(cval&& other);
 };
 
-#endif  // CONFIGPARAMVAL_H

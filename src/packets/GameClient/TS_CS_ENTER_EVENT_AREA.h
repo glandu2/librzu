@@ -1,5 +1,4 @@
-#ifndef PACKETS_TS_CS_ENTER_EVENT_AREA_H
-#define PACKETS_TS_CS_ENTER_EVENT_AREA_H
+#pragma once
 
 #include "Packet/PacketDeclaration.h"
 
@@ -11,4 +10,3 @@
 CREATE_PACKET(TS_CS_ENTER_EVENT_AREA, 15);
 #undef TS_CS_ENTER_EVENT_AREA_DEF
 
-#endif // PACKETS_TS_CS_ENTER_EVENT_AREA_H

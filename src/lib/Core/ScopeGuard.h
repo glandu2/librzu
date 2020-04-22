@@ -1,5 +1,4 @@
-#ifndef SCOPEGUARD_H
-#define SCOPEGUARD_H
+#pragma once
 
 #include <functional>
 
@@ -31,4 +30,3 @@ template<typename F> ScopeGuard<F> make_scope_guard(F&& f) {
 	auto name = make_scope_guard(x); \
 	(void) name;
 
-#endif

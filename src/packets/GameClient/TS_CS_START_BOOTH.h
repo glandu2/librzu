@@ -1,5 +1,4 @@
-#ifndef PACKETS_TS_CS_START_BOOTH_H
-#define PACKETS_TS_CS_START_BOOTH_H
+#pragma once
 
 #include "Packet/PacketDeclaration.h"
 
@@ -21,4 +20,3 @@ CREATE_STRUCT(TS_BOOTH_OPEN_ITEM_INFO);
 CREATE_PACKET(TS_CS_START_BOOTH, 700);
 #undef TS_CS_START_BOOTH_DEF
 
-#endif // PACKETS_TS_CS_START_BOOTH_H

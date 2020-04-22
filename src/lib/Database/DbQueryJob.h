@@ -1,5 +1,4 @@
-#ifndef DBQUERYJOB_H
-#define DBQUERYJOB_H
+#pragma once
 
 #include "Config/ConfigInfo.h"
 #include "Core/Object.h"
@@ -186,4 +185,3 @@ private:
 
 #include "DbQueryJob.inl"
 
-#endif  // DBQUERYJOB_H

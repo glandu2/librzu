@@ -1,5 +1,4 @@
-#ifndef PACKETS_TS_CS_GET_BOOTHS_NAME_H
-#define PACKETS_TS_CS_GET_BOOTHS_NAME_H
+#pragma once
 
 #include "Packet/PacketDeclaration.h"
 
@@ -10,4 +9,3 @@
 CREATE_PACKET(TS_CS_GET_BOOTHS_NAME, 707);
 #undef TS_CS_GET_BOOTHS_NAME_DEF
 
-#endif // PACKETS_TS_CS_GET_BOOTHS_NAME_H

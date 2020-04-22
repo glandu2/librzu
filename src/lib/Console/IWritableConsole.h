@@ -1,5 +1,4 @@
-#ifndef IWRITABLECONSOLE
-#define IWRITABLECONSOLE
+#pragma once
 
 #include "LibGlobal.h"
 
@@ -11,4 +10,3 @@ public:
 	virtual void log(const char* message, ...) PRINTFCHECK(2, 3) = 0;
 };
 
-#endif  // IWRITABLECONSOLE

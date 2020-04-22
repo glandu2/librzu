@@ -1,5 +1,4 @@
-#ifndef PACKETS_PACKETBASEMESSAGE_H
-#define PACKETS_PACKETBASEMESSAGE_H
+#pragma once
 
 #include "Packet/PacketEpics.h"
 #include <stdint.h>
@@ -125,5 +124,3 @@ template<class T> bool TS_MESSAGE::process(T& packet, packet_version_t version) 
 	packet.deserialize(&buffer);
 	return buffer.checkPacketFinalSize();
 }
-
-#endif  // PACKETS_PACKETBASEMESSAGE_H

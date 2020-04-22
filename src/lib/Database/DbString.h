@@ -1,5 +1,4 @@
-#ifndef DBSTRING_H
-#define DBSTRING_H
+#pragma once
 
 #include <string>
 #include <uv.h>
@@ -87,4 +86,3 @@ private:
 template<typename> struct is_DbString : std::false_type {};
 template<std::size_t N> struct is_DbString<DbString<N>> : std::true_type {};
 
-#endif  // DBTYPEHELPERS_H

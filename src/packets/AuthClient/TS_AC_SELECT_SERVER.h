@@ -1,5 +1,4 @@
-#ifndef PACKETS_TS_AC_SELECT_SERVER_H
-#define PACKETS_TS_AC_SELECT_SERVER_H
+#pragma once
 
 #include "Packet/PacketDeclaration.h"
 
@@ -11,4 +10,3 @@
 	_(simple)(uint32_t, pending_time)
 CREATE_PACKET(TS_AC_SELECT_SERVER, 10024);
 
-#endif // PACKETS_TS_AC_SELECT_SERVER_H

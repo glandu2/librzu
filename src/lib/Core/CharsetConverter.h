@@ -1,5 +1,4 @@
-#ifndef CHARSETCONVERTER_H
-#define CHARSETCONVERTER_H
+#pragma once
 
 #include "Object.h"
 #include "uv.h"
@@ -50,4 +49,3 @@ private:
 	IconvInstance* ic;
 };
 
-#endif  // CHARSETCONVERTER_H

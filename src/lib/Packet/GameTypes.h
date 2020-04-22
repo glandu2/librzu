@@ -1,5 +1,4 @@
-#ifndef GAME_TYPES_H
-#define GAME_TYPES_H
+#pragma once
 
 #include <functional>
 #include <stdint.h>
@@ -50,4 +49,3 @@ namespace std {
 template<> struct hash<ar_handle_t> : public hash<uint32_t> {};
 }  // namespace std
 
-#endif

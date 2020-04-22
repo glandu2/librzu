@@ -1,5 +1,4 @@
-#ifndef PACKETS_TS_CS_CHARACTER_LIST_H
-#define PACKETS_TS_CS_CHARACTER_LIST_H
+#pragma once
 
 #include "Packet/PacketDeclaration.h"
 
@@ -18,4 +17,3 @@
 CREATE_PACKET_VER_ID(TS_CS_CHARACTER_LIST);
 #undef TS_CS_CHARACTER_LIST_DEF
 
-#endif // PACKETS_TS_CS_CHARACTER_LIST_H

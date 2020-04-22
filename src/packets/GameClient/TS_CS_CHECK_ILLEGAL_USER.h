@@ -1,5 +1,4 @@
-#ifndef PACKETS_TS_CS_CHECK_ILLEGAL_USER_H
-#define PACKETS_TS_CS_CHECK_ILLEGAL_USER_H
+#pragma once
 
 #include "Packet/PacketDeclaration.h"
 
@@ -9,4 +8,3 @@
 CREATE_PACKET(TS_CS_CHECK_ILLEGAL_USER, 57);
 #undef TS_CS_CHECK_ILLEGAL_USER_DEF
 
-#endif // PACKETS_TS_CS_CHECK_ILLEGAL_USER_H

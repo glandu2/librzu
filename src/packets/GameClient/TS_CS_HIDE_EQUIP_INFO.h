@@ -1,5 +1,4 @@
-#ifndef PACKETS_TS_CS_HIDE_EQUIP_INFO_H
-#define PACKETS_TS_CS_HIDE_EQUIP_INFO_H
+#pragma once
 
 #include "Packet/PacketDeclaration.h"
 
@@ -9,4 +8,3 @@
 CREATE_PACKET(TS_CS_HIDE_EQUIP_INFO, 221);
 #undef TS_CS_HIDE_EQUIP_INFO_DEF
 
-#endif // PACKETS_TS_CS_HIDE_EQUIP_INFO_H

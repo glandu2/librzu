@@ -32,5 +32,3 @@ public:
 private:
 	uint32_t value;
 };
-
-#endif  // PACKETS_ENCODEDINT_H

@@ -1,5 +1,4 @@
-#ifndef PACKETS_TS_AC_RESULT_WITH_STRING_H
-#define PACKETS_TS_AC_RESULT_WITH_STRING_H
+#pragma once
 
 #include "Packet/PacketBaseMessage.h"
 
@@ -26,4 +25,3 @@ struct TS_AC_RESULT_WITH_STRING : public TS_MESSAGE_WNA
 };
 #pragma pack(pop)
 
-#endif // PACKETS_TS_AC_RESULT_WITH_STRING_H

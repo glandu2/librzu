@@ -1,5 +1,4 @@
-#ifndef PACKETS_TS_CS_AUCTION_SEARCH_H
-#define PACKETS_TS_CS_AUCTION_SEARCH_H
+#pragma once
 
 #include "Packet/PacketDeclaration.h"
 
@@ -13,4 +12,3 @@
 CREATE_PACKET(TS_CS_AUCTION_SEARCH, 1300);
 #undef TS_CS_AUCTION_SEARCH_DEF
 
-#endif // PACKETS_TS_CS_AUCTION_SEARCH_H

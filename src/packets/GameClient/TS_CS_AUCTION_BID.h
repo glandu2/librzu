@@ -1,5 +1,4 @@
-#ifndef PACKETS_TS_CS_AUCTION_BID_H
-#define PACKETS_TS_CS_AUCTION_BID_H
+#pragma once
 
 #include "Packet/PacketDeclaration.h"
 
@@ -10,4 +9,3 @@
 CREATE_PACKET(TS_CS_AUCTION_BID, 1306);
 #undef TS_CS_AUCTION_BID_DEF
 
-#endif // PACKETS_TS_CS_AUCTION_BID_H

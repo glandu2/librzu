@@ -1,5 +1,4 @@
-#ifndef PACKETS_TS_SC_MOVE_H
-#define PACKETS_TS_SC_MOVE_H
+#pragma once
 
 #include "Packet/PacketDeclaration.h"
 
@@ -21,4 +20,3 @@ CREATE_STRUCT(MOVE_INFO);
 CREATE_PACKET(TS_SC_MOVE, 8);
 #undef TS_SC_MOVE_DEF
 
-#endif // PACKETS_TS_SC_MOVE_H

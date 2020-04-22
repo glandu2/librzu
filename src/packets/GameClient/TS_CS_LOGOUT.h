@@ -1,5 +1,4 @@
-#ifndef PACKETS_TS_CS_LOGOUT_H
-#define PACKETS_TS_CS_LOGOUT_H
+#pragma once
 
 #include "Packet/PacketDeclaration.h"
 
@@ -8,4 +7,3 @@
 CREATE_PACKET(TS_CS_LOGOUT, 27);
 #undef TS_CS_LOGOUT_DEF
 
-#endif // PACKETS_TS_CS_LOGOUT_H

@@ -1,5 +1,4 @@
-#ifndef IDELEGATE_H
-#define IDELEGATE_H
+#pragma once
 
 #include "IListener.h"
 #include <list>
@@ -315,4 +314,3 @@ private:
 	std::list<PendingAdd> pendingAdds;
 };
 
-#endif  // IDELEGATE_H

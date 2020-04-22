@@ -1,5 +1,4 @@
-#ifndef PACKETS_TS_SC_GET_BOOTHS_NAME_H
-#define PACKETS_TS_SC_GET_BOOTHS_NAME_H
+#pragma once
 
 #include "Packet/PacketDeclaration.h"
 
@@ -16,4 +15,3 @@ CREATE_STRUCT(TS_BOOTH_NAME);
 CREATE_PACKET(TS_SC_GET_BOOTHS_NAME, 708);
 #undef TS_SC_GET_BOOTHS_NAME_DEF
 
-#endif // PACKETS_TS_SC_GET_BOOTHS_NAME_H

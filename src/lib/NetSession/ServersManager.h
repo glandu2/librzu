@@ -1,5 +1,4 @@
-#ifndef SERVERSMANAGER_H
-#define SERVERSMANAGER_H
+#pragma once
 
 #include "Core/Object.h"
 #include <string>
@@ -47,4 +46,3 @@ private:
 	static ServersManager* instance;
 };
 
-#endif  // SERVERSMANAGER_H

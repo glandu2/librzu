@@ -1,5 +1,4 @@
-#ifndef PACKETS_TS_SC_ENTER_H
-#define PACKETS_TS_SC_ENTER_H
+#pragma once
 
 #include "Packet/EncodedInt.h"
 #include "Packet/EncodingRandomized.h"
@@ -155,4 +154,3 @@ CREATE_STRUCT(TS_SC_ENTER__PET_INFO);
 CREATE_PACKET_VER_ID(TS_SC_ENTER);
 #undef TS_SC_ENTER_DEF
 
-#endif // PACKETS_TS_SC_ENTER_H

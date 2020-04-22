@@ -1,5 +1,4 @@
-#ifndef RC4CIPHER_H
-#define RC4CIPHER_H
+#pragma once
 
 #include "../Extern.h"
 #include <string.h>
@@ -20,4 +19,3 @@ private:
 	void* const state;
 };
 
-#endif  // RC4CIPHER_H

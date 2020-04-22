@@ -1,5 +1,4 @@
-#ifndef BANMANAGER_H
-#define BANMANAGER_H
+#pragma once
 
 #include "Core/Object.h"
 #include "Core/Timer.h"
@@ -36,4 +35,3 @@ private:
 	Timer<BanManager> resetConnectionsThisDayTimer;
 };
 
-#endif  // BANMANAGER_H

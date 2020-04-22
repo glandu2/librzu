@@ -1,5 +1,4 @@
-#ifndef PACKETS_TS_CS_MIX_H
-#define PACKETS_TS_CS_MIX_H
+#pragma once
 
 #include "Packet/PacketDeclaration.h"
 
@@ -18,4 +17,3 @@ CREATE_STRUCT(TS_MIX_INFO);
 CREATE_PACKET(TS_CS_MIX, 256);
 #undef TS_CS_MIX_DEF
 
-#endif // PACKETS_TS_CS_MIX_H

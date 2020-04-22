@@ -1,5 +1,4 @@
-#ifndef PACKETS_TS_AC_RESULT_WITH_STRING_H
-#define PACKETS_TS_AC_RESULT_WITH_STRING_H
+#pragma once
 
 
 #include "Packet/PacketDeclaration.h"
@@ -16,4 +15,3 @@
 CREATE_PACKET(TS_AC_RESULT_WITH_STRING, 10002);
 
 
-#endif // PACKETS_TS_AC_RESULT_WITH_STRING_H

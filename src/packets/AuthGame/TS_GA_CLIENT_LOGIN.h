@@ -1,5 +1,4 @@
-#ifndef PACKETS_TS_GA_CLIENT_LOGIN_H
-#define PACKETS_TS_GA_CLIENT_LOGIN_H
+#pragma once
 
 #include "Packet/PacketBaseMessage.h"
 
@@ -13,4 +12,3 @@ struct TS_GA_CLIENT_LOGIN : public TS_MESSAGE
 };
 #pragma pack(pop)
 
-#endif // PACKETS_TS_GA_CLIENT_LOGIN_H

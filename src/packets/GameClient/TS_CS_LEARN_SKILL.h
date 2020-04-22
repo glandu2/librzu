@@ -1,5 +1,4 @@
-#ifndef PACKETS_TS_CS_LEARN_SKILL_H
-#define PACKETS_TS_CS_LEARN_SKILL_H
+#pragma once
 
 #include "Packet/PacketDeclaration.h"
 
@@ -25,4 +24,3 @@ CREATE_PACKET(TS_CS_LEARN_SKILL, 402);
  * When the skill is already at lv1 or more and the pet is random, base_random_skill_id is set to the original pseudoskill.
  */
 
-#endif // PACKETS_TS_CS_LEARN_SKILL_H

@@ -1,5 +1,4 @@
-#ifndef PACKETS_TS_GA_LOGIN_H
-#define PACKETS_TS_GA_LOGIN_H
+#pragma once
 
 #include "Packet/PacketBaseMessage.h"
 
@@ -29,4 +28,3 @@ struct TS_GA_LOGIN_WITH_LOGOUT_EXT : public TS_GA_LOGIN_WITH_LOGOUT
 
 #pragma pack(pop)
 
-#endif // PACKETS_TS_GA_LOGIN_H

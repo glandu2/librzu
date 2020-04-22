@@ -1,5 +1,4 @@
-#ifndef PACKETS_EPICS_H
-#define PACKETS_EPICS_H
+#pragma once
 
 class packet_version_t {
 public:
@@ -96,4 +95,3 @@ private:
 
 #define EPIC_FLAG_TESTSERVER 1
 
-#endif  // PACKETS_EPICS_H

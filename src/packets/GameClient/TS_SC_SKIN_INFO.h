@@ -1,5 +1,4 @@
-#ifndef PACKETS_TS_SC_SKIN_INFO_H
-#define PACKETS_TS_SC_SKIN_INFO_H
+#pragma once
 
 #include "Packet/PacketDeclaration.h"
 
@@ -10,4 +9,3 @@
 CREATE_PACKET(TS_SC_SKIN_INFO, 224);
 #undef TS_SC_SKIN_INFO_DEF
 
-#endif // PACKETS_TS_SC_SKIN_INFO_H

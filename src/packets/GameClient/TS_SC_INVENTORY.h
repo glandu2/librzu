@@ -1,5 +1,4 @@
-#ifndef PACKETS_TS_SC_INVENTORY_H
-#define PACKETS_TS_SC_INVENTORY_H
+#pragma once
 
 #include "Packet/PacketDeclaration.h"
 
@@ -62,4 +61,3 @@ CREATE_STRUCT(TS_ITEM_INFO);
 CREATE_PACKET(TS_SC_INVENTORY, 207);
 #undef TS_SC_INVENTORY_DEF
 
-#endif // PACKETS_TS_SC_INVENTORY_H

@@ -1,5 +1,4 @@
-#ifndef STREAMADDRESS_H
-#define STREAMADDRESS_H
+#pragma once
 
 #include "../Extern.h"
 #include "uv.h"
@@ -28,4 +27,3 @@ struct RZU_EXTERN StreamAddressHasher {
 	size_t operator()(const StreamAddress& k) const;
 };
 
-#endif  // STREAM_H

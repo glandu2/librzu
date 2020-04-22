@@ -1,5 +1,4 @@
-#ifndef MESSAGEBUFFER_H
-#define MESSAGEBUFFER_H
+#pragma once
 
 #include "Core/Object.h"
 #include "Stream/Stream.h"
@@ -327,4 +326,3 @@ public:
 	}
 };
 
-#endif  // MESSAGEBUFFER_H

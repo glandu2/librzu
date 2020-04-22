@@ -1,5 +1,4 @@
-#ifndef PACKETS_TS_SC_WARP_H
-#define PACKETS_TS_SC_WARP_H
+#pragma once
 
 #include "Packet/PacketDeclaration.h"
 
@@ -12,4 +11,3 @@
 CREATE_PACKET(TS_SC_WARP, 12);
 #undef TS_SC_WARP_DEF
 
-#endif // PACKETS_TS_SC_WARP_H

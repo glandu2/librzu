@@ -1,5 +1,4 @@
-#ifndef PACKETS_TS_SC_SET_SUB_TITLE_H
-#define PACKETS_TS_SC_SET_SUB_TITLE_H
+#pragma once
 
 #include "Packet/PacketDeclaration.h"
 
@@ -11,4 +10,3 @@
 CREATE_PACKET(TS_SC_SET_SUB_TITLE, 631);
 #undef TS_SC_SET_SUB_TITLE_DEF
 
-#endif // PACKETS_TS_SC_SET_SUB_TITLE_H

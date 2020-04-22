@@ -1,5 +1,4 @@
-#ifndef OBJECT_H
-#define OBJECT_H
+#pragma once
 
 #include <stdarg.h>
 #include <stddef.h>
@@ -70,4 +69,3 @@ private:
 	bool scheduledForDelete;
 };
 
-#endif  // OBJECT_H

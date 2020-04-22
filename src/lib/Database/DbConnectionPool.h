@@ -1,5 +1,4 @@
-#ifndef DBCONNECTIONPOOL_H
-#define DBCONNECTIONPOOL_H
+#pragma once
 
 #include "Core/Object.h"
 #include "uv.h"
@@ -41,4 +40,3 @@ private:
 	void* henv;
 };
 
-#endif  // DBCONNECTIONPOOL_H

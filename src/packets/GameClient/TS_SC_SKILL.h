@@ -1,5 +1,4 @@
-#ifndef PACKETS_TS_SC_SKILL_H
-#define PACKETS_TS_SC_SKILL_H
+#pragma once
 
 #include "Packet/PacketDeclaration.h"
 
@@ -197,4 +196,3 @@ CREATE_STRUCT(TS_SC_SKILL__CAST);
 CREATE_PACKET(TS_SC_SKILL, 401);
 #undef TS_SC_SKILL_DEF
 
-#endif // PACKETS_TS_SC_ENTER_H

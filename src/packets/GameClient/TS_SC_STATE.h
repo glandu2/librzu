@@ -1,5 +1,4 @@
-#ifndef PACKETS_TS_SC_STATE_H
-#define PACKETS_TS_SC_STATE_H
+#pragma once
 
 #include "Packet/PacketDeclaration.h"
 
@@ -19,4 +18,3 @@
 CREATE_PACKET(TS_SC_STATE, 505);
 #undef TS_SC_STATE_DEF
 
-#endif // PACKETS_TS_SC_STATE_H

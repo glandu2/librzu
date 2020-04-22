@@ -1,5 +1,4 @@
-#ifndef DBTYPEHELPERS_H
-#define DBTYPEHELPERS_H
+#pragma once
 
 #include "../Extern.h"
 #include <sstream>
@@ -109,4 +108,3 @@ template<typename T> struct IsStdString { static constexpr DbValueType value = D
 template<> struct IsStdString<std::string> { static constexpr DbValueType value = DVT_StdString; };
 template<size_t N> struct IsStdString<DbString<N>> { static constexpr DbValueType value = DVT_DbString; };
 
-#endif  // DBTYPEHELPERS_H

@@ -1,5 +1,4 @@
-#ifndef PACKETS_TS_CU_LOGIN_H
-#define PACKETS_TS_CU_LOGIN_H
+#pragma once
 
 #include "Packet/PacketBaseMessage.h"
 
@@ -16,4 +15,3 @@ struct TS_CU_LOGIN : public TS_MESSAGE
 };
 #pragma pack(pop)
 
-#endif // PACKETS_TS_CU_LOGIN_H

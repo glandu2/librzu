@@ -1,5 +1,4 @@
-#ifndef PACKETS_TS_SC_ATTACK_EVENT_H
-#define PACKETS_TS_SC_ATTACK_EVENT_H
+#pragma once
 
 #include "Packet/PacketDeclaration.h"
 
@@ -70,4 +69,3 @@ CREATE_STRUCT(ATTACK_INFO);
 CREATE_PACKET(TS_SC_ATTACK_EVENT, 101);
 #undef TS_SC_ATTACK_EVENT_DEF
 
-#endif // PACKETS_TS_SC_ATTACK_EVENT_H

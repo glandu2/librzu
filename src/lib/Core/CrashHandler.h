@@ -1,5 +1,4 @@
-#ifndef CRASHHANDLER_H
-#define CRASHHANDLER_H
+#pragma once
 
 #include "../Extern.h"
 #include "uv.h"
@@ -39,4 +38,3 @@ private:
 	static bool globalHandlersInitialized;
 };
 
-#endif  // CRASHHANDLER_H

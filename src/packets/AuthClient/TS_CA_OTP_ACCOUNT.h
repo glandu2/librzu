@@ -1,5 +1,4 @@
-#ifndef PACKETS_TS_CA_OTP_ACCOUNT_H
-#define PACKETS_TS_CA_OTP_ACCOUNT_H
+#pragma once
 
 #include "Packet/PacketDeclaration.h"
 
@@ -20,4 +19,3 @@ CREATE_STRUCT(TS_OTP_ACCOUNT_PASSWORD_AES);
 	_(simple)(TS_OTP_ACCOUNT_PASSWORD_AES, passwordAes, version >= EPIC_8_1_1_RSA)
 CREATE_PACKET(TS_CA_OTP_ACCOUNT, 10011);
 
-#endif // PACKETS_TS_CA_OTP_ACCOUNT_H

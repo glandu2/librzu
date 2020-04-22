@@ -1,5 +1,4 @@
-#ifndef PACKETS_ENCODINGSCRAMBLED_H
-#define PACKETS_ENCODINGSCRAMBLED_H
+#pragma once
 
 #include "../Extern.h"
 #include "EncodingRandomized.h"
@@ -31,4 +30,3 @@ private:
 	static uint8_t decodeMap[32];
 };
 
-#endif  // PACKETS_ENCODINGSCRAMBLED_H

@@ -1,5 +1,4 @@
-#ifndef PACKETS_TS_AC_RESULT_H
-#define PACKETS_TS_AC_RESULT_H
+#pragma once
 
 #include "Packet/PacketDeclaration.h"
 #include "PacketEnums.h"
@@ -17,4 +16,3 @@ enum TS_LOGIN_SUCCESS_FLAG
 	_(simple)(int32_t, login_flag)
 CREATE_PACKET(TS_AC_RESULT, 10000);
 
-#endif // PACKETS_TS_AC_RESULT_H

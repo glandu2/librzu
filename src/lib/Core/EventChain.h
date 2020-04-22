@@ -1,5 +1,4 @@
-#ifndef EVENTCHAIN_H
-#define EVENTCHAIN_H
+#pragma once
 
 #include "../Extern.h"
 #include <type_traits>
@@ -16,4 +15,3 @@ private:
 	EventChain& operator=(const EventChain&);
 };
 
-#endif  // EVENTCHAIN_H

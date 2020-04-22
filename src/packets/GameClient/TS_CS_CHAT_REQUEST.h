@@ -1,5 +1,4 @@
-#ifndef PACKETS_TS_CS_CHAT_REQUEST_H
-#define PACKETS_TS_CS_CHAT_REQUEST_H
+#pragma once
 
 #include "Packet/PacketDeclaration.h"
 
@@ -51,4 +50,3 @@ enum TS_CHAT_TYPE : uint8_t
 CREATE_PACKET(TS_CS_CHAT_REQUEST, 20);
 #undef TS_CS_CHAT_REQUEST_DEF
 
-#endif // PACKETS_TS_CS_CHAT_REQUEST_H

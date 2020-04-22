@@ -1,5 +1,4 @@
-#ifndef PACKETS_TS_SC_WATCH_BOOTH_H
-#define PACKETS_TS_SC_WATCH_BOOTH_H
+#pragma once
 
 #include "Packet/PacketDeclaration.h"
 #include "TS_SC_INVENTORY.h"
@@ -21,4 +20,3 @@ CREATE_STRUCT(TS_BOOTH_ITEM_INFO);
 CREATE_PACKET(TS_SC_WATCH_BOOTH, 703);
 #undef TS_SC_WATCH_BOOTH_DEF
 
-#endif // PACKETS_TS_SC_WATCH_BOOTH_H

@@ -1,5 +1,4 @@
-#ifndef ZLIBCIPHER_H
-#define ZLIBCIPHER_H
+#pragma once
 
 #include "../Extern.h"
 #include <stdint.h>
@@ -15,4 +14,3 @@ protected:
 	static int32_t getMagic(uint32_t checksum, uint32_t compressedSize);
 };
 
-#endif  // ZLIBCIPHER_H

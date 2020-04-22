@@ -1,5 +1,4 @@
-#ifndef PACKETS_TS_SC_SKILL_LIST_H
-#define PACKETS_TS_SC_SKILL_LIST_H
+#pragma once
 
 #include "Packet/PacketDeclaration.h"
 
@@ -24,4 +23,3 @@ CREATE_PACKET(TS_SC_SKILL_LIST, 403);
 
 // modification_type: if true then refresh
 
-#endif // PACKETS_TS_SC_SKILL_LIST_H

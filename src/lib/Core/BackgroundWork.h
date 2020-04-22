@@ -1,5 +1,4 @@
-#ifndef BACKGROUDWORK_H
-#define BACKGROUDWORK_H
+#pragma once
 
 #include "../Extern.h"
 #include "Core/EventLoop.h"
@@ -69,4 +68,3 @@ private:
 	uv_work_t work;
 };
 
-#endif  // TIMER_H

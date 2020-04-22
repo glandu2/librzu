@@ -1,5 +1,4 @@
-#ifndef CONFIGINFO_H
-#define CONFIGINFO_H
+#pragma once
 
 #include "Core/Object.h"
 #include <string>
@@ -71,4 +70,3 @@ private:
 #define CFG_STAT_CREATE(...) ConfigInfo::get()->createValue<cstatval>(__VA_ARGS__)
 #define CFG_GET(key) ConfigInfo::get()->getValue(key)
 
-#endif  // CONFIGINFO_H

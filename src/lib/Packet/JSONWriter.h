@@ -1,5 +1,4 @@
-#ifndef PACKETS_JSONWRITER_H
-#define PACKETS_JSONWRITER_H
+#pragma once
 
 #include "Core/Utils.h"
 #include "EncodedInt.h"
@@ -279,4 +278,3 @@ public:
 	void discard(const char* fieldName, size_t size) {}
 };
 
-#endif /* PACKETS_JSONWRITER_H */

@@ -1,5 +1,4 @@
-#ifndef DBQUERYJOBREF_H
-#define DBQUERYJOBREF_H
+#pragma once
 
 #include "DbQueryJobCallback.h"
 #include "DbQueryJobLambda.h"
@@ -73,4 +72,3 @@ private:
 	DbQueryJobRef& operator=(const DbQueryJobRef& other);
 };
 
-#endif  // DBQUERYJOBREF_H

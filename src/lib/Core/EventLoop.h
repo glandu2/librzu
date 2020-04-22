@@ -1,5 +1,4 @@
-#ifndef EVENTLOOP_H
-#define EVENTLOOP_H
+#pragma once
 
 #include "Object.h"
 #include "uv.h"
@@ -39,4 +38,3 @@ private:
 	static void initKey();
 };
 
-#endif  // EVENTLOOP_H

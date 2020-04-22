@@ -1,5 +1,4 @@
-#ifndef IDBQUERYJOBCALLBACK_H
-#define IDBQUERYJOBCALLBACK_H
+#pragma once
 
 class DbQueryJobRef;
 
@@ -9,4 +8,3 @@ public:
 	virtual void cancel() = 0;
 };
 
-#endif  // IDBQUERYJOBCALLBACK_H

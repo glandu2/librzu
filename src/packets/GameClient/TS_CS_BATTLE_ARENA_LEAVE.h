@@ -1,5 +1,4 @@
-#ifndef PACKETS_TS_CS_BATTLE_ARENA_LEAVE_H
-#define PACKETS_TS_CS_BATTLE_ARENA_LEAVE_H
+#pragma once
 
 #include "Packet/PacketDeclaration.h"
 
@@ -9,4 +8,3 @@
 CREATE_PACKET(TS_CS_BATTLE_ARENA_LEAVE, 4704);
 #undef TS_CS_BATTLE_ARENA_LEAVE_DEF
 
-#endif // PACKETS_TS_CS_BATTLE_ARENA_LEAVE_H

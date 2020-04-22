@@ -1,5 +1,4 @@
-#ifndef PACKETS_TS_SC_SUMMON_EVOLUTION_H
-#define PACKETS_TS_SC_SUMMON_EVOLUTION_H
+#pragma once
 
 #include "Packet/PacketDeclaration.h"
 
@@ -14,4 +13,3 @@
 CREATE_PACKET(TS_SC_SUMMON_EVOLUTION, 307);
 #undef TS_SC_SUMMON_EVOLUTION_DEF
 
-#endif // PACKETS_TS_SC_SUMMON_EVOLUTION_H
