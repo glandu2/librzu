@@ -67,12 +67,15 @@ struct TS_MESSAGE {
 // WNA stand for WITH NESTED ARRAY but shorter
 struct TS_MESSAGE_WNA : public TS_MESSAGE {
 	template<typename PacketType, typename NestedArray> static PacketType* create(int nestedElementCount = 0) {
-		PacketType* msg = (PacketType*) new char[sizeof(PacketType) + sizeof(NestedArray) * nestedElementCount];
 		int size = sizeof(PacketType) + sizeof(NestedArray) * nestedElementCount;
-		memset(msg, 0, size);
+		char* data = new char[size];
+		memset(data, 0, size);
+
+		PacketType* msg = (PacketType*) data;
 		msg->size = size;
 		msg->id = PacketType::packetID;
 		msg->msg_check_sum = checkMessage(msg);
+
 		return msg;
 	}
 
@@ -85,8 +88,8 @@ struct TS_MESSAGE_WNA : public TS_MESSAGE {
 private:
 	TS_MESSAGE_WNA() {}
 	~TS_MESSAGE_WNA() {}
-	TS_MESSAGE_WNA(TS_MESSAGE_WNA const&);             // undefined
-	TS_MESSAGE_WNA& operator=(TS_MESSAGE_WNA const&);  // undefined
+	TS_MESSAGE_WNA(TS_MESSAGE_WNA const&) = delete;
+	TS_MESSAGE_WNA& operator=(TS_MESSAGE_WNA const&) = delete;
 };
 
 #pragma pack(pop)

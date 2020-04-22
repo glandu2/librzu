@@ -1,21 +1,17 @@
-#ifndef PACKETS_ENCODEDINT_H
-#define PACKETS_ENCODEDINT_H
+#pragma once
 
 #include "PacketEpics.h"
 #include <stdint.h>
 
 template<class Encoder> class EncodedInt {
 public:
-	EncodedInt() {}
+	EncodedInt() = default;
 	EncodedInt(uint32_t v) : value(v) {}
-	EncodedInt(const EncodedInt& v) : value(v.value) {}
+	EncodedInt(const EncodedInt& v) = default;
+	EncodedInt& operator=(const EncodedInt& v) = default;
 
 	EncodedInt operator=(uint32_t v) {
 		value = v;
-		return *this;
-	}
-	EncodedInt operator=(EncodedInt v) {
-		value = v.value;
 		return *this;
 	}
 	bool operator==(uint32_t v) const { return v == value; }
