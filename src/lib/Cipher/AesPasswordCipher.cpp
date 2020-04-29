@@ -22,6 +22,9 @@ void AesPasswordCipher::getKey(std::vector<uint8_t>& key) {
 }
 
 bool AesPasswordCipher::encrypt(const uint8_t* input, size_t input_size, std::vector<uint8_t>& output) {
+	if(input_size > std::numeric_limits<int>::max())
+		return false;
+
 	if(!evpCipher)
 		evpCipher.reset(EVP_CIPHER_CTX_new());
 
@@ -33,7 +36,7 @@ bool AesPasswordCipher::encrypt(const uint8_t* input, size_t input_size, std::ve
 	int blockSize = EVP_CIPHER_CTX_block_size(evpCipher.get());
 	output.resize(input_size + blockSize);
 
-	if(EVP_EncryptUpdate(evpCipher.get(), &output[0], &bytesWritten, input, input_size) <= 0)
+	if(EVP_EncryptUpdate(evpCipher.get(), &output[0], &bytesWritten, input, static_cast<int>(input_size)) <= 0)
 		return false;
 
 	totalLength += bytesWritten;
@@ -48,6 +51,9 @@ bool AesPasswordCipher::encrypt(const uint8_t* input, size_t input_size, std::ve
 }
 
 bool AesPasswordCipher::decrypt(const uint8_t* input, size_t input_size, std::vector<uint8_t>& output) {
+	if(input_size > std::numeric_limits<int>::max())
+		return false;
+
 	if(!evpCipher)
 		evpCipher.reset(EVP_CIPHER_CTX_new());
 
@@ -59,7 +65,7 @@ bool AesPasswordCipher::decrypt(const uint8_t* input, size_t input_size, std::ve
 	int blockSize = EVP_CIPHER_CTX_block_size(evpCipher.get());
 	output.resize(input_size + blockSize);
 
-	if(EVP_DecryptUpdate(evpCipher.get(), &output[0], &bytesWritten, input, input_size) <= 0)
+	if(EVP_DecryptUpdate(evpCipher.get(), &output[0], &bytesWritten, input, static_cast<int>(input_size)) <= 0)
 		return false;
 
 	totalLength += bytesWritten;
