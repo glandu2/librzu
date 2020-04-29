@@ -19,11 +19,14 @@ public:
 
 	// Primitives
 	template<typename T>
-	struct is_primitive
+	struct is_strong_typed_primitive
 	    : public std::integral_constant<bool,
-	                                    std::is_fundamental<T>::value || std::is_enum<T>::value ||
-	                                        std::is_same<T, ar_handle_t>::value || std::is_same<T, ar_time_t>::value> {
-	};
+	                                    std::is_same<T, ar_handle_t>::value || std::is_same<T, ar_time_t>::value> {};
+
+	template<typename T>
+	struct is_primitive : public std::integral_constant<bool,
+	                                                    std::is_fundamental<T>::value || std::is_enum<T>::value ||
+	                                                        is_strong_typed_primitive<T>::value> {};
 
 	// Primitives with cast
 	template<typename T, typename U>
@@ -31,4 +34,3 @@ public:
 	                                                             is_primitive<T>::value && is_primitive<U>::value &&
 	                                                                 !std::is_same<T, U>::value> {};
 };
-
