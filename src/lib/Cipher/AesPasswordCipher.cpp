@@ -1,4 +1,5 @@
 #include "AesPasswordCipher.h"
+#include <limits>
 #include <openssl/evp.h>
 #include <stdint.h>  // for uint8_t
 #include <stdlib.h>
