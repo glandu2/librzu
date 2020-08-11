@@ -41,8 +41,9 @@
 
 #define TS_SC_LOGIN_RESULT_ID(X) \
 	X(4, version < EPIC_9_2) \
-	X(64, version >= EPIC_9_2)
+	X(64, version >= EPIC_9_2 && version < EPIC_9_6_3) \
+	X(1064, version >= EPIC_9_6_3) \
 
-CREATE_PACKET_VER_ID(TS_SC_LOGIN_RESULT);
+CREATE_PACKET_VER_ID(TS_SC_LOGIN_RESULT, SessionType::GameClient, SessionPacketOrigin::Server);
 #undef TS_SC_LOGIN_RESULT_DEF
 

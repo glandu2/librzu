@@ -16,6 +16,9 @@
 	_(dynstring)(menu, false) \
 	_(dynstring)(script, false, version >= EPIC_9_6_2)
 
-CREATE_PACKET(TS_SC_DIALOG, 3000);
+#define TS_SC_DIALOG_ID(X) \
+	X(3000, true)
+
+CREATE_PACKET_VER_ID(TS_SC_DIALOG, SessionType::GameClient, SessionPacketOrigin::Server);
 #undef TS_SC_DIALOG_DEF
 

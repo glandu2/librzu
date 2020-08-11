@@ -79,6 +79,10 @@ CREATE_STRUCT(TS_STAT_INFO_ATTRIB);
 	_(simple) (TS_STAT_INFO_ATTRIB, attribute) \
 	_(simple) (TS_STAT_INFO__TYPE, type)
 
-CREATE_PACKET(TS_SC_STAT_INFO, 1000);
+#define TS_SC_STAT_INFO_ID(X) \
+	X(1000, version < EPIC_9_6_3) \
+	X(2000, version >= EPIC_9_6_3)
+
+CREATE_PACKET_VER_ID(TS_SC_STAT_INFO, SessionType::GameClient, SessionPacketOrigin::Server);
 #undef TS_SC_STAT_INFO_DEF
 

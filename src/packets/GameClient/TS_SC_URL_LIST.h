@@ -10,7 +10,11 @@
 	  _(impl)(count)(uint16_t, url_list, version < EPIC_9_6_2) \
 	_(dynstring)(url_list, false)
 
-CREATE_PACKET(TS_SC_URL_LIST, 9001);
+#define TS_SC_URL_LIST_ID(X) \
+	X(9001, version < EPIC_9_6_3) \
+	X(8101, version >= EPIC_9_6_3)
+
+CREATE_PACKET_VER_ID(TS_SC_URL_LIST, SessionType::GameClient, SessionPacketOrigin::Server);
 #undef TS_SC_URL_LIST_DEF
 	
 

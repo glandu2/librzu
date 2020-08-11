@@ -19,5 +19,5 @@ CREATE_STRUCT(TS_IMBC_ACCOUNT_PASSWORD_AES);
 	_(impl)(string)(account, 24, version <  EPIC_7_4) \
 	_(simple)(TS_IMBC_ACCOUNT_PASSWORD_PLAIN, passwordPlain, version < EPIC_8_1_1_RSA) \
 	_(simple)(TS_IMBC_ACCOUNT_PASSWORD_AES, passwordAes, version >= EPIC_8_1_1_RSA)
-CREATE_PACKET(TS_CA_IMBC_ACCOUNT, 10012);
+CREATE_PACKET(TS_CA_IMBC_ACCOUNT, 10012, SessionType::AuthClient, SessionPacketOrigin::Client);
 

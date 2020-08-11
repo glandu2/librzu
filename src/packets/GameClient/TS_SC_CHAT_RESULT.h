@@ -8,6 +8,10 @@
 	_(simple)(int32_t, result) \
 	_(simple)(int32_t, reserved)
 
-CREATE_PACKET(TS_SC_CHAT_RESULT, 24);
+#define TS_SC_CHAT_RESULT_ID(X) \
+	X(24, version < EPIC_9_6_3) \
+	X(1024, version >= EPIC_9_6_3)
+
+CREATE_PACKET_VER_ID(TS_SC_CHAT_RESULT, SessionType::GameClient, SessionPacketOrigin::Server);
 #undef TS_SC_CHAT_RESULT_DEF
 

@@ -18,6 +18,6 @@ CREATE_STRUCT(TS_SERVER_INFO);
 	_(count)    (uint16_t, servers) \
 	_(dynarray) (TS_SERVER_INFO, servers)
 
-CREATE_PACKET(TS_AC_SERVER_LIST, 10022);
+CREATE_PACKET(TS_AC_SERVER_LIST, 10022, SessionType::AuthClient, SessionPacketOrigin::Server);
 
 

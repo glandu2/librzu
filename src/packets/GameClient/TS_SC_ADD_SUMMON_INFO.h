@@ -12,6 +12,10 @@
 	_(simple)(int32_t, level) \
 	_(simple)(int32_t, sp)
 
-CREATE_PACKET(TS_SC_ADD_SUMMON_INFO, 301);
+#define TS_SC_ADD_SUMMON_INFO_ID(X) \
+	X(301, version < EPIC_9_6_3) \
+	X(1301, version >= EPIC_9_6_3)
+
+CREATE_PACKET_VER_ID(TS_SC_ADD_SUMMON_INFO, SessionType::GameClient, SessionPacketOrigin::Server);
 #undef TS_SC_ADD_SUMMON_INFO_DEF
 

@@ -7,6 +7,9 @@
 	_(simple)(int8_t, max_member_count) \
 	_(string)(password, 17)
 
-CREATE_PACKET(TS_CS_HUNTAHOLIC_CREATE_INSTANCE, 4003);
+#define TS_CS_HUNTAHOLIC_CREATE_INSTANCE_ID(X) \
+	X(4003, true)
+
+CREATE_PACKET_VER_ID(TS_CS_HUNTAHOLIC_CREATE_INSTANCE, SessionType::GameClient, SessionPacketOrigin::Client);
 #undef TS_CS_HUNTAHOLIC_CREATE_INSTANCE_DEF
 

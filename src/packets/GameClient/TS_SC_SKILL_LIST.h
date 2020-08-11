@@ -18,7 +18,11 @@ CREATE_STRUCT(TS_SKILL_INFO);
 	_(simple)(int8_t, modification_type, version >= EPIC_4_1) \
 	_(dynarray)(TS_SKILL_INFO, skills)
 
-CREATE_PACKET(TS_SC_SKILL_LIST, 403);
+#define TS_SC_SKILL_LIST_ID(X) \
+	X(403, version < EPIC_9_6_3) \
+	X(1403, version >= EPIC_9_6_3)
+
+CREATE_PACKET_VER_ID(TS_SC_SKILL_LIST, SessionType::GameClient, SessionPacketOrigin::Server);
 #undef TS_SC_SKILL_LIST_DEF
 
 // modification_type: if true then refresh

@@ -14,6 +14,10 @@ CREATE_STRUCT(TS_TITLE_CONDITION_INFO);
 	_(dynarray)(TS_TITLE_CONDITION_INFO, title_condition_infos)
 
 // Since EPIC_8_1
-CREATE_PACKET(TS_SC_TITLE_CONDITION_LIST, 626);
+#define TS_SC_TITLE_CONDITION_LIST_ID(X) \
+	X(626, version < EPIC_9_6_3) \
+	X(1626, version >= EPIC_9_6_3)
+
+CREATE_PACKET_VER_ID(TS_SC_TITLE_CONDITION_LIST, SessionType::GameClient, SessionPacketOrigin::Server);
 #undef TS_SC_TITLE_CONDITION_LIST_DEF
 

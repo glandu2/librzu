@@ -7,6 +7,9 @@
 	_(string)(competitor, 31) \
 	_(simple)(ar_handle_t, handle_competitor)
 
-CREATE_PACKET(TS_SC_COMPETE_COUNTDOWN, 4504);
+#define TS_SC_COMPETE_COUNTDOWN_ID(X) \
+	X(4504, true)
+
+CREATE_PACKET_VER_ID(TS_SC_COMPETE_COUNTDOWN, SessionType::GameClient, SessionPacketOrigin::Server);
 #undef TS_SC_COMPETE_COUNTDOWN_DEF
 

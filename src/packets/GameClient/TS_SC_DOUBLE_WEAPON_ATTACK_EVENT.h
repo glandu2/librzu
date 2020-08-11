@@ -13,6 +13,10 @@
 	_(array) (uint8_t, right_hand_elemental_damage, 7) \
 	_(array) (uint8_t, left_hand_elemental_damage, 7) \
 
-CREATE_PACKET(TS_SC_DOUBLE_WEAPON_ATTACK_EVENT, 103);
+#define TS_SC_DOUBLE_WEAPON_ATTACK_EVENT_ID(X) \
+	X(103, version < EPIC_9_6_3) \
+	X(1103, version >= EPIC_9_6_3)
+
+CREATE_PACKET_VER_ID(TS_SC_DOUBLE_WEAPON_ATTACK_EVENT, SessionType::GameClient, SessionPacketOrigin::Server);
 #undef TS_SC_DOUBLE_WEAPON_ATTACK_EVENT_DEF
 

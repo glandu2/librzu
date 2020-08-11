@@ -47,6 +47,10 @@ enum TS_CHAT_TYPE : uint8_t
 	_(simple)(TS_CHAT_TYPE, type) \
 	_(dynstring)(message, false)
 
-CREATE_PACKET(TS_CS_CHAT_REQUEST, 20);
+#define TS_CS_CHAT_REQUEST_ID(X) \
+	X(20, version < EPIC_9_6_3) \
+	X(1020, version >= EPIC_9_6_3)
+
+CREATE_PACKET_VER_ID(TS_CS_CHAT_REQUEST, SessionType::GameClient, SessionPacketOrigin::Client);
 #undef TS_CS_CHAT_REQUEST_DEF
 

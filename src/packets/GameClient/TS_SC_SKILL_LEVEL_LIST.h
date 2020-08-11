@@ -14,6 +14,10 @@ CREATE_STRUCT(TS_SKILL_LEVEL_INFO);
 	_(dynarray)(TS_SKILL_LEVEL_INFO, skill_levels)
 
 // Since EPIC_7_3
-CREATE_PACKET(TS_SC_SKILL_LEVEL_LIST, 451);
+#define TS_SC_SKILL_LEVEL_LIST_ID(X) \
+	X(451, version < EPIC_9_6_3) \
+	X(1451, version >= EPIC_9_6_3)
+
+CREATE_PACKET_VER_ID(TS_SC_SKILL_LEVEL_LIST, SessionType::GameClient, SessionPacketOrigin::Server);
 #undef TS_SC_SKILL_LEVEL_LIST_DEF
 

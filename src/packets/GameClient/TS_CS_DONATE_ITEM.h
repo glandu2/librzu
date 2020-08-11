@@ -16,6 +16,10 @@ CREATE_STRUCT(TS_DONATE_ITEM_INFO);
 	_(count)(int8_t, items) \
 	_(dynarray)(TS_DONATE_ITEM_INFO, items)
 
-CREATE_PACKET(TS_CS_DONATE_ITEM, 258);
+#define TS_CS_DONATE_ITEM_ID(X) \
+	X(258, version < EPIC_9_6_3) \
+	X(1258, version >= EPIC_9_6_3)
+
+CREATE_PACKET_VER_ID(TS_CS_DONATE_ITEM, SessionType::GameClient, SessionPacketOrigin::Client);
 #undef TS_CS_DONATE_ITEM_DEF
 

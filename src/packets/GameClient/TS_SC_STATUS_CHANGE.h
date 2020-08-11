@@ -39,6 +39,10 @@ enum TS_CREATURE_STATUS : uint32_t {
 	_(simple) (ar_handle_t, handle) \
 	_(simple) (TS_CREATURE_STATUS, status)
 
-CREATE_PACKET(TS_SC_STATUS_CHANGE, 500);
+#define TS_SC_STATUS_CHANGE_ID(X) \
+	X(500, version < EPIC_9_6_3) \
+	X(1500, version >= EPIC_9_6_3)
+
+CREATE_PACKET_VER_ID(TS_SC_STATUS_CHANGE, SessionType::GameClient, SessionPacketOrigin::Server);
 #undef TS_SC_STATUS_CHANGE_DEF
 

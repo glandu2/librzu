@@ -6,6 +6,10 @@
 	_(simple) (bool, open_dialog) \
 	_(array) (ar_handle_t, card_handle, 6)
 
-CREATE_PACKET(TS_EQUIP_SUMMON, 303);
+#define TS_EQUIP_SUMMON_ID(X) \
+	X(303, version < EPIC_9_6_3) \
+	X(1303, version >= EPIC_9_6_3)
+
+CREATE_PACKET_VER_ID(TS_EQUIP_SUMMON, SessionType::GameClient, SessionPacketOrigin::Any);
 #undef TS_EQUIP_SUMMON_DEF
 

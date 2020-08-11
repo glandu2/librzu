@@ -10,6 +10,10 @@
 	_(simple)(int8_t, nProgress, version >= EPIC_6_3) \
 	_(simple)(ar_time_t, nTimeLimit, version >= EPIC_6_3)
 
-CREATE_PACKET(TS_SC_QUEST_STATUS, 601);
+#define TS_SC_QUEST_STATUS_ID(X) \
+	X(601, version < EPIC_9_6_3) \
+	X(1601, version >= EPIC_9_6_3)
+
+CREATE_PACKET_VER_ID(TS_SC_QUEST_STATUS, SessionType::GameClient, SessionPacketOrigin::Server);
 #undef TS_SC_QUEST_STATUS_DEF
 

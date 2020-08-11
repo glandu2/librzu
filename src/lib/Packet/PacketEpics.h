@@ -88,8 +88,15 @@ private:
 //        also, NPC dialogs are broken: the text is ok but there is no choice available
 #define EPIC_9_6_2 0x090602
 
+// Packet ID mapping:
+// >= 0 && < 2000: += 1000
+// >= 2000 < 3000: += 400
+// >= 9000 < 9999: -= 900
+// >= 10000: -= 1000
+#define EPIC_9_6_3 0x090603  // GS packet ID modified with version 20200713
+
 // Latest released epic
-#define EPIC_LATEST EPIC_9_6_2
+#define EPIC_LATEST EPIC_9_6_3
 
 // Flags
 

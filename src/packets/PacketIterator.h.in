@@ -11,19 +11,16 @@
 		result = Functor<type_>()(args...); \
 		return true;
 
-#define PACKET_CASE_2(type_) \
-	case_packet_is(type_) result = Functor<type_>()(args...); \
-	return true;
-
 #define PACKET_CALL(type_) \
 	Functor<type_>()(args...)
 
 
 template<template<typename> class Functor, typename Result, typename... Args>
-bool processPacket(SessionType type, SessionPacketOrigin origin, int packetId, Result& result, Args... args) {
+bool processPacket(SessionType type, SessionPacketOrigin origin, packet_version_t version, uint16_t packetId, Result& result, Args... args) {
 	// Ignore dummy packet
 	if(packetId == 9999)
 		return true;
+	packet_type_id_t packetType = PacketMetadata::convertPacketIdToTypeId(packetId, type, origin, version);
 
 @FUNCTION_SWITCH_PART@
 	return false;

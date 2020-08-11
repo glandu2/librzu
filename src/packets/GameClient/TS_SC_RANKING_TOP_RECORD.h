@@ -17,6 +17,9 @@ CREATE_STRUCT(TS_RANKING_RECORD);
 	_(count)(uint16_t, records) \
 	_(dynarray)(TS_RANKING_RECORD, records)
 
-CREATE_PACKET(TS_SC_RANKING_TOP_RECORD, 5001);
+#define TS_SC_RANKING_TOP_RECORD_ID(X) \
+	X(5001, true)
+
+CREATE_PACKET_VER_ID(TS_SC_RANKING_TOP_RECORD, SessionType::GameClient, SessionPacketOrigin::Server);
 #undef TS_SC_RANKING_TOP_RECORD_DEF
 

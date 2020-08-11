@@ -25,6 +25,10 @@ CREATE_STRUCT(TS_SEARCHED_AUCTION_INFO);
 	_(simple)(int32_t, auction_info_count) \
 	_(array) (TS_SEARCHED_AUCTION_INFO, auction_info, 40)
 
-CREATE_PACKET(TS_SC_AUCTION_SEARCH, 1301);
+#define TS_SC_AUCTION_SEARCH_ID(X) \
+	X(1301, version < EPIC_9_6_3) \
+	X(2301, version >= EPIC_9_6_3)
+
+CREATE_PACKET_VER_ID(TS_SC_AUCTION_SEARCH, SessionType::GameClient, SessionPacketOrigin::Server);
 #undef TS_SC_AUCTION_SEARCH_DEF
 

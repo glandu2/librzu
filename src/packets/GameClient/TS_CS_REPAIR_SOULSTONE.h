@@ -5,6 +5,10 @@
 #define TS_CS_REPAIR_SOULSTONE_DEF(_) \
 	_(array)(ar_handle_t, item_handle, 6)
 
-CREATE_PACKET(TS_CS_REPAIR_SOULSTONE, 262);
+#define TS_CS_REPAIR_SOULSTONE_ID(X) \
+	X(262, version < EPIC_9_6_3) \
+	X(1262, version >= EPIC_9_6_3)
+
+CREATE_PACKET_VER_ID(TS_CS_REPAIR_SOULSTONE, SessionType::GameClient, SessionPacketOrigin::Client);
 #undef TS_CS_REPAIR_SOULSTONE_DEF
 

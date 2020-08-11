@@ -44,7 +44,7 @@ void PacketSession::dispatchPacket(const TS_MESSAGE* packetData) {
 }
 
 template<class Packet>
-RZU_EXTERN void PacketSession::logPacketJson(const Packet* packet, packet_version_t version, bool outgoing) {
+RZU_EXTERN void PacketSession::logPacketJson(const Packet* packet, packet_version_t version, bool outgoing, bool* ok) {
 	if(!dumpJsonPackets.get())
 		return;
 
@@ -68,11 +68,14 @@ RZU_EXTERN void PacketSession::logPacketJson(const Packet* packet, packet_versio
 	                  outgoing ? packet->getId(version) : packet->getReceivedId(),
 	                  packet->getName(),
 	                  jsonData.c_str());
+
+	if(ok)
+		*ok = true;
 }
 
 template<class Packet> struct PacketSession::PrintPacketFunctor {
-	bool operator()(PacketSession* self, const TS_MESSAGE* packet, packet_version_t version, bool outgoing) {
-		packet->process(self, &PacketSession::logPacketJson<Packet>, version, version, outgoing);
+	bool operator()(PacketSession* self, const TS_MESSAGE* packet, packet_version_t version, bool outgoing, bool* ok) {
+		packet->process(self, &PacketSession::logPacketJson<Packet>, version, version, outgoing, ok);
 		return true;
 	}
 };
@@ -89,16 +92,19 @@ void PacketSession::logPacket(bool outgoing, const TS_MESSAGE* msg) {
 
 	if(dumpJsonPackets.get()) {
 		bool dummy;
-		bool packetProcessed = processPacket<PrintPacketFunctor>(sessionType,
-		                                                         getPacketOriginFromDirection(outgoing, packetOrigin),
-		                                                         msg->id,
-		                                                         dummy,
-		                                                         this,
-		                                                         msg,
-		                                                         packetVersion,
-		                                                         outgoing);
+		bool ok = false;
+		processPacket<PrintPacketFunctor>(sessionType,
+		                                  PacketMetadata::getPacketOriginFromDirection(outgoing, packetOrigin),
+		                                  packetVersion,
+		                                  msg->id,
+		                                  dummy,
+		                                  this,
+		                                  msg,
+		                                  packetVersion,
+		                                  outgoing,
+		                                  &ok);
 
-		if(!packetProcessed) {
+		if(!ok) {
 			log(Object::LL_Debug, "Can't log json for packet id %d (unknown packet)\n", msg->id);
 			getStream()->packetLog(LL_Debug,
 			                       reinterpret_cast<const unsigned char*>(msg) + sizeof(TS_MESSAGE),
@@ -117,7 +123,7 @@ void PacketSession::logPacketWithoutJson(bool outgoing, const TS_MESSAGE* msg, c
 
 	// If packetName is not known, guess it from ID
 	if(!packetName)
-		packetName = getPacketName(msg->id, SessionType::Any, SessionPacketOrigin::Any);
+		packetName = PacketMetadata::getPacketName(msg->id, SessionType::Any, SessionPacketOrigin::Any, packetVersion);
 
 	if(!packetName)
 		packetName = "unknown";

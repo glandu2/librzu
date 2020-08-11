@@ -9,6 +9,10 @@
 	_(simple)(float, y) \
 	_(simple)(bool, success)
 
-CREATE_PACKET(TS_SC_MOUNT_SUMMON, 320);
+#define TS_SC_MOUNT_SUMMON_ID(X) \
+	X(320, version < EPIC_9_6_3) \
+	X(1320, version >= EPIC_9_6_3)
+
+CREATE_PACKET_VER_ID(TS_SC_MOUNT_SUMMON, SessionType::GameClient, SessionPacketOrigin::Server);
 #undef TS_SC_MOUNT_SUMMON_DEF
 

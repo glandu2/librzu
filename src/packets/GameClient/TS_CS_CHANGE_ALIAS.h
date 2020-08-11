@@ -6,6 +6,10 @@
 	_(string)(alias, 19)
 
 // Since EPIC_8_1
-CREATE_PACKET(TS_CS_CHANGE_ALIAS, 31);
+#define TS_CS_CHANGE_ALIAS_ID(X) \
+	X(31, version < EPIC_9_6_3) \
+	X(1031, version >= EPIC_9_6_3)
+
+CREATE_PACKET_VER_ID(TS_CS_CHANGE_ALIAS, SessionType::GameClient, SessionPacketOrigin::Client);
 #undef TS_CS_CHANGE_ALIAS_DEF
 

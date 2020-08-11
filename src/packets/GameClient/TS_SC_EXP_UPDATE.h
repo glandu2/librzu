@@ -9,6 +9,10 @@
 	_(impl)(simple)(uint64_t, jp, version >= EPIC_7_3) \
 	_(impl)(simple)(uint32_t, jp, version < EPIC_7_3)
 
-CREATE_PACKET(TS_SC_EXP_UPDATE, 1003);
+#define TS_SC_EXP_UPDATE_ID(X) \
+	X(1003, version < EPIC_9_6_3) \
+	X(2003, version >= EPIC_9_6_3)
+
+CREATE_PACKET_VER_ID(TS_SC_EXP_UPDATE, SessionType::GameClient, SessionPacketOrigin::Server);
 #undef TS_SC_EXP_UPDATE_DEF
 

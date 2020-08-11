@@ -12,8 +12,9 @@
 #define TS_CS_LOGIN_ID(X) \
 	X(1, version < EPIC_9_2) \
 	X(61, version >= EPIC_9_2 && version < EPIC_9_4_2) \
-	X(62, version >= EPIC_9_4_2)
+	X(62, version >= EPIC_9_4_2 && version < EPIC_9_6_3) \
+	X(1062, version >= EPIC_9_6_3)
 
-CREATE_PACKET_VER_ID(TS_CS_LOGIN);
+CREATE_PACKET_VER_ID(TS_CS_LOGIN, SessionType::GameClient, SessionPacketOrigin::Client);
 #undef TS_CS_LOGIN_DEF
 

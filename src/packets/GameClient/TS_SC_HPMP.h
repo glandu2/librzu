@@ -18,6 +18,10 @@
 	_(impl)(simple)(uint16_t, max_mp, version < EPIC_4_1) \
 	_(simple)(bool, need_to_display, version >= EPIC_4_1)
 
-CREATE_PACKET(TS_SC_HPMP, 509);
+#define TS_SC_HPMP_ID(X) \
+	X(509, version < EPIC_9_6_3) \
+	X(1509, version >= EPIC_9_6_3)
+
+CREATE_PACKET_VER_ID(TS_SC_HPMP, SessionType::GameClient, SessionPacketOrigin::Server);
 #undef TS_SC_HPMP_DEF
 

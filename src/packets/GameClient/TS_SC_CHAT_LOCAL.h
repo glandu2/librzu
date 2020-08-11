@@ -11,6 +11,10 @@
 	_(simple)(TS_CHAT_TYPE, type) \
 	_(dynstring)(message, true)
 
-CREATE_PACKET(TS_SC_CHAT_LOCAL, 21);
+#define TS_SC_CHAT_LOCAL_ID(X) \
+	X(21, version < EPIC_9_6_3) \
+	X(1021, version >= EPIC_9_6_3)
+
+CREATE_PACKET_VER_ID(TS_SC_CHAT_LOCAL, SessionType::GameClient, SessionPacketOrigin::Server);
 #undef TS_SC_CHAT_LOCAL_DEF
 

@@ -8,6 +8,10 @@
 	_(simple)(int32_t, nHairColorIndex) \
 	_(simple)(uint32_t, nHairColorRGB)
 
-CREATE_PACKET(TS_SC_HAIR_INFO, 220);
+#define TS_SC_HAIR_INFO_ID(X) \
+	X(220, version < EPIC_9_6_3) \
+	X(1220, version >= EPIC_9_6_3)
+
+CREATE_PACKET_VER_ID(TS_SC_HAIR_INFO, SessionType::GameClient, SessionPacketOrigin::Server);
 #undef TS_SC_HAIR_INFO_DEF
 

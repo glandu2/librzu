@@ -8,6 +8,10 @@
 	_(simple)(int8_t, mode) \
 	_(simple)(TS_ITEM_INFO, item_info)
 
-CREATE_PACKET(TS_TRADE, 280);
+#define TS_TRADE_ID(X) \
+	X(280, version < EPIC_9_6_3) \
+	X(1280, version >= EPIC_9_6_3)
+
+CREATE_PACKET_VER_ID(TS_TRADE, SessionType::GameClient, SessionPacketOrigin::Any);
 #undef TS_TRADE_DEF
 

@@ -14,6 +14,10 @@ CREATE_STRUCT(TS_TITLE_INFO);
 	_(dynarray)(TS_TITLE_INFO, titles)
 
 // Since EPIC_8_1
-CREATE_PACKET(TS_SC_TITLE_LIST, 625);
+#define TS_SC_TITLE_LIST_ID(X) \
+	X(625, version < EPIC_9_6_3) \
+	X(1625, version >= EPIC_9_6_3)
+
+CREATE_PACKET_VER_ID(TS_SC_TITLE_LIST, SessionType::GameClient, SessionPacketOrigin::Server);
 #undef TS_SC_TITLE_LIST_DEF
 

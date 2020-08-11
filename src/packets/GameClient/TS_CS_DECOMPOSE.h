@@ -13,6 +13,10 @@ CREATE_STRUCT(TS_DECOMPOSE_ITEM_INFO);
 	_(dynarray)(TS_DECOMPOSE_ITEM_INFO, items)
 
 // Since EPIC_8_1
-CREATE_PACKET(TS_CS_DECOMPOSE, 265);
+#define TS_CS_DECOMPOSE_ID(X) \
+	X(265, version < EPIC_9_6_3) \
+	X(1265, version >= EPIC_9_6_3)
+
+CREATE_PACKET_VER_ID(TS_CS_DECOMPOSE, SessionType::GameClient, SessionPacketOrigin::Client);
 #undef TS_CS_DECOMPOSE_DEF
 

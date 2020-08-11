@@ -4,6 +4,10 @@
 
 #define TS_CS_OPEN_ITEM_SHOP_DEF(_)
 
-CREATE_PACKET(TS_CS_OPEN_ITEM_SHOP, 10000);
+#define TS_CS_OPEN_ITEM_SHOP_ID(X) \
+	X(10000, version < EPIC_9_6_3) \
+	X(9000, version >= EPIC_9_6_3)
+
+CREATE_PACKET_VER_ID(TS_CS_OPEN_ITEM_SHOP, SessionType::GameClient, SessionPacketOrigin::Client);
 #undef TS_CS_OPEN_ITEM_SHOP_DEF
 

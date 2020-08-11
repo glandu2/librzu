@@ -17,6 +17,10 @@ CREATE_STRUCT(TS_BOOTH_OPEN_ITEM_INFO);
 	_(count) (uint16_t, items) \
 	_(dynarray)(TS_BOOTH_OPEN_ITEM_INFO, items)
 
-CREATE_PACKET(TS_CS_START_BOOTH, 700);
+#define TS_CS_START_BOOTH_ID(X) \
+	X(700, version < EPIC_9_6_3) \
+	X(1700, version >= EPIC_9_6_3)
+
+CREATE_PACKET_VER_ID(TS_CS_START_BOOTH, SessionType::GameClient, SessionPacketOrigin::Client);
 #undef TS_CS_START_BOOTH_DEF
 

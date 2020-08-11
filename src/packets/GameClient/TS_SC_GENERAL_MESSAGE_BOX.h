@@ -7,6 +7,9 @@
 	_(dynstring)(text, false)
 
 // Since EPIC_7_4
-CREATE_PACKET(TS_SC_GENERAL_MESSAGE_BOX, 3004);
+#define TS_SC_GENERAL_MESSAGE_BOX_ID(X) \
+	X(3004, true)
+
+CREATE_PACKET_VER_ID(TS_SC_GENERAL_MESSAGE_BOX, SessionType::GameClient, SessionPacketOrigin::Server);
 #undef TS_SC_GENERAL_MESSAGE_BOX_DEF
 

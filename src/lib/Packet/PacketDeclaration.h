@@ -13,6 +13,7 @@
 
 #include "GameTypes.h"
 #include "PacketEpics.h"
+#include "PacketStructsName.h"
 #include "StructSerializer.h"
 #endif
 
@@ -85,6 +86,20 @@ template<typename T> uint32_t getClampedCount(size_t realSize) {
 	size_t maxSize = (size_t) std::numeric_limits<T>::max();
 	return (uint32_t)(realSize < maxSize ? realSize : maxSize);
 }
+
+template<uint16_t DummyStartValue, uint16_t... Values> struct packet_ids_list {
+	template<uint16_t Value, uint16_t... Remaining> struct getLatestInternal {
+		enum { value = getLatestInternal<Remaining...>::value };
+	};
+	template<uint16_t Value> struct getLatestInternal<Value> {
+		enum { value = Value };
+	};
+
+	static constexpr uint16_t getLatest() { return getLatestInternal<Values...>::value; }
+
+	static constexpr std::initializer_list<uint16_t> data = {Values...};
+	static constexpr std::initializer_list<uint16_t> getAsInitializerList() { return data; }
+};
 
 }  // namespace PacketDeclaration
 #endif
@@ -536,8 +551,11 @@ template<typename T> uint32_t getClampedCount(size_t realSize) {
 
 #define CREATE_STRUCT(name_) CREATE_STRUCT_IMPL(name_, 0, /* empty */, /* empty */, /* empty */)
 
-#define CREATE_PACKET_DEFINITION_HEADER(id_) \
-	static const uint16_t packetID = id_; \
+#define CREATE_PACKET_DEFINITION_HEADER(id_, sessiontype_, origin_) \
+	using PACKET_IDS = PacketDeclaration::packet_ids_list<0, id_>; \
+	static constexpr packet_type_id_t packetID = static_cast<packet_type_id_t>(id_); \
+	static constexpr SessionType SESSION_TYPE = sessiontype_; \
+	static constexpr SessionPacketOrigin ORIGIN = origin_; \
 	static inline uint16_t getId(packet_version_t version) { \
 		(void) (version); \
 		return id_; \
@@ -551,18 +569,18 @@ public:
 
 #define CREATE_PACKET_SERIALIZATION_HEADER \
 	uint32_t size = getSize(buffer->getVersion()); \
-	buffer->writeHeader(size, packetID);
+	buffer->writeHeader(size, PACKET_IDS::getLatest());
 
 #define CREATE_PACKET_DESERIALIZATION_HEADER buffer->readHeader(receivedId);
 
-#define CREATE_PACKET(name_, id_) \
+#define CREATE_PACKET(name_, id_, sessiontype_, origin_) \
 	CREATE_STRUCT_IMPL(name_, \
 	                   7, \
-	                   CREATE_PACKET_DEFINITION_HEADER(id_), \
+	                   CREATE_PACKET_DEFINITION_HEADER(id_, sessiontype_, origin_), \
 	                   CREATE_PACKET_SERIALIZATION_HEADER, \
 	                   CREATE_PACKET_DESERIALIZATION_HEADER)
 
-#define HEADER_F_ID(id_, ...) static const uint16_t packetID_##id_ = id_;
+#define HEADER_F_ID(id_, ...) , id_
 
 #define SERIALISATION_F_ID(...) OVERLOADED_CALL(SERIALISATION_F_ID, __VA_ARGS__)
 #define SERIALISATION_F_ID1(id_) id = id_;
@@ -570,8 +588,11 @@ public:
 	if(condition_) \
 		id = id_;
 
-#define CREATE_PACKET_VER_ID_HEADER_HEADER(name_) \
-	name_##_ID(HEADER_F_ID); \
+#define CREATE_PACKET_VER_ID_HEADER_HEADER(name_, sessiontype_, origin_) \
+	using PACKET_IDS = PacketDeclaration::packet_ids_list<0 name_##_ID(HEADER_F_ID)>; \
+	static constexpr packet_type_id_t packetID = static_cast<packet_type_id_t>(PACKET_IDS::getLatest()); \
+	static constexpr SessionType SESSION_TYPE = sessiontype_; \
+	static constexpr SessionPacketOrigin ORIGIN = origin_; \
 	static inline uint16_t getId(packet_version_t version) { \
 		uint16_t id; \
 		(void) (version); \
@@ -592,10 +613,10 @@ public:
 
 #define CREATE_PACKET_VER_ID_DESERIALIZATION_HEADER buffer->readHeader(receivedId);
 
-#define CREATE_PACKET_VER_ID(name_) \
+#define CREATE_PACKET_VER_ID(name_, sessiontype_, origin_) \
 	CREATE_STRUCT_IMPL(name_, \
 	                   7, \
-	                   CREATE_PACKET_VER_ID_HEADER_HEADER(name_), \
+	                   CREATE_PACKET_VER_ID_HEADER_HEADER(name_, sessiontype_, origin_), \
 	                   CREATE_PACKET_VER_ID_SERIALIZATION_HEADER(name_), \
 	                   CREATE_PACKET_VER_ID_DESERIALIZATION_HEADER)
 
@@ -604,4 +625,3 @@ public:
 #define CREATE_PACKET_VER_ID_SWITCH_CASES(name_) case name_::CREATE_PACKET_VER_ID_SWITCH_CASES_2
 
 #define case_packet_is(name_) name_##_ID(CREATE_PACKET_VER_ID_SWITCH_CASES(name_))
-

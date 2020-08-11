@@ -7,6 +7,10 @@
 	_(simple)(ar_handle_t, target_handle) \
 	_(simple)(int32_t, reason)
 
-CREATE_PACKET(TS_SC_CANT_ATTACK, 102);
+#define TS_SC_CANT_ATTACK_ID(X) \
+	X(102, version < EPIC_9_6_3) \
+	X(1102, version >= EPIC_9_6_3)
+
+CREATE_PACKET_VER_ID(TS_SC_CANT_ATTACK, SessionType::GameClient, SessionPacketOrigin::Server);
 #undef TS_SC_CANT_ATTACK_DEF
 

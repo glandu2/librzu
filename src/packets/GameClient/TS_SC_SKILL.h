@@ -193,6 +193,10 @@ CREATE_STRUCT(TS_SC_SKILL__CAST);
 	_(simple) (TS_SC_SKILL__CAST , casting, type == ST_Casting || type == ST_CastingUpdate) \
 	_(pad)    (9, skill_type_marker) /* padding to match fire size */
 
-CREATE_PACKET(TS_SC_SKILL, 401);
+#define TS_SC_SKILL_ID(X) \
+	X(401, version < EPIC_9_6_3) \
+	X(1401, version >= EPIC_9_6_3)
+
+CREATE_PACKET_VER_ID(TS_SC_SKILL, SessionType::GameClient, SessionPacketOrigin::Server);
 #undef TS_SC_SKILL_DEF
 

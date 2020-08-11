@@ -6,6 +6,9 @@
 	_(simple)(int32_t, nStatus)
 
 // Since EPIC_8_1
-CREATE_PACKET(TS_SC_BATTLE_ARENA_BATTLE_STATUS, 4711);
+#define TS_SC_BATTLE_ARENA_BATTLE_STATUS_ID(X) \
+	X(4711, true)
+
+CREATE_PACKET_VER_ID(TS_SC_BATTLE_ARENA_BATTLE_STATUS, SessionType::GameClient, SessionPacketOrigin::Server);
 #undef TS_SC_BATTLE_ARENA_BATTLE_STATUS_DEF
 

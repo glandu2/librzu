@@ -7,6 +7,10 @@
 	_(simple)(ar_handle_t, summon_handle) \
 	_(simple)(int8_t, flag)
 
-CREATE_PACKET(TS_SC_UNMOUNT_SUMMON, 321);
+#define TS_SC_UNMOUNT_SUMMON_ID(X) \
+	X(321, version < EPIC_9_6_3) \
+	X(1321, version >= EPIC_9_6_3)
+
+CREATE_PACKET_VER_ID(TS_SC_UNMOUNT_SUMMON, SessionType::GameClient, SessionPacketOrigin::Server);
 #undef TS_SC_UNMOUNT_SUMMON_DEF
 

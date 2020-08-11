@@ -5,6 +5,10 @@
 #define TS_CS_AUCTION_INSTANT_PURCHASE_DEF(_) \
 	_(simple)(int32_t, auction_uid)
 
-CREATE_PACKET(TS_CS_AUCTION_INSTANT_PURCHASE, 1308);
+#define TS_CS_AUCTION_INSTANT_PURCHASE_ID(X) \
+	X(1308, version < EPIC_9_6_3) \
+	X(2308, version >= EPIC_9_6_3)
+
+CREATE_PACKET_VER_ID(TS_CS_AUCTION_INSTANT_PURCHASE, SessionType::GameClient, SessionPacketOrigin::Client);
 #undef TS_CS_AUCTION_INSTANT_PURCHASE_DEF
 

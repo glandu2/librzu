@@ -6,6 +6,9 @@
 	_(simple)(int32_t, kill_count) \
 	_(simple)(int32_t, score)
 
-CREATE_PACKET(TS_SC_HUNTAHOLIC_UPDATE_SCORE, 4007);
+#define TS_SC_HUNTAHOLIC_UPDATE_SCORE_ID(X) \
+	X(4007, true)
+
+CREATE_PACKET_VER_ID(TS_SC_HUNTAHOLIC_UPDATE_SCORE, SessionType::GameClient, SessionPacketOrigin::Server);
 #undef TS_SC_HUNTAHOLIC_UPDATE_SCORE_DEF
 

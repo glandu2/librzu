@@ -24,6 +24,9 @@ CREATE_STRUCT(TS_FARM_SUMMON_INFO);
 	_(dynarray)(TS_FARM_SUMMON_INFO, summons)
 
 // Since EPIC_7_3
-CREATE_PACKET(TS_SC_FARM_INFO, 6001);
+#define TS_SC_FARM_INFO_ID(X) \
+	X(6001, true)
+
+CREATE_PACKET_VER_ID(TS_SC_FARM_INFO, SessionType::GameClient, SessionPacketOrigin::Server);
 #undef TS_SC_FARM_INFO_DEF
 

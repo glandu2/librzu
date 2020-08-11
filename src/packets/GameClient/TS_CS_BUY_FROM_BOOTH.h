@@ -8,6 +8,10 @@
 	_(count)(int16_t, items) \
 	_(dynarray)(TS_ITEM_BASE_INFO, items)
 
-CREATE_PACKET(TS_CS_BUY_FROM_BOOTH, 705);
+#define TS_CS_BUY_FROM_BOOTH_ID(X) \
+	X(705, version < EPIC_9_6_3) \
+	X(1705, version >= EPIC_9_6_3)
+
+CREATE_PACKET_VER_ID(TS_CS_BUY_FROM_BOOTH, SessionType::GameClient, SessionPacketOrigin::Client);
 #undef TS_CS_BUY_FROM_BOOTH_DEF
 

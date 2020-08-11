@@ -17,6 +17,10 @@ CREATE_STRUCT(TS_BOOTH_ITEM_INFO);
 	_(count) (uint16_t, items) \
 	_(dynarray)(TS_BOOTH_ITEM_INFO, items)
 
-CREATE_PACKET(TS_SC_WATCH_BOOTH, 703);
+#define TS_SC_WATCH_BOOTH_ID(X) \
+	X(703, version < EPIC_9_6_3) \
+	X(1703, version >= EPIC_9_6_3)
+
+CREATE_PACKET_VER_ID(TS_SC_WATCH_BOOTH, SessionType::GameClient, SessionPacketOrigin::Server);
 #undef TS_SC_WATCH_BOOTH_DEF
 

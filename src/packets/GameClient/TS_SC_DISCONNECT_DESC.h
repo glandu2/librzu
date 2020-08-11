@@ -17,6 +17,10 @@ enum TS_SC_DISCONNECT_TYPE : uint8_t
 #define TS_SC_DISCONNECT_DESC_DEF(_) \
 	_(simple)(TS_SC_DISCONNECT_TYPE, desc_id)
 
-CREATE_PACKET(TS_SC_DISCONNECT_DESC, 28);
+#define TS_SC_DISCONNECT_DESC_ID(X) \
+	X(28, version < EPIC_9_6_3) \
+	X(1028, version >= EPIC_9_6_3)
+
+CREATE_PACKET_VER_ID(TS_SC_DISCONNECT_DESC, SessionType::GameClient, SessionPacketOrigin::Server);
 #undef TS_SC_DISCONNECT_DESC_DEF
 

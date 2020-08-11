@@ -14,6 +14,10 @@ CREATE_STRUCT(TS_ERASE_ITEM_INFO_RESULT);
 	_(dynarray)(TS_ERASE_ITEM_INFO_RESULT, erased_items)
 
 // Since EPIC_7_2, was TS_SC_RESULT before
-CREATE_PACKET(TS_SC_ERASE_ITEM, 209);
+#define TS_SC_ERASE_ITEM_ID(X) \
+	X(209, version < EPIC_9_6_3) \
+	X(1209, version >= EPIC_9_6_3)
+
+CREATE_PACKET_VER_ID(TS_SC_ERASE_ITEM, SessionType::GameClient, SessionPacketOrigin::Server);
 #undef TS_SC_ERASE_ITEM_DEF
 

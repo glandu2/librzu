@@ -10,6 +10,9 @@
 	_(simple)(int32_t, total_page) \
 	_(dynarray)(TS_HUNTAHOLIC_INSTANCE_INFO, infos)
 
-CREATE_PACKET(TS_SC_HUNTAHOLIC_INSTANCE_LIST, 4001);
+#define TS_SC_HUNTAHOLIC_INSTANCE_LIST_ID(X) \
+	X(4001, true)
+
+CREATE_PACKET_VER_ID(TS_SC_HUNTAHOLIC_INSTANCE_LIST, SessionType::GameClient, SessionPacketOrigin::Server);
 #undef TS_SC_HUNTAHOLIC_INSTANCE_LIST_DEF
 

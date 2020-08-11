@@ -7,6 +7,10 @@
 	_(simple)(uint16_t, skill_id) \
 	_(simple)(bool, status)
 
-CREATE_PACKET(TS_SC_AURA, 407);
+#define TS_SC_AURA_ID(X) \
+	X(407, version < EPIC_9_6_3) \
+	X(1407, version >= EPIC_9_6_3)
+
+CREATE_PACKET_VER_ID(TS_SC_AURA, SessionType::GameClient, SessionPacketOrigin::Server);
 #undef TS_SC_AURA_DEF
 

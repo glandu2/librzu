@@ -8,6 +8,10 @@
 	_(impl)(simple)(uint32_t, gold, version < EPIC_4_1_1) \
 	_(simple) (uint32_t, chaos, version > EPIC_4_1_1)
 
-CREATE_PACKET(TS_SC_GOLD_UPDATE, 1001);
+#define TS_SC_GOLD_UPDATE_ID(X) \
+	X(1001, version < EPIC_9_6_3) \
+	X(2001, version >= EPIC_9_6_3)
+
+CREATE_PACKET_VER_ID(TS_SC_GOLD_UPDATE, SessionType::GameClient, SessionPacketOrigin::Server);
 #undef TS_SC_GOLD_UPDATE_DEF
 

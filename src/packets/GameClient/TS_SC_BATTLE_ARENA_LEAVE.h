@@ -26,6 +26,9 @@ enum TS_ARENA_LEAVE_TYPE : int32_t
 	  _(impl)(string)(name, 20, version >= EPIC_9_6)
 
 // Since EPIC_8_1
-CREATE_PACKET(TS_SC_BATTLE_ARENA_LEAVE, 4705);
+#define TS_SC_BATTLE_ARENA_LEAVE_ID(X) \
+	X(4705, true)
+
+CREATE_PACKET_VER_ID(TS_SC_BATTLE_ARENA_LEAVE, SessionType::GameClient, SessionPacketOrigin::Server);
 #undef TS_SC_BATTLE_ARENA_LEAVE_DEF
 

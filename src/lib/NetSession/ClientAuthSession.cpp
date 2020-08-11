@@ -89,7 +89,9 @@ EventChain<SocketSession> ClientAuthSession::onDisconnected(bool causedByRemote)
 }
 
 EventChain<PacketSession> ClientAuthSession::onPacketReceived(const TS_MESSAGE* packet) {
-	switch(packet->id) {
+	packet_type_id_t packetType = PacketMetadata::convertPacketIdToTypeId(
+	    packet->id, SessionType::AuthClient, SessionPacketOrigin::Server, packetVersion);
+	switch(packetType) {
 		case TS_AC_AES_KEY_IV::packetID:
 			packet->process(this, &ClientAuthSession::onPacketAuthPasswordKey, packetVersion);
 			break;

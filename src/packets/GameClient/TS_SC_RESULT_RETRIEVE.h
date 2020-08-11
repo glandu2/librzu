@@ -6,6 +6,9 @@
 	_(simple)(int8_t, result)
 
 // Since EPIC_7_3
-CREATE_PACKET(TS_SC_RESULT_RETRIEVE, 6005);
+#define TS_SC_RESULT_RETRIEVE_ID(X) \
+	X(6005, true)
+
+CREATE_PACKET_VER_ID(TS_SC_RESULT_RETRIEVE, SessionType::GameClient, SessionPacketOrigin::Server);
 #undef TS_SC_RESULT_RETRIEVE_DEF
 

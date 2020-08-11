@@ -66,6 +66,10 @@ CREATE_STRUCT(ATTACK_INFO);
 	_(count)    (uint8_t, attack) \
 	_(dynarray) (ATTACK_INFO, attack)
 
-CREATE_PACKET(TS_SC_ATTACK_EVENT, 101);
+#define TS_SC_ATTACK_EVENT_ID(X) \
+	X(101, version < EPIC_9_6_3) \
+	X(1101, version >= EPIC_9_6_3)
+
+CREATE_PACKET_VER_ID(TS_SC_ATTACK_EVENT, SessionType::GameClient, SessionPacketOrigin::Server);
 #undef TS_SC_ATTACK_EVENT_DEF
 

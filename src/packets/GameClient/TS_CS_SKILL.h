@@ -12,6 +12,10 @@
 	_(simple)(int8_t, layer) \
 	_(simple)(int8_t, skill_level)
 
-CREATE_PACKET(TS_CS_SKILL, 400);
+#define TS_CS_SKILL_ID(X) \
+	X(400, version < EPIC_9_6_3) \
+	X(1400, version >= EPIC_9_6_3)
+
+CREATE_PACKET_VER_ID(TS_CS_SKILL, SessionType::GameClient, SessionPacketOrigin::Client);
 #undef TS_CS_SKILL_DEF
 

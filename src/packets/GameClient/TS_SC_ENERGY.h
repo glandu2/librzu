@@ -6,6 +6,10 @@
 	_(simple)(ar_handle_t, handle) \
 	_(simple)(int16_t, energy)
 
-CREATE_PACKET(TS_SC_ENERGY, 515);
+#define TS_SC_ENERGY_ID(X) \
+	X(515, version < EPIC_9_6_3) \
+	X(1515, version >= EPIC_9_6_3)
+
+CREATE_PACKET_VER_ID(TS_SC_ENERGY, SessionType::GameClient, SessionPacketOrigin::Server);
 #undef TS_SC_ENERGY_DEF
 

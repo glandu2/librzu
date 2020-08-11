@@ -58,6 +58,10 @@ CREATE_STRUCT(LOBBY_CHARACTER_INFO);
 	_(count)    (uint16_t, characters) \
 	_(dynarray) (LOBBY_CHARACTER_INFO, characters)
 
-CREATE_PACKET(TS_SC_CHARACTER_LIST, 2004);
+#define TS_SC_CHARACTER_LIST_ID(X) \
+	X(2004, version < EPIC_9_6_3) \
+	X(2404, version >= EPIC_9_6_3)
+
+CREATE_PACKET_VER_ID(TS_SC_CHARACTER_LIST, SessionType::GameClient, SessionPacketOrigin::Server);
 #undef TS_SC_CHARACTER_LIST_DEF
 

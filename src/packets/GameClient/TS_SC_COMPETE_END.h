@@ -8,6 +8,9 @@
 	_(string)(winner, 31) \
 	_(string)(loser, 31)
 
-CREATE_PACKET(TS_SC_COMPETE_END, 4506);
+#define TS_SC_COMPETE_END_ID(X) \
+	X(4506, true)
+
+CREATE_PACKET_VER_ID(TS_SC_COMPETE_END, SessionType::GameClient, SessionPacketOrigin::Server);
 #undef TS_SC_COMPETE_END_DEF
 

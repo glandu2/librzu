@@ -13,6 +13,10 @@
 	_(impl)(simple)(int32_t, value, version < EPIC_4_1_1) \
 	_(endstring)(string_value, true)
 
-CREATE_PACKET(TS_SC_PROPERTY, 507);
+#define TS_SC_PROPERTY_ID(X) \
+	X(507, version < EPIC_9_6_3) \
+	X(1507, version >= EPIC_9_6_3)
+
+CREATE_PACKET_VER_ID(TS_SC_PROPERTY, SessionType::GameClient, SessionPacketOrigin::Server);
 #undef TS_SC_PROPERTY_DEF
 

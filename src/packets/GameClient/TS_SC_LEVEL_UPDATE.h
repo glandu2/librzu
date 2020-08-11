@@ -7,6 +7,10 @@
 	_(simple) (int32_t, level) \
 	_(simple) (int32_t, job_level)
 
-CREATE_PACKET(TS_SC_LEVEL_UPDATE, 1002);
+#define TS_SC_LEVEL_UPDATE_ID(X) \
+	X(1002, version < EPIC_9_6_3) \
+	X(2002, version >= EPIC_9_6_3)
+
+CREATE_PACKET_VER_ID(TS_SC_LEVEL_UPDATE, SessionType::GameClient, SessionPacketOrigin::Server);
 #undef TS_SC_LEVEL_UPDATE_DEF
 

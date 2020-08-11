@@ -14,6 +14,10 @@ CREATE_STRUCT(TS_ADDED_SKILL_LIST);
 	_(count)   (uint16_t, skills) \
 	_(dynarray)(TS_ADDED_SKILL_LIST, skills)
 
-CREATE_PACKET(TS_SC_ADDED_SKILL_LIST, 404);
+#define TS_SC_ADDED_SKILL_LIST_ID(X) \
+	X(404, version < EPIC_9_6_3) \
+	X(1404, version >= EPIC_9_6_3)
+
+CREATE_PACKET_VER_ID(TS_SC_ADDED_SKILL_LIST, SessionType::GameClient, SessionPacketOrigin::Server);
 #undef TS_SC_ADDED_SKILL_LIST_DEF
 

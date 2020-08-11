@@ -10,6 +10,9 @@
 	_(dynstring)(argument, false, version >= EPIC_5_1) \
 	_(dynstring)(trigger, false)
 
-CREATE_PACKET(TS_SC_SHOW_WINDOW, 3003);
+#define TS_SC_SHOW_WINDOW_ID(X) \
+	X(3003, true)
+
+CREATE_PACKET_VER_ID(TS_SC_SHOW_WINDOW, SessionType::GameClient, SessionPacketOrigin::Server);
 #undef TS_SC_SHOW_WINDOW_DEF
 

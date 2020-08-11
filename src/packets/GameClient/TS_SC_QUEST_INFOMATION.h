@@ -15,6 +15,10 @@ enum TS_QUEST_PROGRESS : int32_t
 	_(simple)(TS_QUEST_PROGRESS, nProgress) \
 	_(simple)(uint16_t, trigger_length)
 
-CREATE_PACKET(TS_SC_QUEST_INFOMATION, 602);
+#define TS_SC_QUEST_INFOMATION_ID(X) \
+	X(602, version < EPIC_9_6_3) \
+	X(1602, version >= EPIC_9_6_3)
+
+CREATE_PACKET_VER_ID(TS_SC_QUEST_INFOMATION, SessionType::GameClient, SessionPacketOrigin::Server);
 #undef TS_SC_QUEST_INFOMATION_DEF
 

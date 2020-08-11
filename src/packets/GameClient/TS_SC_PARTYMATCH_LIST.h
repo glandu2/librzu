@@ -18,6 +18,9 @@ CREATE_STRUCT(TS_GROUP_FINDER_GROUP);
 	_(simple)(int32_t, total_group_num) \
 	_(array)(TS_GROUP_FINDER_GROUP, groups, 10)
 
-CREATE_PACKET(TS_SC_PARTYMATCH_LIST, 7001);
+#define TS_SC_PARTYMATCH_LIST_ID(X) \
+	X(7001, true)
+
+CREATE_PACKET_VER_ID(TS_SC_PARTYMATCH_LIST, SessionType::GameClient, SessionPacketOrigin::Server);
 #undef TS_SC_PARTYMATCH_LIST_DEF
 

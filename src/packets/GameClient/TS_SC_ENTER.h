@@ -149,8 +149,9 @@ CREATE_STRUCT(TS_SC_ENTER__PET_INFO);
 	_(simple) (TS_SC_ENTER__PET_INFO       , petInfo      , objType == EOT_Pet)
 
 #define TS_SC_ENTER_ID(X) \
-	X(3)
+	X(3, version < EPIC_9_6_3) \
+	X(1003, version >= EPIC_9_6_3)
 
-CREATE_PACKET_VER_ID(TS_SC_ENTER);
+CREATE_PACKET_VER_ID(TS_SC_ENTER, SessionType::GameClient, SessionPacketOrigin::Server);
 #undef TS_SC_ENTER_DEF
 

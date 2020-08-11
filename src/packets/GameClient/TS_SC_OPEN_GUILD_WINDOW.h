@@ -8,6 +8,10 @@
 	_(simple)(int32_t, one_time_password) \
 	_(string)(raw_server_name, 32)
 
-CREATE_PACKET(TS_SC_OPEN_GUILD_WINDOW, 651);
+#define TS_SC_OPEN_GUILD_WINDOW_ID(X) \
+	X(651, version < EPIC_9_6_3) \
+	X(1651, version >= EPIC_9_6_3)
+
+CREATE_PACKET_VER_ID(TS_SC_OPEN_GUILD_WINDOW, SessionType::GameClient, SessionPacketOrigin::Server);
 #undef TS_SC_OPEN_GUILD_WINDOW_DEF
 

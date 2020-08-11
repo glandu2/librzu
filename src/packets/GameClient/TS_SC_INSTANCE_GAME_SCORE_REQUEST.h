@@ -14,6 +14,9 @@
 	_(array)(int32_t, battle_arena_record_bingo, 2, version >= EPIC_8_1)
 
 // Since EPIC_6_3
-CREATE_PACKET(TS_SC_INSTANCE_GAME_SCORE_REQUEST, 4253);
+#define TS_SC_INSTANCE_GAME_SCORE_REQUEST_ID(X) \
+	X(4253, true)
+
+CREATE_PACKET_VER_ID(TS_SC_INSTANCE_GAME_SCORE_REQUEST, SessionType::GameClient, SessionPacketOrigin::Server);
 #undef TS_SC_INSTANCE_GAME_SCORE_REQUEST_DEF
 

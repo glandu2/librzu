@@ -204,13 +204,15 @@ ar_time_t AutoClientSession::getLocalGameTime() {
 }
 
 void AutoClientSession::onGamePacketReceived(const TS_MESSAGE* packet) {
-	switch(packet->id) {
+	packet_type_id_t packetType = PacketMetadata::convertPacketIdToTypeId(
+	    packet->id, SessionType::GameClient, SessionPacketOrigin::Server, packetVersion);
+	switch(packetType) {
 		case TS_SC_CHARACTER_LIST::packetID:
 			packet->process(this, &AutoClientSession::onCharacterList, packetVersion);
 			break;
 
-			case_packet_is(TS_SC_LOGIN_RESULT)
-			    packet->process(this, &AutoClientSession::onCharacterLoginResult, packetVersion);
+		case TS_SC_LOGIN_RESULT::packetID:
+			packet->process(this, &AutoClientSession::onCharacterLoginResult, packetVersion);
 			break;
 
 		case TS_SC_DISCONNECT_DESC::packetID:
@@ -232,7 +234,7 @@ void AutoClientSession::onGamePacketReceived(const TS_MESSAGE* packet) {
 	}
 
 	// TIMESYNC packet is sent by the server just before TS_SC_LOGIN_RESULT
-	if(isConnected() || packet->id == TS_TIMESYNC::packetID)
+	if(isConnected() || packet->id == TS_TIMESYNC::getId(packetVersion))
 		onPacketReceived(packet);
 }
 

@@ -24,6 +24,9 @@ CREATE_STRUCT(TS_CRACKER_INFO);
 	_(dynarray)(TS_CRACKER_INFO, cracker_info)
 
 // Since EPIC_7_3
-CREATE_PACKET(TS_CS_FOSTER_CREATURE, 6002);
+#define TS_CS_FOSTER_CREATURE_ID(X) \
+	X(6002, true)
+
+CREATE_PACKET_VER_ID(TS_CS_FOSTER_CREATURE, SessionType::GameClient, SessionPacketOrigin::Client);
 #undef TS_CS_FOSTER_CREATURE_DEF
 

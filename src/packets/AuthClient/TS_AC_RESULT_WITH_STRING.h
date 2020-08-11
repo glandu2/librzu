@@ -12,6 +12,6 @@
 	_(simple)(int32_t, login_flag) \
 	_(count)(int32_t, string) \
 	_(dynstring)(string, false)
-CREATE_PACKET(TS_AC_RESULT_WITH_STRING, 10002);
+CREATE_PACKET(TS_AC_RESULT_WITH_STRING, 10002, SessionType::AuthClient, SessionPacketOrigin::Server);
 
 

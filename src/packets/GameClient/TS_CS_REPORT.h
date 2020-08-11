@@ -9,6 +9,9 @@
 	_(count)(uint16_t, report) \
 	_(dynstring)(report, false)
 
-CREATE_PACKET(TS_CS_REPORT, 8000);
+#define TS_CS_REPORT_ID(X) \
+	X(8000, true)
+
+CREATE_PACKET_VER_ID(TS_CS_REPORT, SessionType::GameClient, SessionPacketOrigin::Client);
 #undef TS_CS_REPORT_DEF
 

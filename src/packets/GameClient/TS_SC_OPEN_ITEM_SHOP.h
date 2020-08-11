@@ -8,6 +8,10 @@
 	_(simple)(int32_t, one_time_password) \
 	_(string)(raw_server_name, 32)
 
-CREATE_PACKET(TS_SC_OPEN_ITEM_SHOP, 10001);
+#define TS_SC_OPEN_ITEM_SHOP_ID(X) \
+	X(10001, version < EPIC_9_6_3) \
+	X(9001, version >= EPIC_9_6_3)
+
+CREATE_PACKET_VER_ID(TS_SC_OPEN_ITEM_SHOP, SessionType::GameClient, SessionPacketOrigin::Server);
 #undef TS_SC_OPEN_ITEM_SHOP_DEF
 

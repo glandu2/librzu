@@ -23,6 +23,9 @@ enum TS_GROUP_FINDER_REQUEST_TYPE : int32_t
 	_(simple)(uint16_t, max_player_number) /* only with GFRT_Add */ \
 	_(string)(description, 32) /* only with GFRT_Add */
 
-CREATE_PACKET(TS_CS_PARTYMATCH_ACTION, 7000);
+#define TS_CS_PARTYMATCH_ACTION_ID(X) \
+	X(7000, true)
+
+CREATE_PACKET_VER_ID(TS_CS_PARTYMATCH_ACTION, SessionType::GameClient, SessionPacketOrigin::Client);
 #undef TS_CS_PARTYMATCH_ACTION_DEF
 

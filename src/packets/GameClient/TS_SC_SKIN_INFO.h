@@ -6,6 +6,10 @@
 	_(simple)(ar_handle_t, handle) \
 	_(simple)(int32_t, nSkinColor)
 
-CREATE_PACKET(TS_SC_SKIN_INFO, 224);
+#define TS_SC_SKIN_INFO_ID(X) \
+	X(224, version < EPIC_9_6_3) \
+	X(1224, version >= EPIC_9_6_3)
+
+CREATE_PACKET_VER_ID(TS_SC_SKIN_INFO, SessionType::GameClient, SessionPacketOrigin::Server);
 #undef TS_SC_SKIN_INFO_DEF
 

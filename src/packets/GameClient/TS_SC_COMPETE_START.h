@@ -6,6 +6,9 @@
 	_(simple)(int8_t, compete_type) \
 	_(string)(competitor, 31)
 
-CREATE_PACKET(TS_SC_COMPETE_START, 4505);
+#define TS_SC_COMPETE_START_ID(X) \
+	X(4505, true)
+
+CREATE_PACKET_VER_ID(TS_SC_COMPETE_START, SessionType::GameClient, SessionPacketOrigin::Server);
 #undef TS_SC_COMPETE_START_DEF
 

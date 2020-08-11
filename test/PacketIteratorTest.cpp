@@ -35,13 +35,13 @@ template<class Packet> struct FunctorCheckLatestId {
 		                  Packet::getName(),
 		                  Packet::getId(EPIC_LATEST));
 		processPacket<FunctorReturnLatestId>(
-		    SessionType::AuthClient, SessionPacketOrigin::Client, Packet::getId(EPIC_LATEST), id[0]);
+		    SessionType::AuthClient, SessionPacketOrigin::Client, EPIC_LATEST, Packet::getId(EPIC_LATEST), id[0]);
 		processPacket<FunctorReturnLatestId>(
-		    SessionType::AuthClient, SessionPacketOrigin::Server, Packet::getId(EPIC_LATEST), id[1]);
+		    SessionType::AuthClient, SessionPacketOrigin::Server, EPIC_LATEST, Packet::getId(EPIC_LATEST), id[1]);
 		processPacket<FunctorReturnLatestId>(
-		    SessionType::GameClient, SessionPacketOrigin::Client, Packet::getId(EPIC_LATEST), id[2]);
+		    SessionType::GameClient, SessionPacketOrigin::Client, EPIC_LATEST, Packet::getId(EPIC_LATEST), id[2]);
 		processPacket<FunctorReturnLatestId>(
-		    SessionType::GameClient, SessionPacketOrigin::Server, Packet::getId(EPIC_LATEST), id[3]);
+		    SessionType::GameClient, SessionPacketOrigin::Server, EPIC_LATEST, Packet::getId(EPIC_LATEST), id[3]);
 		EXPECT_TRUE(Packet::getId(EPIC_LATEST) == id[0] || Packet::getId(EPIC_LATEST) == id[1] ||
 		            Packet::getId(EPIC_LATEST) == id[2] || Packet::getId(EPIC_LATEST) == id[3])
 		    << "Expected one of " << id;

@@ -10,6 +10,10 @@
 	  _(impl)(string)(name, 20, version >= EPIC_9_6) \
 	_(simple)(int32_t, code)
 
-CREATE_PACKET(TS_SC_ADD_PET_INFO, 351);
+#define TS_SC_ADD_PET_INFO_ID(X) \
+	X(351, version < EPIC_9_6_3) \
+	X(1351, version >= EPIC_9_6_3)
+
+CREATE_PACKET_VER_ID(TS_SC_ADD_PET_INFO, SessionType::GameClient, SessionPacketOrigin::Server);
 #undef TS_SC_ADD_PET_INFO_DEF
 

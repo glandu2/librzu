@@ -71,7 +71,8 @@ private:
 	EventChain<SocketSession> onDataReceived();
 
 	template<class Packet> struct PrintPacketFunctor;
-	template<class Packet> RZU_EXTERN void logPacketJson(const Packet* packet, packet_version_t version, bool outgoing);
+	template<class Packet>
+	RZU_EXTERN void logPacketJson(const Packet* packet, packet_version_t version, bool outgoing, bool* ok = nullptr);
 
 protected:
 	packet_version_t packetVersion;

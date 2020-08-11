@@ -32,6 +32,10 @@
 	_(simple)(uint8_t, emblem_code, version >= EPIC_9_3 && version < EPIC_9_5, 0) \
 	_(pad)(8, padding, version >= EPIC_9_3 && version < EPIC_9_5)
 
-CREATE_PACKET(TS_SC_WEAR_INFO, 202);
+#define TS_SC_WEAR_INFO_ID(X) \
+	X(202, version < EPIC_9_6_3) \
+	X(1202, version >= EPIC_9_6_3)
+
+CREATE_PACKET_VER_ID(TS_SC_WEAR_INFO, SessionType::GameClient, SessionPacketOrigin::Server);
 #undef TS_SC_WEAR_INFO_DEF
 

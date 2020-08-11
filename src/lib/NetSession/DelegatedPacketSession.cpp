@@ -12,7 +12,7 @@ void DelegatedPacketSession::removePacketListener(uint16_t packetId, IListener* 
 }
 
 EventChain<PacketSession> DelegatedPacketSession::onPacketReceived(const TS_MESSAGE* packet) {
-	if(packet->id != TS_SC_RESULT::packetID) {
+	if(packet->id != TS_SC_RESULT::getId(packetVersion)) {
 		DELEGATE_HASH_CALL(packetListeners, packet->id, this, packet);
 	} else {
 		TS_SC_RESULT resultMsg;

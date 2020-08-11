@@ -12,6 +12,10 @@ CREATE_STRUCT(TS_BOOTH_NAME);
 	_(count)(int32_t, booths) \
 	_(dynarray)(TS_BOOTH_NAME, booths)
 
-CREATE_PACKET(TS_SC_GET_BOOTHS_NAME, 708);
+#define TS_SC_GET_BOOTHS_NAME_ID(X) \
+	X(708, version < EPIC_9_6_3) \
+	X(1708, version >= EPIC_9_6_3)
+
+CREATE_PACKET_VER_ID(TS_SC_GET_BOOTHS_NAME, SessionType::GameClient, SessionPacketOrigin::Server);
 #undef TS_SC_GET_BOOTHS_NAME_DEF
 

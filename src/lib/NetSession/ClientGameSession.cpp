@@ -40,12 +40,14 @@ EventChain<SocketSession> ClientGameSession::onDisconnected(bool causedByRemote)
 }
 
 EventChain<PacketSession> ClientGameSession::onPacketReceived(const TS_MESSAGE* packet) {
-	switch(packet->id) {
+	packet_type_id_t packetType = PacketMetadata::convertPacketIdToTypeId(
+	    packet->id, SessionType::GameClient, SessionPacketOrigin::Server, packetVersion);
+	switch(packetType) {
 		case TS_SC_RESULT::packetID: {
 			TS_SC_RESULT resultMsg;
 			bool deserializationOk = packet->process(resultMsg, packetVersion);
 
-			if(deserializationOk && resultMsg.request_msg_id == TS_CS_ACCOUNT_WITH_AUTH::packetID) {
+			if(deserializationOk && resultMsg.request_msg_id == TS_CS_ACCOUNT_WITH_AUTH::getId(packetVersion)) {
 				auth->onGameResult((TS_ResultCode) resultMsg.result);
 				if(resultMsg.result == TS_RESULT_SUCCESS)
 					onGameConnected();

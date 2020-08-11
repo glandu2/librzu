@@ -58,6 +58,10 @@ CREATE_STRUCT(TS_ITEM_INFO);
 	_(count) (uint16_t, items) \
 	_(dynarray) (TS_ITEM_INFO, items)
 
-CREATE_PACKET(TS_SC_INVENTORY, 207);
+#define TS_SC_INVENTORY_ID(X) \
+	X(207, version < EPIC_9_6_3) \
+	X(1207, version >= EPIC_9_6_3)
+
+CREATE_PACKET_VER_ID(TS_SC_INVENTORY, SessionType::GameClient, SessionPacketOrigin::Server);
 #undef TS_SC_INVENTORY_DEF
 

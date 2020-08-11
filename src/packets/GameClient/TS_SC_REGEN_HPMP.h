@@ -15,6 +15,10 @@
 	_(impl)(simple)(int32_t, mp, version >= EPIC_7_3) \
 	_(impl)(simple)(uint16_t, mp, version < EPIC_7_3) \
 
-CREATE_PACKET(TS_SC_REGEN_HPMP, 516);
+#define TS_SC_REGEN_HPMP_ID(X) \
+	X(516, version < EPIC_9_6_3) \
+	X(1516, version >= EPIC_9_6_3)
+
+CREATE_PACKET_VER_ID(TS_SC_REGEN_HPMP, SessionType::GameClient, SessionPacketOrigin::Server);
 #undef TS_SC_REGEN_HPMP_DEF
 

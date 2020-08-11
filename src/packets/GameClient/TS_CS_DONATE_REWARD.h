@@ -13,6 +13,10 @@ CREATE_STRUCT(TS_REWARD_INFO);
 	_(count)(int8_t, rewards) \
 	_(dynarray)(TS_REWARD_INFO, rewards)
 
-CREATE_PACKET(TS_CS_DONATE_REWARD, 259);
+#define TS_CS_DONATE_REWARD_ID(X) \
+	X(259, version < EPIC_9_6_3) \
+	X(1259, version >= EPIC_9_6_3)
+
+CREATE_PACKET_VER_ID(TS_CS_DONATE_REWARD, SessionType::GameClient, SessionPacketOrigin::Client);
 #undef TS_CS_DONATE_REWARD_DEF
 

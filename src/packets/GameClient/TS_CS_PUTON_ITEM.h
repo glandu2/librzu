@@ -7,6 +7,10 @@
 	_(simple) (ar_handle_t, item_handle) \
 	_(simple) (ar_handle_t, target_handle)
 
-CREATE_PACKET(TS_CS_PUTON_ITEM, 200);
+#define TS_CS_PUTON_ITEM_ID(X) \
+	X(200, version < EPIC_9_6_3) \
+	X(1200, version >= EPIC_9_6_3)
+
+CREATE_PACKET_VER_ID(TS_CS_PUTON_ITEM, SessionType::GameClient, SessionPacketOrigin::Client);
 #undef TS_CS_PUTON_ITEM_DEF
 

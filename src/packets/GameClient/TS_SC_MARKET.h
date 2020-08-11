@@ -20,6 +20,10 @@ CREATE_STRUCT(TS_MARKET_ITEM_INFO);
 	_(padmarker)(item_list_marker) \
 	_(pad)(4 * (uint32_t)items.size(), item_list_marker)
 
-CREATE_PACKET(TS_SC_MARKET, 250);
+#define TS_SC_MARKET_ID(X) \
+	X(250, version < EPIC_9_6_3) \
+	X(1250, version >= EPIC_9_6_3)
+
+CREATE_PACKET_VER_ID(TS_SC_MARKET, SessionType::GameClient, SessionPacketOrigin::Server);
 #undef TS_SC_MARKET_DEF
 

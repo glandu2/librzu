@@ -6,6 +6,9 @@
 	_(simple)(int32_t, nArenaID)
 
 // Since EPIC_8_1
-CREATE_PACKET(TS_CS_BATTLE_ARENA_JOIN_QUEUE, 4701);
+#define TS_CS_BATTLE_ARENA_JOIN_QUEUE_ID(X) \
+	X(4701, true)
+
+CREATE_PACKET_VER_ID(TS_CS_BATTLE_ARENA_JOIN_QUEUE, SessionType::GameClient, SessionPacketOrigin::Client);
 #undef TS_CS_BATTLE_ARENA_JOIN_QUEUE_DEF
 

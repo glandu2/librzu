@@ -32,5 +32,5 @@ CREATE_STRUCT(TS_ACCOUNT_PASSWORD_AES);
 	_(simple)(TS_ACCOUNT_PASSWORD_DES, passwordDes, version < EPIC_8_1_1_RSA) \
 	_(simple)(TS_ACCOUNT_PASSWORD_AES, passwordAes, version >= EPIC_8_1_1_RSA) \
 	_(endarray)(TS_ACCOUNT_ADDITIONAL_INFO, additionalInfos)
-CREATE_PACKET(TS_CA_ACCOUNT, 10010);
+CREATE_PACKET(TS_CA_ACCOUNT, 10010, SessionType::AuthClient, SessionPacketOrigin::Client);
 

@@ -17,6 +17,9 @@ CREATE_STRUCT(TS_GROUP_FINDER_DETAIL);
 	_(simple)(ar_handle_t, master_handle) \
 	_(array)(TS_GROUP_FINDER_DETAIL, members, 10)
 
-CREATE_PACKET(TS_SC_PARTYMATCH_MEMBER, 7002);
+#define TS_SC_PARTYMATCH_MEMBER_ID(X) \
+	X(7002, true)
+
+CREATE_PACKET_VER_ID(TS_SC_PARTYMATCH_MEMBER, SessionType::GameClient, SessionPacketOrigin::Server);
 #undef TS_SC_PARTYMATCH_MEMBER_DEF
 

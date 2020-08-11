@@ -20,6 +20,10 @@ CREATE_STRUCT(TS_ITEM_KEEPING_INFO);
 	_(simple)(int32_t, keeping_info_count) \
 	_(array) (TS_ITEM_KEEPING_INFO, keeping_info, 40)
 
-CREATE_PACKET(TS_SC_ITEM_KEEPING_LIST, 1351);
+#define TS_SC_ITEM_KEEPING_LIST_ID(X) \
+	X(1351, version < EPIC_9_6_3) \
+	X(2351, version >= EPIC_9_6_3)
+
+CREATE_PACKET_VER_ID(TS_SC_ITEM_KEEPING_LIST, SessionType::GameClient, SessionPacketOrigin::Server);
 #undef TS_SC_ITEM_KEEPING_LIST_DEF
 

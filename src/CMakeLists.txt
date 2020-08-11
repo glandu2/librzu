@@ -23,34 +23,30 @@ function(generate_packets_includes P_FOLDER P_INCLUDE_PART P_FUNCTION_SWITCH_PAR
 	list(FILTER packet_headers_origin_server EXCLUDE REGEX "TS_${P_CLIENT_PKT_PREFIX}_.*")
 	list(FILTER packet_headers_origin_client EXCLUDE REGEX "TS_${P_SERVER_PKT_PREFIX}_.*")
 
+	# TS_SC_RESULT is manually added to all session types
+	list(FILTER packet_headers_origin_server EXCLUDE REGEX "TS_SC_RESULT")
+
 	set(code_function_content "${${P_FUNCTION_SWITCH_PART}}\
 	if(type == SessionType::${P_FOLDER} && origin == SessionPacketOrigin::Server) {
-		switch(packetId) {
+		switch(packetType) {
+			PACKET_CASE(TS_SC_RESULT);
 ")
 	foreach(header ${packet_headers_origin_server})
 		string(REPLACE ".h" "" header ${header})
 		string(APPEND code_function_content "\
-#ifdef ${header}_ID
-			PACKET_CASE_2(${header});
-#else
 			PACKET_CASE(${header});
-#endif
 ")
 	endforeach()
 
 	string(APPEND code_function_content "\
 		}
 	} else if(type == SessionType::${P_FOLDER} && origin == SessionPacketOrigin::Client) {
-		switch(packetId) {
+		switch(packetType) {
 ")
 	foreach(header ${packet_headers_origin_client})
 		string(REPLACE ".h" "" header ${header})
 		string(APPEND code_function_content "\
-#ifdef ${header}_ID
-			PACKET_CASE_2(${header});
-#else
 			PACKET_CASE(${header});
-#endif
 ")
 	endforeach()
 string(APPEND code_function_content "\
@@ -75,6 +71,9 @@ generate_packets_includes("GameClient" INCLUDE_PART FUNCTION_SWITCH_PART FUNCTIO
 configure_file(packets/PacketIterator.h.in packets/PacketIterator.h @ONLY NEWLINE_STYLE UNIX)
 list(APPEND HEADER_FILES packets/PacketIterator.h.in)
 list(APPEND HEADER_FILES ${CMAKE_CURRENT_BINARY_DIR}/packets/PacketIterator.h)
+
+# Generate PacketMetadata.cpp
+
 
 include(AddVersionInfo OPTIONAL RESULT_VARIABLE versioncmakefound)
 if( versioncmakefound )

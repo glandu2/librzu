@@ -6,6 +6,10 @@
 	_(simple) (float, x) \
 	_(simple) (float, y)
 
-CREATE_PACKET(TS_CS_CHANGE_LOCATION, 900);
+#define TS_CS_CHANGE_LOCATION_ID(X) \
+	X(900, version < EPIC_9_6_3) \
+	X(1900, version >= EPIC_9_6_3)
+
+CREATE_PACKET_VER_ID(TS_CS_CHANGE_LOCATION, SessionType::GameClient, SessionPacketOrigin::Client);
 #undef TS_CS_CHANGE_LOCATION_DEF
 

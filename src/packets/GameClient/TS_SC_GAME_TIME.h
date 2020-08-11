@@ -9,6 +9,10 @@
 	_(impl)(simple)(uint64_t, game_time, version >= EPIC_4_1_1) \
 	_(impl)(simple)(uint32_t, game_time, version < EPIC_4_1_1)
 
-CREATE_PACKET(TS_SC_GAME_TIME, 1101);
+#define TS_SC_GAME_TIME_ID(X) \
+	X(1101, version < EPIC_9_6_3) \
+	X(2101, version >= EPIC_9_6_3)
+
+CREATE_PACKET_VER_ID(TS_SC_GAME_TIME, SessionType::GameClient, SessionPacketOrigin::Server);
 #undef TS_SC_GAME_TIME_DEF
 

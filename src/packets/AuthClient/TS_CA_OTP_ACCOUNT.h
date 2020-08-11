@@ -17,5 +17,5 @@ CREATE_STRUCT(TS_OTP_ACCOUNT_PASSWORD_AES);
 	_(impl)(string)(account, 19, version <  EPIC_5_1) \
 	_(simple)(TS_OTP_ACCOUNT_PASSWORD_PLAIN, passwordDes, version < EPIC_8_1_1_RSA) \
 	_(simple)(TS_OTP_ACCOUNT_PASSWORD_AES, passwordAes, version >= EPIC_8_1_1_RSA)
-CREATE_PACKET(TS_CA_OTP_ACCOUNT, 10011);
+CREATE_PACKET(TS_CA_OTP_ACCOUNT, 10011, SessionType::AuthClient, SessionPacketOrigin::Client);
 

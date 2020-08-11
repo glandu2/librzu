@@ -8,7 +8,11 @@
 	_(simple)(uint32_t, base_random_skill_id, version >= EPIC_8_2) \
 	_(simple)(int16_t, skill_level, version >= EPIC_4_1_1) // not in epic 4.0
 
-CREATE_PACKET(TS_CS_LEARN_SKILL, 402);
+#define TS_CS_LEARN_SKILL_ID(X) \
+	X(402, version < EPIC_9_6_3) \
+	X(1402, version >= EPIC_9_6_3)
+
+CREATE_PACKET_VER_ID(TS_CS_LEARN_SKILL, SessionType::GameClient, SessionPacketOrigin::Client);
 #undef TS_CS_LEARN_SKILL_DEF
 
 /*

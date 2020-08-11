@@ -17,6 +17,10 @@ CREATE_STRUCT(MOVE_INFO);
 	_(count) (uint16_t, move_infos) \
 	_(dynarray)(MOVE_INFO, move_infos)
 
-CREATE_PACKET(TS_SC_MOVE, 8);
+#define TS_SC_MOVE_ID(X) \
+	X(8, version < EPIC_9_6_3) \
+	X(1008, version >= EPIC_9_6_3)
+
+CREATE_PACKET_VER_ID(TS_SC_MOVE, SessionType::GameClient, SessionPacketOrigin::Server);
 #undef TS_SC_MOVE_DEF
 

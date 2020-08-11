@@ -17,6 +17,10 @@ enum TS_RESURRECTION_TYPE : int8_t
 	_(simple)(bool, use_state, version < EPIC_6_1) \
 	_(simple)(bool, use_potion, version >= EPIC_4_1 && version < EPIC_6_1)
 
-CREATE_PACKET(TS_CS_RESURRECTION, 513);
+#define TS_CS_RESURRECTION_ID(X) \
+	X(513, version < EPIC_9_6_3) \
+	X(1513, version >= EPIC_9_6_3)
+
+CREATE_PACKET_VER_ID(TS_CS_RESURRECTION, SessionType::GameClient, SessionPacketOrigin::Client);
 #undef TS_CS_RESURRECTION_DEF
 

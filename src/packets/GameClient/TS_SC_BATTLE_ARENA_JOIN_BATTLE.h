@@ -11,6 +11,9 @@
 	  _(impl)(string)(name, 20, version >= EPIC_9_6)
 
 // Since EPIC_8_1
-CREATE_PACKET(TS_SC_BATTLE_ARENA_JOIN_BATTLE, 4713);
+#define TS_SC_BATTLE_ARENA_JOIN_BATTLE_ID(X) \
+	X(4713, true)
+
+CREATE_PACKET_VER_ID(TS_SC_BATTLE_ARENA_JOIN_BATTLE, SessionType::GameClient, SessionPacketOrigin::Server);
 #undef TS_SC_BATTLE_ARENA_JOIN_BATTLE_DEF
 

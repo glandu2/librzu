@@ -13,6 +13,9 @@
 	_(simple)(int32_t, gain_point) \
 	_(simple)(int8_t, result_type)
 
-CREATE_PACKET(TS_SC_HUNTAHOLIC_HUNTING_SCORE, 4006);
+#define TS_SC_HUNTAHOLIC_HUNTING_SCORE_ID(X) \
+	X(4006, true)
+
+CREATE_PACKET_VER_ID(TS_SC_HUNTAHOLIC_HUNTING_SCORE, SessionType::GameClient, SessionPacketOrigin::Server);
 #undef TS_SC_HUNTAHOLIC_HUNTING_SCORE_DEF
 

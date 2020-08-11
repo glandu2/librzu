@@ -8,6 +8,10 @@
 	_(simple)(float, z) \
 	_(simple)(int8_t, layer)
 
-CREATE_PACKET(TS_SC_WARP, 12);
+#define TS_SC_WARP_ID(X) \
+	X(12, version < EPIC_9_6_3) \
+	X(1012, version >= EPIC_9_6_3)
+
+CREATE_PACKET_VER_ID(TS_SC_WARP, SessionType::GameClient, SessionPacketOrigin::Server);
 #undef TS_SC_WARP_DEF
 
