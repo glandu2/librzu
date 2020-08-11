@@ -24,7 +24,7 @@ function(generate_packets_includes P_FOLDER P_INCLUDE_PART P_FUNCTION_SWITCH_PAR
 	list(FILTER packet_headers_origin_client EXCLUDE REGEX "TS_${P_SERVER_PKT_PREFIX}_.*")
 
 	# TS_SC_RESULT is manually added to all session types
-	list(FILTER packet_headers_origin_server EXCLUDE REGEX "TS_SC_RESULT")
+	list(FILTER packet_headers_origin_server EXCLUDE REGEX "TS_SC_RESULT.h$")
 
 	set(code_function_content "${${P_FUNCTION_SWITCH_PART}}\
 	if(type == SessionType::${P_FOLDER} && origin == SessionPacketOrigin::Server) {

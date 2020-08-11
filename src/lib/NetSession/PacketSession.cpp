@@ -123,7 +123,8 @@ void PacketSession::logPacketWithoutJson(bool outgoing, const TS_MESSAGE* msg, c
 
 	// If packetName is not known, guess it from ID
 	if(!packetName)
-		packetName = PacketMetadata::getPacketName(msg->id, SessionType::Any, SessionPacketOrigin::Any, packetVersion);
+		packetName = PacketMetadata::getPacketName(
+		    msg->id, sessionType, PacketMetadata::getPacketOriginFromDirection(outgoing, packetOrigin), packetVersion);
 
 	if(!packetName)
 		packetName = "unknown";

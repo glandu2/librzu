@@ -25,32 +25,41 @@ template<class Packet> struct FunctorReturnLatestId {
 };
 
 template<class Packet> struct FunctorCheckLatestId {
-	void operator()(const char* prefix) {
-		int id[4] = {-1, -1, -1, -1};
-
+	void operator()() {
 		Object::logStatic(Object::LL_Debug,
 		                  "FunctorCheckLatestId",
-		                  "Checking %s  %s: %d\n",
-		                  prefix,
+		                  "Checking %s: %d\n",
 		                  Packet::getName(),
 		                  Packet::getId(EPIC_LATEST));
-		processPacket<FunctorReturnLatestId>(
-		    SessionType::AuthClient, SessionPacketOrigin::Client, EPIC_LATEST, Packet::getId(EPIC_LATEST), id[0]);
-		processPacket<FunctorReturnLatestId>(
-		    SessionType::AuthClient, SessionPacketOrigin::Server, EPIC_LATEST, Packet::getId(EPIC_LATEST), id[1]);
-		processPacket<FunctorReturnLatestId>(
-		    SessionType::GameClient, SessionPacketOrigin::Client, EPIC_LATEST, Packet::getId(EPIC_LATEST), id[2]);
-		processPacket<FunctorReturnLatestId>(
-		    SessionType::GameClient, SessionPacketOrigin::Server, EPIC_LATEST, Packet::getId(EPIC_LATEST), id[3]);
-		EXPECT_TRUE(Packet::getId(EPIC_LATEST) == id[0] || Packet::getId(EPIC_LATEST) == id[1] ||
-		            Packet::getId(EPIC_LATEST) == id[2] || Packet::getId(EPIC_LATEST) == id[3])
-		    << "Expected one of " << id;
+		std::vector<SessionType> sessionTypes;
+		std::vector<SessionPacketOrigin> origins;
+
+		if(Packet::SESSION_TYPE != SessionType::Any) {
+			sessionTypes.push_back(Packet::SESSION_TYPE);
+		} else {
+			sessionTypes.push_back(SessionType::AuthClient);
+			sessionTypes.push_back(SessionType::GameClient);
+		}
+
+		if(Packet::ORIGIN != SessionPacketOrigin::Any) {
+			origins.push_back(Packet::ORIGIN);
+		} else {
+			origins.push_back(SessionPacketOrigin::Client);
+			origins.push_back(SessionPacketOrigin::Server);
+		}
+
+		for(size_t i = 0; i < sessionTypes.size(); i++) {
+			for(size_t j = 0; j < origins.size(); j++) {
+				int id = 0;
+				processPacket<FunctorReturnLatestId>(
+				    sessionTypes[i], origins[j], EPIC_LATEST, Packet::getId(EPIC_LATEST), id);
+				EXPECT_EQ(id, Packet::getId(EPIC_LATEST))
+				    << "with session type " << (int) sessionTypes[i] << " and origin " << (int) origins[j];
+			}
+		}
 	}
 };
 
 TEST(PacketIterator, process) {
-	iteratePackets<FunctorCheckLatestId>("Client -> Auth  ");
-	iteratePackets<FunctorCheckLatestId>("Auth   -> Client");
-	iteratePackets<FunctorCheckLatestId>("Client -> GS    ");
-	iteratePackets<FunctorCheckLatestId>("GS     -> Client");
+	iteratePackets<FunctorCheckLatestId>();
 }
