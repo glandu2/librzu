@@ -1,4 +1,5 @@
 #include "GlobalCoreConfig.h"
+#include "NetSession/EncryptedSession.h"
 #include "rzuGitVersion.h"
 
 GlobalCoreConfig* GlobalCoreConfig::get() {
@@ -23,4 +24,10 @@ void GlobalCoreConfig::updateOtherFile(IListener* instance) {
 
 	thisInstance->app.configfile.setDefault(thisInstance->app.appName.get() + ".opt");
 	thisInstance->log.file.setDefault(thisInstance->app.appName.get() + ".log");
+}
+
+void GlobalCoreConfig::App::updateStreamCipher(IListener* instance) {
+	GlobalCoreConfig::App* thisInstance = (GlobalCoreConfig::App*) instance;
+
+	encryptedSessionCachedCipher.prepare(thisInstance->streamCipher.get().c_str());
 }

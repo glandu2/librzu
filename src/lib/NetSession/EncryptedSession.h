@@ -22,10 +22,10 @@ protected:
 private:
 	RC4Cipher inputEnc, outputEnc;
 };
-extern RZU_EXTERN RC4Cipher cachedCipher;
+extern RZU_EXTERN RC4Cipher encryptedSessionCachedCipher;
 
 template<class T> void EncryptedSession<T>::initRC4Cipher() {
-	outputEnc = inputEnc = cachedCipher;
+	outputEnc = inputEnc = encryptedSessionCachedCipher;
 }
 
 template<class T> bool EncryptedSession<T>::connect(const char* url, uint16_t port) {
@@ -60,4 +60,3 @@ template<class T> size_t EncryptedSession<T>::write(const void* buffer, size_t s
 
 	return ret;
 }
-

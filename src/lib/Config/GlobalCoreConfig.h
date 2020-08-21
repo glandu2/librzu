@@ -19,24 +19,30 @@ struct ListenerConfig {
 };
 
 struct RZU_EXTERN GlobalCoreConfig : public IListener {
-	struct App {
+	struct App : public IListener {
 		cval<std::string>&appName, &configfile;
 		cval<bool>& useTcpNoDelay;
 		cval<bool>& showHiddenConfig;
 		cval<std::string>& encoding;
+		cval<std::string>& streamCipher;
 
 		App()
 		    : appName(CFG_CREATE("core.appname", Utils::getApplicationName())),
 		      configfile(CFG_CREATE(CONFIG_FILE_KEY, std::string(Utils::getApplicationName()) + ".opt")),
 		      useTcpNoDelay(CFG_CREATE("core.usetcpnodelay", false)),
 		      showHiddenConfig(CFG_CREATE("core.config.showhidden", false)),
-		      encoding(CFG_CREATE("core.encoding", "CP1252")) {
+		      encoding(CFG_CREATE("core.encoding", "CP1252")),
+		      streamCipher(CFG_CREATE("core.stream_cipher", "}h79q~B%al;k'y $E", true)) {
 			Utils::autoSetAbsoluteDir(configfile);
+			streamCipher.addListener(this, &updateStreamCipher);
+			updateStreamCipher(this);
 		}
+		static void updateStreamCipher(IListener* instance);
 	} app;
 
 	struct Client {
-		cval<std::string>&authVersion, &gameVersion;
+		cval<std::string>& authVersion;
+		cval<std::string>& gameVersion;
 
 		Client()
 		    : authVersion(CFG_CREATE("client.auth_version", "201507080")),
@@ -77,7 +83,7 @@ struct RZU_EXTERN GlobalCoreConfig : public IListener {
 		cval<bool>& dumpJson;
 
 		PacketLog()
-		    : dumpRaw(CFG_CREATE("packetdump.dump_raw", false)), dumpJson(CFG_CREATE("packetdump.dump_json", true)) {}
+		    : dumpRaw(CFG_CREATE("trafficdump.dump_raw", false)), dumpJson(CFG_CREATE("trafficdump.dump_json", true)) {}
 	} packetLog;
 
 	struct Statistics {
@@ -94,4 +100,3 @@ struct RZU_EXTERN GlobalCoreConfig : public IListener {
 	static void init();
 	static void updateOtherFile(IListener* instance);
 };
-
