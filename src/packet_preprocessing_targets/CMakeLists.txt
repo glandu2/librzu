@@ -1,11 +1,11 @@
 cmake_minimum_required(VERSION 2.8.12)
 
-option(LIBRZU_ENABLE_PACKET_PREPROCESS_TARGETS
+option(RZU_ENABLE_PACKET_PREPROCESS_TARGETS
 	"If enabled, one target for each packet will be generated to generate the C++ struct of that packet"
 	OFF
 )
 
-if(LIBRZU_ENABLE_PACKET_PREPROCESS_TARGETS)
+if(RZU_ENABLE_PACKET_PREPROCESS_TARGETS)
 	find_program(CLANG_FORMAT_EXECUTABLE
 				 NAMES clang-format
 					   clang-format-7
