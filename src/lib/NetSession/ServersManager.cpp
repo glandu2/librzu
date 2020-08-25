@@ -17,7 +17,7 @@ ServersManager::ServersManager() {
 		                                   "server.list : list all servers\r\n");
 		ConsoleCommands::get()->addCommand("server.start",
 		                                   "start",
-		                                   0,
+		                                   1,
 		                                   1,
 		                                   &commandStartServer,
 		                                   "Start a server (use server.list to get server names)",
@@ -25,7 +25,7 @@ ServersManager::ServersManager() {
 		                                   "server.start all           : Start all servers\r\n");
 		ConsoleCommands::get()->addCommand("server.stop",
 		                                   "stop",
-		                                   0,
+		                                   1,
 		                                   1,
 		                                   &commandStopServer,
 		                                   "Stop a server (use server.list to get server names)",
