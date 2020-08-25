@@ -63,13 +63,13 @@ template<> struct DbTypeBinding<int16_t> {
 	enum { C_TYPE = SQL_C_SHORT, SQL_TYPE = SQL_SMALLINT, SQL_SIZE = 5, SQL_PRECISION = 0 };
 };
 template<> struct DbTypeBinding<uint16_t> {
-	enum { C_TYPE = SQL_C_USHORT, SQL_TYPE = SQL_SMALLINT, SQL_SIZE = 5, SQL_PRECISION = 0 };
+	enum { C_TYPE = SQL_C_USHORT, SQL_TYPE = SQL_INTEGER, SQL_SIZE = 5, SQL_PRECISION = 0 };
 };
 template<> struct DbTypeBinding<int32_t> {
 	enum { C_TYPE = SQL_C_LONG, SQL_TYPE = SQL_INTEGER, SQL_SIZE = 10, SQL_PRECISION = 0 };
 };
 template<> struct DbTypeBinding<uint32_t> {
-	enum { C_TYPE = SQL_C_ULONG, SQL_TYPE = SQL_INTEGER, SQL_SIZE = 10, SQL_PRECISION = 0 };
+	enum { C_TYPE = SQL_C_ULONG, SQL_TYPE = SQL_BIGINT, SQL_SIZE = 10, SQL_PRECISION = 0 };
 };
 template<> struct DbTypeBinding<int64_t> {
 	enum { C_TYPE = SQL_C_SBIGINT, SQL_TYPE = SQL_BIGINT, SQL_SIZE = 19, SQL_PRECISION = 0 };
@@ -107,4 +107,3 @@ enum DbValueType { DVT_Primitive, DVT_StdString, DVT_DbString };
 template<typename T> struct IsStdString { static constexpr DbValueType value = DVT_Primitive; };
 template<> struct IsStdString<std::string> { static constexpr DbValueType value = DVT_StdString; };
 template<size_t N> struct IsStdString<DbString<N>> { static constexpr DbValueType value = DVT_DbString; };
-
