@@ -51,10 +51,11 @@ void DbConnection::releaseAndClose() {
 }
 
 void DbConnection::setAutoCommit(bool enable) {
-	checkResult(
-	    SQLSetConnectAttr(
-	        hdbc, SQL_ATTR_AUTOCOMMIT, (SQLPOINTER)(enable ? SQL_AUTOCOMMIT_ON : SQL_AUTOCOMMIT_OFF), SQL_IS_UINTEGER),
-	    "SQL_ATTR_AUTOCOMMIT");
+	checkResult(SQLSetConnectAttr(hdbc,
+	                              SQL_ATTR_AUTOCOMMIT,
+	                              (SQLPOINTER)(intptr_t)(enable ? SQL_AUTOCOMMIT_ON : SQL_AUTOCOMMIT_OFF),
+	                              SQL_IS_UINTEGER),
+	            "SQL_ATTR_AUTOCOMMIT");
 }
 
 void DbConnection::endTransaction(bool commit) {
