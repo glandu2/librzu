@@ -61,10 +61,17 @@ RZU_EXTERN void PacketSession::logPacketJson(const Packet* packet, packet_versio
 		level = LL_Trace;
 	}
 
+	const char* fromName = nullptr;
+	const char* toName = nullptr;
+
+	PacketMetadata::getPacketOriginName(outgoing, sessionType, packetOrigin, &fromName, &toName);
+
 	packetLogger->log(level,
 	                  getStream(),
-	                  "Packet json %s id: %5d (%s):\n%s\n",
-	                  (outgoing) ? "out" : "in ",
+	                  "Packet json %s, %s -> %s id: %5d (%s):\n%s\n",
+	                  (outgoing) ? "out" : "in",
+	                  fromName,
+	                  toName,
 	                  outgoing ? packet->getId(version) : packet->getReceivedId(),
 	                  packet->getName(),
 	                  jsonData.c_str());
@@ -105,12 +112,19 @@ void PacketSession::logPacket(bool outgoing, const TS_MESSAGE* msg) {
 		                                  &ok);
 
 		if(!ok) {
+			const char* fromName = nullptr;
+			const char* toName = nullptr;
+
+			PacketMetadata::getPacketOriginName(outgoing, sessionType, packetOrigin, &fromName, &toName);
+
 			log(Object::LL_Debug, "Can't log json for packet id %d (unknown packet)\n", msg->id);
 			getStream()->packetLog(LL_Debug,
 			                       reinterpret_cast<const unsigned char*>(msg) + sizeof(TS_MESSAGE),
 			                       (int) msg->size - sizeof(TS_MESSAGE),
-			                       "Packet %s id: %5d (unknown), size: %d\n",
-			                       (outgoing) ? "out" : "in ",
+			                       "Packet %s, %s -> %s id: %5d (unknown), size: %d\n",
+			                       (outgoing) ? "out" : "in",
+			                       fromName,
+			                       toName,
 			                       msg->id,
 			                       int(msg->size - sizeof(TS_MESSAGE)));
 		}
@@ -129,9 +143,16 @@ void PacketSession::logPacketWithoutJson(bool outgoing, const TS_MESSAGE* msg, c
 	if(!packetName)
 		packetName = "unknown";
 
+	const char* fromName = nullptr;
+	const char* toName = nullptr;
+
+	PacketMetadata::getPacketOriginName(outgoing, sessionType, packetOrigin, &fromName, &toName);
+
 	log(LL_Trace,
-	    "Packet %s id: %5d (%s), size: %d\n",
-	    (outgoing) ? "out" : " in",
+	    "Packet %s, %s -> %s id: %5d (%s), size: %d\n",
+	    (outgoing) ? "out" : "in",
+	    fromName,
+	    toName,
 	    msg->id,
 	    packetName,
 	    int(msg->size - sizeof(TS_MESSAGE)));
@@ -139,8 +160,10 @@ void PacketSession::logPacketWithoutJson(bool outgoing, const TS_MESSAGE* msg, c
 	getStream()->packetLog(LL_Debug,
 	                       reinterpret_cast<const unsigned char*>(msg) + sizeof(TS_MESSAGE),
 	                       (int) msg->size - sizeof(TS_MESSAGE),
-	                       "Packet %s id: %5d (%s), size: %d\n",
-	                       (outgoing) ? "out" : "in ",
+	                       "Packet %s, %s -> %s id: %5d (%s), size: %d\n",
+	                       (outgoing) ? "out" : "in",
+	                       fromName,
+	                       toName,
 	                       msg->id,
 	                       packetName,
 	                       int(msg->size - sizeof(TS_MESSAGE)));

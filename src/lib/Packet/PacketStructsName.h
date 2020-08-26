@@ -10,6 +10,11 @@ typedef int32_t packet_type_id_t;
 
 namespace PacketMetadata {
 RZU_EXTERN SessionPacketOrigin getPacketOriginFromDirection(bool outgoing, SessionPacketOrigin selfSessionPacketOrigin);
+RZU_EXTERN void getPacketOriginName(bool outgoing,
+                                    SessionType sessionType,
+                                    SessionPacketOrigin selfSessionPacketOrigin,
+                                    const char** fromNamePtr,
+                                    const char** toNamePtr);
 
 RZU_EXTERN const char* getPacketName(unsigned int id,
                                      SessionType sessionType,

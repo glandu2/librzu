@@ -116,4 +116,69 @@ SessionPacketOrigin getPacketOriginFromDirection(bool outgoing, SessionPacketOri
 	return SessionPacketOrigin::Client;
 }
 
+void getPacketOriginName(bool outgoing,
+                         SessionType sessionType,
+                         SessionPacketOrigin selfSessionPacketOrigin,
+                         const char** fromNamePtr,
+                         const char** toNamePtr) {
+	const char* serverName = nullptr;
+	const char* clientName = nullptr;
+
+	switch(sessionType) {
+		case SessionType::AuthClient:
+			serverName = "Auth";
+			clientName = "Client";
+			break;
+		case SessionType::AuthGame:
+			serverName = "Auth";
+			clientName = "Game";
+			break;
+		case SessionType::GameClient:
+			serverName = "Game";
+			clientName = "Client";
+			break;
+		case SessionType::UploadClient:
+			serverName = "Upload";
+			clientName = "Client";
+			break;
+		case SessionType::UploadGame:
+			serverName = "Upload";
+			clientName = "Game";
+			break;
+		default:
+			break;
+	}
+
+	SessionPacketOrigin origin = getPacketOriginFromDirection(outgoing, selfSessionPacketOrigin);
+	const char* fromName = nullptr;
+	const char* toName = nullptr;
+
+	if(origin == SessionPacketOrigin::Client) {
+		fromName = clientName;
+		toName = serverName;
+	} else if(origin == SessionPacketOrigin::Server) {
+		fromName = serverName;
+		toName = clientName;
+	}
+
+	if(fromName == nullptr) {
+		if(outgoing)
+			fromName = "local";
+		else
+			fromName = "remote";
+	}
+	if(toName == nullptr) {
+		if(outgoing)
+			toName = "remote";
+		else
+			toName = "local";
+	}
+
+	if(fromNamePtr)
+		*fromNamePtr = fromName;
+
+	if(toNamePtr)
+		*toNamePtr = toName;
+}
+
 }  // namespace PacketMetadata
